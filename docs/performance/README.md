@@ -24,7 +24,7 @@
 | `engine/src/sprite2d/contracts_bench.mbt` | 3 | 2D 描画コマンド構築 (particle dispatch) |
 | `examples/games/arena3d/game_bench.mbt` | 3 | arena3d の update / scene graph / renderer3d facade |
 | `engine/sprite_packer/packer_bench.mbt` | 2 | スプライトパッキング |
-| `examples/games/{action_rpg,flappy_bird,survivor}/game_bench.mbt` | 2 each | ゲーム例の update / view |
+| `examples/games/{flappy_bird,survivor}/game_bench.mbt` | 2 each | ゲーム例の update / view |
 
 ## 計測コマンド
 

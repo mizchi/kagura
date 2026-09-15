@@ -1,6 +1,8 @@
 import {copyWebRuntimeAssets} from './web-runtime-assets.mjs';
 import {buildWebRuntime} from './build-web-runtime.mjs';
 import { emitExamplePage } from './web-demo-package.mjs';
+import { emitGameGallery } from './pages-game-gallery.mjs';
+import { catalog } from './example-catalog.mjs';
 import { spawnSync } from "node:child_process";
 import {
   cpSync,
@@ -39,6 +41,8 @@ function buildPages() {
   }
 
   buildStudio();
+
+  emitGameGallery({ site: SITE, catalog });
 
   writeFileSync(join(SITE, "index.html"), renderLandingHtml({ demos: DEMO_PAGES }));
   console.log(`Done! Site built at ${SITE}`);

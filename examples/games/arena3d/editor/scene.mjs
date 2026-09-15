@@ -4,6 +4,14 @@ export const profile = {
   title: 'Arena 3D',
   spawnHeight: 0.5,
   components: {
+    crate: {
+      asset: 'primitive.box', position: [-2, 0.5, -2],
+      scale: [1, 1, 1], color: 14195287,
+    },
+    ball: {
+      asset: 'primitive.sphere', position: [2, 4, -3],
+      scale: [1, 1, 1], fixedScale: true, color: 5490648,
+    },
     floor: {
       asset: 'primitive.box',
       position: [0, -0.125, 0],

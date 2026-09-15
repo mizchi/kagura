@@ -17,7 +17,7 @@ fn main {
     audio_ctx=state.audio_ctx,
     width=screen_w,
     height=screen_h,
-    title="3D Arena Collector",
+    title="Arena 3D",
     canvas="#app",
   )
 }

@@ -80,11 +80,11 @@ just run-native native_triangle
 `just run-native <name>` は Homebrew の GLFW ヘッダ・ライブラリパスを自動設定します:
 
 ```bash
-# action_rpg を native で実行
-just run-native action_rpg
+# flappy_bird を native で実行
+just run-native flappy_bird
 
 # 手動で実行する場合は CPATH / LIBRARY_PATH の指定が必要
-cd examples/games/action_rpg && \
+cd examples/games/flappy_bird && \
   CPATH="$(brew --prefix glfw)/include:${CPATH:-}" \
   LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" \
   moon run . --target native
@@ -176,7 +176,6 @@ fn main {
 | `scene_demo`         | Scene | 宣言的 API の最小デモ              |
 | `flappy_bird`        | Scene | 入力処理付き 2D ゲームループ        |
 | `survivor`           | Scene | エンティティ・武器・カメラの複合ゲーム |
-| `action_rpg`         | Scene | タイルマップ・AI・UI のアクション RPG |
 | `arena3d`            | Low-level | 3D アリーナプロトタイプ (experimental) |
 | `runtime_smoke`      | Low-level | 最小 JS smoke テスト             |
 | `runtime_smoke_native` | Low-level | 最小 native smoke（非可視）テスト |

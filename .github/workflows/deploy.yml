@@ -40,7 +40,8 @@ jobs:
       - run: moon update
       - name: Install Studio build dependencies
         run: just studio-install
-      - run: node --test scripts/web-demo-package.test.mjs scripts/web-demo-pages.test.mjs scripts/moon-build-artifact-utils.test.mjs
+      - run: just pages-gallery-test
+      - run: node --test scripts/moon-build-artifact-utils.test.mjs
       - run: bash scripts/build-pages.sh
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

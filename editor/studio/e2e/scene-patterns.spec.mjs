@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
-for (const game of ['arena3d', 'fps_demo'])
+for (const game of ['arena3d'])
   test(game + ' edits and runs an authored scene', async ({ page }) => {
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
@@ -15,7 +15,6 @@ for (const game of ['arena3d', 'fps_demo'])
     expect(selector.x).toBeGreaterThan(brand.x + brand.width);
     expect(selector.x).toBeLessThan(220);
     expect(selector.y + selector.height).toBeLessThanOrEqual(40);
-    if (game === 'fps_demo') await expect(scenes).toBeDisabled();
     await page.locator('[data-node-id=wall]').click();
     await page.getByLabel('Position X', { exact: true }).fill('6');
     await page.getByLabel('Position X', { exact: true }).press('Tab');

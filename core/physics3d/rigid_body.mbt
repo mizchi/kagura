@@ -115,7 +115,21 @@ pub fn RigidBody::new_kinematic(
 
 ///|
 pub fn RigidBody::apply_force(self : RigidBody, f : @math3d.Vec3) -> RigidBody {
-  { ..self, force: self.force.add(f), }
+  let wake = self.is_dynamic() && f.length_squared() > 0.0
+  {
+    ..self,
+    force: self.force.add(f),
+    is_sleeping: if wake {
+      false
+    } else {
+      self.is_sleeping
+    },
+    sleep_timer: if wake {
+      0.0
+    } else {
+      self.sleep_timer
+    },
+  }
 }
 
 ///|
@@ -123,7 +137,21 @@ pub fn RigidBody::apply_impulse(
   self : RigidBody,
   impulse : @math3d.Vec3,
 ) -> RigidBody {
-  { ..self, velocity: self.velocity.add(impulse.scale(self.inv_mass)), }
+  let wake = self.is_dynamic() && impulse.length_squared() > 0.0
+  {
+    ..self,
+    velocity: self.velocity.add(impulse.scale(self.inv_mass)),
+    is_sleeping: if wake {
+      false
+    } else {
+      self.is_sleeping
+    },
+    sleep_timer: if wake {
+      0.0
+    } else {
+      self.sleep_timer
+    },
+  }
 }
 
 ///|

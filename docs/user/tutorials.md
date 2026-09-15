@@ -7,8 +7,7 @@
 1. `scene_demo` -- Minimal declarative API setup
 2. `flappy_bird` -- 2D game loop
 3. `survivor` -- Entity management and camera
-4. `action_rpg` -- Tilemap, AI, and UI
-5. `arena3d` -- Low-level 3D rendering
+4. `arena3d` -- First/third-person controls and rigid-body physics
 
 ## 1. Understand the Declarative API with scene_demo
 
@@ -79,29 +78,18 @@ fn main {
 - `@scene.for_each` renders enemies, items, and projectiles dynamically
 - `@scene.group` for relative positioning (HP bars, etc.)
 
-## 4. Explore Advanced Patterns with action_rpg
+## 4. Learn 3D Controls and Physics with arena3d
 
-- Reference: `examples/games/action_rpg/game.mbt`
-- Goal: See tilemap rendering, enemy AI, pause menu, and damage effects
-
-### Key Points
-
-- `@tilemap2d` for tile-based map rendering
-- `@ai` for behavior-tree enemy AI
-- `@ui` for focus-managed pause menu
-- `@scene.show` for damage flash and attack indicator effects
-
-## 5. Learn 3D with arena3d
-
-- Reference: `examples/games/arena3d/game.mbt`
-- Goal: Understand CPU-side 3D-to-2D projection, meshes, and basic lighting
-
-> arena3d uses the low-level API (direct `DrawTrianglesCommand` construction).
+- Reference: `examples/games/arena3d/{controls,physics,view}.mbt`
+- Switch views with V; move with WASD, jump with Space and shoot with click or F.
+- Both views share the same player, aim and physics world.
+- `PhysicsWorld` handles gravity, collisions and impulses; the view reads body positions.
+- Authored `crate` and `ball` components can be placed in Studio. R resets the scene.
 
 ## Running Examples
 
 Each example is an independent module. Run with:
 
 ```bash
-(cd examples/<name> && moon run src --target <target>)
+just dev arena3d
 ```

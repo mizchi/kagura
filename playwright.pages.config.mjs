@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 const metal = process.platform === 'darwin';
 export default defineConfig({
   testDir: './e2e',
-  testMatch: 'pages.spec.ts',
+  testMatch: 'pages*.spec.ts',
   timeout: 60_000,
   workers: 1,
   outputDir: 'test-results/pages',

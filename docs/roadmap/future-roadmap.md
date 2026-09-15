@@ -50,7 +50,7 @@ host shell に計測・デバッグ機能を集約する。
 |------------|-------------|------|
 | 2D 最小ゲーム | `flappy_bird` | `@scene.run` の最小構成 |
 | UI-heavy | `ui_demo` | `@ui` レイアウト + インタラクション |
-| Top-down action | `action_rpg` / `survivor` | `@physics2d` + `@sprite2d` + `@camera2d` |
+| Top-down action | `survivor` | `@physics2d` + `@sprite2d` + `@camera2d` |
 | 3D sample | `arena3d` / `hacknslash_3d` | `@scene3d` + `@physics3d` + `@postfx` |
 | WASM guest | `wasm_game/guest/moonbit` | host-guest binary protocol |
 

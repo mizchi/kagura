@@ -27,7 +27,7 @@ Other examples work the same way:
 
 ```bash
 just dev survivor
-just dev action_rpg
+just dev survivor
 just dev scene_demo
 ```
 

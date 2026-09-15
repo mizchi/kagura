@@ -550,7 +550,7 @@ PNGとUI snapshotを取得する。出力は `output/ui-capture/<example>/<state
 `ui-matrix --backend native` は同じセルに同じintegrityゲートをかけ、**JSと共通のbaseline**
 に差分ゼロを要求する。native専用の画像への貼り直しは許可しない。
 `just ui-matrix --all --backend native` は `supported_targets` に native がある
-example だけ回す（hacknslash は js-only なので除外）。
+example だけ回す。対象は各パッケージの supported_targets から決める。
 レポートは `output/ui-matrix-native/<example>/` に出る。macOS CIは `--all` で回す。
 
 3D は CPU ラスタライザが描かないので `just ui-matrix hacknslash_3d --backend gpu`。

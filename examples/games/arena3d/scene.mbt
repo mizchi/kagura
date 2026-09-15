@@ -19,7 +19,7 @@ fn GameState::apply_scene_project(
   source : String,
 ) -> Unit raise {
   let session = @scene_data.Session::parse(source, [
-    "floor", "wall", "spawn", "item", "enemy", "portal",
+    "floor", "wall", "spawn", "item", "enemy", "portal", "crate", "ball",
   ])
   self.authored = Some(session)
   self.activate_scene()
@@ -40,6 +40,22 @@ fn GameState::scene_snapshot(self : GameState) -> String {
     "sceneId": session.current_id(),
     "scene": session.scene().to_json(),
     "player": [player.x, player.y, player.z],
+    "firstPerson": self.first_person,
+    "camera": { "yaw": self.camera.yaw, "pitch": self.camera.pitch },
+    "score": self.score,
+    "mode": self.mode,
+    "shotFrames": self.shot_frames,
+    "physics": self.physics.bodies
+    .filter(body => body.is_dynamic())
+    .map(fn(body) {
+      let value : Json = {
+        "id": body.id,
+        "position": [body.position.x, body.position.y, body.position.z],
+        "velocity": [body.velocity.x, body.velocity.y, body.velocity.z],
+        "sleeping": body.is_sleeping,
+      }
+      value
+    }),
   }
   result.stringify()
 }
@@ -56,10 +72,19 @@ fn GameState::activate_scene(self : GameState) -> Unit {
       "spawn" => self.player.position = pos
       "item" => self.items.push({ position: pos, active: true, })
       "enemy" =>
-        self.enemies.push({ position: pos, waypoints: [pos], waypoint_idx: 0, })
+        self.enemies.push({
+          active: true,
+          position: pos,
+          waypoints: [pos],
+          waypoint_idx: 0,
+        })
       _ => ()
     }
   }
+  self.floor_y = self.player.position.y
+  self.on_ground = true
+  self.velocity_y = 0.0
+  self.reset_physics()
   self.camera = self.camera.with_target(self.player.position)
 }
 
@@ -75,7 +100,23 @@ fn GameState::authored_nodes(
     let mut pos = scene_vec(e.position)
     let mut mesh = self.meshes.wall
     match e.kind {
+      "portal" => {
+        nodes.push(
+          @scene3d.mesh(
+            key=e.id,
+            mesh=self.meshes.wall,
+            position=@math3d.Vec3::new(pos.x, 0.03, pos.z),
+            scale=@math3d.Vec3::new(e.scale[0], 0.06, e.scale[2]),
+            color=scene_color(e.color),
+          ),
+        )
+        continue
+      }
+      "crate" | "ball" => continue
       "spawn" => {
+        if self.first_person {
+          continue
+        }
         pos = self.player.position
         mesh = self.meshes.player
       }
@@ -89,8 +130,12 @@ fn GameState::authored_nodes(
         mesh = self.meshes.item
       }
       "enemy" => {
-        pos = self.enemies[enemy_index].position
+        let enemy = self.enemies[enemy_index]
         enemy_index += 1
+        if !enemy.active {
+          continue
+        }
+        pos = enemy.position
         mesh = self.meshes.enemy
       }
       _ => ()

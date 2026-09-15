@@ -1,32 +1,26 @@
 [
   {
-    "id": "action_rpg",
-    "title": "Action RPG",
-    "category": "games",
-    "manifest": "action_rpg.kgrprj",
-    "controls": [
-      "WASD / Arrow: move",
-      "Space: start / attack / confirm",
-      "Esc: pause menu"
-    ],
-    "width": 800,
-    "height": 600,
-    "preview": "webgpu",
-    "purpose": "タイルマップ・AI・音声・UI を組み合わせる 2D 統合例"
-  },
-  {
     "id": "arena3d",
     "title": "Arena 3D",
     "category": "games",
     "manifest": "arena3d.kgrprj",
     "controls": [
-      "Watch the scene render",
-      "See source for camera / scene setup"
+      "WASD / arrows: move; Space: jump",
+      "Click / F: shoot; right drag: look",
+      "V: first / third person; Q/E: turn; I/K: tilt; R: reset"
     ],
     "width": 640,
     "height": 480,
     "preview": "webgpu",
-    "purpose": "最小の 3D ゲームと宣言的シーン・カスタムエディタの基準例"
+    "purpose": "一人称・三人称の切り替え、射撃、ジャンプ、剛体物理と宣言的シーンの統合例",
+    "gallery": {
+      "order": 4,
+      "dimension": "3D",
+      "genre": "アリーナ / 物理デモ",
+      "description": "一人称・三人称を切り替えながら射撃やジャンプを試すゲーム。積んだ箱を撃って崩したり、球の落下と反発を確認できます。",
+      "input": "キーボード・マウス",
+      "thumbnailAlt": "Arena 3D の箱の山と球を配置した物理実験ステージ。"
+    }
   },
   {
     "id": "card_game",
@@ -40,7 +34,15 @@
     "width": 800,
     "height": 600,
     "preview": "webgpu",
-    "purpose": "カード効果・ターン制戦闘・経済バランスを扱う例"
+    "purpose": "カード効果・ターン制戦闘・経済バランスを扱う例",
+    "gallery": {
+      "order": 5,
+      "dimension": "2D",
+      "genre": "デッキ構築ローグライト",
+      "description": "攻撃・防御カードを使うターン制のカードゲーム。戦闘報酬でデッキを強化しながら階層を進みます。",
+      "input": "マウス",
+      "thumbnailAlt": "カードバトルの敵と、画面下に並ぶ手札。"
+    }
   },
   {
     "id": "collision3d_demo",
@@ -110,37 +112,15 @@
     "width": 320,
     "height": 240,
     "preview": "webgpu",
-    "purpose": "最小の 2D ゲームと宣言的シーン・ライブ状態編集の基準例"
-  },
-  {
-    "id": "fps_demo",
-    "title": "FPS Demo",
-    "category": "games",
-    "manifest": "fps_demo.kgrprj",
-    "controls": [
-      "WASD: move",
-      "Mouse: look",
-      "Left click: shoot",
-      "Space: jump"
-    ],
-    "width": 640,
-    "height": 480,
-    "preview": "webgpu",
-    "purpose": "一人称カメラ・照準・射撃・ジャンプの例"
-  },
-  {
-    "id": "hacknslash",
-    "title": "Hack & Slash",
-    "category": "games",
-    "manifest": "hacknslash.kgrprj",
-    "controls": [
-      "WASD / Arrow: move",
-      "Space: start / attack / restart"
-    ],
-    "width": 800,
-    "height": 600,
-    "preview": "webgpu",
-    "purpose": "ダンジョン生成・手動攻撃・階層進行の 2D アクション例"
+    "purpose": "最小の 2D ゲームと宣言的シーン・ライブ状態編集の基準例",
+    "gallery": {
+      "order": 8,
+      "dimension": "2D",
+      "genre": "ワンボタンアクション",
+      "description": "ワンボタンで鳥を上昇させ、土管の隙間を通過する 2D ゲーム。通過数がスコアになります。",
+      "input": "キーボード / タッチ",
+      "thumbnailAlt": "Flappy Bird の鳥と、上下に伸びる緑色の土管。"
+    }
   },
   {
     "id": "hacknslash_3d",
@@ -155,7 +135,15 @@
     "width": 640,
     "height": 480,
     "preview": "webgpu",
-    "purpose": "探索・装備収集・複数ビルドの育成を組み合わせる3Dハクスラ"
+    "purpose": "探索・装備収集・複数ビルドの育成を組み合わせる3Dハクスラ",
+    "gallery": {
+      "order": 1,
+      "dimension": "3D",
+      "genre": "アクション RPG",
+      "description": "装備収集とスキルの組み合わせによる 3D アクション RPG。複数のビルドと、接続されたマップの探索に対応しています。",
+      "input": "マウス / キーボード / パッド / タッチ",
+      "thumbnailAlt": "ASHEN REALMS の廃墟を探索するプレイヤー、宝箱と敵。"
+    }
   },
   {
     "id": "ik_demo",
@@ -183,7 +171,16 @@
     "width": 800,
     "height": 600,
     "preview": "webgpu",
-    "purpose": "メカ戦闘・専用シーン編集・描画性能の統合例"
+    "purpose": "メカ戦闘・専用シーン編集・描画性能の統合例",
+    "gallery": {
+      "order": 2,
+      "dimension": "3D",
+      "genre": "メカ TPS",
+      "description": "メカを操作する TPS。ブースト移動、ライフル射撃、ロックオンミサイル、ウェーブ形式の戦闘があります。",
+      "input": "マウス / キーボード",
+      "thumbnailAlt": "IRON YARD の市街地に立つプレイヤーの機体と戦闘 HUD。",
+      "playPath": "studio/games/iron-yard/"
+    }
   },
   {
     "id": "machinations_demo",
@@ -367,7 +364,15 @@
     "width": 800,
     "height": 600,
     "preview": "webgpu",
-    "purpose": "自動攻撃・大量の敵・経験値とアップグレードの 2D ゲーム例"
+    "purpose": "自動攻撃・大量の敵・経験値とアップグレードの 2D ゲーム例",
+    "gallery": {
+      "order": 6,
+      "dimension": "2D",
+      "genre": "サバイバル",
+      "description": "自動攻撃で敵を倒す 2D サバイバルゲーム。移動による回避、経験値の収集、レベルアップがあります。",
+      "input": "キーボード",
+      "thumbnailAlt": "Survivor の見下ろしフィールドでプレイヤーに迫る敵。"
+    }
   },
   {
     "id": "terrain_demo",
@@ -411,6 +416,14 @@
     "width": 1280,
     "height": 720,
     "preview": "webgpu",
-    "purpose": "ドラゴンの多重ロック・追尾火球・火線、弾幕と飛来する岩、巨大 kawaiko のビーム戦"
+    "purpose": "ドラゴンの多重ロック・追尾火球・火線、弾幕と飛来する岩、巨大 kawaiko のビーム戦",
+    "gallery": {
+      "order": 0,
+      "dimension": "3D",
+      "genre": "空中シューティング",
+      "description": "ドラゴンを操作する空中シューティング。追尾火球と火線、敵の編隊、弾幕、障害物、ボス戦があります。",
+      "input": "マウス / キーボード / タッチ",
+      "thumbnailAlt": "ドラゴンの背後から見る空中戦。空に広がる kawaiko の編隊と浮遊岩。"
+    }
   }
 ]

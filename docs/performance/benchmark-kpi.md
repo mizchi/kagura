@@ -28,7 +28,6 @@ bench が両方向に最大 2x 動くため、CI に入れるなら runner を�
 |---------|-----|------------|
 | flappy_bird | >= 60 | <= 8ms |
 | survivor | >= 60 | <= 12ms |
-| action_rpg | >= 60 | <= 14ms |
 | arena3d | >= 30 | <= 20ms |
 | hacknslash_3d | >= 30 | <= 25ms |
 | hacknslash_3d `stress_enemies_256` | >= 60 | <= 16ms |

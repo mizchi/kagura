@@ -4,10 +4,13 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { catalog, catalogProjectDir } from './example-catalog.mjs';
 import { listExampleNames, EXAMPLE_ROOT } from './example-dirs.mjs';
+import { DEMO_PAGES } from './web-demo-pages.mjs';
+import { FRAME_VRT_ENTRIES } from './frame-vrt-manifest.mjs';
+import { UI_MATRIX_EXAMPLES } from './ui-matrix-manifest.mjs';
 
 test('the catalog separates code examples from one shared model asset project', () => {
   assert.equal(new Set(catalog.map((e) => e.id)).size, catalog.length);
-  assert.ok(!catalog.some((e) => ['gltf_viewer', 'obj_viewer'].includes(e.id)));
+  assert.ok(!catalog.some((e) => ['gltf_viewer', 'obj_viewer', 'action_rpg', 'hacknslash', 'fps_demo'].includes(e.id)));
   const models = catalog.find((e) => e.id === 'model_assets');
   assert.equal(models.category, 'assets');
   assert.equal(models.preview, 'asset');
@@ -20,6 +23,17 @@ test('the catalog separates code examples from one shared model asset project', 
     assert.ok(existsSync(join(catalogProjectDir(entry), entry.manifest)), entry.id);
     if (entry.category !== 'assets') assert.ok(code.includes(entry.id), entry.id);
   }
+});
+
+test('public game builds and visual test targets reference existing examples', () => {
+  const code = listExampleNames([EXAMPLE_ROOT.examples]);
+  for (const retired of ['action_rpg', 'hacknslash', 'fps_demo']) assert.ok(!code.includes(retired), retired);
+  const targets = new Set([
+    ...DEMO_PAGES.filter(demo => demo.sourcePath.startsWith('examples/games/')).map(demo => demo.name),
+    ...FRAME_VRT_ENTRIES.map(entry => entry.example),
+    ...UI_MATRIX_EXAMPLES,
+  ]);
+  for (const name of targets) assert.ok(code.includes(name), name);
 });
 
 test('catalog paths cannot escape the known example categories', () => {

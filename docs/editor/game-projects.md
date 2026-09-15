@@ -170,7 +170,7 @@ Arena / FPS の床面は Y=0、回転なし、キャラクターのサイズは�
 遷移条件、ロード中の挙動、シーンを越えて残るプレイヤーやセーブ状態、BGM の寿命は `game/` のゲームオブジェクトで実装する方針です。プロジェクト設定には開始 ID と利用可能なシーン・サービスの定義を置き、条件分岐そのものを JSON の独自言語に増やさないことを提案します。
 
 ```sh
-just studio-examples-build arena3d fps_demo
+just studio-examples-build arena3d
 just studio-scene-test
 ```
 

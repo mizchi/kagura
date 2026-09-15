@@ -12,7 +12,7 @@ Issue本文は旧ディレクトリ構成・vlmkit 0.9.1時点の調査を含む
 | [#9](https://github.com/mizchi/kagura/issues/9) native capture | CPU は `engine.run` から 2D PNG+snapshot。GPU は `backend=gpu` で wgpu readback（3D はこれ）。`just capture` / `just ui-capture --backend gpu` | なし |
 | [#10](https://github.com/mizchi/kagura/issues/10) UI introspection | UISnapshot、JS publish、elements変換、native context_path出力を実装。`@scene.run` がラベルを自動 publish。hacknslash_3d は HudContext 用 adapter | 未キーのラベルは `label[n]`。TTF-only の on_frame HUD は scene tree に無い |
 | [#12](https://github.com/mizchi/kagura/issues/12) integrity | 幾何 9 種 + PNG 由来の `low-contrast-text`（WCAG AA）。`ui-vlmkit-check` / matrix / flipbook / interactions がフレームを渡す | なし |
-| [#13](https://github.com/mizchi/kagura/issues/13) 状態×解像度 | ui_demo + flappy / survivor / action_rpg / hacknslash / card_game を 4 viewport で `just ui-matrix --all`。HUD は `apply_viewport`、ワールドは `Camera2D::set_screen`。title/playing/gameover の InitialStates 済み。native は `just ui-matrix --all --backend native`（js-only の hacknslash を除外） | inventory/pause。3D GPU マトリクス |
+| [#13](https://github.com/mizchi/kagura/issues/13) 状態×解像度 | ui_demo + flappy / survivor / card_game を 4 viewport で `just ui-matrix --all`。HUD は `apply_viewport`、ワールドは `Camera2D::set_screen`。title/playing/gameover の InitialStates 済み。native は `just ui-matrix --all --backend native` | inventory/pause。3D GPU マトリクス |
 | [#14](https://github.com/mizchi/kagura/issues/14) i18n | `just ui-i18n-stress` / `just ui-matrix-gates --i18n`。既定は DE 風 +35%。CI は ui_demo を gating、scene ゲームは advisory（label 矩形=文字幅） | 実フォントアトラスの解決失敗を engine から publish する。HUD に layout slot を足してゲーム側を gating にする |
 | [#16](https://github.com/mizchi/kagura/issues/16) VLM review | `just vlm-ui-review --matrix` が verification.json の全セルを回す。`just vlm-ui-daemon-start` が bundle を保持して POST /review を受ける（既定 dry-run） | なし |
 | [#18](https://github.com/mizchi/kagura/issues/18) テーマ・素材 | マトリクス example ごとの `editor/theme.json` + `just ui-matrix-gates --theme`。`editor/assets.json` + `just ui-assets`。CI が standard セルのパレットと空の素材リストを回す | なし |
@@ -39,13 +39,13 @@ SceneGame のラベルと hacknslash_3d の HUD/メニューは snapshot に乗�
 | --- | --- | --- |
 | HUD が `capture_viewport` でリフローしない | **対応済み。** `apply_viewport` でサイズを渡す。ワールドは `Camera2D::set_screen`。4 viewport の title/playing/gameover/battle が integrity を通る | なし |
 | `snapshot.state` が `"scene"` 固定だった | 入力で playing に入っても expectedState を検証できない | `@scene.run(..., snapshot_state=)` を追加済み。未配線の SceneGame はまだ `"scene"` |
-| InitialStates が ui_demo だけ | **対応済み（gameover）。** flappy / survivor / action_rpg / hacknslash は debug named factory。release は default のみ | inventory / pause |
+| InitialStates が ui_demo だけ | **対応済み（gameover）。** flappy / survivor は debug named factory。release は default のみ | inventory / pause |
 | ラベルに key が無い | title/HUD/card の主ラベルは key 済み。ログや敵 HP などに `label[n]` が残る | 残りは描画側に `key=` |
 | scene walker はラベルだけ | **対応済み。** keyed `rect` / `rect_outline` が描画矩形=hit で出る。未キーのワールド rect は省略のまま。card_game の HP / End Turn / カード枠に key を付けた | 残りは描画側に `key=` |
-| コントラスト | flappy / hacknslash HUD / card_game battle は直してマトリクスに入れた。白を緑の HP バーに重ねると Otsu がバー色を背景にする | テキストをバーの外に置くか、バー色を落とす |
+| コントラスト | flappy HUD / card_game battle は直してマトリクスに入れた。白を緑の HP バーに重ねると Otsu がバー色を背景にする | テキストをバーの外に置くか、バー色を落とす |
 | matrix の allow | `checkImageIntegrity` は抑制リストを読まない。欠陥があると `--update` も baseline を貼らない | verification.json に `allow` を足す |
 | 3D | **title + playing GPU。** `just ui-matrix hacknslash_3d --backend gpu`。JS CI には入れない。playing は HUD を `ctx.dst` に載せる。3D ジオメトリはまだ黒 | 3D コマンドをキャプチャデバイスの shader/target で描く |
 | theme / i18n / assets | **theme は対応済み。** 各ゲームの `editor/theme.json` を CI が standard セルに当てる。i18n は ui_demo gating、scene ゲームは advisory | HUD に layout slot を足して i18n を gating にする |
-| native マトリクス | `just ui-matrix --all --backend native` が js-only を除外。macOS CI も `--all` | 3D GPU。hacknslash を native にするなら `supported_targets` を足す |
+| native マトリクス | `just ui-matrix --all --backend native` が js-only を除外。macOS CI も `--all` | 3D GPU マトリクス |
 
 `just ui-matrix --all` に card_game の battle 4 viewport も入った。

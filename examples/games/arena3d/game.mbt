@@ -1,5 +1,5 @@
 // ============================================================
-// 3D Arena Collector
+// Arena 3D
 // ============================================================
 
 // Game modes
@@ -69,6 +69,7 @@ struct ItemState {
 
 ///|
 struct EnemyState {
+  mut active : Bool
   mut position : @math3d.Vec3
   waypoints : Array[@math3d.Vec3]
   mut waypoint_idx : Int
@@ -127,6 +128,18 @@ struct GameState {
   player : PlayerState
   items : Array[ItemState]
   enemies : Array[EnemyState]
+  mut first_person : Bool
+  mut on_ground : Bool
+  mut velocity_y : Double
+  mut floor_y : Double
+  mut looking : Bool
+  mut prev_cursor_x : Double
+  mut prev_cursor_y : Double
+  mut physics : @physics3d.PhysicsWorld
+  props : Array[PhysicsProp]
+  mut shot_start : @math3d.Vec3
+  mut shot_end : @math3d.Vec3
+  mut shot_frames : Int
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
@@ -160,14 +173,29 @@ fn GameState::new() -> GameState {
     @math3d.Vec3::new(-4.0, 0.5, 0.0),
     @math3d.Vec3::new(4.0, 0.5, 0.0),
   ]
-  enemies.push({ position: wp0[0], waypoints: wp0, waypoint_idx: 0, })
-  enemies.push({ position: wp1[0], waypoints: wp1, waypoint_idx: 0, })
-  enemies.push({ position: wp2[0], waypoints: wp2, waypoint_idx: 0, })
+  enemies.push({
+    active: true,
+    position: wp0[0],
+    waypoints: wp0,
+    waypoint_idx: 0,
+  })
+  enemies.push({
+    active: true,
+    position: wp1[0],
+    waypoints: wp1,
+    waypoint_idx: 0,
+  })
+  enemies.push({
+    active: true,
+    position: wp2[0],
+    waypoints: wp2,
+    waypoint_idx: 0,
+  })
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     12.0,
     0.0,
-    0.6,
+    0.28,
     @math.PI / 4.0,
     screen_w.to_double() / screen_h.to_double(),
     0.1,
@@ -186,7 +214,19 @@ fn GameState::new() -> GameState {
   let clip_hit = generate_tone_clip(220.0, 0.2, 44100)
   let sfx_collect = audio_ctx.create_player(clip_collect) catch { _ => panic() }
   let sfx_hit = audio_ctx.create_player(clip_hit) catch { _ => panic() }
-  {
+  let state = {
+    first_person: false,
+    on_ground: true,
+    velocity_y: 0.0,
+    floor_y: 0.5,
+    looking: false,
+    prev_cursor_x: 0.0,
+    prev_cursor_y: 0.0,
+    physics: new_physics_world(),
+    props: [],
+    shot_start: @math3d.Vec3::zero(),
+    shot_end: @math3d.Vec3::zero(),
+    shot_frames: 0,
     scene_root: @scene3d.SceneRoot::new(),
     authored: None,
     mode: mode_playing,
@@ -213,6 +253,8 @@ fn GameState::new() -> GameState {
     sfx_collect,
     sfx_hit,
   }
+  state.reset_physics()
+  state
 }
 
 ///|
@@ -272,6 +314,7 @@ fn distance_xz(a : @math3d.Vec3, b : @math3d.Vec3) -> Double {
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   self.frame_count = self.frame_count + 1
   @inpututil.update_input_helper(self.input, input)
+  self.update_controls(input)
   match self.mode {
     m if m == mode_title => self.update_title()
     m if m == mode_playing => self.update_playing()
@@ -300,7 +343,13 @@ fn GameState::update_gameover(self : GameState) -> Unit {
 fn GameState::reset(self : GameState) -> Unit {
   self.score = 0
   self.frame_count = 0
-  if self.authored is Some(_) { self.activate_scene(); return }
+  self.on_ground = true
+  self.velocity_y = 0.0
+  self.reset_physics()
+  if self.authored is Some(_) {
+    self.activate_scene()
+    return
+  }
   self.player.position = @math3d.Vec3::new(0.0, 0.5, 0.0)
   for i in 0..<self.items.length() {
     let item = self.items[i]
@@ -310,6 +359,7 @@ fn GameState::reset(self : GameState) -> Unit {
   }
   for i in 0..<self.enemies.length() {
     let e = self.enemies[i]
+    e.active = true
     e.waypoint_idx = 0
     e.position = e.waypoints[0]
   }
@@ -317,34 +367,19 @@ fn GameState::reset(self : GameState) -> Unit {
 
 ///|
 fn GameState::update_playing(self : GameState) -> Unit {
-  let mut dx = 0.0
-  let mut dz = 0.0
-  if @inpututil.is_move_up(self.input.key_state) {
-    dz = dz - player_speed
-  }
-  if @inpututil.is_move_down(self.input.key_state) {
-    dz = dz + player_speed
-  }
-  if @inpututil.is_move_left(self.input.key_state) {
-    dx = dx - player_speed
-  }
-  if @inpututil.is_move_right(self.input.key_state) {
-    dx = dx + player_speed
-  }
-  let previous = self.player.position
-  self.player.position = @math3d.Vec3::new(
-    clamp_arena(self.player.position.x + dx),
-    self.player.position.y,
-    clamp_arena(self.player.position.z + dz),
-  )
+  self.move_player()
   if self.authored is Some(session) {
-    let x = previous.x + dx
-    let z = previous.z + dz
-    self.player.position = if session.scene().blocked(x, z, 0.5) { previous } else { @math3d.Vec3::new(x, previous.y, z) }
-    if session.portal_at(self.player.position.x, self.player.position.z) is Some(target) {
-      self.transition_scene(target) catch { _ => () }
+    if session.portal_at(self.player.position.x, self.player.position.z)
+      is Some(target) {
+      self.transition_scene(target) catch {
+        _ => ()
+      }
       return
     }
+  }
+  self.physics.step(1.0 / 60.0)
+  if self.shot_frames > 0 {
+    self.shot_frames -= 1
   }
   for i in 0..<self.items.length() {
     let item = self.items[i]
@@ -352,7 +387,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
       distance_xz(self.player.position, item.position) < item_collect_dist {
       item.active = false
       self.score = self.score + 10
-      if self.authored is None { respawn_item(item, self.frame_count + i * 97) }
+      if self.authored is None {
+        respawn_item(item, self.frame_count + i * 97)
+      }
       self.audio_ctx.seek(self.sfx_collect, 0.0) catch {
         _ => ()
       }
@@ -363,6 +400,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
   }
   for i in 0..<self.enemies.length() {
     let e = self.enemies[i]
+    if !e.active {
+      continue
+    }
     let target = e.waypoints[e.waypoint_idx]
     let ex_dx = target.x - e.position.x
     let ex_dz = target.z - e.position.z
@@ -377,7 +417,8 @@ fn GameState::update_playing(self : GameState) -> Unit {
         e.position.z + ex_dz * inv,
       )
     }
-    if distance_xz(self.player.position, e.position) < enemy_hit_dist {
+    if self.player.position.y < e.position.y + 0.8 &&
+      distance_xz(self.player.position, e.position) < enemy_hit_dist {
       self.audio_ctx.seek(self.sfx_hit, 0.0) catch {
         _ => ()
       }
@@ -413,7 +454,9 @@ let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.3, 0.3, 0.35, 1.0)
 
 ///|
 fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
-  self.scene_root.render(self.scene_view()) catch { error => abort(error.to_string()) }
+  self.scene_root.render(self.scene_view()) catch {
+    error => abort(error.to_string())
+  }
   self.scene_root.graph()
 }
 
@@ -422,10 +465,22 @@ fn GameState::draw(
   self : GameState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
+  self.camera = @camera3d.OrbitCamera::new(
+    self.camera.target,
+    self.camera.distance,
+    self.camera.yaw,
+    self.camera.pitch,
+    self.camera.fov_y_rad,
+    ctx.screen_w.to_double() / ctx.screen_h.to_double(),
+    self.camera.near,
+    self.camera.far,
+  )
   let scene = self.scene()
-  self.scene_root.render(scene.root) catch { error => abort(error.to_string()) }
+  self.scene_root.render(scene.root) catch {
+    error => abort(error.to_string())
+  }
   let graph = self.scene_root.graph()
-  @renderer3d.render_scene3d_graph_to_dst(
+  let commands = @renderer3d.render_scene3d_graph_to_dst(
     graph,
     scene.camera,
     lighting=scene.lighting,
@@ -434,4 +489,6 @@ fn GameState::draw(
     ctx.screen_w,
     ctx.screen_h,
   )
+  self.append_hud(commands, ctx)
+  commands
 }

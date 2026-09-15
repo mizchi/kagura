@@ -55,7 +55,5 @@ export const FRAME_VRT_ENTRIES = [
 
   { example: "card_game", frames: 30 },
   { example: "flappy_bird", frames: 30 },
-  { example: "action_rpg", frames: 30 },
-  { example: "hacknslash", frames: 30 },
   { example: "survivor", frames: 30 },
 ];

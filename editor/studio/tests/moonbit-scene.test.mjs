@@ -92,7 +92,7 @@ test('external edits in the managed region cause a save conflict', async () => {
 test('compiled MoonBit and the browser literal reader produce the same scene', async () => {
   const { resolveBuildArtifact } = await import('../../../scripts/moon-build-artifact-utils.mjs');
   const { fileURLToPath, pathToFileURL } = await import('node:url');
-  for (const game of ['arena3d', 'fps_demo']) {
+  for (const game of ['arena3d']) {
     const root = new URL(`../../../examples/games/${game}/`, import.meta.url);
     const artifact = resolveBuildArtifact(
       fileURLToPath(new URL('_build/js/release/build/scenes.js', root)),

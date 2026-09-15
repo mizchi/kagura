@@ -114,7 +114,7 @@ initializes the modeling workspace directly from a shareable URL.
 bash scripts/setup-wgpu-native.sh
 
 # Run with just (recommended -- sets CPATH/LIBRARY_PATH automatically)
-just run-native action_rpg
+just run-native flappy_bird
 
 # Non-visual smoke test (window can appear black)
 (cd examples/smoke/runtime_smoke_native && moon run src --target native)
@@ -134,7 +134,6 @@ just run-native native_triangle
 | `native_triangle`    | Native backend triangle demo       |
 | `flappy_bird`        | 2D game loop with input handling   |
 | `survivor`           | Multi-entity game with weapons/UI  |
-| `action_rpg`         | Action RPG prototype               |
 | `arena3d`            | 3D arena prototype (experimental)  |
 
 Each example is an independent MoonBit module. Run with:

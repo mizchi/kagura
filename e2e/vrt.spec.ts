@@ -38,8 +38,6 @@ const VRT_EXAMPLES: string[] = [
   "ui_demo",
   "flappy_bird",
   "survivor",
-  "action_rpg",
-  "fps_demo",
   "physics2d_demo",
   "arena3d",
   "collision3d_demo",

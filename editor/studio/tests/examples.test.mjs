@@ -60,19 +60,19 @@ test('every game and demo has a loadable project with a shared scene or its own 
     }
     const twoD =
       item.category === 'demos-2d' ||
-      ['action_rpg', 'card_game', 'flappy_bird', 'hacknslash', 'survivor'].includes(item.id);
+      ['card_game', 'flappy_bird', 'survivor'].includes(item.id);
     assert.equal(
       manifest.editor.id,
       item.id === 'flappy_bird'
         ? 'flappy-bird'
         : twoD
           ? 'kagura.example2d'
-          : ['hacknslash_3d', 'arena3d', 'fps_demo'].includes(item.id)
+          : ['hacknslash_3d', 'arena3d'].includes(item.id)
             ? item.id.replaceAll('_', '-')
             : 'kagura.example',
     );
     assert.equal(readLaunch(createHeadlessEditor(doc).snapshot()).example, item.id);
-    if (['hacknslash_3d', 'arena3d', 'fps_demo'].includes(item.id)) assert.ok(doc.nodes.length > 0);
+    if (['hacknslash_3d', 'arena3d'].includes(item.id)) assert.ok(doc.nodes.length > 0);
     else assert.equal(doc.nodes.length, 0, 'do not invent an unrelated game level');
     assert.equal(!!runtimeEntry(manifest), item.preview === 'webgpu');
     for (const path of Object.values(manifest.resources)) {

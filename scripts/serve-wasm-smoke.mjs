@@ -75,8 +75,8 @@ const buildJsExample = (name) => {
   }
 };
 const VRT_EXAMPLES = [
-  "scene_demo", "flappy_bird", "survivor", "ui_demo", "action_rpg",
-  "fps_demo", "arena3d", "collision3d_demo", "physics2d_demo",
+  "scene_demo", "flappy_bird", "survivor", "ui_demo",
+  "arena3d", "collision3d_demo", "physics2d_demo",
   "physics3d_demo", "postfx_demo", "shadow3d_demo", "skeletal_anim",
   "ragdoll_demo", "fetch_image",
   "hacknslash_3d", "effect_studio", "draw2d_ui_demo",
@@ -132,7 +132,6 @@ const serveFile = (res, filePath, extraHeaders = {}) => {
 };
 
 const ASSET_EXAMPLES = {
-  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/games/action_rpg/assets/Tiny5-Regular.ttf"]],
   hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/games/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
   fetch_image: [["assets/sample.png", "/examples/demos-2d/fetch_image/assets/sample.png"]],
   draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/demos-2d/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],

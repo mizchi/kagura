@@ -14,10 +14,20 @@ const HIDDEN_PAGE_NAMES = new Set([
 
 const RAW_DEMO_PAGES = [
   {
+    name: "card_game",
+    title: "Card Game",
+    group: "Games",
+    summary: "Build a deck, balance attacks and defense, and climb through increasingly difficult encounters.",
+    start: "Opens directly into a card battle. Click a card to play it.",
+    controls: ["Click a card to play it", "Use the on-screen buttons to choose targets, end turns and collect rewards"],
+    tags: ["2D", "Cards", "Roguelite"],
+    sourcePath: "examples/games/card_game/main.mbt",
+  },
+  {
     name: "emberwing",
     title: "EMBERWING",
     group: "Games",
-    summary: "Dodge bullet barrages and flying rocks, then defeat a giant beam-firing kawaiko. Cook the incoming flocks into duck soba.",
+    summary: "A 3D rail shooter with multi-target homing fireballs, flame breath, enemy waves, obstacles and a giant kawaiko boss.",
     start: "Click Fly for nine escalating waves and a giant boss, or practice the boss from the title screen.",
     controls: ["Mouse: aim / fly", "Hold left: multi-lock; release: homing fireballs", "Hold right: flame breath", "WASD / arrows: dodge; Esc: pause"],
     tags: ["3D", "Rail shooter", "Instancing"],
@@ -48,33 +58,6 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["2D", "Camera", "Leveling"],
     sourcePath: "examples/games/survivor/game.mbt",
-  },
-  {
-    name: "action_rpg",
-    title: "Action RPG",
-    group: "Games",
-    summary: "Tilemap, AI, audio, and UI showcase.",
-    start: "Press Space to enter the dungeon.",
-    controls: [
-      "WASD / Arrow: move",
-      "Space: start / attack / confirm",
-      "Esc: pause menu",
-    ],
-    tags: ["2D", "AI", "UI"],
-    sourcePath: "examples/games/action_rpg/game.mbt",
-  },
-  {
-    name: "hacknslash",
-    title: "Hack & Slash",
-    group: "Games",
-    summary: "Compact 2D action prototype.",
-    start: "Press Space to start.",
-    controls: [
-      "WASD / Arrow: move",
-      "Space: start / attack / restart",
-    ],
-    tags: ["2D", "Combat"],
-    sourcePath: "examples/games/hacknslash/game.mbt",
   },
   {
     name: "hacknslash_3d",
@@ -138,32 +121,16 @@ const RAW_DEMO_PAGES = [
   {
     name: "arena3d",
     title: "Arena 3D",
-    group: "3D Rendering",
-    summary: "3D arena prototype using the low-level renderer.",
+    group: "Games",
+    summary: "Collect items, shoot targets and experiment with stacked boxes and bouncing balls in first or third person.",
     start: "Opens directly into the scene.",
     controls: [
-      "Watch the scene render",
-      "See source for camera / scene setup",
+      "WASD / arrows: move; Space: jump",
+      "Click / F: shoot; right drag: look",
+      "V: first / third person; Q / E: turn; I / K: tilt; R: reset",
     ],
-    tags: ["3D", "Renderer"],
+    tags: ["3D", "FPS / TPS", "Physics"],
     sourcePath: "examples/games/arena3d/game.mbt",
-    width: 640,
-    height: 480,
-  },
-  {
-    name: "fps_demo",
-    title: "FPS Demo",
-    group: "3D Rendering",
-    summary: "First-person movement and shooting demo.",
-    start: "Move immediately after load.",
-    controls: [
-      "WASD: move",
-      "Mouse: look",
-      "Left click: shoot",
-      "Space: jump",
-    ],
-    tags: ["3D", "FPS"],
-    sourcePath: "examples/games/fps_demo/game.mbt",
     width: 640,
     height: 480,
   },
@@ -1014,6 +981,7 @@ ${cards}
         <p class="muted">
           Interactive examples for Kagura, a MoonBit game engine. Open any card below to launch the demo, review controls, and jump to source.
         </p>
+        <p><a href="./examples/" style="color: var(--accent)">ゲーム一覧をサムネイルで見る →</a></p>
       </header>
 
       <section class="notice">

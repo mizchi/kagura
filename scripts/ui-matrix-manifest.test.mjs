@@ -35,9 +35,7 @@ test('native matrix skips js-only examples', () => {
   assert.ok(native.includes('ui_demo'));
   assert.ok(native.includes('flappy_bird'));
   assert.ok(native.includes('survivor'));
-  assert.ok(native.includes('action_rpg'));
   assert.ok(native.includes('card_game'));
-  assert.equal(native.includes('hacknslash'), false);
   for (const example of native) {
     const pkg = readFileSync(resolve(matrixExampleDir(example), 'moon.pkg'), 'utf8');
     assert.equal(pkgSupportsNative(pkg), true, example);

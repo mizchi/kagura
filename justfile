@@ -254,7 +254,6 @@ studio-headless-test:
     moon -C examples/games/iron_yard build headless --target js --release
     moon -C examples/games/hacknslash_3d build scene_api --target js --release
     moon -C examples/games/arena3d build scenes --target js --release
-    moon -C examples/games/fps_demo build scenes --target js --release
     moon -C examples/games/flappy_bird build scenes --target js --release
     cd editor/studio && node scripts/build-plugins.mjs
     cd editor/studio && node --test tests/*.test.mjs
@@ -441,7 +440,7 @@ ui-vlmkit-check snapshot image out_dir="output/ui-vlmkit-integrity":
 # Game-declared input states x viewports; baseline updates are explicit.
 #   just ui-matrix ui_demo
 #   just ui-matrix --all
-#   just ui-matrix --all "--backend native"  # skips js-only examples (hacknslash)
+#   just ui-matrix --all "--backend native"  # skips examples without native support
 #   just ui-matrix hacknslash_3d "--backend gpu"  # 3D wgpu; not JS CI
 ui-matrix example extra="":
     node scripts/ui-matrix.mjs {{example}} {{extra}}
@@ -626,6 +625,13 @@ pages:
 pages-test url="http://127.0.0.1:8082/kagura/":
     KAGURA_PAGES_URL="{{url}}" pnpm exec playwright test -c playwright.pages.config.mjs
 
+pages-gallery-test:
+    node --test scripts/pages-game-gallery.test.mjs scripts/web-demo-pages.test.mjs scripts/web-demo-package.test.mjs
+
+# Refresh checked-in screenshots from a running Pages build, then run `just pages` again.
+pages-thumbnails url="http://127.0.0.1:8082/kagura/":
+    KAGURA_PAGES_URL="{{url}}" KAGURA_UPDATE_THUMBNAILS=1 pnpm exec playwright test -c playwright.pages.config.mjs e2e/pages-thumbnails.spec.ts
+
 check-release:
     node --test scripts/*.test.mjs
     node scripts/check-moon-release.mjs
@@ -721,14 +727,12 @@ wasm-build guest:
 # Shared game scene profiles, scene transitions, and project loading contracts.
 studio-scene-test:
     moon -C examples/games/arena3d build scenes --target js --release
-    moon -C examples/games/fps_demo build scenes --target js --release
     moon -C examples/games/flappy_bird build scenes --target js --release
     moon -C editor/studio build --target js --release
     moon -C game test scene_flow --target js
     moon -C game test scene_data --target js
     moon -C engine test scene2d --target js
     moon -C examples/games/arena3d test . --target js
-    moon -C examples/games/fps_demo test . --target js
     moon -C examples/games/flappy_bird test . --target js
     node --test editor/studio/tests/moonbit-scene.test.mjs editor/studio/tests/scene-profile.test.mjs editor/studio/tests/project-scenes.test.mjs editor/studio/tests/extension-host.test.mjs editor/studio/tests/scene2d.test.mjs
 

@@ -1,4 +1,7 @@
 import {
+  "mizchi/kagura_core/physics3d",
+  "mizchi/kagura_core/collision3d",
+  "mizchi/renderer2d" @renderer2d,
   "mizchi/kagura_game/inpututil",
   "mizchi/arena3d/scenes",
   "moonbitlang/core/json",

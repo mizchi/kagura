@@ -3,7 +3,7 @@
 fn GameState::scene(self : GameState) -> @scene3d.SceneView {
   @scene3d.scene(
     root=self.scene_view(),
-    camera=self.camera.to_camera3d(),
+    camera=self.view_camera(),
     lighting=self.lighting,
   )
 }
@@ -13,6 +13,9 @@ fn GameState::scene(self : GameState) -> @scene3d.SceneView {
 fn GameState::scene_view(self : GameState) -> @scene3d.View {
   if self.authored is Some(session) {
     return @scene3d.group(key="arena", children=[
+      @scene3d.group(key="physics", children=[
+        @scene3d.for_each(fn() { self.physics_nodes() }),
+      ]),
       @scene3d.group(key="level", children=[
         @scene3d.for_each(fn() { self.authored_nodes(session) }),
       ]),
@@ -22,6 +25,9 @@ fn GameState::scene_view(self : GameState) -> @scene3d.View {
   let wh = wall_height / 2.0
   let wt = wall_thickness
   @scene3d.group(key="arena", children=[
+    @scene3d.group(key="physics", children=[
+      @scene3d.for_each(fn() { self.physics_nodes() }),
+    ]),
     @scene3d.group(key="environment", children=[
       @scene3d.mesh(key="ground", mesh=self.meshes.ground, color=color_ground),
       @scene3d.group(key="walls", children=[
@@ -75,7 +81,9 @@ fn GameState::scene_view(self : GameState) -> @scene3d.View {
     ]),
     @scene3d.group(key="enemies", children=[
       @scene3d.for_each(fn() {
-        self.enemies.mapi(fn(i, enemy) {
+        self.enemies
+        .filter(enemy => enemy.active)
+        .mapi(fn(i, enemy) {
           @scene3d.mesh(
             key="enemy-" + i.to_string(),
             mesh=self.meshes.enemy,
@@ -85,11 +93,20 @@ fn GameState::scene_view(self : GameState) -> @scene3d.View {
         })
       }),
     ]),
-    @scene3d.mesh(
+    @scene3d.group(
       key="player",
-      mesh=self.meshes.player,
-      position=self.player.position,
-      color=color_player,
+      children=if self.first_person {
+        []
+      } else {
+        [
+          @scene3d.mesh(
+            key="body",
+            mesh=self.meshes.player,
+            position=self.player.position,
+            color=color_player,
+          ),
+        ]
+      },
     ),
   ])
 }

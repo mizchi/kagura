@@ -3,7 +3,6 @@ export const editorExtensions = {
   'kagura.example2d': () => import('../scene2d/editor.mjs'),
   'flappy-bird': () => import('../../../examples/games/flappy_bird/editor/editor.mjs'),
   'arena3d': () => import('../../../examples/games/arena3d/editor/editor.mjs'),
-  'fps-demo': () => import('../../../examples/games/fps_demo/editor/editor.mjs'),
   'kagura.scene': () => import('./core.mjs'),
   'kagura.example': () => import('../examples/extension.mjs'),
   'hacknslash-3d': () => import('../../../examples/games/hacknslash_3d/editor/editor.mjs'),

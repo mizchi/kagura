@@ -1,6 +1,7 @@
 # Performance Review Summary
 
 - Date: 2026-03-30
+- この記録に含まれる `action_rpg` は、その後サンプルから削除済み。
 - Scope: `collision3d`, `scene3d`, `physics3d`, VRT readiness
 - Goal: エンジンの CPU hotspot を実測で切り分け、改善値と未解消ボトルネックを固定する
 

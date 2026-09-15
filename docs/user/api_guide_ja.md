@@ -91,5 +91,5 @@ fn update(input : @core.InputSnapshot) {
 - 最小 scene API: `examples/demos-2d/scene_demo/game.mbt`
 - 2D ゲーム: `examples/games/flappy_bird/game.mbt`
 - 複合ゲーム: `examples/games/survivor/game.mbt`
-- アクション RPG: `examples/games/action_rpg/game.mbt`
+- 3D アクション・物理: `examples/games/arena3d/physics.mbt`
 - Low-level 3D: `examples/games/arena3d/game.mbt`

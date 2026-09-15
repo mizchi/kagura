@@ -24,10 +24,53 @@ test "title HUD recenters when the viewport changes" {
 }
 
 ///|
-test "as_gameover starts on the END overlay" {
+test "as_gameover starts on the results overlay" {
   let game = Game::new()
   game.as_gameover()
   assert_eq(game.snapshot_state(), "gameover")
+}
+
+///|
+test "drawing animated scenery preserves gameplay state and authored bird subject" {
+  let game = Game::new()
+  game.game_mode.set(1)
+  game.pipes.set([{ x: 180.0, gap_y: 75.0, }])
+  let before = (
+    game.bird_y.get(),
+    game.velocity,
+    game.score.get(),
+    game.game_mode.get(),
+    game.pipes.get().map(pipe => (pipe.x, pipe.gap_y)),
+  )
+  let first = @scene.render_scene(
+    game.view(),
+    @gfx.new_image_handle(1, 320, 240),
+    @gfx.new_shader_handle(1, ""),
+    320.0,
+    240.0,
+  ).map(command => command.vertex_data)
+  assert_eq(
+    (
+      game.bird_y.get(),
+      game.velocity,
+      game.score.get(),
+      game.game_mode.get(),
+      game.pipes.get().map(pipe => (pipe.x, pipe.gap_y)),
+    ),
+    before,
+  )
+  game.frame_count.set(12)
+  let second = @scene.render_scene(
+    game.view(),
+    @gfx.new_image_handle(1, 320, 240),
+    @gfx.new_shader_handle(1, ""),
+    320.0,
+    240.0,
+  ).map(command => command.vertex_data)
+  assert_true(first != second)
+  let world = @scene.resolve(game.view()).hierarchy[0]
+  assert_eq(world.children[3].subject, Some("bird"))
+  assert_eq(world.children[3].id, "world/body")
 }
 
 ///|
@@ -131,7 +174,16 @@ test "update: pipe movement" {
 test "authored bird size controls ground collision and reset uses authored spawn" {
   let game = Game::new()
   let layout = @scenes.layout()
-  let moved = { ..layout, objects: layout.objects.map(o => if o.id == "bird" { { ..o, x: 90.0, y: 80.0, width: 18.0, height: 24.0 } } else { o }) }
+  let moved = {
+    ..layout,
+    objects: layout.objects.map(o => {
+      if o.id == "bird" {
+        { ..o, x: 90.0, y: 80.0, width: 18.0, height: 24.0, }
+      } else {
+        o
+      }
+    }),
+  }
   game.apply_scene(moved)
   assert_eq(game.bird.x, 90.0)
   assert_eq(game.bird_y.get(), 80.0)
@@ -141,8 +193,22 @@ test "authored bird size controls ground collision and reset uses authored spawn
   assert_eq(game.game_mode.get(), 2)
   game.reset()
   assert_eq(game.bird_y.get(), 80.0)
-  let invalid = { ..layout, objects: layout.objects.map(o => if o.id == "bird" { { ..o, y: 235.0 } } else { o }) }
-  let rejected = try { game.apply_scene(invalid); false } catch { _ => true }
+  let invalid = {
+    ..layout,
+    objects: layout.objects.map(o => {
+      if o.id == "bird" {
+        { ..o, y: 235.0, }
+      } else {
+        o
+      }
+    }),
+  }
+  let rejected = try {
+    game.apply_scene(invalid)
+    false
+  } catch {
+    _ => true
+  }
   assert_true(rejected)
   assert_eq(game.bird.x, 90.0)
 }

@@ -11,8 +11,6 @@ export const UI_MATRIX_EXAMPLES = [
   'ui_demo',
   'flappy_bird',
   'survivor',
-  'action_rpg',
-  'hacknslash',
   'card_game',
 ];
 

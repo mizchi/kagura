@@ -1,4 +1,5 @@
 import {
+  "mizchi/gfx",
   "mizchi/kagura_game/inpututil",
   "mizchi/kagura_engine/inspection",
   "mizchi/kagura_core/hierarchy",

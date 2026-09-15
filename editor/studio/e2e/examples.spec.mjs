@@ -93,7 +93,7 @@ for (const item of catalog.filter((e) => e.id !== 'iron_yard')) {
       expect(state.project.display).toEqual({ width: item.width, height: item.height });
       expect(state.canvas.every((v) => v > 0)).toBe(true);
       expect(state.error).toBe('');
-      if (['action_rpg', 'draw2d_ui_demo'].includes(item.id))
+      if (item.id === 'draw2d_ui_demo')
         expect(state.fonts.length).toBeGreaterThan(0);
       if (item.id === 'hacknslash_3d')
         await page.screenshot({ path: '/tmp/kgr-examples-hacknslash.png' });

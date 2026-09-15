@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { compileProject } from '../scene/profile.mjs';
-for (const game of ['arena3d', 'fps_demo'])
+for (const game of ['arena3d'])
   test(game + ' owns a portable scene profile', async () => {
     const { compileScene } = await import(`../../../examples/games/${game}/editor/scene.mjs`);
     const doc = decodeMoonScene(

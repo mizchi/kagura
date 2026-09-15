@@ -27,7 +27,7 @@ engine の profiler、editor の authoring HUD、example 20 本以上がここ�
 | `ui_demo` | 490 → **20**（24.5x） | 980 → 980 |
 | `scene_demo` | 242 → **18**（13.4x） | 475 → 475 |
 | `ecs_demo` | 181 → **25**（7.2x） | 268 → 268 |
-| `action_rpg` | 177 → **3**（59x） | 354 → 354 |
+| `action_rpg`（削除済み） | 177 → **3**（59x） | 354 → 354 |
 | `survivor` | 128 → **3**（42.7x） | 256 → 256 |
 | `flappy_bird` | 40 → **5**（8.0x） | 80 → 80 |
 | `physics2d_demo` | 16 → 16（1.0x） | 112 → 112 |
@@ -54,7 +54,7 @@ PNG のバイト一致がその確認になる。
 
 `new_atlas_quad_batch_draw_command`（10,000 quad で 4.2x）は、同じ atlas source を
 共有する quad 列を要求する。しかし**この repo の 2D ゲームは atlas quad 経路を通らない**:
-`survivor` / `card_game` / `action_rpg` / `flappy_bird` はすべて `@scene.rect` /
+`survivor` / `card_game` / `flappy_bird` はすべて `@scene.rect` /
 `@scene.label` で描き、`@scene.render_rect` は `@renderer2d.append_rect_fill` を
 rect ごとに呼ぶ。per-quad な atlas API の実利用は `hacknslash_3d` の 30 エントリ
 アイコン（約 40 quad/frame）、`animation2d/draw.mbt`、`fetch_image`、smoke 2 本で、

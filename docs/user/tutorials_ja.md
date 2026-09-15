@@ -7,8 +7,7 @@
 1. `scene_demo` -- 宣言的 API の最小構成
 2. `flappy_bird` -- 2D ゲームループ
 3. `survivor` -- エンティティ管理・カメラ
-4. `action_rpg` -- タイルマップ・AI・UI
-5. `arena3d` -- Low-level 3D 描画
+4. `arena3d` -- 一人称・三人称の操作と剛体物理
 
 ## 1. scene_demo で宣言的 API を理解する
 
@@ -79,29 +78,18 @@ fn main {
 - `@scene.for_each` で敵・アイテム・弾を動的描画
 - `@scene.group` で HP バーなどの相対配置
 
-## 4. action_rpg で応用する
+## 4. arena3d で 3D 操作と物理を学ぶ
 
-- 参照: `examples/games/action_rpg/game.mbt`
-- 目的: タイルマップ、敵 AI、ポーズメニュー、ダメージエフェクトの実装を確認
-
-### ポイント
-
-- `@tilemap2d` によるタイルベースのマップ描画
-- `@ai` によるビヘイビアツリー敵 AI
-- `@ui` によるフォーカス管理付きポーズメニュー
-- `@scene.show` でダメージフラッシュ・アタックインジケータなどのエフェクト
-
-## 5. arena3d で 3D を学ぶ
-
-- 参照: `examples/games/arena3d/game.mbt`
-- 目的: CPU 側 3D→2D 投影、メッシュ、ライティングの基本を確認
-
-> arena3d は Low-level API（`DrawTrianglesCommand` 直接構築）を使用します。
+- 参照: `examples/games/arena3d/{controls,physics,view}.mbt`
+- V で視点切替、WASD で移動、Space でジャンプ、クリックまたは F で射撃する。
+- 一人称・三人称でプレイヤー、照準、物理ワールドを共有する。
+- `PhysicsWorld` が重力・衝突・力積を処理し、表示側は剛体の位置を参照する。
+- Studio では `crate`・`ball` を配置できる。R でシーンを初期状態に戻す。
 
 ## 実行メモ
 
 各 example は個別 module です。実行時は対象ディレクトリで:
 
 ```bash
-(cd examples/<name> && moon run src --target <target>)
+just dev arena3d
 ```

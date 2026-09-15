@@ -11,13 +11,14 @@ export function install({ input, command }) {
     </header>
     <div id="telemetry"><div class="vital"><small>DRAGON</small><div id="health"></div></div>
       <div class="score"><small>ごちそう SCORE</small><strong id="score">000000</strong><span id="dishes">0 杯</span></div>
-      <div class="route"><small>01 / THE SUNKEN ARCHIPELAGO</small><div><i id="progress"></i></div><span id="time">96s</span></div>
+      <div class="route"><small>01 / THE SUNKEN ARCHIPELAGO</small><div><i id="progress"></i></div><span id="time">84s → BOSS</span></div>
     </div>
+    <section id="boss-status" hidden><div><span>大群主 KAWAIIKO</span><small id="boss-phase">PHASE 01</small></div><div class="boss-track"><i id="boss-health"></i></div><p>6か所をロック / ビームの予告線から離れろ</p></section>
     <div id="announcement" aria-live="polite"></div>
     <section id="menu"><div class="eyebrow">KAGURA FLIGHT ARCADE · 01</div><h1>EMBER<br><em>WING</em></h1>
-      <p class="tagline">空の群れを、召し上がれ。</p><p class="description">翼を広げ、海上遺跡の向こうへ。<br>迫りくる kawaiiko を火球で撃ち落とせ。<br>今日の戦果は、あつあつの鴨南蛮。</p>
+      <p class="tagline">空の群れを、召し上がれ。</p><p class="description">翼を広げ、海上遺跡の向こうへ。<br>増え続ける群れ、弾幕、飛来する岩。<br>巨大 kawaiiko を倒して、空を切り開け。</p>
       <div class="instructions"><div><b>L</b><span>長押しでマルチロック<br><strong>離して、追尾火球</strong></span></div><div><b>R</b><span>狙いを定めて長押し<br><strong>火線を吐く</strong></span></div></div>
-      <button class="primary" id="start">飛び立つ <span>↗</span></button><small class="hint">マウスで照準・移動 / WASD・矢印で回避 / ESC で一時停止</small>
+      <button class="primary" id="start">飛び立つ <span>↗</span></button><button class="practice" id="practice">巨大 kawaiiko 戦を練習 →</button><small class="hint">マウスで照準・移動 / WASD・矢印で回避 / ESC で一時停止</small>
     </section>
     <section id="dialog" hidden><small id="dialog-label">FLIGHT PAUSED</small><h2 id="dialog-title">ひと休み。</h2><p id="result"></p><button class="primary" id="continue">飛行を続ける ↗</button><button class="secondary" id="return">タイトルへ</button></section>
     <footer id="weapons"><div class="weapon lock"><b>L</b><div><small>HOMING FIREBALL</small><strong id="locks">MULTI LOCK <em>00 / 12</em></strong><span>長押しで捕捉 → 離して一斉射撃</span></div><div id="lock-pips"></div></div>
@@ -42,6 +43,9 @@ export function install({ input, command }) {
     @media(max-height:700px) and (min-width:700px){#menu{top:15%}h1{font-size:80px;margin:20px 0}.description{font-size:11px}.instructions{margin:17px 0}.tagline{margin-bottom:10px}}
     @media(max-width:700px){header{inset:18px 18px auto}.brand{font-size:13px;letter-spacing:2px}.brand small{display:none}nav button{padding:0 8px}#menu{left:8%;top:15%;right:8%}h1{font-size:85px}.tagline{font-size:16px}.description{font-size:11px}.instructions{gap:18px;margin:22px 0}.hint{font-size:8px;max-width:275px;line-height:1.8}#credit{left:8%;bottom:18px;font-size:7px;letter-spacing:1px}#telemetry{top:80px;left:20px;right:20px}.route{top:90px;min-width:200px}.route small{font-size:7px}.score strong{font-size:24px}#health i{width:18px}#weapons{left:20px;right:20px;bottom:22px}.weapon>b,.weapon span,#lock-pips{display:none}.weapon strong{font-size:11px}.weapon small{font-size:7px;letter-spacing:1px}.weapon em{font-size:9px;margin-left:4px}.heat{width:125px}#dialog{min-width:300px;padding:30px}#announcement{top:30%;white-space:nowrap;font-size:9px}}
     @media(pointer:coarse){.playing #touch{display:flex;position:absolute;bottom:100px;right:20px;left:20px;justify-content:space-between;z-index:4}#touch button{width:76px;height:76px;border-radius:50%;background:#183d4670;border:1px solid #ffe2aa8c;font-size:11px}.hint{font-size:0}.hint:after{content:"画面をなぞって照準 / 左ボタンでロック / 右ボタンで火線";font-size:9px}}
+    #boss-status{position:absolute;top:153px;left:50%;transform:translateX(-50%);width:min(440px,80%);padding:9px 12px;background:#24414a9c;border-radius:4px;z-index:2;pointer-events:none}#boss-status>div:first-child{display:flex;justify-content:space-between;font-size:11px;letter-spacing:2px;color:#fff1da;text-shadow:0 1px 4px #263c48}#boss-phase{color:#ffacce;font-size:9px}.boss-track{height:7px;background:#3d204c8c;border:1px solid #fba4cf70;margin-top:9px}.boss-track i{display:block;height:100%;background:linear-gradient(90deg,#d862a7,#ffc7d2);width:100%;transition:width .12s linear}#boss-status p{font-size:9px;text-align:center;letter-spacing:1px;color:#eecbd1;margin:7px 0}.practice{display:block;font-size:11px;border:0;border-bottom:1px solid #eed7aa50;border-radius:0;background:transparent;padding:10px 0;margin-top:10px;color:#efdfbc}.practice:hover{background:transparent;color:#fff1d0}
+    @media(max-width:700px){.boss-battle .route{display:none}#boss-status{top:158px;width:calc(100% - 48px)}#boss-status>div:first-child{font-size:10px}.boss-track{height:6px}#boss-status p{font-size:8px}.boss-battle #announcement{top:246px}}
+    @media(max-height:680px) and (max-width:700px){#menu{top:12%}h1{font-size:60px;margin:18px 0}.tagline{font-size:14px;margin:10px 0}.description{font-size:10px;line-height:1.7}.instructions{margin:14px 0}.primary{padding:13px 18px}.practice{margin-top:4px}.hint{margin-top:8px}}
     @media(prefers-reduced-motion:reduce){*{transition:none!important}}
   `;
   surface.prepend(canvas);
@@ -51,8 +55,11 @@ export function install({ input, command }) {
   const hud = $("flight-hud"), context = hud.getContext("2d");
   let width = 0, height = 0, state, mode = "title", x = 0, y = 0, lock = false, flame = false;
   let muted = false, audio, master, breath, lastWave = 0, announceUntil = 0;
-  let lastEvents = { volley_event: 0, hit_event: 0, lock_event: 0, kills: 0 }, lastScore = -1, lastHealth = -1, lastLocks = -1;
-  let lastFlame = "", lastTime = "";
+  let lastEvents = { volley_event: 0, hit_event: 0, lock_event: 0, kills: 0, beam_event: 0 }, lastScore = -1, lastHealth = -1, lastLocks = -1;
+  let lastFlame = "", lastTime = "", lastBossPhase = 0;
+  const encounter = new URLSearchParams(location.search).get("encounter");
+  const initialAction = encounter === "boss" ? "practice-boss" : encounter === "swarm" ? "practice-swarm" : "start";
+  let flightAction = initialAction;
   const keys = new Set();
   const send = () => input(x, y, Number(keys.has("KeyD") || keys.has("ArrowRight")) - Number(keys.has("KeyA") || keys.has("ArrowLeft")), Number(keys.has("KeyW") || keys.has("ArrowUp")) - Number(keys.has("KeyS") || keys.has("ArrowDown")), lock, flame);
   const reset = () => { keys.clear(); lock = false; flame = false; send(); };
@@ -78,15 +85,23 @@ export function install({ input, command }) {
     oscillator.connect(envelope); envelope.connect(master); oscillator.start(t); oscillator.stop(t + duration + 0.03);
     oscillator.onended = () => { oscillator.disconnect(); envelope.disconnect(); };
   }
-  $("start").onclick = () => { soundReady(); lastWave = 0; act("start"); };
-  $("continue").onclick = () => { soundReady(); act(mode === "paused" ? "resume" : "restart"); };
+  $("start").onclick = () => { soundReady(); lastWave = 0; lastBossPhase=0; flightAction=initialAction; act(flightAction); };
+  $("practice").onclick = () => { soundReady(); lastBossPhase=0; flightAction="practice-boss"; act(flightAction); };
+  $("continue").onclick = () => { soundReady(); act(mode === "paused" ? "resume" : flightAction); };
   $("return").onclick = () => act("title");
   $("pause").onclick = pause;
   $("sound").onclick = () => { muted = !muted; soundReady(); master.gain.setTargetAtTime(muted ? 0 : 0.24, audio.currentTime, 0.04); $("sound").textContent = muted ? "音 OFF" : "音 ON"; };
-  const move = (event) => { const r = surface.getBoundingClientRect(); x = Math.max(-1, Math.min(1, (event.clientX-r.left)/r.width*2-1)); y = Math.max(-1, Math.min(1, 1-(event.clientY-r.top)/r.height*2)); send(); };
+  const syncMouseButtons = (event) => {
+    // A chord changes via pointermove; pointerup arrives only after the last button is released.
+    // Touch aim must preserve the independent on-screen weapon buttons.
+    if (event.pointerType === "touch") return;
+    lock = mode === "playing" && (event.buttons & 1) !== 0;
+    flame = mode === "playing" && (event.buttons & 2) !== 0;
+  };
+  const move = (event) => { const r = surface.getBoundingClientRect(); x = Math.max(-1, Math.min(1, (event.clientX-r.left)/r.width*2-1)); y = Math.max(-1, Math.min(1, 1-(event.clientY-r.top)/r.height*2)); syncMouseButtons(event); send(); };
   canvas.addEventListener("pointermove", move);
-  canvas.addEventListener("pointerdown", (event) => { if (mode !== "playing") return; event.preventDefault(); soundReady(); canvas.setPointerCapture(event.pointerId); move(event); if (event.pointerType !== "touch") { if (event.button === 0) lock = true; if (event.button === 2) flame = true; } send(); });
-  window.addEventListener("pointerup", (event) => { if (event.pointerType === "touch") return; if (event.button === 0) lock = false; if (event.button === 2) flame = false; send(); });
+  canvas.addEventListener("pointerdown", (event) => { if (mode !== "playing") return; event.preventDefault(); soundReady(); canvas.setPointerCapture(event.pointerId); move(event); });
+  window.addEventListener("pointerup", (event) => { if (event.pointerType === "touch") return; syncMouseButtons(event); send(); });
   window.addEventListener("pointercancel", reset);
   canvas.addEventListener("contextmenu", (event) => event.preventDefault());
   for (const [id, weapon] of [["touch-lock", "lock"], ["touch-fire", "flame"]]) {
@@ -98,7 +113,7 @@ export function install({ input, command }) {
   window.addEventListener("keydown", (event) => {
     if (["Space","Escape","KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","KeyM"].includes(event.code)) event.preventDefault(); else return;
     if (!event.repeat && event.code === "Escape") pause();
-    if (!event.repeat && event.code === "Space" && mode !== "playing") { soundReady(); act(mode === "paused" ? "resume" : "start"); }
+    if (!event.repeat && event.code === "Space" && mode !== "playing") { soundReady(); act(mode === "paused" ? "resume" : mode === "title" ? initialAction : flightAction); }
     if (!event.repeat && event.code === "KeyM") $("sound").click();
     keys.add(event.code); send();
   });
@@ -111,6 +126,22 @@ export function install({ input, command }) {
     const c = context; c.setTransform(ratio,0,0,ratio,0,0); c.clearRect(0,0,w,h);
     if (s.mode !== "playing") return;
     if (s.hit_timer > 1) { c.fillStyle = `rgba(222,74,62,${(s.hit_timer-1)*0.5})`; c.fillRect(0,0,w,h); }
+    const playerX=(s.player_screen_x+1)*w/2, playerY=(1-s.player_screen_y)*h/2;
+    c.strokeStyle="#bff7e5"; c.lineWidth=1.3; c.beginPath();c.arc(playerX,playerY,Math.max(6,s.player_radius*h/2),0,Math.PI*2);c.stroke();
+    c.fillStyle="#e4fff4";c.fillRect(playerX-1.5,playerY-1.5,3,3);
+    for (const danger of s.dangers) {
+      const dx=(danger.x+1)*w/2, dy=(1-danger.y)*h/2, fx=(danger.from_x+1)*w/2, fy=(1-danger.from_y)*h/2;
+      const radius=Math.max(15,Math.min(150,danger.radius*h/2));
+      const beam=danger.kind==="beam";
+      c.strokeStyle=beam?"#fa99e4":"#ffd495";c.fillStyle=beam?"#ed64c016":"#ffc28412";c.lineWidth=1.5;
+      c.setLineDash(beam?[6,6]:[3,7]);c.beginPath();c.moveTo(fx,fy);c.lineTo(dx,dy);c.stroke();
+      c.beginPath();c.arc(dx,dy,radius,0,Math.PI*2);c.fill();c.stroke();c.setLineDash([]);
+      c.lineWidth=3;c.beginPath();c.arc(dx,dy,radius+4,-Math.PI/2,-Math.PI/2+Math.PI*2*danger.progress);c.stroke();
+      c.font="600 10px sans-serif";c.textAlign="center";
+      const label=`${beam?"ビーム":"岩"} ${Math.max(0,danger.remaining).toFixed(1)}s`, labelWidth=c.measureText(label).width;
+      c.fillStyle="#293747de";c.fillRect(dx-labelWidth/2-5,dy-radius-22,labelWidth+10,17);
+      c.fillStyle=beam?"#ffe0fa":"#ffe1b6";c.fillText(label,dx,dy-radius-10);
+    }
     const px = (s.aim_x+1)*w/2, py = (1-s.aim_y)*h/2;
     c.strokeStyle = s.overheated ? "#ff805e" : "#ffe8ae"; c.lineWidth = 1.5;
     c.beginPath(); c.arc(px,py,s.breathing ? 8 : 13,0,Math.PI*2); c.stroke();
@@ -124,7 +155,7 @@ export function install({ input, command }) {
         c.beginPath(); c.arc(tx,ty,radius,0,Math.PI*2); c.stroke();
         for (let k=0;k<4;k++) {const a=Math.PI/4+k*Math.PI/2; c.beginPath(); c.moveTo(tx+Math.cos(a)*(radius+3),ty+Math.sin(a)*(radius+3)); c.lineTo(tx+Math.cos(a)*(radius+9),ty+Math.sin(a)*(radius+9)); c.stroke();}
         c.font="8px monospace";c.textAlign="center";c.fillText("LOCK",tx,ty-radius-8);
-      } else if (target.elite) { c.fillStyle="#ffb182";c.font="10px sans-serif";c.textAlign="center";c.fillText("◆",tx,ty-radius-4); }
+      } else if (target.elite || target.boss) { c.fillStyle="#ffb182";c.font="10px sans-serif";c.textAlign="center";c.fillText("◆",tx,ty-radius-4); }
     }
     for (const dish of s.dishes) {
       if (dish.age>1.4) continue;
@@ -151,16 +182,26 @@ export function install({ input, command }) {
     $("heat").style.width=`${s.heat*100}%`;
     const flameLabel=s.overheated?"COOLING":s.breathing?"FIRING":"READY";
     if (lastFlame !== flameLabel) { lastFlame=flameLabel; $("flame-label").innerHTML=`火線 <em>${flameLabel}</em>`; }
-    $("progress").style.width=`${Math.min(100,s.time/96*100)}%`;
-    const timeLabel=`${Math.ceil(Math.max(0,96-s.time))}s · WAVE ${String(s.wave).padStart(2,"0")}`;
+    $("progress").style.width=`${Math.min(100,s.time/84*100)}%`;
+    $("boss-status").hidden=!s.boss_active;
+    surface.classList.toggle("boss-battle",s.boss_active);
+    if(s.boss_active){$("boss-health").style.width=`${Math.max(0,s.boss_hp/s.boss_max_hp*100)}%`;$("boss-phase").textContent=`PHASE 0${s.boss_phase}`;}
+    const timeLabel=s.boss_defeated?"大群主 撃破":s.boss_active?"FINAL ENCOUNTER · 大群主":`WAVE ${String(s.wave).padStart(2,"0")} / 09 · ${Math.ceil(Math.max(0,84-s.time))}s → BOSS`;
     if (lastTime !== timeLabel) {lastTime=timeLabel;$("time").textContent=timeLabel;}
-    if (s.mode === "playing" && s.wave !== lastWave) { lastWave=s.wave; announceUntil=s.time+2.5; $("announcement").textContent=s.wave===1?"群れを捕捉せよ · HOLD & RELEASE":`WAVE ${String(s.wave).padStart(2,"0")} / 群れが接近`; }
+    if (s.mode === "playing" && !s.boss_active && !s.boss_defeated && s.wave !== lastWave) { lastWave=s.wave; announceUntil=s.time+2.5; $("announcement").textContent=s.wave===1?"群れを捕捉せよ · HOLD & RELEASE":`WAVE ${String(s.wave).padStart(2,"0")} / 群れが接近`; }
+    if (s.mode === "playing" && s.boss_active && s.boss_phase !== lastBossPhase) {
+      lastBossPhase=s.boss_phase;announceUntil=s.time+2.8;
+      $("announcement").textContent=s.boss_phase===1?"大群主、飛来 / BEAM WARNING":"PHASE 02 / 三連ビームは上下へ回避";
+      tone(390,180,0.5,0.22,"triangle");
+    }
+    if (s.mode === "title") lastBossPhase=0;
     if (s.time > announceUntil || s.mode !== "playing") $("announcement").textContent="";
     if (audio) {
       breath.gain.setTargetAtTime(s.breathing && s.mode === "playing" ? 0.3 : 0, audio.currentTime, 0.06);
       if (s.lock_event>lastEvents.lock_event) tone(650+s.locks*45,950+s.locks*35,0.09,0.15);
       if (s.volley_event>lastEvents.volley_event) tone(230,65,0.3,0.4,"triangle");
       if (s.kills>lastEvents.kills) tone(460,850,0.16,0.24,"sine");
+      if (s.beam_event>lastEvents.beam_event) tone(1200,85,0.3,0.3,"sawtooth");
       if (s.hit_event>lastEvents.hit_event) tone(150,55,0.28,0.4,"triangle");
     }
     lastEvents=s;

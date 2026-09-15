@@ -48,6 +48,7 @@ pub(all) struct Enemy {
   mut flash : Double
   mut shot_clock : Double
   elite : Bool
+  boss : Bool
 }
 
 ///|
@@ -70,10 +71,41 @@ pub(all) struct Shot {
 pub(all) struct Bowl {
   id : Int
   points : Int
+  scale : Double
   mut position : @math3d.Vec3
   mut age : Double
   mut velocity_y : Double
   phase : Double
+}
+
+///|
+pub(all) struct Rock {
+  mut position : @math3d.Vec3
+  velocity : @math3d.Vec3
+  radius : Double
+  phase : Double
+  mut age : Double
+}
+
+///|
+pub(all) struct Beam {
+  origin : @math3d.Vec3
+  direction : @math3d.Vec3
+  aim : @math3d.Vec3
+  warning : Double
+  radius : Double
+  mut age : Double
+  mut hit : Bool
+}
+
+///|
+pub(all) struct LockTarget {
+  id : Int
+  enemy : Int
+  position : @math3d.Vec3
+  radius : Double
+  boss : Bool
+  elite : Bool
 }
 
 ///|
@@ -83,6 +115,13 @@ pub(all) struct Game {
   mut time : Double
   mut wave : Int
   mut next_wave : Double
+  mut next_rock : Double
+  mut boss_spawned : Bool
+  mut boss_defeated : Bool
+  mut boss_clock : Double
+  mut boss_salvo : Int
+  mut victory_clock : Double
+  mut beam_event : Int
   mut serial : Int
   mut hp : Int
   mut score : Int
@@ -108,6 +147,8 @@ pub(all) struct Game {
   balls : Array[Fireball]
   shots : Array[Shot]
   bowls : Array[Bowl]
+  rocks : Array[Rock]
+  beams : Array[Beam]
 }
 
 ///|
@@ -118,6 +159,13 @@ pub fn new_game(seed : Int) -> Game {
     time: 0,
     wave: 0,
     next_wave: 1.5,
+    next_rock: 12,
+    boss_spawned: false,
+    boss_defeated: false,
+    boss_clock: 0,
+    boss_salvo: 0,
+    victory_clock: 0,
+    beam_event: 0,
     serial: 0,
     hp: 6,
     score: 0,
@@ -143,6 +191,8 @@ pub fn new_game(seed : Int) -> Game {
     balls: [],
     shots: [],
     bowls: [],
+    rocks: [],
+    beams: [],
   }
   spawn_wave(g)
   g
@@ -154,8 +204,9 @@ pub fn spawn_enemy(
   position : @math3d.Vec3,
   phase : Int,
   elite? : Bool = false,
+  boss? : Bool = false,
 ) -> Unit {
-  if g.enemies.length() >= 80 {
+  if g.enemies.length() >= 120 {
     return
   }
   g.serial += 1
@@ -164,40 +215,43 @@ pub fn spawn_enemy(
     position,
     origin: position,
     phase: phase.to_double() * 0.83,
-    hp: if elite {
+    hp: if boss {
+      boss_max_hp()
+    } else if elite {
       4.0
     } else {
       1.0
     },
     flash: 0,
-    shot_clock: 3.0 + (phase % 7).to_double() * 0.35,
+    shot_clock: 1.1 + (phase % 9).to_double() * 0.19,
     elite,
+    boss,
   })
 }
 
 ///|
 fn spawn_wave(g : Game) -> Unit {
   g.wave += 1
-  let count = 18 + g.wave % 3 * 6
+  let count = 18 + g.wave * 6
   for i = 0; i < count; i = i + 1 {
-    let column = (i % 6).to_double() - 2.5
-    let row = (i / 6).to_double()
+    let column = (i % 8).to_double() - 3.5
+    let row = (i / 8).to_double()
     let pattern = (g.wave + g.seed % 3) % 3
     let x = if pattern == 0 {
-      column * 4.2
+      column * 3.1
     } else if pattern == 1 {
-      column * 3.0 + @math.sin(row * 1.8) * 3
+      column * 2.7 + @math.sin(row * 1.8) * 2
     } else {
-      @math.cos(i.to_double() * 0.9) * (5 + row * 1.7)
+      @math.cos(i.to_double() * 0.9) * (5 + row * 0.7)
     }
     let y = if pattern == 2 {
       @math.sin(i.to_double() * 0.9) * 5.5 + 2
     } else {
-      row * 2.8 - 3
+      (row - ((count - 1) / 8).to_double() * 0.5) * 1.6 + 1
     }
     spawn_enemy(
       g,
-      vec(x, y, -44 - row * 6),
+      vec(x, y, -44 - row * 3.8),
       i + g.wave * 11,
       elite=g.wave >= 5 && i % 8 == 0,
     )
@@ -207,15 +261,23 @@ fn spawn_wave(g : Game) -> Unit {
 ///|
 pub fn command(g : Game, action : String) -> Unit {
   match action {
-    "start" | "restart" => {
+    "start" | "restart" | "practice-boss" | "practice-swarm" => {
       g.enemies.clear()
       g.locks.clear()
       g.balls.clear()
       g.shots.clear()
       g.bowls.clear()
+      g.rocks.clear()
+      g.beams.clear()
       g.time = 0
       g.wave = 0
       g.next_wave = 9
+      g.next_rock = 12
+      g.boss_spawned = false
+      g.boss_defeated = false
+      g.boss_clock = 0
+      g.boss_salvo = 0
+      g.victory_clock = 0
       g.hp = 6
       g.score = 0
       g.kills = 0
@@ -228,7 +290,19 @@ pub fn command(g : Game, action : String) -> Unit {
       g.fire_clock = 0
       g.player = vec(0, -0.5, 2)
       g.mode = "playing"
-      spawn_wave(g)
+      if action == "practice-boss" {
+        g.time = 84
+        g.wave = 9
+        g.next_rock = 90
+        spawn_boss(g)
+      } else if action == "practice-swarm" {
+        g.time = 68
+        g.wave = 8
+        g.next_rock = 69
+        spawn_wave(g)
+      } else {
+        spawn_wave(g)
+      }
     }
     "pause" => if g.mode == "playing" { g.mode = "paused" }
     "resume" => if g.mode == "paused" { g.mode = "playing" }

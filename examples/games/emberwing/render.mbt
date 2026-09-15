@@ -98,40 +98,64 @@ fn draw(
   }
   foam.put(@sim.vec(-66, 30, -210), @sim.vec(7, 7, 2), hex=0xffe5a8)
   let duck = [batch(a.duck[0]), batch(a.duck[1]), batch(a.duck[2])]
+  let crowns = batch(a.crown)
+  let fire = batch(a.glow)
+  let rocks = batch(a.rock)
   for enemy in g.enemies {
     let p = enemy.position.add(
       @sim.vec(0, @math.sin(t * 4 + enemy.phase) * 0.15, 0),
     )
-    let scale = if enemy.elite { 1.4 } else { 1.0 }
+    let scale = if enemy.boss { 5.5 } else if enemy.elite { 1.4 } else { 1.0 }
     let root = transform(
       p,
       @sim.vec(scale, scale, scale),
-      yaw=@math.sin(t + enemy.phase) * 0.12,
+      yaw=if enemy.boss { 0.0 } else { @math.sin(t + enemy.phase) * 0.12 },
     )
     let tint = if enemy.flash > 0 {
       0xffbe75
+    } else if enemy.boss && enemy.hp < @sim.boss_max_hp() * 0.5 {
+      0xffbdb7
     } else if enemy.elite {
       0xffd9bc
     } else {
       0xffffff
     }
     duck[0].push(root, hex=tint)
+    if enemy.boss {
+      crowns.push(
+        root
+        .multiply(@math3d.Mat4::translation(0, 2.58, 0.45))
+        .multiply(@math3d.Mat4::scaling(0.55, 0.55, 0.55)),
+      )
+    } else if enemy.shot_clock > 0 &&
+      enemy.shot_clock < 0.6 &&
+      (if g.wave >= 4 { enemy.id % 2 == 0 } else { enemy.id % 3 == 0 }) {
+      let size = (0.6 - enemy.shot_clock) * 0.55 + 0.07
+      fire.put(
+        @sim.enemy_center(enemy).add(@sim.vec(0, 0, 0.7)),
+        @sim.vec(size, size, size),
+        hex=0xffa9ce,
+      )
+    }
     for i = 0; i < 2; i = i + 1 {
       let side = if i == 0 { -1.0 } else { 1.0 }
       duck[i + 1].push(
         root
         .multiply(@math3d.Mat4::translation(side * 0.5015, 0.9945, -0.1275))
         .multiply(
-          @math3d.Mat4::rotation_z(side * @math.sin(t * 9 + enemy.phase) * 0.65),
+          @math3d.Mat4::rotation_z(
+            side *
+            @math.sin(t * (if enemy.boss { 3.5 } else { 9.0 }) + enemy.phase) *
+            0.65,
+          ),
         ),
         hex=tint,
       )
     }
   }
   let dishes = batch(a.bowl)
-  let fire = batch(a.glow)
   for bowl in g.bowls {
-    let scale = 1.6 + @math.exp(-bowl.age * 6) * 0.65
+    let scale = (1.6 + @math.exp(-bowl.age * 6) * 0.65) * bowl.scale
     dishes.push(
       transform(
         bowl.position,
@@ -185,12 +209,65 @@ fn draw(
     }
   }
   for shot in g.shots {
-    fire.put(shot.position, @sim.vec(0.35, 0.35, 0.35), hex=0xe95782)
-    fire.put(
-      shot.position.add(@sim.vec(0, 0, 0.2)),
-      @sim.vec(0.15, 0.15, 0.15),
-      hex=0xffe5c3,
+    let direction = shot.velocity.normalize()
+    fire.segment(
+      shot.position.sub(direction.scale(0.65)),
+      shot.position.add(direction.scale(0.25)),
+      0.26,
+      0xe54c9a,
     )
+    fire.put(
+      shot.position.add(direction.scale(0.25)),
+      @sim.vec(0.14, 0.14, 0.14),
+      hex=0xfff3e3,
+    )
+  }
+  for rock in g.rocks {
+    rocks.push(
+      transform(
+        rock.position,
+        @sim.vec(rock.radius, rock.radius, rock.radius),
+        yaw=rock.phase + t * 1.8,
+      ).multiply(@math3d.Mat4::rotation_x(t * 1.3)),
+    )
+    let direction = rock.velocity.normalize()
+    for i = 1; i < 5; i = i + 1 {
+      let size = rock.radius * (0.22 - i.to_double() * 0.025)
+      fire.put(
+        rock.position.sub(direction.scale(i.to_double() * 0.7)),
+        @sim.vec(size, size, size),
+        hex=if i < 3 { 0xd6a880 } else { 0x999289 },
+      )
+    }
+  }
+  for beam in g.beams {
+    if beam.age < beam.warning {
+      let charge = beam.age / beam.warning
+      for i = 0; i < 20; i = i + 1 {
+        let start = beam.origin.lerp(beam.aim, i.to_double() / 20)
+        let end = beam.origin.lerp(beam.aim, (i.to_double() + 0.48) / 20)
+        fire.segment(start, end, 0.035 + charge * 0.035, 0xdf69bd)
+      }
+      fire.put(
+        beam.origin,
+        @sim.vec(
+          0.25 + charge * 0.65,
+          0.25 + charge * 0.65,
+          0.25 + charge * 0.65,
+        ),
+        hex=0xffa7eb,
+      )
+    } else {
+      let distance = (beam.age - beam.warning) * 220
+      let start = beam.origin.add(
+        beam.direction.scale(@sim.clamp(distance - 22, 0, 200)),
+      )
+      let end = beam.origin.add(
+        beam.direction.scale(@sim.clamp(distance, 0, 200)),
+      )
+      fire.segment(start, end, beam.radius, 0xe669ec)
+      fire.segment(start, end, beam.radius * 0.4, 0xfff4ff)
+    }
   }
   if g.breathing {
     let origin = @sim.mouth(g)
@@ -248,6 +325,8 @@ fn draw(
       duck[1],
       duck[2],
       dishes,
+      rocks,
+      crowns,
       body,
       wing[0],
       wing[1],
@@ -283,4 +362,32 @@ fn draw(
   a.draws = commands.length()
   publish(hud(a, vp))
   commands
+}
+
+///|
+fn Batch::segment(
+  self : Batch,
+  start : @math3d.Vec3,
+  end : @math3d.Vec3,
+  radius : Double,
+  hex : Int,
+) -> Unit {
+  let delta = end.sub(start)
+  let length = delta.length()
+  if length < 0.001 {
+    return
+  }
+  let middle = start.lerp(end, 0.5)
+  let yaw = @math.atan2(delta.x, delta.z)
+  let pitch = -@math.atan2(
+    delta.y,
+    (delta.x * delta.x + delta.z * delta.z).sqrt(),
+  )
+  self.push(
+    @math3d.Mat4::translation(middle.x, middle.y, middle.z)
+    .multiply(@math3d.Mat4::rotation_y(yaw))
+    .multiply(@math3d.Mat4::rotation_x(pitch))
+    .multiply(@math3d.Mat4::scaling(radius, radius, length * 0.5)),
+    hex~,
+  )
 }

@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 const snapshot = (page) => page.evaluate(() => globalThis.emberwing?.snapshot());
-async function boot(page) {
+async function boot(page, path = "/") {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
     if (message.type() === "error" && !message.location().url.endsWith("/favicon.ico")) errors.push(message.text());
   });
-  await page.goto("/");
+  await page.goto(path);
   await expect(page.locator("#start")).toBeVisible();
   await expect.poll(async () => (await snapshot(page))?.mode).toBe("title");
   await expect(page.locator("#game-surface")).toHaveCSS("position", "fixed");
@@ -19,6 +19,70 @@ async function aim(page, target) {
   const viewport = page.viewportSize();
   await page.mouse.move((target.x+1)*viewport.width/2,(1-target.y)*viewport.height/2);
 }
+
+test("chorded mouse buttons release breath independently of the lock button", async ({page}) => {
+  await boot(page);
+  await aim(page,(await snapshot(page)).targets[0]);
+  await page.mouse.down({button:"right"});
+  await expect.poll(async()=>(await snapshot(page)).breathing).toBe(true);
+  await page.mouse.down({button:"left"});
+  await page.mouse.up({button:"right"});
+  await expect.poll(async()=>(await snapshot(page)).breathing,{timeout:1000}).toBe(false);
+  expect((await snapshot(page)).aiming).toBe(true);
+  await page.mouse.down({button:"right"});
+  await expect.poll(async()=>(await snapshot(page)).breathing).toBe(true);
+  await page.mouse.up({button:"left"});
+  await expect.poll(async()=>(await snapshot(page)).aiming).toBe(false);
+  expect((await snapshot(page)).breathing).toBe(true);
+  await page.mouse.up({button:"right"});
+  await expect.poll(async()=>(await snapshot(page)).breathing).toBe(false);
+  const heat=(await snapshot(page)).heat;
+  await page.waitForTimeout(160);
+  expect((await snapshot(page)).heat).toBeLessThanOrEqual(heat);
+});
+
+test("boss has six lock points and telegraphs a beam that can be dodged", async ({page}) => {
+  const errors=await boot(page,"/?encounter=boss");
+  await expect(page.locator("#boss-status")).toBeVisible();
+  expect((await snapshot(page)).targets.filter(t=>t.boss)).toHaveLength(6);
+  await page.mouse.down();
+  for (const id of (await snapshot(page)).targets.map(t=>t.id)) {
+    await aim(page,(await snapshot(page)).targets.find(t=>t.id===id));
+    await page.waitForTimeout(120);
+  }
+  await expect.poll(async()=>(await snapshot(page)).locks).toBe(6);
+  await page.mouse.up();
+  await expect.poll(async()=>(await snapshot(page)).boss_hp).toBeLessThan(180);
+  await expect.poll(async()=>(await snapshot(page)).dangers.some(d=>d.kind==="beam"&&d.remaining>0.5)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect.poll(async()=>(await snapshot(page)).mode).toBe("paused");
+  const paused=await snapshot(page);
+  await page.waitForTimeout(200);
+  expect((await snapshot(page)).dangers).toEqual(paused.dangers);
+  await page.locator("#continue").click();
+  await page.keyboard.down("s");
+  await expect.poll(async()=>(await snapshot(page)).beam_event).toBeGreaterThan(paused.beam_event);
+  await page.screenshot({path:"output/emberwing/boss-beam.png"});
+  await page.waitForTimeout(350);
+  await page.keyboard.up("s");
+  expect((await snapshot(page)).hp).toBe(paused.hp);
+  expect((await snapshot(page)).draw_calls).toBeLessThanOrEqual(24);
+  expect(errors).toEqual([]);
+});
+
+test("late waves fill the sky with bullets and telegraphed flying rocks", async ({page}) => {
+  const errors=await boot(page,"/?encounter=swarm");
+  expect((await snapshot(page)).wave).toBe(9);
+  expect((await snapshot(page)).targets).toHaveLength(72);
+  await expect.poll(async()=>(await snapshot(page)).shots).toBeGreaterThan(100);
+  await expect.poll(async()=>(await snapshot(page)).dangers.some(d=>d.kind==="rock")).toBe(true);
+  const state=await snapshot(page);
+  expect(state.rocks).toBe(3);
+  expect(state.shots).toBeLessThanOrEqual(320);
+  expect(state.draw_calls).toBeLessThanOrEqual(24);
+  await page.screenshot({path:"output/emberwing/late-wave.png"});
+  expect(errors).toEqual([]);
+});
 
 test("hold sweeps multiple locks; release fires homing balls and cooks falling dishes", async ({ page }) => {
   const errors = await boot(page);

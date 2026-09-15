@@ -3,19 +3,29 @@ fn defeat(g : Game, enemy : Enemy) -> Unit {
   if enemy.hp > 0 {
     return
   }
-  g.score += if enemy.elite { 400 } else { 100 }
+  let points = if enemy.boss { 10000 } else if enemy.elite { 400 } else { 100 }
+  g.score += points
+  if enemy.boss {
+    g.boss_defeated = true
+    g.victory_clock = 2.2
+  }
   g.kills += 1
   if g.bowls.length() == 48 {
     ignore(g.bowls.remove(0))
   }
   g.bowls.push({
     id: enemy.id,
-    points: if enemy.elite {
-      400
+    points,
+    scale: if enemy.boss {
+      4.0
     } else {
-      100
+      1.0
     },
-    position: enemy.position,
+    position: if enemy.boss {
+      enemy_center(enemy)
+    } else {
+      enemy.position
+    },
     age: 0,
     velocity_y: 1.8,
     phase: enemy.phase,
@@ -36,11 +46,11 @@ fn damage(g : Game, enemy : Enemy, amount : Double) -> Unit {
 }
 
 ///|
-fn hurt(g : Game) -> Unit {
+fn hurt(g : Game, amount? : Int = 1) -> Unit {
   if g.hit_timer > 0 {
     return
   }
-  g.hp -= 1
+  g.hp = if g.hp <= amount { 0 } else { g.hp - amount }
   g.hit_timer = 1.25
   g.hit_event += 1
   if g.hp <= 0 {
@@ -101,6 +111,15 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     return
   }
   g.time += dt
+  if g.boss_defeated {
+    clear_dangers(g)
+    update_dishes(g, dt)
+    g.victory_clock -= dt
+    if g.victory_clock <= 0 {
+      g.mode = "won"
+    }
+    return
+  }
   g.aspect = clamp(input.aspect, 0.35, 4)
   g.aim_x = clamp(input.aim_x, -1, 1)
   g.aim_y = clamp(input.aim_y, -1, 1)
@@ -111,34 +130,46 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     clamp(g.aim_y * 3.5 + input.move_y * 2.5, -4, 5),
     2,
   )
-  g.player = g.player.lerp(target, 1 - @math.exp(-dt * 4))
+  g.player = g.player.lerp(target, 1 - @math.exp(-dt * 9))
   g.hit_timer = clamp(g.hit_timer - dt, 0, 5)
   g.fire_clock -= dt
   g.lock_clock -= dt
   if g.time >= g.next_wave && g.wave < 9 {
     spawn_wave(g)
-    g.next_wave += if g.wave > 5 { 8.0 } else { 10.0 }
+    g.next_wave += if g.wave > 5 { 7.5 } else { 9.0 }
+  }
+  if g.time >= 84 && !g.boss_spawned {
+    spawn_boss(g)
+  }
+  if g.time >= g.next_rock {
+    spawn_rocks(g)
+    g.next_rock = g.time +
+      (if g.boss_spawned { 6.0 } else { 7.0 - g.wave.to_double() * 0.25 })
   }
   for enemy in g.enemies {
+    enemy.flash = clamp(enemy.flash - dt, 0, 1)
+    if enemy.boss {
+      update_boss(g, enemy, dt)
+      continue
+    }
     enemy.position = vec(
       enemy.origin.x + @math.sin(g.time * 0.8 + enemy.phase) * 0.9,
       enemy.origin.y + @math.sin(g.time * 1.1 + enemy.phase) * 0.45,
       enemy.position.z +
-      dt * (if enemy.elite { 5.5 } else { 7.0 + (g.wave % 3).to_double() }),
+      dt * (if enemy.elite { 6.5 } else { 8.0 + g.wave.to_double() * 0.35 }),
     )
-    enemy.flash = clamp(enemy.flash - dt, 0, 1)
     enemy.shot_clock -= dt
+    let shooter = if g.wave >= 4 {
+      enemy.id % 2 == 0
+    } else {
+      enemy.id % 3 == 0
+    }
     if enemy.hp > 0 &&
-      enemy.id % 5 == 0 &&
+      shooter &&
       enemy.shot_clock <= 0 &&
-      enemy.position.z < -10 &&
-      g.shots.length() < 100 {
-      g.shots.push({
-        position: enemy.position,
-        velocity: g.player.sub(enemy.position).normalize().scale(13),
-        age: 0,
-      })
-      enemy.shot_clock = 4.5
+      enemy.position.z < -10 {
+      enemy_salvo(g, enemy)
+      enemy.shot_clock = 3.4 - clamp(g.wave.to_double() * 0.16, 0, 1.5)
     }
     if enemy.hp > 0 && enemy.position.distance(g.player) < 1.7 {
       hurt(g)
@@ -148,47 +179,43 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
   // Resolve aim depth against the visible target. A fixed far plane makes a
   // third-person muzzle miss nearby targets that are directly under the cursor.
   let vp = camera(g.aspect).view_projection_matrix()
+  let targets = lock_targets(g)
   let mut aim_distance = 0.08 * 0.08
-  for enemy in g.enemies {
-    let center = enemy.position.add(vec(0, 0.6, 0))
-    let p = project(vp, center)
+  for target in targets {
+    let p = project(vp, target.position)
     let dx = (p.x - input.aim_x) * g.aspect
     let dy = p.y - input.aim_y
     let distance = dx * dx + dy * dy
-    if enemy.hp > 0 &&
-      enemy.position.z < -3 &&
-      p.z > 4 &&
-      distance < aim_distance {
+    if target.position.z < -3 && p.z > 4 && distance < aim_distance {
       aim_distance = distance
-      g.aim = center
+      g.aim = target.position
     }
   }
   let valid = g.locks.filter(id => {
-    g.enemies.any(e => e.id == id && e.hp > 0 && e.position.z < 10)
+    targets.any(t => t.id == id && t.position.z < 10)
   })
   g.locks.clear()
   for id in valid {
     g.locks.push(id)
   }
   if input.locking && g.locks.length() < 12 && g.lock_clock <= 0 {
-    let mut best : Enemy? = None
+    let mut best : LockTarget? = None
     let mut distance = 0.22 * 0.22
-    for enemy in g.enemies {
-      let p = project(vp, enemy.position.add(vec(0, 0.9, 0)))
-      let dx = (p.x - input.aim_x) * input.aspect
+    for target in targets {
+      let p = project(vp, target.position)
+      let dx = (p.x - input.aim_x) * g.aspect
       let dy = p.y - input.aim_y
       let d = dx * dx + dy * dy
-      if enemy.hp > 0 &&
-        p.z > 4 &&
-        enemy.position.z < -4 &&
-        !g.locks.contains(enemy.id) &&
+      if p.z > 4 &&
+        target.position.z < -4 &&
+        !g.locks.contains(target.id) &&
         d < distance {
-        best = Some(enemy)
+        best = Some(target)
         distance = d
       }
     }
-    if best is Some(enemy) {
-      g.locks.push(enemy.id)
+    if best is Some(target) {
+      g.locks.push(target.id)
       g.lock_event += 1
       g.lock_clock = 0.07
     }
@@ -211,7 +238,7 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     let end = start.add(g.aim.sub(start).normalize().scale(56))
     for enemy in g.enemies {
       if enemy.hp > 0 &&
-        segment_distance(enemy.position.add(vec(0, 0.6, 0)), start, end) < 1.3 {
+        segment_distance(enemy_center(enemy), start, end) < enemy_radius(enemy) {
         damage(g, enemy, 0.38)
       }
     }
@@ -221,10 +248,15 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     ball.age += dt
     let mut destination = g.aim
     let mut target : Enemy? = None
-    for enemy in g.enemies {
-      if enemy.id == ball.target && enemy.hp > 0 {
-        target = Some(enemy)
-        destination = enemy.position.add(vec(0, 0.6, 0))
+    for point in targets {
+      if point.id == ball.target {
+        for enemy in g.enemies {
+          if enemy.id == point.enemy && enemy.hp > 0 {
+            target = Some(enemy)
+            destination = point.position
+          }
+        }
+        break
       }
     }
     if ball.age > 0.12 {
@@ -238,19 +270,16 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     }
     match target {
       Some(enemy) =>
-        if segment_distance(destination, ball.position, next) < 1.4 {
+        if segment_distance(destination, ball.position, next) <
+          (if enemy.boss { 2.0 } else { 1.4 }) {
           damage(g, enemy, 2)
           ball.age = 99
         }
       None =>
         for enemy in g.enemies {
           if enemy.hp > 0 &&
-            segment_distance(
-              enemy.position.add(vec(0, 0.6, 0)),
-              ball.position,
-              next,
-            ) <
-            1.1 {
+            segment_distance(enemy_center(enemy), ball.position, next) <
+            enemy_radius(enemy) {
             damage(g, enemy, 2)
             ball.age = 99
             break
@@ -259,30 +288,35 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     }
     ball.position = next
   }
+  if g.boss_defeated {
+    clear_dangers(g)
+    update_dishes(g, dt)
+    return
+  }
   for shot in g.shots {
     shot.age += dt
     let next = shot.position.add(shot.velocity.scale(dt))
-    if segment_distance(g.player, shot.position, next) < 1.15 {
+    if segment_distance(g.player, shot.position, next) < 0.26 + player_radius() {
       hurt(g)
       shot.age = 99
     }
     shot.position = next
   }
-  for bowl in g.bowls {
-    bowl.age += dt
-    bowl.velocity_y -= dt * 5.8
-    bowl.position = bowl.position.add(
-      vec(@math.sin(bowl.phase) * dt * 0.35, bowl.velocity_y * dt, dt * 5),
-    )
-  }
+  update_hazards(g, dt)
+  update_dishes(g, dt)
   g.enemies.retain(e => e.hp > 0 && e.position.z < 15)
   g.balls.retain(b => b.age < 4 && b.position.z > -150)
-  g.shots.retain(s => s.age < 9 && s.position.z < 25)
-  g.bowls.retain(b => b.age < 4.5)
-  if g.time >= 96 && g.mode == "playing" {
-    g.mode = "won"
-    g.breathing = false
-    g.locks.clear()
-    g.was_locking = false
-  }
+  g.shots.retain(s => s.age < 7 && s.position.z < 25)
+}
+
+///|
+fn clear_dangers(g : Game) -> Unit {
+  g.enemies.clear()
+  g.balls.clear()
+  g.shots.clear()
+  g.rocks.clear()
+  g.beams.clear()
+  g.breathing = false
+  g.locks.clear()
+  g.was_locking = false
 }

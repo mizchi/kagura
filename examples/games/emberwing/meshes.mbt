@@ -340,3 +340,44 @@ fn kawaiiko_meshes() -> Array[@mesh3d.Mesh3D] {
     mesh
   })
 }
+
+///|
+fn rock_mesh() -> @mesh3d.Mesh3D {
+  let base = @mesh3d.Mesh3D::sphere(1, 7, 5)
+  let vertices = base.vertex_data.copy()
+  for i = 0; i < vertices.length(); i = i + 8 {
+    let distortion = 1.0 +
+      @math.sin(vertices[i] * 13 + vertices[i + 1] * 17 + vertices[i + 2] * 7) *
+      0.13
+    vertices[i] *= distortion
+    vertices[i + 1] *= distortion
+    vertices[i + 2] *= distortion
+  }
+  let b = builder()
+  b.add(
+    @mesh3d.Mesh3D::new(vertices, base.indices),
+    @math3d.Mat4::identity(),
+    0x645d67,
+  )
+  b.ellipsoid(@sim.vec(0.4, 0.15, 0.8), @sim.vec(0.1, 0.55, 0.08), 0xe9b787)
+  b.ellipsoid(@sim.vec(-0.35, -0.4, 0.7), @sim.vec(0.45, 0.08, 0.08), 0xe9b787)
+  b.finish()
+}
+
+///|
+fn crown_mesh() -> @mesh3d.Mesh3D {
+  let b = builder()
+  for i = 0; i < 8; i = i + 1 {
+    let angle = i.to_double() * @math.PI / 4
+    let p = @sim.vec(@math.cos(angle) * 0.85, 0, @math.sin(angle) * 0.85)
+    b.ellipsoid(p, @sim.vec(0.38, 0.16, 0.3), 0xe8b75e)
+    b.cone(
+      p,
+      p.add(@sim.vec(0, if i % 2 == 0 { 1.1 } else { 0.65 }, 0)),
+      0.24,
+      0xffd989,
+    )
+  }
+  b.ellipsoid(@sim.vec(0, 0.2, 0.95), @sim.vec(0.17, 0.2, 0.08), 0xeb658d)
+  b.finish()
+}

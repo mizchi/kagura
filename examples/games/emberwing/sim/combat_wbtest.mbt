@@ -82,10 +82,10 @@ test "fixed seeded encounters and bounded entities survive a full unattended mis
     step(a, idle_input(), 1.0 / 60)
     step(b, idle_input(), 1.0 / 60)
     assert_true(
-      a.enemies.length() <= 80 &&
+      a.enemies.length() <= 120 &&
       a.balls.length() <= 96 &&
       a.bowls.length() <= 48 &&
-      a.shots.length() <= 100,
+      a.shots.length() <= 320,
     )
   }
   assert_eq(a.score, b.score)
@@ -132,8 +132,8 @@ test "failure and mission completion stop the world and restart a fresh flight" 
   assert_eq(g.shots.length(), 0)
   g.time = 95.99
   step(g, idle_input(), 1.0 / 60)
-  assert_eq(g.mode, "won")
-  assert_false(g.breathing)
+  assert_eq(g.mode, "playing")
+  assert_true(g.boss_spawned)
   command(g, "restart")
   assert_eq(g.time, 0)
   assert_eq(g.score, 0)

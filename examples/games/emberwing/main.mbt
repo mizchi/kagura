@@ -20,6 +20,8 @@ priv struct App {
   island : @mesh3d.Mesh3D
   glow : @mesh3d.Mesh3D
   plane : @mesh3d.Mesh3D
+  rock : @mesh3d.Mesh3D
+  crown : @mesh3d.Mesh3D
 }
 
 ///|
@@ -75,6 +77,8 @@ fn main {
     island: island_mesh(),
     glow: palette_mesh(@mesh3d.Mesh3D::sphere(1, 6, 4), 0xffffff, glow=1),
     plane: palette_mesh(@mesh3d.Mesh3D::plane(1, 1), 0xffffff),
+    rock: rock_mesh(),
+    crown: crown_mesh(),
   }
   install_host(
     fn(x, y, mx, my, lock, flame) {
@@ -129,6 +133,7 @@ priv struct TargetView {
   depth : Double
   locked : Bool
   elite : Bool
+  boss : Bool
 } derive(ToJson)
 
 ///|
@@ -137,6 +142,18 @@ priv struct BowlView {
   y : Double
   age : Double
   points : Int
+} derive(ToJson)
+
+///|
+priv struct DangerView {
+  kind : String
+  x : Double
+  y : Double
+  from_x : Double
+  from_y : Double
+  radius : Double
+  remaining : Double
+  progress : Double
 } derive(ToJson)
 
 ///|
@@ -168,13 +185,26 @@ priv struct Hud {
   cpu_ms : Double
   player_x : Double
   player_y : Double
+  player_screen_x : Double
+  player_screen_y : Double
+  player_radius : Double
+  shots : Int
+  rocks : Int
+  beams : Int
+  beam_event : Int
+  boss_active : Bool
+  boss_defeated : Bool
+  boss_hp : Double
+  boss_max_hp : Double
+  boss_phase : Int
+  dangers : Array[DangerView]
 } derive(ToJson)
 
 ///|
 fn hud(a : App, vp : @math3d.Mat4) -> String {
   let g = a.game
-  let targets = g.enemies.map(fn(e) {
-    let p = @sim.project(vp, e.position.add(@sim.vec(0, 0.9, 0)))
+  let targets = @sim.lock_targets(g).map(fn(e) {
+    let p = @sim.project(vp, e.position)
     TargetView::{
       id: e.id,
       x: p.x,
@@ -182,12 +212,68 @@ fn hud(a : App, vp : @math3d.Mat4) -> String {
       depth: p.z,
       locked: g.locks.contains(e.id),
       elite: e.elite,
+      boss: e.boss,
     }
   })
   let dishes = g.bowls.map(fn(b) {
     let p = @sim.project(vp, b.position.add(@sim.vec(0, 1, 0)))
     BowlView::{ x: p.x, y: p.y, age: b.age, points: b.points, }
   })
+  let dangers : Array[DangerView] = []
+  fn danger(
+    kind : String,
+    p : @math3d.Vec3,
+    origin : @math3d.Vec3,
+    radius : Double,
+    remaining : Double,
+    progress : Double,
+  ) -> Unit {
+    let screen = @sim.project(vp, p)
+    let from = @sim.project(vp, origin)
+    let edge = @sim.project(vp, p.add(@sim.vec(0, radius, 0)))
+    dangers.push({
+      kind,
+      x: screen.x,
+      y: screen.y,
+      from_x: from.x,
+      from_y: from.y,
+      radius: (edge.y - screen.y).abs(),
+      remaining,
+      progress,
+    })
+  }
+  for rock in g.rocks {
+    let eta = (g.player.z - rock.position.z) / rock.velocity.z
+    if eta > 0 && eta < 2.1 {
+      danger(
+        "rock",
+        rock.position.add(rock.velocity.scale(eta)),
+        rock.position,
+        rock.radius + @sim.player_radius(),
+        eta,
+        1 - eta / 2.1,
+      )
+    }
+  }
+  for beam in g.beams {
+    if beam.age < beam.warning + 0.35 {
+      danger(
+        "beam",
+        beam.aim,
+        beam.origin,
+        beam.radius + @sim.player_radius(),
+        beam.warning - beam.age,
+        @sim.clamp(beam.age / beam.warning, 0, 1),
+      )
+    }
+  }
+  let mut boss_hp = 0.0
+  for e in g.enemies {
+    if e.boss {
+      boss_hp = e.hp
+    }
+  }
+  let player_screen = @sim.project(vp, g.player)
   let view : Hud = {
     mode: g.mode,
     time: g.time,
@@ -216,6 +302,27 @@ fn hud(a : App, vp : @math3d.Mat4) -> String {
     cpu_ms: a.render_ms,
     player_x: g.player.x,
     player_y: g.player.y,
+    player_screen_x: player_screen.x,
+    player_screen_y: player_screen.y,
+    player_radius: (@sim.project(
+      vp,
+      g.player.add(@sim.vec(0, @sim.player_radius(), 0)),
+    ).y -
+    player_screen.y).abs(),
+    shots: g.shots.length(),
+    rocks: g.rocks.length(),
+    beams: g.beams.length(),
+    beam_event: g.beam_event,
+    boss_active: g.boss_spawned && !g.boss_defeated,
+    boss_defeated: g.boss_defeated,
+    boss_hp,
+    boss_max_hp: @sim.boss_max_hp(),
+    boss_phase: if boss_hp <= @sim.boss_max_hp() * 0.5 {
+      2
+    } else {
+      1
+    },
+    dangers,
   }
   ToJson::to_json(view).stringify()
 }

@@ -1,6 +1,6 @@
 name = "mizchi/geom"
 
-version = "0.5.0"
+version = "0.6.0"
 
 description = "Geometry / spatial math primitives for 2D + 3D games: Vec2 / Vec3 / Vec4, Mat4, Quaternion, 2D Path and Camera2D. Zero dependencies (only moonbitlang/core)."
 

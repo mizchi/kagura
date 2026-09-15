@@ -116,9 +116,8 @@ kagura build
 `kagura new --web` は空の現在地に生成します。雛形は公開済みの Kagura パッケージを使い、
 ローカルパス依存を使いません。共通ブラウザランタイムと Vite 設定を含みます。
 
-CLI はルートの `mizchi/kagura` モジュールとバージョンを共有します。次回リリースから
-`moon install mizchi/kagura/cmd/kagura` でインストールできます。
-公開済みの 0.5.0 は引き続き `mizchi/kagura_cli/kagura@0.5.0` です。
+0.6.0 から CLI はルートの `mizchi/kagura` モジュールとバージョンを共有します。
+`moon install mizchi/kagura/cmd/kagura@0.6.0` でインストールできます。
 
 チェックアウト内のサンプルと Studio は次のように起動します。
 

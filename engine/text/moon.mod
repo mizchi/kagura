@@ -1,6 +1,6 @@
 name = "mizchi/text"
 
-version = "0.5.0"
+version = "0.6.0"
 
 description = "Text rendering helpers (glyph cache, batch builder, font engine) on top of mizchi/gfx and mizchi/font, extracted from kagura"
 

@@ -187,7 +187,7 @@ studio-modeling-test:
     moon -C editor/studio build modeling/bridge --target js --release
     moon -C editor/studio test modeling/core --target js
     moon -C editor/studio test modeling/core --target native
-    cd editor/studio && node --test tests/modeling.test.mjs tests/modeling-startup.test.mjs
+    cd editor/studio && node --test tests/modeling.test.mjs tests/modeling-startup.test.mjs tests/modeling-expressions.test.mjs
 
 studio-modeling-e2e:
     moon -C editor/studio build --target js --release

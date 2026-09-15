@@ -7,7 +7,11 @@ import {
 }
 
 // Values
+pub fn capture_expression(ModelDocument, ModelDocument, String, String) -> ModelExpression raise ModelError
+
 pub fn decode_document(Json) -> ModelDocument raise
+
+pub fn evaluate_expressions(ModelDocument, Map[String, Double]) -> ModelDocument raise ModelError
 
 pub fn kawaiiko_document() -> ModelDocument
 
@@ -19,6 +23,14 @@ pub(all) suberror ModelError {
 } derive(@debug.Debug)
 
 // Types and methods
+type ExpressionEdit
+
+pub(all) struct ExpressionTarget {
+  node : String
+  position : Array[Double]
+  vertices : Array[VertexDelta]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
 pub(all) struct MeshNode {
   id : String
   name : String
@@ -36,6 +48,7 @@ pub(all) struct ModelDocument {
   name : String
   source : String
   nodes : Array[MeshNode]
+  expressions : Array[ModelExpression]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct ModelEditor {
@@ -49,10 +62,23 @@ pub struct ModelEditor {
   past : Array[ModelDocument]
   future : Array[ModelDocument]
   mut serial : Int
+  mut expression_edit : ExpressionEdit?
+  mut weights : Map[String, Double]
 }
 pub fn ModelEditor::new() -> Self
 pub fn ModelEditor::request(Self, String) -> String
 pub fn ModelEditor::snapshot(Self) -> Json
+
+pub(all) struct ModelExpression {
+  id : String
+  name : String
+  targets : Array[ExpressionTarget]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct VertexDelta {
+  index : Int
+  offset : Array[Double]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 

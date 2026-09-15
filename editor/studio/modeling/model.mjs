@@ -23,3 +23,12 @@ export function createModelEditor(document) {
   });
 }
 export const kawaiikoDocument = () => JSON.parse(core.kawaiiko());
+
+/** Deterministic neutral-relative evaluation; usable without a DOM or editor session. */
+export function evaluateModel(document, weights = {}) {
+  const result = JSON.parse(
+    core.evaluate(JSON.stringify(document), JSON.stringify(weights)),
+  );
+  if (!result.ok) throw new Error(result.error);
+  return result.document;
+}

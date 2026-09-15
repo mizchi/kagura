@@ -85,6 +85,15 @@ pub fn kawaiiko_document() -> ModelDocument {
       rings=8,
     ),
     ellipsoid(
+      "mouth.inner",
+      "口の内側 / Inner mouth",
+      0x362720,
+      [0, 2.13, 1.06],
+      [0.38, 0.035, 0.34],
+      segments=12,
+      rings=6,
+    ),
+    ellipsoid(
       "eye.right",
       "右目 / Right eye",
       0x192824,
@@ -180,6 +189,22 @@ pub fn kawaiiko_document() -> ModelDocument {
   ]
   for sign in [-1.0, 1.0] {
     let side = if sign < 0 { "left" } else { "right" }
+    let brow = prism(
+      "brow." + side,
+      "眉 / Brow " + side,
+      0x263D32,
+      [sign * 0.38, 2.70, 1.005],
+      [
+        [-0.16, -0.015],
+        [-0.13, 0.037],
+        [0, 0.063],
+        [0.14, 0.025],
+        [0.16, -0.019],
+        [0, 0.016],
+      ],
+      0.045,
+    )
+    nodes.push(kawaiiko_project_brow(brow))
     nodes.push(
       ellipsoid(
         "leg." + side,
@@ -213,11 +238,13 @@ pub fn kawaiiko_document() -> ModelDocument {
       vertices: foot.vertices.map(v => [v[0], -v[2], v[1]]),
     })
   }
-  {
+  let neutral : ModelDocument = {
     version: 1,
     format: "kagura.mesh",
     name: "kawaiiko",
     source: "https://github.com/chibivue-land/art/blob/main/kawaiko.png",
     nodes,
+    expressions: [],
   }
+  { ..neutral, expressions: kawaiiko_expressions(neutral), }
 }

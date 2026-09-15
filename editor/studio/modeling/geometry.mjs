@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { evaluateModel } from "./model.mjs";
 
 /** Preserve polygon identity while triangulating concave authoring faces. */
 export function meshGeometry(node) {
@@ -40,12 +41,50 @@ export function modelObject(document) {
   const root = new THREE.Group();
   root.name = document.name;
   root.userData = { format: document.format, source: document.source };
-  for (const node of document.nodes) {
+  const expressions = document.expressions ?? [];
+  const poses = expressions.map(
+    (expression) => evaluateModel(document, { [expression.id]: 1 }).nodes,
+  );
+  for (const [nodeIndex, node] of document.nodes.entries()) {
     // glTF has no flatShading material flag: split corners and bake face normals.
     const indexed = meshGeometry(node),
       geometry = indexed.toNonIndexed();
+    const corners = Array.from(indexed.index.array);
     indexed.dispose();
     geometry.computeVertexNormals();
+    if (
+      expressions.some((expression) =>
+        expression.targets.some((target) => target.node === node.id),
+      )
+    ) {
+      geometry.morphTargetsRelative = true;
+      geometry.morphAttributes.position = [];
+      geometry.morphAttributes.normal = [];
+      for (const [i, expression] of expressions.entries()) {
+        const target = poses[i][nodeIndex];
+        // Object translations become vertex deltas so all facial controls export as morphs.
+        const targetPositions = corners.flatMap((index) =>
+          target.vertices[index].map(
+            (v, k) => v + target.position[k] - node.position[k],
+          ),
+        );
+        const posed = new THREE.BufferGeometry();
+        posed.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(targetPositions, 3),
+        );
+        posed.computeVertexNormals();
+        for (const kind of ["position", "normal"]) {
+          const delta = posed.getAttribute(kind).clone();
+          const base = geometry.getAttribute(kind);
+          for (let j = 0; j < delta.array.length; j++)
+            delta.array[j] -= base.array[j];
+          delta.name = expression.id;
+          geometry.morphAttributes[kind].push(delta);
+        }
+        posed.dispose();
+      }
+    }
     const mesh = new THREE.Mesh(
       geometry,
       new THREE.MeshStandardMaterial({

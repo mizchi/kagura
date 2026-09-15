@@ -14,7 +14,22 @@ export interface ModelDocument {
   name: string;
   source: string;
   nodes: ModelMesh[];
+  /** Missing in legacy files; normalized to [] when importing. */
+  expressions: ModelExpression[];
 }
+/** Sparse neutral-relative shape keys, usable with separate parts or a single face mesh. */
+export interface ModelExpression {
+  id: string;
+  name: string;
+  targets: {
+    node: string;
+    position: [number, number, number];
+    vertices: { index: number; offset: [number, number, number] }[];
+  }[];
+}
+export type ModelDocumentInput = Omit<ModelDocument, "expressions"> & {
+  expressions?: ModelExpression[];
+};
 export type ModelMode = "object" | "vertex" | "face";
 export type ModelTransform = "move" | "rotate" | "scale" | "extrude";
 export interface ModelSnapshot {
@@ -27,6 +42,9 @@ export interface ModelSnapshot {
   canUndo: boolean;
   canRedo: boolean;
   modal: null | { kind: ModelTransform; normal: [number, number, number] };
+  weights: Record<string, number>;
+  previewNodes: ModelMesh[];
+  expressionEdit: null | { id: string; name: string };
 }
 export type ModelCommand =
   | {
@@ -46,10 +64,14 @@ export type ModelCommand =
   | { op: "begin"; kind: ModelTransform }
   /** Absolute delta from begin, never accumulated. Rotation values are XYZ radians. */
   | { op: "preview"; value: [number, number, number] }
-  | { op: "replace"; document: ModelDocument }
+  | { op: "replace"; document: ModelDocumentInput }
   | { op: "add"; kind: "cube" | "sphere" }
   | { op: "material"; color: number }
-  | { op: "rename"; name: string };
+  | { op: "rename"; name: string }
+  | { op: "expression.preview"; weights: Record<string, number> }
+  | { op: "expression.begin"; id: string; name: string }
+  | { op: "expression.save" | "expression.cancel" }
+  | { op: "expression.remove"; id: string };
 export interface ModelingAPI {
   open(): void;
   close(): void;

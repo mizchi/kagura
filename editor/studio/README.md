@@ -36,6 +36,8 @@ just studio-ci                     # 上記のまとめ
 Blender 風の G/R/S・軸制限・数値入力、頂点・面編集、押し出し、JSON 保存と GLB 書出に対応します。
 操作と実装は [Mesh Modeling](modeling/README.md) を参照してください。
 `?mode=modeling&model=kawaiiko` を URL に付けると、保存済みモデルに左右されず初期モデルの編集画面を直接開けます。
+下部の **表情 / Expressions** で喜怒哀驚・まばたきのブレンドと、眉や顔の頂点を動かす差分制作ができます。
+人間など任意のモデルで使える通常形状からの差分で、JSON 保存・GLB の名前付きモーフ出力に対応します。
 
 - Resourcesでbox / sphere / cylinder / groupを追加し、Hierarchyまたは3D上で選択。
 - Inspectorで名前、親ID、位置、XYZ Euler回転、スケール、色を編集。親変更はローカル座標を維持します。

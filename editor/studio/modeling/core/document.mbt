@@ -16,6 +16,7 @@ pub(all) struct ModelDocument {
   name : String
   source : String
   nodes : Array[MeshNode]
+  expressions : Array[ModelExpression]
 } derive(ToJson, FromJson, Eq, Debug)
 
 ///|
@@ -87,6 +88,7 @@ pub fn validate_document(doc : ModelDocument) -> Unit raise ModelError {
     }
   }
   require(total <= 50000, "Model exceeds 50000 vertices")
+  validate_expressions(doc)
 }
 
 ///|
@@ -113,14 +115,20 @@ fn keys(j : Json, allowed : Array[String]) -> Unit raise ModelError {
 
 ///|
 pub fn decode_document(j : Json) -> ModelDocument raise {
-  keys(j, ["version", "format", "name", "source", "nodes"])
+  keys(j, ["version", "format", "name", "source", "nodes", "expressions"])
   guard field(j, "nodes") is Array(nodes) else {
     raise Invalid("Expected nodes")
   }
   for n in nodes {
     keys(n, ["id", "name", "color", "position", "vertices", "faces"])
   }
-  let doc : ModelDocument = @json.from_json(j)
+  guard j is Object(fields) else { raise Invalid("Expected document") }
+  let normalized = fields.copy()
+  if !normalized.contains("expressions") {
+    normalized["expressions"] = ([] : Array[Json]).to_json()
+  }
+  validate_expression_json(normalized["expressions"])
+  let doc : ModelDocument = @json.from_json(normalized.to_json())
   validate_document(doc)
   doc
 }

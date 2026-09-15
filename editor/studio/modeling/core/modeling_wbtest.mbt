@@ -10,6 +10,42 @@ test "kawaiiko is a validated editable mesh document" {
 }
 
 ///|
+test "facial blends are deterministic, neutral-relative and leave the base intact" {
+  let doc = kawaiiko_document()
+  let original = ToJson::to_json(doc).stringify()
+  assert_true(doc.nodes.any(n => n.id == "brow.left"))
+  assert_true(doc.nodes.any(n => n.id == "brow.right"))
+  let angry = evaluate_expressions(doc, Map([("angry", 0.5)]))
+  assert_true(angry.nodes != doc.nodes)
+  assert_eq(angry, evaluate_expressions(doc, Map([("angry", 0.5)])))
+  assert_eq(evaluate_expressions(doc, Map([])), doc)
+  assert_eq(ToJson::to_json(doc).stringify(), original)
+}
+
+///|
+test "expression authoring is one undo transaction and can be cancelled" {
+  let e = ModelEditor::new()
+  let neutral = e.document
+  e.handle({ "op": "select", "id": "brow.left" })
+  e.handle({ "op": "expression.begin", "id": "raised", "name": "Raised" })
+  e.handle({ "op": "begin", "kind": "move" })
+  e.handle({ "op": "preview", "value": [0, 0.1, 0] })
+  e.handle({ "op": "confirm" })
+  assert_eq(e.revision, 0)
+  e.handle({ "op": "expression.save" })
+  assert_eq(e.document.nodes, neutral.nodes)
+  assert_eq(e.revision, 1)
+  assert_eq(e.document.expressions.length(), neutral.expressions.length() + 1)
+  e.handle({ "op": "undo" })
+  assert_eq(e.document, neutral)
+  e.handle({ "op": "redo" })
+  let saved = e.document
+  e.handle({ "op": "expression.begin", "id": "raised", "name": "Raised" })
+  e.handle({ "op": "expression.cancel" })
+  assert_eq(e.document, saved)
+}
+
+///|
 test "modal edits cancel exactly and commit as one undo step" {
   let e = ModelEditor::new()
   let initial = e.document

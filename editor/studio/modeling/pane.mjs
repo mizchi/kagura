@@ -1,4 +1,5 @@
 import { createModelEditor, kawaiikoDocument } from "./model.mjs";
+import { createExpressionPanel } from "./expressions-pane.mjs";
 import { createModelViewport } from "./viewer.mjs";
 import { exportModelGLB } from "./geometry.mjs";
 import { createIndexedDBStore } from "../storage/indexeddb.mjs";
@@ -70,6 +71,8 @@ export function installModeling({
   async function save() {
     await ready;
     const state = editor.snapshot();
+    if (state.expressionEdit)
+      throw Error("表情の差分を確定または取り消してください");
     if (state.modal) throw Error("変形を確定してから保存してください");
     const result = await store.write(
       "draft.kgrmodel",
@@ -83,6 +86,8 @@ export function installModeling({
   }
   function exportJSON() {
     const state = editor.snapshot();
+    if (state.expressionEdit)
+      throw Error("表情の差分を確定または取り消してください");
     if (state.modal) throw Error("変形を確定してから書き出してください");
     downloadBlob(
       new Blob([JSON.stringify(state.document, null, 2)], {
@@ -93,6 +98,8 @@ export function installModeling({
   }
   async function exportGLB() {
     const state = editor.snapshot();
+    if (state.expressionEdit)
+      throw Error("表情の差分を確定または取り消してください");
     if (state.modal) throw Error("変形を確定してから書き出してください");
     const bytes = await exportModelGLB(state.document);
     downloadBlob(
@@ -176,13 +183,11 @@ export function installModeling({
       document.querySelector(".toolbar").append(topActions);
       const slots = [];
       function adopt(id, title) {
-        const view = workspace
-          .slot(id)
-          .adopt({
-            id: ID,
-            title,
-            mount: ({ element: e }) => e.classList.add("modeling-pane"),
-          });
+        const view = workspace.slot(id).adopt({
+          id: ID,
+          title,
+          mount: ({ element: e }) => e.classList.add("modeling-pane"),
+        });
         slots.push(id);
         return view;
       }
@@ -273,24 +278,27 @@ export function installModeling({
       const wireLabel = element("label", "modeling-check", "ワイヤーフレーム");
       wireLabel.prepend(wire);
       inspector.append(wireLabel);
-      const timeline = adopt("timeline", "Modeling shortcuts");
-      timeline.append(element("h2", "", "Blender 風の操作"));
-      const shortcuts = element("div", "modeling-shortcuts");
-      for (const [key, text] of [
-        ["MMB", "回転 / Shift でパン"],
-        ["G · R · S", "移動・回転・拡縮"],
-        ["X · Y · Z", "変形の軸を固定"],
-        ["数値 → Enter", "正確な量で確定"],
-        ["Tab · 1 · 3", "編集 / 頂点 / 面"],
-        ["E", "選択面を押し出す"],
-        ["Esc / 右クリック", "変形を取り消す"],
-        ["F · Num 1/3/7", "選択を表示 / 視点"],
-      ]) {
-        const item = element("div");
-        item.append(element("kbd", "", key), element("span", "", text));
-        shortcuts.append(item);
-      }
-      timeline.append(shortcuts);
+      const timeline = adopt("timeline", "Facial expressions");
+      const expressions = createExpressionPanel({
+        container: timeline,
+        element,
+        button,
+        send,
+        snapshot: () => editor.snapshot(),
+        focusFace: () => {
+          const ids = [
+            ...new Set(
+              editor
+                .snapshot()
+                .document.expressions.flatMap((e) =>
+                  e.targets.map((t) => t.node),
+                ),
+            ),
+          ];
+          viewer.view("front");
+          viewer.frame(ids.length ? ids : undefined);
+        },
+      });
       tools.append(
         element("h2", "", "Modeling"),
         element(
@@ -374,14 +382,22 @@ export function installModeling({
         },
       });
       function sync(state) {
-        viewer.update(state);
-        caption.querySelector('strong').textContent = state.document.name;
-        caption.querySelector('span').textContent = state.document.source.includes('chibivue-land/art')
-          ? 'chibivue-land / character study' : 'Mesh authoring';
+        viewer.update({
+          ...state,
+          document: { ...state.document, nodes: state.previewNodes },
+        });
+        expressions.sync(state);
+        caption.querySelector("strong").textContent = state.document.name;
+        caption.querySelector("span").textContent =
+          state.document.source.includes("chibivue-land/art")
+            ? "chibivue-land / character study"
+            : "Mesh authoring";
         mode.value = state.mode;
         mode.disabled = !!state.modal;
-        undo.disabled = !state.canUndo || !!state.modal;
-        redo.disabled = !state.canRedo || !!state.modal;
+        undo.disabled =
+          !state.canUndo || !!state.modal || !!state.expressionEdit;
+        redo.disabled =
+          !state.canRedo || !!state.modal || !!state.expressionEdit;
         const n = state.document.nodes.find((n) => n.id === state.selected);
         const signature = JSON.stringify([
           state.document.nodes.map((n) => [n.id, n.name, n.color]),
@@ -422,11 +438,21 @@ export function installModeling({
           color.disabled = !n;
           color.value = "#" + (n?.color ?? 0).toString(16).padStart(6, "0");
         }
+        const previewing = Object.values(state.weights).some(
+          (weight) => weight > 0,
+        );
+        for (const b of transforms.querySelectorAll("button")) {
+          b.disabled =
+            !!state.modal ||
+            previewing ||
+            (b.getAttribute("aria-label") === "Model extrude" &&
+              !!state.expressionEdit);
+        }
         information.textContent = n
           ? `${n.vertices.length} vertices · ${n.faces.length} faces · ${state.vertices.length} selected`
           : "オブジェクトを選択";
         if (!state.modal)
-          message.textContent = `${state.revision === savedRevision ? "Saved" : "Unsaved"} · ${faceCount.toLocaleString()} polygons · ${state.mode === "object" ? "Object Mode" : state.mode === "vertex" ? "Edit / Vertices" : "Edit / Faces"}`;
+          message.textContent = `${state.revision === savedRevision ? "Saved" : "Unsaved"}${state.expressionEdit ? " · Expression draft" : previewing ? " · Expression preview" : ""} · ${faceCount.toLocaleString()} polygons · ${state.mode === "object" ? "Object Mode" : state.mode === "vertex" ? "Edit / Vertices" : "Edit / Faces"}`;
         if (state.revision !== sceneRevision) {
           sceneRevision = state.revision;
           overlay.dataset.revision = String(state.revision);

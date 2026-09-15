@@ -19,6 +19,8 @@ pub struct ModelEditor {
   past : Array[ModelDocument]
   future : Array[ModelDocument]
   mut serial : Int
+  mut expression_edit : ExpressionEdit?
+  mut weights : Map[String, Double]
 }
 
 ///|
@@ -34,6 +36,8 @@ pub fn ModelEditor::new() -> ModelEditor {
     past: [],
     future: [],
     serial: 0,
+    expression_edit: None,
+    weights: Map([]),
   }
 }
 
@@ -55,6 +59,11 @@ fn ModelEditor::commit(
 ) -> Unit raise ModelError {
   validate_document(next)
   if before == next {
+    return
+  }
+  // Expression sculpting is a draft; Save commits the entire pose as one undo.
+  if self.expression_edit is Some(_) {
+    self.document = next
     return
   }
   self.past.push(before)
@@ -86,6 +95,25 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
       ["preview", "confirm", "cancel", "snapshot"].contains(op),
       "Confirm or cancel the current transform",
     )
+  }
+  if self.expression_edit is Some(_) {
+    require(
+      [
+        "snapshot", "select", "mode", "vertices", "face", "begin", "preview", "confirm",
+        "cancel", "expression.save", "expression.cancel",
+      ].contains(op),
+      "Save or cancel the expression draft first",
+    )
+  }
+  if self.weights.values().any(w => w > 0) &&
+    ["begin", "add", "duplicate", "remove"].contains(op) {
+    raise Invalid(
+      "Return to neutral or edit an expression before changing preview geometry",
+    )
+  }
+  if op.has_prefix("expression.") {
+    self.handle_expression(req, op)
+    return
   }
   match op {
     "snapshot" => keys(req, ["op"])
@@ -158,6 +186,10 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
       let mut direction = [0.0, 1.0, 0.0]
       if kind == "extrude" {
         require(
+          self.expression_edit is None && !expression_bound(self.document, n.id),
+          "Cannot change topology of an expression target",
+        )
+        require(
           self.mode == "face" && self.face >= 0,
           "Extrude requires a selected face",
         )
@@ -225,6 +257,7 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
       guard from.pop() is Some(doc) else { raise Invalid("No history") }
       to.push(self.document)
       self.document = doc
+      self.weights = Map([])
       self.revision += 1
       self.indices = []
       self.face = -1
@@ -236,6 +269,7 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
       keys(req, ["op", "document"])
       let doc = decode_document(field(req, "document"))
       self.commit(self.document, doc)
+      self.weights = Map([])
       self.selected = if doc.nodes.is_empty() { "" } else { doc.nodes[0].id }
       self.mode = "object"
       self.indices = []
@@ -276,6 +310,10 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
     "remove" => {
       keys(req, ["op"])
       let index = self.node_index()
+      require(
+        !expression_bound(self.document, self.selected),
+        "Remove bound expressions before deleting their geometry",
+      )
       if self.mode == "object" {
         let nodes = self.document.nodes.copy()
         ignore(nodes.remove(index))
@@ -340,6 +378,16 @@ pub fn ModelEditor::snapshot(self : ModelEditor) -> Json {
       None => Json::null()
       Some(m) => { "kind": m.kind.to_json(), "normal": m.normal.to_json() }
     },
+    "weights": self.weights.to_json(),
+    "expressionEdit": match self.expression_edit {
+      None => Json::null()
+      Some(edit) => { "id": edit.id.to_json(), "name": edit.name.to_json() }
+    },
+    "previewNodes": (if self.weights.values().any(w => w > 0) {
+      (try! evaluate_expressions(self.document, self.weights)).nodes
+    } else {
+      self.document.nodes
+    }).to_json(),
   }
 }
 

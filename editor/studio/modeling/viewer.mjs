@@ -340,9 +340,16 @@ export function createModelViewport(
     canvas,
     update,
     view,
-    frame() {
-      const object = objects.get(current?.selected)?.mesh ?? root;
-      const bounds = new THREE.Box3().setFromObject(object);
+    frame(ids) {
+      const bounds = new THREE.Box3();
+      if (ids) {
+        for (const id of ids) {
+          const mesh = objects.get(id)?.mesh;
+          if (mesh) bounds.expandByObject(mesh);
+        }
+      } else {
+        bounds.setFromObject(objects.get(current?.selected)?.mesh ?? root);
+      }
       if (bounds.isEmpty()) return;
       const target = bounds.getCenter(new THREE.Vector3());
       const direction = camera.position

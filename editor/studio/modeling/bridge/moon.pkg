@@ -1,5 +1,6 @@
 import {
   "mizchi/kagura_studio/modeling/core" @model,
+  "moonbitlang/core/json",
 }
 
 supported_targets = "js"
@@ -7,7 +8,7 @@ supported_targets = "js"
 options(
   link: {
     "js": {
-      "exports": [ "create", "snapshot", "request", "kawaiiko" ],
+      "exports": [ "create", "snapshot", "request", "kawaiiko", "evaluate" ],
       "format": "esm",
     },
   },

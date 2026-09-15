@@ -210,7 +210,76 @@
   font-size: 11px;
   margin-top: 16px;
 }
+.modeling-expression-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.modeling-expression-header h2 {
+  margin: 0 auto 0 0;
+}
+.modeling-expression-body {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(190px, 0.85fr);
+  gap: 18px;
+}
+.modeling-expression-list {
+  min-width: 0;
+}
+.modeling-expression-row {
+  display: grid;
+  grid-template-columns: 72px minmax(45px, 1fr) 32px;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+}
+.modeling-expression-row input {
+  min-width: 0;
+  width: 100%;
+  accent-color: #dfb77a;
+}
+.modeling-expression-row output {
+  font-size: 10px;
+  color: #a5bdb2;
+  text-align: right;
+}
+.modeling-expression-row button {
+  font-size: 11px;
+  padding: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.modeling-expression-row button[aria-pressed="true"] {
+  background: #40574b;
+  border-color: #b69a6d;
+}
+.modeling-expression-author {
+  min-width: 0;
+}
+.modeling-expression-author > input,
+.modeling-expression-author > select {
+  width: 100%;
+  margin-bottom: 6px;
+}
+.modeling-expression-author .modeling-actions {
+  margin: 0;
+}
+.modeling-expression-author button[hidden] {
+  display: none;
+}
+.modeling-expression-status {
+  color: #adbdb4;
+  font-size: 10px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
 @media (max-width: 900px) {
+  .modeling-expression-body {
+    grid-template-columns: 1fr;
+  }
   .modeling-camera {
     display: none;
   }

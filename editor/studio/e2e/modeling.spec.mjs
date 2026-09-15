@@ -143,7 +143,7 @@ test("mesh picking, face extrusion, JSON roundtrip and GLB export preserve edita
     const doc = kagura.modeling.snapshot().document;
     kagura.modeling.request({
       op: "replace",
-      document: { ...doc, nodes: [cube] },
+      document: { ...doc, nodes: [cube], expressions: [] },
     });
   }, cube);
   await page
@@ -213,6 +213,86 @@ test("mesh picking, face extrusion, JSON roundtrip and GLB export preserve edita
     buffer: Buffer.from('{"version":99}'),
   });
   expect((await state(page)).document).toEqual(original.document);
+  expect(errors).toEqual([]);
+});
+
+test("facial presets blend without editing neutral and can be sculpted, saved and exported as morphs", async ({
+  page,
+}) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/?mode=modeling&model=kawaiiko");
+  await expect(
+    page.getByLabel("Modeling viewport", { exact: true }),
+  ).toBeVisible();
+  const initial = await state(page);
+  expect(initial.document.nodes.some((n) => n.id === "brow.left")).toBe(true);
+  await page
+    .getByRole("button", { name: "Frame expression face", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Preview expression angry", exact: true })
+    .click();
+  expect((await state(page)).document).toEqual(initial.document);
+  expect((await state(page)).previewNodes).not.toEqual(initial.document.nodes);
+  const blink = page.getByLabel("Expression weight blink", { exact: true });
+  await blink.fill("0.5");
+  expect((await state(page)).weights).toEqual({ angry: 1, blink: 0.5 });
+  await page.screenshot({ path: test.info().outputPath("kawaiiko-angry.png") });
+  await page
+    .getByRole("button", { name: "Neutral expression", exact: true })
+    .click();
+  expect((await state(page)).previewNodes).toEqual(initial.document.nodes);
+  await page
+    .getByLabel("Expression name", { exact: true })
+    .fill("片眉を上げる");
+  await page
+    .getByRole("button", { name: "New expression", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Select model brow.left", exact: true })
+    .click();
+  await page.keyboard.press("KeyG");
+  await page.keyboard.press("KeyY");
+  await page.keyboard.press("Digit0");
+  await page.keyboard.press("Period");
+  await page.keyboard.press("Digit1");
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("button", { name: "Save expression", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Save expression", exact: true })
+    .click();
+  const saved = (await state(page)).document;
+  expect(saved.nodes).toEqual(initial.document.nodes);
+  expect(saved.expressions.at(-1).name).toBe("片眉を上げる");
+  const download = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Export model GLB", exact: true })
+    .click();
+  const bytes = await readFile(await (await download).path());
+  const gltf = JSON.parse(
+    bytes.toString("utf8", 20, 20 + bytes.readUInt32LE(12)).trim(),
+  );
+  const brow = gltf.nodes.find((n) => n.name === "brow.left");
+  const mesh = gltf.meshes[brow.mesh];
+  expect(mesh.extras.targetNames).toContain("custom.1");
+  expect(mesh.primitives[0].targets).toHaveLength(saved.expressions.length);
+  expect(mesh.primitives[0].targets[0]).toHaveProperty("POSITION");
+  expect(mesh.primitives[0].targets[0]).toHaveProperty("NORMAL");
+  await page.getByRole("button", { name: "Save model", exact: true }).click();
+  await expect(page.locator("footer [role=status]")).toContainText("Saved");
+  await page.goto("/?mode=modeling");
+  await expect(
+    page.getByLabel("Modeling viewport", { exact: true }),
+  ).toBeVisible();
+  expect((await state(page)).document).toEqual(saved);
+  expect((await state(page)).weights).toEqual({});
+  await page
+    .getByRole("button", { name: "Preview expression happy", exact: true })
+    .click();
+  await page.screenshot({ path: test.info().outputPath("kawaiiko-happy.png") });
   expect(errors).toEqual([]);
 });
 

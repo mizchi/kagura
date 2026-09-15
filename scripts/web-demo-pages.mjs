@@ -2,6 +2,7 @@ import { renderHunterPage } from "../examples/games/hacknslash_3d/web/page.mjs";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {renderWebRuntimeImportMap} from './web-runtime-assets.mjs';
+import {catalog} from './example-catalog.mjs';
 
 const GITHUB_BLOB_ROOT = "https://github.com/mizchi/kagura/blob/main";
 const HIDDEN_PAGE_NAMES = new Set([
@@ -439,13 +440,15 @@ export const DEMO_PAGES = RAW_DEMO_PAGES
   .filter((demo) => !HIDDEN_PAGE_NAMES.has(demo.name))
   .map((demo) => ({
     ...demo,
+    group: catalog.find(item => item.id === demo.name)?.kind === 'game'
+      ? 'Games' : demo.group === 'Games' ? 'Gameplay' : demo.group,
     githubHref: `${GITHUB_BLOB_ROOT}/${demo.sourcePath}`,
   }));
 
 const DEMO_PAGE_MAP = new Map(DEMO_PAGES.map((demo) => [demo.name, demo]));
 
 export const DEMO_GROUPS = [
-  "Games",
+  "Gameplay",
   "2D / UI",
   "3D Rendering",
   "Physics",
@@ -473,7 +476,6 @@ export function resolveDemoPage(name) {
     summary: "Local example build for development.",
     start: "Open the stage and use the controls implemented in source.",
     controls: [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details",
     ],
     tags: ["Local"],
@@ -645,18 +647,6 @@ export function renderDemoHtml({
       .hero-link:hover {
         text-decoration: underline;
       }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        width: fit-content;
-        padding: 0.35rem 0.7rem;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #06111d;
-        background: linear-gradient(135deg, var(--accent) 0%, #c9fbff 100%);
-      }
       h1,
       h2,
       p {
@@ -769,7 +759,6 @@ export function renderDemoHtml({
             <a class="hero-link" href="${escapeAttr(homeHref)}">${escapeHtml(homeLabel)}</a>
             <a class="hero-link" href="${escapeAttr(demo.githubHref)}">Source</a>
           </div>
-          <span class="badge">WebGPU only</span>
         </div>
         <h1>${escapeHtml(demo.title)}</h1>
         <p>${escapeHtml(demo.summary)}</p>
@@ -783,9 +772,6 @@ export function renderDemoHtml({
           </div>
           <p class="support-copy">
             <strong>Start:</strong> ${escapeHtml(demo.start)}
-          </p>
-          <p class="support-copy">
-            Browser demos currently target WebGPU only. Recent desktop Chrome or Edge is the safest path.
           </p>
         </section>
 
@@ -812,14 +798,23 @@ export function renderDemoHtml({
 }
 
 export function renderLandingHtml({ demos = DEMO_PAGES }) {
+  const gameCards = catalog.filter(item => item.kind === 'game')
+    .sort((a, b) => a.gallery.order - b.gallery.order)
+    .map(item => renderLandingCard({
+      title: item.title,
+      playHref: `./${item.gallery.playPath ?? `${item.id}/`}`,
+      summary: item.gallery.description,
+      controls: item.controls,
+      tags: [item.gallery.dimension, item.gallery.genre],
+    })).join('\n');
   const sections = DEMO_GROUPS.map((group) => {
     const cards = demos
       .filter((demo) => demo.group === group)
-      .map((demo) => renderLandingCard(demo))
+      .map((demo) => renderLandingCard(demo, 4))
       .join("\n");
     return `      <section class="group">
         <div class="group-head">
-          <h2>${escapeHtml(group)}</h2>
+          <h3>${escapeHtml(group)}</h3>
         </div>
         <div class="grid">
 ${cards}
@@ -865,15 +860,13 @@ ${cards}
         gap: 1rem;
       }
       .hero,
-      .card,
-      .notice {
+      .card {
         background: var(--panel);
         border: 1px solid var(--panel-border);
         border-radius: 1.25rem;
         box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
       }
-      .hero,
-      .notice {
+      .hero {
         padding: 1rem;
       }
       .hero {
@@ -891,24 +884,13 @@ ${cards}
       h1,
       h2,
       h3,
+      h4,
       p {
         margin: 0;
       }
       .muted {
         color: var(--muted);
         line-height: 1.6;
-      }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        width: fit-content;
-        padding: 0.35rem 0.7rem;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #06111d;
-        background: linear-gradient(135deg, var(--accent) 0%, #c9fbff 100%);
       }
       .group {
         display: flex;
@@ -930,7 +912,8 @@ ${cards}
         color: inherit;
         text-decoration: none;
       }
-      .card a:hover h3 {
+      .card a:hover h3,
+      .card a:hover h4 {
         text-decoration: underline;
       }
       .tag-list {
@@ -964,8 +947,7 @@ ${cards}
           padding: 0.75rem;
         }
         .hero,
-        .card,
-        .notice {
+        .card {
           border-radius: 1rem;
         }
       }
@@ -976,18 +958,21 @@ ${cards}
       <header class="hero">
         <div class="hero-top">
           <h1>Kagura Examples</h1>
-          <span class="badge">WebGPU only</span>
         </div>
         <p class="muted">
           Interactive examples for Kagura, a MoonBit game engine. Open any card below to launch the demo, review controls, and jump to source.
         </p>
-        <p><a href="./examples/" style="color: var(--accent)">ゲーム一覧をサムネイルで見る →</a></p>
+        <p><a href="./examples/" style="color: var(--accent)">ゲームと技術デモをサムネイルで見る →</a></p>
       </header>
 
-      <section class="notice">
-        <p class="muted">
-          Browser demos currently require WebGPU. Recent desktop Chrome or Edge is recommended. On phones, open the page in portrait and use the built-in control notes before interacting.
-        </p>
+      <section class="group" id="games">
+        <div class="group-head"><h2>Games · ゲーム</h2></div>
+        <div class="grid">${gameCards}</div>
+      </section>
+
+      <section class="group" id="technical-demos">
+        <div class="group-head"><h2>Technical Demos · 技術デモ</h2></div>
+${sections}
       </section>
 
       <section class="group">
@@ -1005,22 +990,21 @@ ${cards}
         </div>
       </section>
 
-${sections}
     </div>
   </body>
 </html>
 `;
 }
 
-function renderLandingCard(demo) {
+function renderLandingCard(demo, headingLevel = 3) {
   const firstControl = demo.controls[0] ?? "Open the source for controls.";
   const tagHtml = demo.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join("");
   return `          <article class="card">
-            <a href="./${escapeAttr(demo.name)}/">
-              <h3>${escapeHtml(demo.title)}</h3>
+            <a href="${escapeAttr(demo.playHref ?? `./${demo.name}/`)}">
+              <h${headingLevel}>${escapeHtml(demo.title)}</h${headingLevel}>
             </a>
             <p class="muted">${escapeHtml(demo.summary)}</p>
-            <p class="muted"><strong>Start:</strong> ${escapeHtml(demo.start)}</p>
+            ${demo.start ? `<p class="muted"><strong>Start:</strong> ${escapeHtml(demo.start)}</p>` : ''}
             <p class="muted"><strong>Controls:</strong> ${escapeHtml(firstControl)}</p>
             <ul class="tag-list">${tagHtml}</ul>
           </article>`;

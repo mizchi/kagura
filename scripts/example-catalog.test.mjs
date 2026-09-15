@@ -19,10 +19,13 @@ test('the catalog separates code examples from one shared model asset project', 
   const code = listExampleNames([EXAMPLE_ROOT.examples]);
   assert.ok(!code.includes('model_assets'));
   for (const entry of catalog) {
+    assert.ok(['game', 'demo', 'asset'].includes(entry.kind), entry.id);
     assert.ok(entry.purpose.trim().length > 8, entry.id);
     assert.ok(existsSync(join(catalogProjectDir(entry), entry.manifest)), entry.id);
     if (entry.category !== 'assets') assert.ok(code.includes(entry.id), entry.id);
   }
+  assert.deepEqual(catalog.filter(entry => entry.kind === 'game').map(entry => entry.id).sort(), ['emberwing', 'hacknslash_3d', 'iron_yard']);
+  assert.equal(models.kind, 'asset');
 });
 
 test('public game builds and visual test targets reference existing examples', () => {

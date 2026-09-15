@@ -7,7 +7,7 @@ import {catalog} from '../scripts/example-catalog.mjs';
 test.skip(process.env.KAGURA_UPDATE_THUMBNAILS !== '1', 'Run just pages-thumbnails to refresh gameplay captures');
 test.use({viewport: {width: 960, height: 600}});
 
-for (const game of catalog.filter(item => item.category === 'games')) {
+for (const game of catalog.filter(item => item.gallery)) {
   test(`capture gameplay thumbnail: ${game.id}`, async ({page}) => {
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));

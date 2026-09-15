@@ -24,7 +24,6 @@ h1 { margin-block: 20px; font-size: clamp(32px, 4.4vw, 58px); font-weight: 700; 
 .collection-nav nav { display: flex; flex-wrap: wrap; gap: 10px; }
 .collection-nav a { display: flex; gap: 14px; align-items: center; min-height: 44px; padding: 10px 17px; border: 1px solid #4a5457; border-radius: 4px; font-size: 13px; }
 .collection-nav a span:first-child { color: var(--muted); font-variant-numeric: tabular-nums; }
-.requirement { font-size: 11px; color: var(--muted); }
 .collection { padding-top: 44px; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
 .section-heading h2 { font-size: 23px; letter-spacing: -.025em; margin-top: 8px; }

@@ -19,7 +19,14 @@ test("landing page exposes additional public demos", () => {
   assert.doesNotMatch(html, /shelf_authoring/);
   assert.doesNotMatch(html, /frog_authoring/);
   assert.doesNotMatch(html, /dragon_authoring/);
-  assert.match(html, /WebGPU only/i);
+  assert.doesNotMatch(html, /WebGPU only|require WebGPU|Chrome or Edge/i);
+  assert.doesNotMatch(html, /undefined/);
+  const games = html.match(/<section class="group" id="games"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.match(games, /EMBERWING/);
+  assert.match(games, /ASHEN REALMS/);
+  assert.match(games, /href="\.\/studio\/games\/iron-yard\/"/);
+  assert.doesNotMatch(games, /Arena 3D|Flappy Bird|Survivor|Card Game/);
+  assert.match(html, /id="technical-demos"/);
 });
 
 test("landing page links to Studio and the shareable kawaiko preset under its hosting path", () => {
@@ -38,6 +45,7 @@ test("demo page includes responsive layout and control guidance", () => {
   assert.match(html, /Controls/i);
   assert.match(html, /Gallery/i);
   assert.match(html, /stage-canvas/);
+  assert.doesNotMatch(html, /WebGPU only|require WebGPU|Chrome or Edge/i);
 });
 
 test("loader tells users that browser demos are WebGPU only", () => {

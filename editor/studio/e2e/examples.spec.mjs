@@ -57,6 +57,8 @@ for (const item of catalog.filter((e) => e.id !== 'iron_yard')) {
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto('/');
+    const expectedGroup = {game: 'Games · ゲーム', demo: 'Technical Demos · 技術デモ', asset: 'Assets · エディタ素材'}[item.kind];
+    await expect(page.locator(`select[aria-label="Examples"] optgroup[label="${expectedGroup}"] option[value="${item.id}"]`)).toHaveCount(1);
     await page.getByLabel('Examples', { exact: true }).selectOption(item.id);
     await expect(page.getByRole('status')).toContainText('Opened project · ' + item.title, {
       timeout: 30000,

@@ -2,9 +2,19 @@
 
 Studio の一覧は [catalog.json](catalog.json) に集約する。現在は 25 個のコード examples と 1 個の素材プロジェクト。各 example は目的を持ち、似た画面でも検証する API が異なる場合は、その違いを一覧に示す。
 
-## Pages のゲーム一覧
+## ゲームと技術デモの分類
 
-公開用の [ゲーム一覧](https://mizchi.github.io/kagura/examples/) は、`catalog.json` の `category: "games"` を使って `just pages` で生成する。各ゲームの `gallery` に表示順、2D / 3D、ジャンル、紹介、入力方法、サムネイルの代替テキストを定義する。通常は `/<id>/` へ直接リンクし、独自ビルドを持つ IRON YARD は `gallery.playPath` で Studio 同梱のゲーム本体を指定する。公開先のサブパスに依存しない相対 URL を使う。
+公開用の [ゲームと技術デモ](https://mizchi.github.io/kagura/examples/) と Studio の一覧は、`catalog.json` の `kind` で分類する。
+
+| `kind` | 表示 | 対象 |
+|---|---|---|
+| `game` | ゲーム | IRON YARD、ASHEN REALMS、EMBERWING |
+| `demo` | 技術デモ | Arena 3D、Flappy Bird、Survivor、Card Game、および各機能・API のサンプル |
+| `asset` | エディタ素材 | Model Assets |
+
+`kind` は用途の分類、`category` はソースを探すためのディレクトリ名として使う。ゲームの形をした技術デモも `kind: "demo"` とし、Pages と Studio で同じ分類を使う。
+
+`gallery` を持つ項目をサムネイル付きで `just pages` が出力する。`gallery` に表示順、2D / 3D、ジャンル、紹介、入力方法、サムネイルの代替テキストを定義する。2D / 3D はカードの補足情報とする。通常は `/<id>/` へ直接リンクし、独自ビルドを持つ IRON YARD は `gallery.playPath` で Studio 同梱のゲーム本体を指定する。公開先のサブパスに依存しない相対 URL を使う。
 
 画像は [assets/pages/thumbnails](../assets/pages/thumbnails/) の実プレイ画面。全画像をコミットし、Pages の CI ではゲームの撮影や GPU の起動を行わない。一覧自体も静的 HTML / CSS と画像だけで動き、ゲーム本体を先読みしない。
 
@@ -24,7 +34,7 @@ Studio の一覧は [catalog.json](catalog.json) に集約する。現在は 25 
 | `smoke/` | 実行基盤・画像・FFI の回帰検証 | CI / 個別タスク |
 | `experimental/` | 外部サービスや別言語ホストを含む実験 | 各 README の手順 |
 
-入門は **Flappy Bird**（2D）または **Arena 3D**（3D）、ドメイン特化エディタの実装は **IRON YARD**、RPG の統合例は **Hack & Slash 3D** を参照する。単一の API を調べる場合は、次の機能デモから選ぶ。
+入門は **Flappy Bird**（2D）または **Arena 3D**（3D）、ドメイン特化エディタの実装は **IRON YARD**、RPG の統合例は **ASHEN REALMS** を参照する。単一の API を調べる場合は、次の機能デモから選ぶ。
 
 ## コードと素材の規約
 

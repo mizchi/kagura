@@ -3,6 +3,7 @@
     "id": "arena3d",
     "title": "Arena 3D",
     "category": "games",
+    "kind": "demo",
     "manifest": "arena3d.kgrprj",
     "controls": [
       "WASD / arrows: move; Space: jump",
@@ -26,9 +27,9 @@
     "id": "card_game",
     "title": "Card Game",
     "category": "games",
+    "kind": "demo",
     "manifest": "card_game.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -48,6 +49,7 @@
     "id": "collision3d_demo",
     "title": "Collision 3D",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "collision3d_demo.kgrprj",
     "controls": [
       "WASD: move",
@@ -62,9 +64,9 @@
     "id": "draw2d_ui_demo",
     "title": "Draw2d Ui Demo",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "draw2d_ui_demo.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -76,9 +78,9 @@
     "id": "ecs_demo",
     "title": "Ecs Demo",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "ecs_demo.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -90,6 +92,7 @@
     "id": "fetch_image",
     "title": "Fetch Image",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "fetch_image.kgrprj",
     "controls": [
       "No input required",
@@ -104,6 +107,7 @@
     "id": "flappy_bird",
     "title": "Flappy Bird",
     "category": "games",
+    "kind": "demo",
     "manifest": "flappy_bird.kgrprj",
     "controls": [
       "Tap / Space: flap",
@@ -126,6 +130,7 @@
     "id": "hacknslash_3d",
     "title": "ASHEN REALMS",
     "category": "games",
+    "kind": "game",
     "manifest": "hacknslash_3d.kgrprj",
     "controls": [
       "WASD / Arrow: move",
@@ -149,9 +154,9 @@
     "id": "ik_demo",
     "title": "Ik Demo",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "ik_demo.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -163,9 +168,9 @@
     "id": "iron_yard",
     "title": "IRON YARD",
     "category": "games",
+    "kind": "game",
     "manifest": "iron-yard.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -186,6 +191,7 @@
     "id": "machinations_demo",
     "title": "Machinations",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "machinations_demo.kgrprj",
     "controls": [
       "Click gold (interactive) nodes to fire them",
@@ -202,6 +208,7 @@
     "id": "model_assets",
     "title": "Model Assets",
     "category": "assets",
+    "kind": "asset",
     "manifest": "model_assets.kgrprj",
     "controls": [
       "Project リソースからモデルを選択",
@@ -216,6 +223,7 @@
     "id": "particle_demo",
     "title": "Particle System",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "particle_demo.kgrprj",
     "controls": [
       "Left drag: orbit camera",
@@ -230,9 +238,9 @@
     "id": "pbr_demo",
     "title": "Pbr Demo",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "pbr_demo.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -244,6 +252,7 @@
     "id": "physics2d_demo",
     "title": "Physics 2D",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "physics2d_demo.kgrprj",
     "controls": [
       "Click: spawn a new body",
@@ -258,6 +267,7 @@
     "id": "physics3d_demo",
     "title": "Physics 3D",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "physics3d_demo.kgrprj",
     "controls": [
       "Automatic camera motion",
@@ -272,6 +282,7 @@
     "id": "postfx_demo",
     "title": "Post Effects",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "postfx_demo.kgrprj",
     "controls": [
       "Automatic camera motion",
@@ -286,6 +297,7 @@
     "id": "ragdoll_demo",
     "title": "Ragdoll",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "ragdoll_demo.kgrprj",
     "controls": [
       "Click and drag: pull the ragdoll",
@@ -300,6 +312,7 @@
     "id": "scene_demo",
     "title": "Scene Demo",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "scene_demo.kgrprj",
     "controls": [
       "WASD / Arrow: move",
@@ -314,6 +327,7 @@
     "id": "shadow3d_demo",
     "title": "Shadow 3D",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "shadow3d_demo.kgrprj",
     "controls": [
       "Automatic camera motion",
@@ -328,6 +342,7 @@
     "id": "skeletal_anim",
     "title": "Skeletal Animation",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "skeletal_anim.kgrprj",
     "controls": [
       "Automatic camera motion",
@@ -342,9 +357,9 @@
     "id": "sprite_anim",
     "title": "Sprite Anim",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "sprite_anim.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -356,6 +371,7 @@
     "id": "survivor",
     "title": "Survivor",
     "category": "games",
+    "kind": "demo",
     "manifest": "survivor.kgrprj",
     "controls": [
       "WASD / Arrow: move",
@@ -378,9 +394,9 @@
     "id": "terrain_demo",
     "title": "Terrain Demo",
     "category": "demos-3d",
+    "kind": "demo",
     "manifest": "terrain_demo.kgrprj",
     "controls": [
-      "Browser demos currently require WebGPU",
       "Open the example source for control details"
     ],
     "width": 800,
@@ -392,6 +408,7 @@
     "id": "ui_demo",
     "title": "UI Demo",
     "category": "demos-2d",
+    "kind": "demo",
     "manifest": "ui_demo.kgrprj",
     "controls": [
       "Tab / Shift+Tab: move focus",
@@ -406,6 +423,7 @@
     "id": "emberwing",
     "title": "EMBERWING",
     "category": "games",
+    "kind": "game",
     "manifest": "emberwing.kgrprj",
     "controls": [
       "Mouse: aim / fly",

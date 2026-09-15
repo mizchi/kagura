@@ -115,10 +115,9 @@ export function installProjectUI({ host, panes, assets, motions, setStatus }) {
       if (!response.ok) throw Error('Examplesをビルドしてください: just studio-examples-build');
       const groups = new Map();
       const categories = {
-        games: 'Games · 統合例',
-        'demos-2d': '2D · 機能デモ',
-        'demos-3d': '3D · 機能デモ',
-        assets: 'Assets · エディタ素材',
+        game: 'Games · ゲーム',
+        demo: 'Technical Demos · 技術デモ',
+        asset: 'Assets · エディタ素材',
       };
       for (const [category, label] of Object.entries(categories)) {
         const group = document.createElement('optgroup');
@@ -135,7 +134,7 @@ export function installProjectUI({ host, panes, assets, motions, setStatus }) {
           (item.preview === 'native' ? ' (native)' : item.preview === 'asset' ? ' (assets)' : '');
         option.dataset.manifest = item.manifest;
         option.title = item.purpose;
-        (groups.get(item.category) ?? examples).append(option);
+        (groups.get(item.kind) ?? examples).append(option);
       }
     })
     .catch((error) => {

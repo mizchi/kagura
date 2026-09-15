@@ -7,6 +7,9 @@ export interface ExampleLaunch {
 export interface ExampleCatalogEntry {
   id: string;
   title: string;
+  /** Presentation category, independent of the source directory. */
+  kind: 'game' | 'demo' | 'asset';
+  /** Source directory category used to resolve project paths. */
   category: 'games' | 'demos-2d' | 'demos-3d' | 'assets';
   /** The distinct learning or verification objective of this example. */
   purpose: string;

@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_game/character3d",
   "mizchi/kagura_core/physics3d",
   "mizchi/kagura_core/collision3d",
   "mizchi/renderer2d" @renderer2d,

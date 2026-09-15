@@ -210,7 +210,7 @@ fn DemoState::draw(
     } else {
       match body.collider {
         @physics3d.SphereShape(_, _) => self.sphere_mesh
-        @physics3d.AABBShape(_, _) => self.cube_mesh
+        @physics3d.AABBShape(_, _) | @physics3d.BoxShape(_, _) => self.cube_mesh
       }
     }
     let transform = @transform3d.Transform3D::from_position_rotation(

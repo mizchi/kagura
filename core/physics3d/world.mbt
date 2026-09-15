@@ -104,7 +104,8 @@ fn body_is_solver_active3d(body : RigidBody) -> Bool {
 fn body_max_extent3d(body : RigidBody) -> Double {
   match body.collider {
     SphereShape(offset, radius) => offset.length() + radius
-    AABBShape(half_extents, offset) => offset.length() + half_extents.length()
+    AABBShape(half_extents, offset) | BoxShape(half_extents, offset) =>
+      offset.length() + half_extents.length()
   }
 }
 
@@ -464,7 +465,26 @@ fn PhysicsWorld::phase_integrate_positions(
       } else {
         body.rotation
       }
-      if body.is_bullet {
+      let displacement = @math3d.Vec3::new(
+        vx * sub_dt,
+        vy * sub_dt,
+        vz * sub_dt,
+      )
+      if sweep_static_boxes(body, self.bodies, displacement)
+        is Some((toi, normal, restitution)) {
+        let closing = vx * normal.x + vy * normal.y + vz * normal.z
+        if closing < 0.0 {
+          let impulse = -(1.0 + restitution) * closing
+          vel.vx[i] += normal.x * impulse
+          vel.vy[i] += normal.y * impulse
+          vel.vz[i] += normal.z * impulse
+        }
+        self.bodies[i] = {
+          ..body,
+          position: position.add(displacement.scale(toi)),
+          rotation: new_rotation,
+        }
+      } else if body.is_bullet {
         match ccd_sweep_body3d(i, self.bodies, vel, sub_dt) {
           Some(toi) => {
             let safe_toi = if toi > 0.01 { toi * 0.95 } else { 0.0 }

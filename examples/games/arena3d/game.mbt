@@ -19,15 +19,12 @@ let mode_gameover : Int = 2
 let arena_half : Double = 9.0
 
 ///|
-let wall_height : Double = 1.0
+let wall_height : Double = 3.0
 
 ///|
 let wall_thickness : Double = 0.5
 
 // Gameplay
-
-///|
-let player_speed : Double = 0.08
 
 ///|
 let enemy_speed : Double = 0.03
@@ -130,15 +127,20 @@ struct GameState {
   enemies : Array[EnemyState]
   mut first_person : Bool
   mut on_ground : Bool
-  mut velocity_y : Double
-  mut floor_y : Double
+  motor : @character3d.MotorConfig
+  mut player_body_index : Int
+  mut player_spawn : @math3d.Vec3
   mut looking : Bool
   mut prev_cursor_x : Double
   mut prev_cursor_y : Double
   mut physics : @physics3d.PhysicsWorld
   props : Array[PhysicsProp]
-  mut shot_start : @math3d.Vec3
-  mut shot_end : @math3d.Vec3
+  stage_nodes : Array[@scene3d.View]
+  emitters : Array[@math3d.Vec3]
+  rain_slots : Array[Int]
+  mut rain_ticks : Int
+  mut rain_count : Int
+  shots : Array[Shot]
   mut shot_frames : Int
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
@@ -217,15 +219,20 @@ fn GameState::new() -> GameState {
   let state = {
     first_person: false,
     on_ground: true,
-    velocity_y: 0.0,
-    floor_y: 0.5,
+    motor: @character3d.MotorConfig::default(),
+    player_body_index: -1,
+    player_spawn: @math3d.Vec3::new(0.0, 0.5, 0.0),
     looking: false,
     prev_cursor_x: 0.0,
     prev_cursor_y: 0.0,
     physics: new_physics_world(),
     props: [],
-    shot_start: @math3d.Vec3::zero(),
-    shot_end: @math3d.Vec3::zero(),
+    stage_nodes: [],
+    emitters: [],
+    rain_slots: [],
+    rain_ticks: 0,
+    rain_count: 0,
+    shots: [],
     shot_frames: 0,
     scene_root: @scene3d.SceneRoot::new(),
     authored: None,
@@ -344,13 +351,12 @@ fn GameState::reset(self : GameState) -> Unit {
   self.score = 0
   self.frame_count = 0
   self.on_ground = true
-  self.velocity_y = 0.0
-  self.reset_physics()
   if self.authored is Some(_) {
     self.activate_scene()
     return
   }
   self.player.position = @math3d.Vec3::new(0.0, 0.5, 0.0)
+  self.reset_physics()
   for i in 0..<self.items.length() {
     let item = self.items[i]
     let fresh = make_item(i)
@@ -367,7 +373,8 @@ fn GameState::reset(self : GameState) -> Unit {
 
 ///|
 fn GameState::update_playing(self : GameState) -> Unit {
-  self.move_player()
+  self.update_physics()
+  self.update_shots()
   if self.authored is Some(session) {
     if session.portal_at(self.player.position.x, self.player.position.z)
       is Some(target) {
@@ -377,7 +384,6 @@ fn GameState::update_playing(self : GameState) -> Unit {
       return
     }
   }
-  self.physics.step(1.0 / 60.0)
   if self.shot_frames > 0 {
     self.shot_frames -= 1
   }

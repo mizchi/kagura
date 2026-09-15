@@ -163,7 +163,7 @@ pub fn ccd_sweep_body3d(
   let speed = displacement.length()
   let bullet_radius = match bullet.collider {
     SphereShape(_, r) => r
-    AABBShape(he, _) => he.length()
+    AABBShape(he, _) | BoxShape(he, _) => he.length()
   }
   if speed < bullet_radius * 0.5 {
     return None
@@ -212,4 +212,92 @@ pub fn ccd_sweep_body3d(
     }
   }
   min_toi
+}
+
+///|
+/// Swept SAT against static boxes. Orientation stays fixed during this linear
+/// sweep; resting contacts and slow motion continue through the contact solver.
+fn sweep_static_boxes(
+  body : RigidBody,
+  bodies : Array[RigidBody],
+  displacement : @math3d.Vec3,
+) -> (Double, @math3d.Vec3, Double)? {
+  let (center, half, rotation, sphere) = match body.collider {
+    SphereShape(offset, radius) =>
+      (
+        body.position.add(offset),
+        @math3d.Vec3::new(radius, radius, radius),
+        @math3d.Quaternion::identity(),
+        true,
+      )
+    _ => {
+      let (center, half, rotation) = box_frame(body)
+      (center, half, rotation, false)
+    }
+  }
+  let threshold = half.x.min(half.y).min(half.z) * 0.25
+  if displacement.length_squared() < threshold * threshold {
+    return None
+  }
+  let moving_axes = box_axes(rotation)
+  let mut result = None
+  let mut earliest = 1.0
+  for other in bodies {
+    if !(other.body_type is Static) || other.collider is SphereShape(_, _) {
+      continue
+    }
+    let (target, target_half, target_rotation) = box_frame(other)
+    let target_axes = box_axes(target_rotation)
+    let axes = target_axes.copy()
+    if !sphere {
+      for axis in moving_axes {
+        axes.push(axis)
+      }
+      for a in moving_axes {
+        for b in target_axes {
+          let cross = a.cross(b)
+          if cross.length_squared() > 1.0e-12 {
+            axes.push(cross.normalize())
+          }
+        }
+      }
+    }
+    let delta = center.sub(target)
+    let mut entry = -1.0e30
+    let mut leave = 1.0
+    let mut normal = @math3d.Vec3::zero()
+    let mut separated = false
+    for axis in axes {
+      let radius = box_radius(target_axes, target_half, axis) +
+        (if sphere { half.x } else { box_radius(moving_axes, half, axis) })
+      let position = delta.dot(axis)
+      let speed = displacement.dot(axis)
+      if speed.abs() < 1.0e-12 {
+        if position.abs() > radius {
+          separated = true
+          break
+        }
+      } else {
+        let a = (-radius - position) / speed
+        let b = (radius - position) / speed
+        let near = a.min(b)
+        if near > entry {
+          entry = near
+          normal = if speed > 0.0 { axis.negate() } else { axis }
+        }
+        leave = leave.min(a.max(b))
+        if entry > leave {
+          separated = true
+          break
+        }
+      }
+    }
+    // Initial overlaps belong to the discrete solver, including motion away
+    // from a surface. Only intercept a newly entered interval.
+    if !separated && entry >= -1.0e-9 && entry <= earliest && leave > 0.0 {
+      earliest = entry.max(0.0)
+      result = Some((earliest, normal, body.restitution.min(other.restitution)))
+    }
+  }
+  result
 }

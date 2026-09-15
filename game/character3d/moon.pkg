@@ -1,0 +1,5 @@
+import {
+  "mizchi/geom/math3d",
+  "mizchi/kagura_core/physics3d",
+  "mizchi/kagura_core/collision3d",
+}

@@ -1,6 +1,11 @@
 ///|
 pub fn generate_contact(a : RigidBody, b : RigidBody) -> Contact? {
   match (a.collider, b.collider) {
+    (SphereShape(off, radius), BoxShape(he, box_off)) =>
+      sphere_box(a, off, radius, b, he, box_off, false)
+    (BoxShape(he, box_off), SphereShape(off, radius)) =>
+      sphere_box(b, off, radius, a, he, box_off, true)
+    (BoxShape(_, _), _) | (_, BoxShape(_, _)) => box_box(a, b)
     (SphereShape(off_a, r_a), SphereShape(off_b, r_b)) =>
       sphere_sphere(a, off_a, r_a, b, off_b, r_b)
     (AABBShape(he_a, off_a), AABBShape(he_b, off_b)) =>
@@ -69,7 +74,20 @@ fn aabb_aabb(
     let nz = if diff.z >= 0.0 { 1.0 } else { -1.0 }
     (@math3d.Vec3::new(0.0, 0.0, nz), overlap_z)
   }
-  let contact_point = center_a.add(center_b).scale(0.5)
+  // The shared face lies in the overlap, not halfway between the body centers.
+  // A large floor's center is far from an off-center box; using that midpoint
+  // created a false lever arm and diverted support impulses into angular motion.
+  let lo = @math3d.Vec3::new(
+    (center_a.x - he_a.x).max(center_b.x - he_b.x),
+    (center_a.y - he_a.y).max(center_b.y - he_b.y),
+    (center_a.z - he_a.z).max(center_b.z - he_b.z),
+  )
+  let hi = @math3d.Vec3::new(
+    (center_a.x + he_a.x).min(center_b.x + he_b.x),
+    (center_a.y + he_a.y).min(center_b.y + he_b.y),
+    (center_a.z + he_a.z).min(center_b.z + he_b.z),
+  )
+  let contact_point = lo.add(hi).scale(0.5)
   Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point, })
 }
 

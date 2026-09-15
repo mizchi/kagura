@@ -1,7 +1,9 @@
 ///|
 test "view toggle preserves player, score, aim and simulated bodies" {
   let state = GameState::new()
-  let position = state.player.position
+  let control = GameState::new()
+  control.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, []))
+  let position = control.player.position
   let direction = state.aim_direction()
   let bodies = state.physics.body_count()
   state.score = 20
@@ -19,20 +21,29 @@ test "view toggle preserves player, score, aim and simulated bodies" {
 }
 
 ///|
-test "jump lands and diagonal movement is normalized in both views" {
+test "jump lands and diagonal acceleration is normalized in both views" {
   for fps in [false, true] {
     let state = GameState::new()
+    let straight = GameState::new()
     state.first_person = fps
     state.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [87, 68, 32]))
+    straight.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [87, 32]))
     assert_true(state.player.position.y > 0.5)
+    let diagonal_distance = distance_xz(
+      state.player.position,
+      @math3d.Vec3::zero(),
+    )
+    assert_true(diagonal_distance > 0.0)
     assert_true(
-      (distance_xz(state.player.position, @math3d.Vec3::zero()) - player_speed).abs() <
+      (diagonal_distance -
+      distance_xz(straight.player.position, @math3d.Vec3::zero())).abs() <
       0.0001,
     )
     for _ in 0..<120 {
       state.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, []))
     }
-    assert_true((state.player.position.y - 0.5).abs() < 0.001)
+    assert_true((state.player.position.y - 0.5).abs() < 0.015)
+    assert_true(state.on_ground)
   }
 }
 
@@ -59,18 +70,26 @@ test "physics sandbox falls, bounces and rests above the actual floor" {
 ///|
 test "shooting pushes the nearest body and walls stop the shot" {
   let state = GameState::new()
+  state.enemies.clear()
   state.physics = test_shooting_world(false)
-  state.fire_ray(
+  state.fire_shot(
     @math3d.Vec3::new(0.0, 1.0, 5.0),
     @math3d.Vec3::new(0.0, 0.0, -1.0),
   )
+  for _ in 0..<30 {
+    state.update_shots()
+  }
   assert_true(state.physics.get_body(1).unwrap().velocity.z < -1.0)
   assert_eq(state.physics.get_body(2).unwrap().velocity.z, 0.0)
   state.physics = test_shooting_world(true)
-  state.fire_ray(
+  state.shots.clear()
+  state.fire_shot(
     @math3d.Vec3::new(0.0, 1.0, 5.0),
     @math3d.Vec3::new(0.0, 0.0, -1.0),
   )
+  for _ in 0..<30 {
+    state.update_shots()
+  }
   assert_eq(state.physics.get_body(1).unwrap().velocity.z, 0.0)
 }
 
@@ -100,7 +119,7 @@ fn test_shooting_world(wall : Bool) -> @physics3d.PhysicsWorld {
 }
 
 ///|
-test "authored floor bounds determine movement after resizing in Studio" {
+test "physical player walks on the outer area of a floor resized in Studio" {
   let project = @scenes.project()
   for scene in project.scenes {
     for entity in scene.data.entities {
@@ -112,10 +131,14 @@ test "authored floor bounds determine movement after resizing in Studio" {
   let state = GameState::new()
   state.apply_scene_project(project.to_json().stringify())
   state.transition_scene("second")
-  state.player.position = @math3d.Vec3::new(10.0, 0.5, 5.0)
+  state.teleport_player(@math3d.Vec3::new(10.0, 0.5, 5.0))
   state.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [68]))
   assert_true(state.player.position.x > 10.0)
-  state.player.position = @math3d.Vec3::new(14.49, 0.5, 5.0)
+  state.teleport_player(@math3d.Vec3::new(13.0, 0.5, 5.0))
   state.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [68]))
-  assert_true(state.player.position.x <= 14.5)
+  for _ in 0..<15 {
+    state.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [68]))
+  }
+  assert_true(state.player.position.x > 13.5)
+  assert_true(state.player.position.y >= 0.48)
 }

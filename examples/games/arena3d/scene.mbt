@@ -19,7 +19,8 @@ fn GameState::apply_scene_project(
   source : String,
 ) -> Unit raise {
   let session = @scene_data.Session::parse(source, [
-    "floor", "wall", "spawn", "item", "enemy", "portal", "crate", "ball",
+    "floor", "wall", "spawn", "item", "enemy", "portal", "crate", "ball", "slide",
+    "ball_dropper",
   ])
   self.authored = Some(session)
   self.activate_scene()
@@ -41,10 +42,27 @@ fn GameState::scene_snapshot(self : GameState) -> String {
     "scene": session.scene().to_json(),
     "player": [player.x, player.y, player.z],
     "firstPerson": self.first_person,
+    "playerBodyId": player_body_id,
+    "playerVelocity": self.physics
+    .get_body(player_body_id)
+    .map(body => [body.velocity.x, body.velocity.y, body.velocity.z])
+    .unwrap_or([0.0, 0.0, 0.0]),
+    "grounded": self.on_ground,
     "camera": { "yaw": self.camera.yaw, "pitch": self.camera.pitch },
     "score": self.score,
     "mode": self.mode,
     "shotFrames": self.shot_frames,
+    "shots": self.shots
+    .filter(shot => shot.active)
+    .map(fn(shot) {
+      let value : Json = {
+        "position": [shot.position.x, shot.position.y, shot.position.z],
+        "impactFrames": shot.impact_frames,
+      }
+      value
+    }),
+    "rainCount": self.rain_count,
+    "rainCapacity": rain_capacity,
     "physics": self.physics.bodies
     .filter(body => body.is_dynamic())
     .map(fn(body) {
@@ -81,9 +99,7 @@ fn GameState::activate_scene(self : GameState) -> Unit {
       _ => ()
     }
   }
-  self.floor_y = self.player.position.y
   self.on_ground = true
-  self.velocity_y = 0.0
   self.reset_physics()
   self.camera = self.camera.with_target(self.player.position)
 }
@@ -112,7 +128,7 @@ fn GameState::authored_nodes(
         )
         continue
       }
-      "crate" | "ball" => continue
+      "crate" | "ball" | "slide" | "ball_dropper" => continue
       "spawn" => {
         if self.first_person {
           continue

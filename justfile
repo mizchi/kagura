@@ -88,6 +88,12 @@ hunter-motions-build:
     moonfmt -w examples/games/hacknslash_3d/app/hunter_motion_generated.mbt
     node examples/games/hacknslash_3d/scripts/export-motion-assets.mjs
 
+# Player motor and the shared physics yard regression tests.
+arena-physics-test:
+    moon -C core test physics3d --target {{target}}
+    moon -C game test character3d --target {{target}}
+    moon -C examples/games/arena3d test . --target {{target}}
+
 # Reusable game components can be verified without building a particular game.
 game-components-test: web-runtime-build
     moon test platform_web/input platform_web/render platform_web/playback platform_web/diagnostics platform_web/ui_sync platform_web/fetch game/inventory game/inventory_web core/anim3d/playback core/statistics --target js

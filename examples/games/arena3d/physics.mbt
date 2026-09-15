@@ -17,22 +17,28 @@ fn new_physics_world() -> @physics3d.PhysicsWorld {
 fn GameState::reset_physics(self : GameState) -> Unit {
   self.physics = new_physics_world()
   self.props.clear()
+  self.stage_nodes.clear()
+  self.emitters.clear()
+  self.rain_slots.clear()
+  self.rain_ticks = 0
+  self.rain_count = 0
   self.shot_frames = 0
-  // Low perimeter walls contain dynamic props after repeated impulses.
+  self.shots.clear()
+  // Four perimeter walls contain the falling props.
   for
     (id, position, half_extents) in [
       (
         -1,
-        @math3d.Vec3::new(0.0, 0.5, -9.25),
-        @math3d.Vec3::new(9.5, 0.5, 0.25),
+        @math3d.Vec3::new(0.0, 1.5, -9.25),
+        @math3d.Vec3::new(9.5, 1.5, 0.25),
       ),
-      (-2, @math3d.Vec3::new(0.0, 0.5, 9.25), @math3d.Vec3::new(9.5, 0.5, 0.25)),
+      (-2, @math3d.Vec3::new(0.0, 1.5, 9.25), @math3d.Vec3::new(9.5, 1.5, 0.25)),
       (
         -3,
-        @math3d.Vec3::new(-9.25, 0.5, 0.0),
-        @math3d.Vec3::new(0.25, 0.5, 9.0),
+        @math3d.Vec3::new(-9.25, 1.5, 0.0),
+        @math3d.Vec3::new(0.25, 1.5, 9.0),
       ),
-      (-4, @math3d.Vec3::new(9.25, 0.5, 0.0), @math3d.Vec3::new(0.25, 0.5, 9.0)),
+      (-4, @math3d.Vec3::new(9.25, 1.5, 0.0), @math3d.Vec3::new(0.25, 1.5, 9.0)),
     ] {
     if self.authored is None {
       self.physics.add_body(
@@ -57,6 +63,8 @@ fn GameState::reset_physics(self : GameState) -> Unit {
               AABBShape(scale.scale(0.5), @math3d.Vec3::zero()),
             ),
           )
+        "slide" => self.add_slide(-100 - i * 10, entity.id, position, scale)
+        "ball_dropper" => self.add_dropper(entity.id, position)
         "crate" | "ball" =>
           self.add_physics_prop(
             i,
@@ -70,6 +78,13 @@ fn GameState::reset_physics(self : GameState) -> Unit {
       }
     }
   } else {
+    self.add_slide(
+      -100,
+      "slide",
+      @math3d.Vec3::new(-4.8, 1.6, -4.0),
+      @math3d.Vec3::new(2.2, 3.2, 6.0),
+    )
+    self.add_dropper("dropper", @math3d.Vec3::new(-4.8, 7.0, -6.3))
     self.physics.add_body(
       @physics3d.RigidBody::new_static(
         0,
@@ -104,6 +119,9 @@ fn GameState::reset_physics(self : GameState) -> Unit {
       )
     }
   }
+  self.player_spawn = self.player.position
+  self.player_body_index = self.physics.bodies.length()
+  self.physics.add_body(new_player_body(self.player.position))
 }
 
 ///|
@@ -123,7 +141,7 @@ fn GameState::add_physics_prop(
   }
   self.physics.add_body(
     @physics3d.RigidBody::new_dynamic(id, position, 1.0, shape)
-    .with_restitution(if sphere { 0.78 } else { 0.08 })
+    .with_restitution(if sphere { 0.42 } else { 0.08 })
     .with_friction(0.55)
     .with_damping(0.08),
   )
@@ -131,63 +149,8 @@ fn GameState::add_physics_prop(
 }
 
 ///|
-fn body_hit(
-  body : @physics3d.RigidBody,
-  ray : @collision3d.Ray,
-) -> @collision3d.HitResult {
-  match body.collider {
-    SphereShape(center, radius) =>
-      ray.intersects_sphere(
-        @collision3d.Sphere::new(body.position.add(center), radius),
-      )
-    AABBShape(_, _) => ray.intersects_aabb(body.world_aabb())
-  }
-}
-
-///|
-/// A single nearest-hit query prevents shooting through walls or stacked props.
-fn GameState::fire_ray(
-  self : GameState,
-  origin : @math3d.Vec3,
-  direction : @math3d.Vec3,
-) -> Unit {
-  let ray = @collision3d.Ray::new(origin, direction.normalize())
-  let mut distance = 40.0
-  let mut body_id = -1
-  let mut enemy_index = -1
-  for body in self.physics.bodies {
-    let hit = body_hit(body, ray)
-    if hit.hit && hit.distance < distance {
-      distance = hit.distance
-      body_id = body.id
-    }
-  }
-  for i, enemy in self.enemies {
-    if !enemy.active {
-      continue
-    }
-    let hit = ray.intersects_sphere(
-      @collision3d.Sphere::new(enemy.position, 0.55),
-    )
-    if hit.hit && hit.distance < distance {
-      distance = hit.distance
-      enemy_index = i
-    }
-  }
-  if enemy_index >= 0 {
-    self.enemies[enemy_index].active = false
-    self.score += 25
-  } else if body_id >= 0 {
-    self.physics.apply_impulse(body_id, direction.normalize().scale(12.0))
-  }
-  self.shot_start = origin
-  self.shot_end = ray.point_at(distance)
-  self.shot_frames = 6
-}
-
-///|
 fn GameState::physics_nodes(self : GameState) -> Array[@scene3d.View] {
-  let nodes = []
+  let nodes = self.stage_nodes.copy()
   for prop in self.props {
     if self.physics.get_body(prop.id) is Some(body) {
       nodes.push(
@@ -195,28 +158,17 @@ fn GameState::physics_nodes(self : GameState) -> Array[@scene3d.View] {
           key=prop.key,
           mesh=if prop.sphere { self.meshes.player } else { self.meshes.wall },
           position=body.position,
+          rotation=if prop.sphere {
+            body.rotation
+          } else {
+            @math3d.Quaternion::identity()
+          },
           scale=prop.scale,
           color=prop.color,
         ),
       )
     }
   }
-  // Fixed-size tracer: shooting does not accumulate meshes or rigid bodies.
-  if self.shot_frames > 0 {
-    let delta = self.shot_end.sub(self.shot_start)
-    for i in 0..<12 {
-      nodes.push(
-        @scene3d.mesh(
-          key="shot-\{i}",
-          mesh=self.meshes.item,
-          position=self.shot_start.add(
-            delta.scale((i.to_double() + 1.0) / 12.0),
-          ),
-          scale=@math3d.Vec3::new(0.16, 0.16, 0.16),
-          color=scene_color(0xFFF1B5),
-        ),
-      )
-    }
-  }
+  self.append_shot_nodes(nodes)
   nodes
 }

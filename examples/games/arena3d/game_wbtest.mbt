@@ -113,15 +113,17 @@ test "player moves right with D key" {
 }
 
 ///|
-test "player clamped to arena bounds" {
+test "physical perimeter stops the player under sustained input" {
   let state = GameState::new()
   state.mode = mode_playing
-  state.player.position = @math3d.Vec3::new(arena_half, 0.5, 0.0)
+  state.teleport_player(@math3d.Vec3::new(arena_half - 1.0, 0.5, 0.0))
   // Move right (D key = 68)
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [68])
   state.update(input)
-  let limit = arena_half - 1.0
-  assert_true(state.player.position.x <= limit + 0.001)
+  for _ in 0..<120 {
+    state.update(input)
+  }
+  assert_true(state.player.position.x <= arena_half - 0.48)
 }
 
 // ============================================================
@@ -134,7 +136,7 @@ test "item collection increases score" {
   state.mode = mode_playing
   // Move player to first item position
   let item_pos = state.items[0].position
-  state.player.position = @math3d.Vec3::new(item_pos.x, 0.5, item_pos.z)
+  state.teleport_player(@math3d.Vec3::new(item_pos.x, 0.5, item_pos.z))
   let empty = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [])
   state.update(empty)
   assert_eq(state.score, 10)
@@ -145,7 +147,7 @@ test "collected item respawns" {
   let state = GameState::new()
   state.mode = mode_playing
   let item_pos = state.items[0].position
-  state.player.position = @math3d.Vec3::new(item_pos.x, 0.5, item_pos.z)
+  state.teleport_player(@math3d.Vec3::new(item_pos.x, 0.5, item_pos.z))
   let empty = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [])
   state.update(empty)
   // Item should be respawned (still active with new position)
@@ -161,7 +163,7 @@ test "enemy collision triggers gameover" {
   let state = GameState::new()
   state.mode = mode_playing
   let enemy_pos = state.enemies[0].position
-  state.player.position = @math3d.Vec3::new(enemy_pos.x, 0.5, enemy_pos.z)
+  state.teleport_player(@math3d.Vec3::new(enemy_pos.x, 0.5, enemy_pos.z))
   let empty = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [])
   state.update(empty)
   assert_eq(state.mode, mode_gameover)
@@ -180,7 +182,7 @@ test "enemy moves toward next waypoint" {
   let next_wp = e.waypoints[1]
   let dist_before = distance_xz(e.position, next_wp)
   // Move player far from enemies to avoid collision
-  state.player.position = @math3d.Vec3::new(0.0, 0.5, 0.0)
+  state.teleport_player(@math3d.Vec3::new(0.0, 0.5, 0.0))
   // Run several updates
   for _ in 0..<10 {
     let empty = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [])
@@ -199,7 +201,7 @@ test "camera follows player" {
   let state = GameState::new()
   state.mode = mode_playing
   // Move player
-  state.player.position = @math3d.Vec3::new(5.0, 0.5, 3.0)
+  state.teleport_player(@math3d.Vec3::new(5.0, 0.5, 3.0))
   let empty = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [])
   state.update(empty)
   assert_true((state.camera.target.x - 5.0).abs() < 0.001)
@@ -215,7 +217,7 @@ test "reset restores initial state" {
   let state = GameState::new()
   state.mode = mode_playing
   state.score = 100
-  state.player.position = @math3d.Vec3::new(5.0, 0.5, 5.0)
+  state.teleport_player(@math3d.Vec3::new(5.0, 0.5, 5.0))
   state.reset()
   assert_eq(state.score, 0)
   assert_true((state.player.position.x - 0.0).abs() < 0.001)

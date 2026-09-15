@@ -76,6 +76,7 @@ pub impl Show for BodyType
 pub(all) enum ColliderShape {
   SphereShape(@math3d.Vec3, Double)
   AABBShape(@math3d.Vec3, @math3d.Vec3)
+  BoxShape(@math3d.Vec3, @math3d.Vec3)
 } derive(@debug.Debug)
 pub fn ColliderShape::output(Self, &Logger) -> Unit
 pub fn ColliderShape::to_repr(Self) -> @debug.Repr
@@ -197,11 +198,13 @@ pub(all) struct RigidBody {
 } derive(@debug.Debug)
 pub fn RigidBody::apply_force(Self, @math3d.Vec3) -> Self
 pub fn RigidBody::apply_impulse(Self, @math3d.Vec3) -> Self
+pub fn RigidBody::intersects_sphere(Self, @collision3d.Sphere) -> Bool
 pub fn RigidBody::is_dynamic(Self) -> Bool
 pub fn RigidBody::new_dynamic(Int, @math3d.Vec3, Double, ColliderShape) -> Self
 pub fn RigidBody::new_kinematic(Int, @math3d.Vec3, ColliderShape) -> Self
 pub fn RigidBody::new_static(Int, @math3d.Vec3, ColliderShape) -> Self
 pub fn RigidBody::output(Self, &Logger) -> Unit
+pub fn RigidBody::raycast(Self, @collision3d.Ray) -> @collision3d.HitResult
 pub fn RigidBody::to_repr(Self) -> @debug.Repr
 pub fn RigidBody::to_string(Self) -> String
 pub fn RigidBody::with_bullet(Self) -> Self

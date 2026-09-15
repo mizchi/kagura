@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/character3d"
+
+import {
+  "mizchi/geom/math3d",
+  "mizchi/kagura_core/physics3d",
+}
+
+// Values
+pub fn motor_acceleration(MotorConfig, @math3d.Vec3, @math3d.Vec3, GroundContact?, @math3d.Vec3, Double) -> @math3d.Vec3
+
+pub fn sphere_ground_contact(@physics3d.RigidBody, Array[@physics3d.RigidBody], MotorConfig) -> GroundContact?
+
+// Errors
+
+// Types and methods
+pub(all) struct GroundContact {
+  body_id : Int
+  normal : @math3d.Vec3
+  velocity : @math3d.Vec3
+}
+
+pub(all) struct MotorConfig {
+  speed : Double
+  response_time : Double
+  ground_acceleration : Double
+  ground_braking : Double
+  air_acceleration : Double
+  air_braking : Double
+  jump_speed : Double
+  max_slope_cos : Double
+  probe_distance : Double
+}
+pub fn MotorConfig::default() -> Self
+
+// Type aliases
+
+// Traits

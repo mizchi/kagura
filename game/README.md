@@ -26,6 +26,10 @@ Both the simulation and `inventory_web/` use these contracts. `inventory_web/` o
 Key, mouse, touch and gamepad edge detection is provided by `core/inputstate`.
 The unused common AI prototype has been removed; games own their enemy behavior.
 
+`character3d/` provides a force-driven movement motor and spherical ground probes.
+It controls acceleration toward a desired speed while keeping collision momentum
+in `core/physics3d`. See [character3d](character3d/README.md).
+
 `projectile3d/` provides renderer-independent telegraphed beam paths. Simulation,
 rendering and HUD sample the same immutable timing/trajectory contract; games own
 damage, hit history and encounter progression. See [projectile3d](projectile3d/README.md).

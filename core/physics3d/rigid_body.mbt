@@ -8,9 +8,12 @@ fn compute_inv_inertia(mass : Double, collider : ColliderShape) -> Double {
   let inertia = match collider {
     // Solid sphere: I = 2/5 * m * r^2
     SphereShape(_, radius) => 0.4 * mass * radius * radius
-    // Solid box: I ≈ m/12 * (h^2 + d^2) (using average of 3 axes)
-    // For simplicity, use the maximum moment (smallest axis excluded)
-    AABBShape(he, _) => {
+    // Axis-aligned colliders have locked rotation. Letting the solver spend
+    // normal impulses on angular motion that never changes this shape makes
+    // offset stacks sink through their supports. Use BoxShape for rotation.
+    AABBShape(_, _) => return 0.0
+    // Scalar approximation for a rotating box.
+    BoxShape(he, _) => {
       let hx = he.x
       let hy = he.y
       let hz = he.z
@@ -181,6 +184,22 @@ pub fn RigidBody::world_aabb(self : RigidBody) -> @collision3d.AABB {
       let center = self.position.add(offset)
       let r = @math3d.Vec3::new(radius, radius, radius)
       @collision3d.AABB::new(center.sub(r), center.add(r))
+    }
+    BoxShape(half_extents, offset) => {
+      let center = self.position.add(self.rotation.rotate_vec3(offset))
+      let axes = box_axes(self.rotation)
+      let extent = @math3d.Vec3::new(
+        axes[0].x.abs() * half_extents.x +
+        axes[1].x.abs() * half_extents.y +
+        axes[2].x.abs() * half_extents.z,
+        axes[0].y.abs() * half_extents.x +
+        axes[1].y.abs() * half_extents.y +
+        axes[2].y.abs() * half_extents.z,
+        axes[0].z.abs() * half_extents.x +
+        axes[1].z.abs() * half_extents.y +
+        axes[2].z.abs() * half_extents.z,
+      )
+      @collision3d.AABB::new(center.sub(extent), center.add(extent))
     }
     AABBShape(half_extents, offset) => {
       let center = self.position.add(offset)

@@ -13,7 +13,10 @@ pub impl Show for BodyType with fn output(self, logger) {
 ///|
 pub(all) enum ColliderShape {
   SphereShape(@math3d.Vec3, Double)
+  // Half extents and local offset; AABB keeps its world axes.
   AABBShape(@math3d.Vec3, @math3d.Vec3)
+  // Half extents and local offset, transformed by RigidBody.rotation.
+  BoxShape(@math3d.Vec3, @math3d.Vec3)
 } derive(Debug)
 
 ///|

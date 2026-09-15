@@ -36,7 +36,7 @@ fn GameState::append_hud(
   arena_label(
     commands,
     frame,
-    "SCORE \{self.score}   PHYSICS \{self.props.length()}   V: VIEW   R: RESET",
+    "SCORE \{self.score}   PROPS \{self.props.length()}   V: VIEW   R: RESET",
     sw / 2.0,
     40.0,
     scale * 0.85,

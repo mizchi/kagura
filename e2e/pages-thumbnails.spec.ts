@@ -40,7 +40,7 @@ for (const game of catalog.filter(item => item.category === 'games')) {
       }
     }
     // Let the first gameplay frame, animation and GPU present settle before capture.
-    await page.waitForTimeout(game.id === 'survivor' ? 3000 : game.id === 'flappy_bird' ? 100 : 500);
+    await page.waitForTimeout(['survivor', 'arena3d'].includes(game.id) ? 3000 : game.id === 'flappy_bird' ? 100 : 500);
     expect(errors).toEqual([]);
     const directory = 'assets/pages/thumbnails';
     mkdirSync(directory, {recursive: true});

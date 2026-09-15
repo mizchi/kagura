@@ -11,9 +11,23 @@ test "authored scenes drive game state and reject invalid updates atomically" {
   assert_eq(state.player.position.z, 5.0)
   assert_eq(state.authored.unwrap().current_id(), "training")
   let before = state.scene_snapshot()
-  assert_true(try { state.apply_scene_project("{}"); false } catch { _ => true })
+  assert_true(
+    try {
+      state.apply_scene_project("{}")
+      false
+    } catch {
+      _ => true
+    },
+  )
   assert_eq(state.scene_snapshot(), before)
-  assert_true(try { state.transition_scene("missing"); false } catch { _ => true })
+  assert_true(
+    try {
+      state.transition_scene("missing")
+      false
+    } catch {
+      _ => true
+    },
+  )
   assert_eq(state.scene_snapshot(), before)
 }
 
@@ -21,8 +35,10 @@ test "authored scenes drive game state and reject invalid updates atomically" {
 test "walking into a portal activates the destination and reset keeps authored state" {
   let state = GameState::new()
   state.apply_scene_project(authored_fixture())
-  let up = @core.new_input_snapshot(0.0,0.0,0.0,0.0,[87])
-  for _ in 0..<35 { state.update(up) }
+  let up = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [87])
+  for _ in 0..<55 {
+    state.update(up)
+  }
   assert_eq(state.authored.unwrap().current_id(), "second")
   state.reset()
   assert_eq(state.player.position.z, 5.0)

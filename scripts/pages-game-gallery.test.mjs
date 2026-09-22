@@ -24,7 +24,7 @@ test('gallery emits complete static HTML, images and styles under a project subp
   try {
     emitGameGallery({site, catalog});
     const html = readFileSync(join(site, 'examples/index.html'), 'utf8');
-    assert.match(html, /lang="ja"/);
+    assert.match(html, /lang="en"/);
     assert.doesNotMatch(html, /WebGPU/);
     assert.match(html, /href="\.\/examples.css"/);
     assert.match(html, /href="\.\.\/studio\/"/);

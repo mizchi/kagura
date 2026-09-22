@@ -6,7 +6,7 @@ for (const width of [1440, 768, 390]) {
     await page.setViewportSize({width, height: 900});
     const response = await page.goto('./examples/');
     expect(response?.ok()).toBe(true);
-    await expect(page.getByRole('heading', {level: 1})).toHaveText('ゲームと技術デモ');
+    await expect(page.getByRole('heading', {level: 1})).toHaveText('Games & Technical Demos');
     const cards = page.locator('.game-card');
     const games = catalog.filter(item => item.gallery);
     await expect(cards).toHaveCount(games.length);
@@ -19,16 +19,16 @@ for (const width of [1440, 768, 390]) {
       const img = card.locator('img');
       await expect(img).toHaveAttribute('alt', game.gallery.thumbnailAlt);
       await expect.poll(() => img.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
-      const href = await card.getByRole('link', {name: `${game.title} を${game.kind === 'game' ? 'プレイ' : '開く'}`, exact: true}).getAttribute('href');
+      const href = await card.getByRole('link', {name: `${game.kind === 'game' ? 'Play' : 'Open'} ${game.title}`, exact: true}).getAttribute('href');
       // Check the real emitted route, including /kagura/ rather than the domain root.
       const target = new URL(href!, page.url());
       expect(target.pathname).toContain('/kagura/');
       expect((await request.get(target.href)).ok()).toBe(true);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.getByRole('link', {name: /^技術デモ/}).click();
+    await page.getByRole('link', {name: /^Technical Demos/}).click();
     await expect(page).toHaveURL(/#demos$/);
-    await page.getByRole('link', {name: 'Flappy Bird を開く', exact: true}).focus();
+    await page.getByRole('link', {name: 'Open Flappy Bird', exact: true}).focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/flappy_bird\/$/);
     await page.goBack();

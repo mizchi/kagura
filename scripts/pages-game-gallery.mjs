@@ -23,35 +23,35 @@ export function emitGameGallery({site, catalog}) {
 
 function renderGameGallery(games) {
   const sections = [
-    ['game', 'games', 'ゲーム', '戦闘や探索、育成などを組み合わせて遊べるゲーム。'],
-    ['demo', 'demos', '技術デモ', '物理・入力・描画・ゲームループの実装を試せるサンプル。'],
+    ['game', 'games', 'Games', 'Games with combat, exploration, and progression.'],
+    ['demo', 'demos', 'Technical Demos', 'Examples of physics, input, rendering, and game loops.'],
   ];
   return `<!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Kagura のゲームと技術デモ。画面、内容、入力方法、プレイとソースコードへのリンクを掲載しています。">
+  <meta name="description" content="Games and technical demos built with Kagura. Browse screenshots, descriptions, controls, and links to play or view the source.">
   <meta name="color-scheme" content="dark">
-  <title>ゲームと技術デモ | Kagura Playground</title>
+  <title>Games &amp; Technical Demos | Kagura Playground</title>
   <link rel="stylesheet" href="./examples.css">
 </head>
 <body>
-  <a class="skip-link" href="#examples">一覧へスキップ</a>
+  <a class="skip-link" href="#examples">Skip to examples</a>
   <header class="site-header">
     <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">K</span>KAGURA <span class="brand-sub">PLAYGROUND</span></a>
-    <nav aria-label="メインナビゲーション">
+    <nav aria-label="Main navigation">
       <a href="../studio/">Studio <span aria-hidden="true">↗</span></a>
       <a href="https://github.com/mizchi/kagura">GitHub <span aria-hidden="true">↗</span></a>
     </nav>
   </header>
   <main id="examples">
     <section class="intro" aria-labelledby="gallery-title">
-      <p class="eyebrow">Kagura <span aria-hidden="true">/</span> ${games.filter(item => item.kind === 'game').length} 本のゲーム・${games.filter(item => item.kind === 'demo').length} 本の技術デモ</p>
-      <h1 id="gallery-title">ゲームと技術デモ</h1>
-      <p class="intro-copy">Kagura で作成したゲームと、機能を試すための技術デモです。ブラウザから開けます。</p>
+      <p class="eyebrow">Kagura <span aria-hidden="true">/</span> ${games.filter(item => item.kind === 'game').length} games · ${games.filter(item => item.kind === 'demo').length} technical demos</p>
+      <h1 id="gallery-title">Games &amp; Technical Demos</h1>
+      <p class="intro-copy">Play games built with Kagura or explore individual features through technical demos. Open any example in your browser.</p>
       <div class="collection-nav">
-        <nav aria-label="サンプルの分類">
+        <nav aria-label="Example categories">
           ${sections.map(([kind, id, title]) => `<a href="#${id}">${title} <span>${games.filter(item => item.kind === kind).length}</span><span aria-hidden="true">↓</span></a>`).join('')}
         </nav>
       </div>
@@ -60,9 +60,9 @@ function renderGameGallery(games) {
       <div class="section-heading"><h2 id="heading-${id}">${title}</h2><p>${description}</p></div>
       <div class="game-grid">${games.filter(game => game.kind === kind).map(game => renderCard(game, games.indexOf(game))).join('\n')}</div>
     </section>`).join('\n')}
-    <aside class="create-panel"><div><h2>エディタとその他の技術デモ</h2><p>Studio ではシーンやモデルの編集、モーションの確認ができます。描画や物理などの機能を個別に試せるデモもあります。</p></div><div class="create-links"><a href="../studio/">Studio を開く <span aria-hidden="true">↗</span></a><a href="../#technical-demos">その他の技術デモ <span aria-hidden="true">→</span></a></div></aside>
+    <aside class="create-panel"><div><h2>Editor &amp; More Demos</h2><p>Use Studio to edit scenes and models or preview animations. Explore more demos covering individual rendering and physics features.</p></div><div class="create-links"><a href="../studio/">Open Studio <span aria-hidden="true">↗</span></a><a href="../#technical-demos">More technical demos <span aria-hidden="true">→</span></a></div></aside>
   </main>
-  <footer><span>KAGURA / MoonBit Game Engine</span><span>サムネイルは実際のゲーム画面です。</span></footer>
+  <footer><span>KAGURA / MoonBit Game Engine</span><span>Thumbnails show actual gameplay.</span></footer>
 </body>
 </html>
 `;
@@ -80,7 +80,7 @@ function renderCard(game, index) {
       <div class="card-heading"><h3 id="title-${escape(game.id)}"><a href="${escape(playHref)}">${escape(game.title)}</a></h3><span class="game-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span></div>
       <p class="description">${escape(gallery.description)}</p>
       <p class="input">${escape(gallery.input)}</p>
-      <div class="card-actions"><a class="play-link" href="${escape(playHref)}" aria-label="${escape(game.title)} を${game.kind === 'game' ? 'プレイ' : '開く'}">${game.kind === 'game' ? 'プレイする' : 'デモを開く'} <span aria-hidden="true">→</span></a><a class="source-link" href="https://github.com/mizchi/kagura/tree/main/examples/${escape(game.category)}/${escape(game.id)}" aria-label="${escape(game.title)} のソースコード">ソース <span aria-hidden="true">↗</span></a></div>
+      <div class="card-actions"><a class="play-link" href="${escape(playHref)}" aria-label="${game.kind === 'game' ? 'Play' : 'Open'} ${escape(game.title)}">${game.kind === 'game' ? 'Play game' : 'Open demo'} <span aria-hidden="true">→</span></a><a class="source-link" href="https://github.com/mizchi/kagura/tree/main/examples/${escape(game.category)}/${escape(game.id)}" aria-label="Source code for ${escape(game.title)}">Source <span aria-hidden="true">↗</span></a></div>
     </div>
   </article>`;
 }

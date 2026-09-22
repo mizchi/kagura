@@ -962,16 +962,16 @@ ${cards}
         <p class="muted">
           Interactive examples for Kagura, a MoonBit game engine. Open any card below to launch the demo, review controls, and jump to source.
         </p>
-        <p><a href="./examples/" style="color: var(--accent)">ゲームと技術デモをサムネイルで見る →</a></p>
+        <p><a href="./examples/" style="color: var(--accent)">Browse games and technical demos with screenshots →</a></p>
       </header>
 
       <section class="group" id="games">
-        <div class="group-head"><h2>Games · ゲーム</h2></div>
+        <div class="group-head"><h2>Games</h2></div>
         <div class="grid">${gameCards}</div>
       </section>
 
       <section class="group" id="technical-demos">
-        <div class="group-head"><h2>Technical Demos · 技術デモ</h2></div>
+        <div class="group-head"><h2>Technical Demos</h2></div>
 ${sections}
       </section>
 

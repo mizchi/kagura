@@ -1,5 +1,7 @@
 # Kagura Studio
 
+現在は開発途中です。未完成の機能や操作手順があり、今後変更される可能性があります。
+
 [コードとエディタの契約](../../docs/editor/code-editor-contract.md): 宣言した subject を Hierarchy で選択し、ゲーム所有の型付きフィールドを Inspector / AI から編集します。Flappy Bird の Bird が最初の対応例です。
 
 シーンエディタの画面は汎用スロット（`hierarchy` / `resources` / `viewport` / `timeline` / `inspector` / `tools`）でできている。Luna の 3D 編集はそのデフォルト view。2D やゲーム拡張は `workspace.slot(id).adopt()` でスロットを埋める。CSS クラスを occupy して奪わない。`window.kagura.workspace.list()` / `active(id)` が同じ契約。

@@ -6,6 +6,8 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 
 [Playground](https://mizchi.github.io/kagura/) · [Play ASHEN REALMS](https://mizchi.github.io/kagura/hacknslash_3d/) — a low-poly action RPG with hunter, mage, archer and summoner builds.
 
+[Kagura Studio](editor/studio/README.md) is a work in progress. Features and workflows are incomplete and may change.
+
 ## Features
 
 - **Contract-first architecture** -- API contracts are defined before implementations, keeping the codebase modular and replaceable

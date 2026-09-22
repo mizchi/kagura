@@ -2,7 +2,7 @@ name = "mizchi/hacknslash_3d"
 
 version = "0.1.0"
 
-warnings = "-6-29-53-68-25-deprecated"
+warnings = "-6-29-53-68-deprecated"
 
 import {
   // font is held at 0.7.3: 0.7.4 pulls moonbitlang/x 0.4.50, which dropped

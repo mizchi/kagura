@@ -1,6 +1,6 @@
 ///|
 test "avg_hp_ratio empty" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 0,
     floors_cleared: 0,
     total_damage_taken: 0,
@@ -19,7 +19,7 @@ test "avg_hp_ratio empty" {
 
 ///|
 test "avg_hp_ratio computes mean" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 100,
     floors_cleared: 1,
     total_damage_taken: 0,
@@ -39,7 +39,7 @@ test "avg_hp_ratio computes mean" {
 
 ///|
 test "hp_coefficient_of_variation" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 100,
     floors_cleared: 1,
     total_damage_taken: 0,
@@ -59,7 +59,7 @@ test "hp_coefficient_of_variation" {
 
 ///|
 test "avg_floor_time" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 600,
     floors_cleared: 3,
     total_damage_taken: 0,
@@ -78,7 +78,7 @@ test "avg_floor_time" {
 
 ///|
 test "avg_kill_interval" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 300,
     floors_cleared: 1,
     total_damage_taken: 0,
@@ -98,7 +98,7 @@ test "avg_kill_interval" {
 
 ///|
 test "kill_interval_cv uniform kills" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 300,
     floors_cleared: 1,
     total_damage_taken: 0,
@@ -118,7 +118,7 @@ test "kill_interval_cv uniform kills" {
 
 ///|
 test "kills_per_floor" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 300,
     floors_cleared: 3,
     total_damage_taken: 0,
@@ -137,7 +137,7 @@ test "kills_per_floor" {
 
 ///|
 test "near_death_rate" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 100,
     floors_cleared: 1,
     total_damage_taken: 0,
@@ -156,7 +156,7 @@ test "near_death_rate" {
 
 ///|
 test "avg_damage_interval" {
-  let m : SimMetrics = {
+  let m : @balance_lib.SimMetrics = {
     survival_frames: 300,
     floors_cleared: 1,
     total_damage_taken: 3,
@@ -176,6 +176,6 @@ test "avg_damage_interval" {
 ///|
 test "run_simulation_from_floor reports floors relative to start floor" {
   let params = @game.BalanceParams::default()
-  let m = run_simulation_from_floor(params, 42, 1, 3)
+  let m = @balance_lib.run_simulation_from_floor(params, 42, 1, 3)
   assert_eq(m.floors_cleared, 0)
 }

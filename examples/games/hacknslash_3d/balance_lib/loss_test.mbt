@@ -1,6 +1,6 @@
 ///|
 test "default targets has sensible values" {
-  let t = BalanceTargets::default()
+  let t = @balance_lib.BalanceTargets::default()
   assert_true(t.target_survival_frames > 0.0)
   assert_true(t.target_floors > 0.0)
   assert_true(t.target_floor_time > 0.0)
@@ -10,21 +10,21 @@ test "default targets has sensible values" {
 ///|
 test "all hypothesis constructors are valid" {
   let targets = [
-    BalanceTargets::default(),
-    BalanceTargets::autoplay_rebalance(),
-    BalanceTargets::autoplay_progression(),
-    BalanceTargets::autoplay_progression_v3(),
-    BalanceTargets::autoplay_progression_v2(),
-    BalanceTargets::autoplay_pressure(),
-    BalanceTargets::autoplay_attrition(),
-    BalanceTargets::item_spike_feedback(),
-    BalanceTargets::build_diverse_hackslash(),
-    BalanceTargets::mechanics_roguelike(),
-    BalanceTargets::mechanics_roguelike_v2(),
-    BalanceTargets::action_dense(),
-    BalanceTargets::survival_horror(),
-    BalanceTargets::speedrun(),
-    BalanceTargets::risk_reward(),
+    @balance_lib.BalanceTargets::default(),
+    @balance_lib.BalanceTargets::autoplay_rebalance(),
+    @balance_lib.BalanceTargets::autoplay_progression(),
+    @balance_lib.BalanceTargets::autoplay_progression_v3(),
+    @balance_lib.BalanceTargets::autoplay_progression_v2(),
+    @balance_lib.BalanceTargets::autoplay_pressure(),
+    @balance_lib.BalanceTargets::autoplay_attrition(),
+    @balance_lib.BalanceTargets::item_spike_feedback(),
+    @balance_lib.BalanceTargets::build_diverse_hackslash(),
+    @balance_lib.BalanceTargets::mechanics_roguelike(),
+    @balance_lib.BalanceTargets::mechanics_roguelike_v2(),
+    @balance_lib.BalanceTargets::action_dense(),
+    @balance_lib.BalanceTargets::survival_horror(),
+    @balance_lib.BalanceTargets::speedrun(),
+    @balance_lib.BalanceTargets::risk_reward(),
   ]
   for t in targets {
     // All targets should have positive survival target
@@ -41,7 +41,7 @@ test "all hypothesis constructors are valid" {
 
 ///|
 test "autoplay_balance_hypotheses exposes named presets" {
-  let hypotheses = autoplay_balance_hypotheses()
+  let hypotheses = @balance_lib.autoplay_balance_hypotheses()
   assert_true(hypotheses.length() >= 15)
   assert_eq(hypotheses[0].name, "default")
   assert_eq(hypotheses[hypotheses.length() - 1].name, "autoplay_rebalance")
@@ -49,19 +49,19 @@ test "autoplay_balance_hypotheses exposes named presets" {
 
 ///|
 test "balance_hypothesis_from_name resolves known presets" {
-  match balance_hypothesis_from_name("risk_reward") {
+  match @balance_lib.balance_hypothesis_from_name("risk_reward") {
     Some(h) => assert_true(h.targets.target_near_death_rate > 0.1)
     None => fail("missing risk_reward hypothesis")
   }
-  match balance_hypothesis_from_name("build_diverse_hackslash") {
+  match @balance_lib.balance_hypothesis_from_name("build_diverse_hackslash") {
     Some(h) => assert_true(h.targets.target_equip_upgrades >= 7.0)
     None => fail("missing build_diverse_hackslash hypothesis")
   }
-  match balance_hypothesis_from_name("mechanics_roguelike_v2") {
+  match @balance_lib.balance_hypothesis_from_name("mechanics_roguelike_v2") {
     Some(h) => assert_true(h.targets.target_learned_skill_count >= 3.0)
     None => fail("missing mechanics_roguelike_v2 hypothesis")
   }
-  match balance_hypothesis_from_name("missing") {
+  match @balance_lib.balance_hypothesis_from_name("missing") {
     None => ()
     Some(_) => fail("unexpected hypothesis for missing")
   }
@@ -69,11 +69,11 @@ test "balance_hypothesis_from_name resolves known presets" {
 
 ///|
 test "autoplay variants are ordered from progression to pressure" {
-  let progression = BalanceTargets::autoplay_progression()
-  let progression_v3 = BalanceTargets::autoplay_progression_v3()
-  let progression_v2 = BalanceTargets::autoplay_progression_v2()
-  let pressure = BalanceTargets::autoplay_pressure()
-  let attrition = BalanceTargets::autoplay_attrition()
+  let progression = @balance_lib.BalanceTargets::autoplay_progression()
+  let progression_v3 = @balance_lib.BalanceTargets::autoplay_progression_v3()
+  let progression_v2 = @balance_lib.BalanceTargets::autoplay_progression_v2()
+  let pressure = @balance_lib.BalanceTargets::autoplay_pressure()
+  let attrition = @balance_lib.BalanceTargets::autoplay_attrition()
   assert_true(progression.target_floors > pressure.target_floors)
   assert_true(progression.target_floors > progression_v2.target_floors)
   assert_true(progression.target_floors >= progression_v3.target_floors)
@@ -103,8 +103,8 @@ test "autoplay variants are ordered from progression to pressure" {
 
 ///|
 test "compute_loss zero when metrics match targets" {
-  let t = BalanceTargets::default()
-  let m : SimMetrics = {
+  let t = @balance_lib.BalanceTargets::default()
+  let m : @balance_lib.SimMetrics = {
     survival_frames: t.target_survival_frames.to_int(),
     floors_cleared: t.target_floors.to_int(),
     total_damage_taken: 0,
@@ -118,7 +118,7 @@ test "compute_loss zero when metrics match targets" {
     learned_skill_count: 0,
     near_death_count: 0,
   }
-  let loss = compute_loss(m, t)
+  let loss = @balance_lib.compute_loss(m, t)
   // Loss should be small (close to targets) but not necessarily zero
   // because hp_cv and near_death_rate depend on samples
   assert_true(loss < 5.0)
@@ -126,8 +126,8 @@ test "compute_loss zero when metrics match targets" {
 
 ///|
 test "compute_loss increases with worse metrics" {
-  let t = BalanceTargets::default()
-  let good : SimMetrics = {
+  let t = @balance_lib.BalanceTargets::default()
+  let good : @balance_lib.SimMetrics = {
     survival_frames: t.target_survival_frames.to_int(),
     floors_cleared: t.target_floors.to_int(),
     total_damage_taken: 0,
@@ -141,7 +141,7 @@ test "compute_loss increases with worse metrics" {
     learned_skill_count: 0,
     near_death_count: 0,
   }
-  let bad : SimMetrics = {
+  let bad : @balance_lib.SimMetrics = {
     survival_frames: 100, // very low
     floors_cleared: 0,
     total_damage_taken: 50,
@@ -155,15 +155,15 @@ test "compute_loss increases with worse metrics" {
     learned_skill_count: 0,
     near_death_count: 10,
   }
-  let good_loss = compute_loss(good, t)
-  let bad_loss = compute_loss(bad, t)
+  let good_loss = @balance_lib.compute_loss(good, t)
+  let bad_loss = @balance_lib.compute_loss(bad, t)
   assert_true(bad_loss > good_loss)
 }
 
 ///|
 test "autoplay_rebalance targets are stricter than default" {
-  let base = BalanceTargets::default()
-  let tuned = BalanceTargets::autoplay_rebalance()
+  let base = @balance_lib.BalanceTargets::default()
+  let tuned = @balance_lib.BalanceTargets::autoplay_rebalance()
   assert_true(tuned.target_survival_frames < base.target_survival_frames)
   assert_true(tuned.target_floors < base.target_floors)
   assert_true(tuned.target_floor_time > base.target_floor_time)
@@ -177,8 +177,8 @@ test "autoplay_rebalance targets are stricter than default" {
 
 ///|
 test "compute_loss penalizes zero damage when target expects pressure" {
-  let t = BalanceTargets::autoplay_rebalance()
-  let safe : SimMetrics = {
+  let t = @balance_lib.BalanceTargets::autoplay_rebalance()
+  let safe : @balance_lib.SimMetrics = {
     survival_frames: t.target_survival_frames.to_int(),
     floors_cleared: t.target_floors.to_int(),
     total_damage_taken: 0,
@@ -192,18 +192,18 @@ test "compute_loss penalizes zero damage when target expects pressure" {
     learned_skill_count: 0,
     near_death_count: 0,
   }
-  let pressured : SimMetrics = {
+  let pressured : @balance_lib.SimMetrics = {
     ..safe,
     total_damage_taken: t.target_total_damage.to_int(),
     damage_frames: [0, t.target_damage_interval.to_int()],
   }
-  assert_true(compute_loss(safe, t) > compute_loss(pressured, t))
+  assert_true(@balance_lib.compute_loss(safe, t) > @balance_lib.compute_loss(pressured, t))
 }
 
 ///|
 test "run_simulation completes with default params" {
   let params = @game.BalanceParams::default()
-  let m = run_simulation(params, 42, 300)
+  let m = @balance_lib.run_simulation(params, 42, 300)
   assert_true(m.survival_frames > 0)
   assert_true(m.hp_samples.length() > 0)
 }
@@ -211,8 +211,8 @@ test "run_simulation completes with default params" {
 ///|
 test "run_simulation deterministic" {
   let params = @game.BalanceParams::default()
-  let m1 = run_simulation(params, 42, 300)
-  let m2 = run_simulation(params, 42, 300)
+  let m1 = @balance_lib.run_simulation(params, 42, 300)
+  let m2 = @balance_lib.run_simulation(params, 42, 300)
   assert_eq(m1.survival_frames, m2.survival_frames)
   assert_eq(m1.total_kills, m2.total_kills)
   assert_eq(m1.floors_cleared, m2.floors_cleared)
@@ -220,7 +220,7 @@ test "run_simulation deterministic" {
 
 ///|
 test "to_dec_targets includes total_damage target" {
-  let targets = BalanceTargets::autoplay_rebalance().to_dec_targets()
+  let targets = @balance_lib.BalanceTargets::autoplay_rebalance().to_dec_targets()
   let mut found = false
   for target in targets {
     if target.metric == "total_damage" {
@@ -234,7 +234,7 @@ test "to_dec_targets includes total_damage target" {
 
 ///|
 test "to_dec_targets includes equip_upgrades target for item spike hypotheses" {
-  let targets = BalanceTargets::item_spike_feedback().to_dec_targets()
+  let targets = @balance_lib.BalanceTargets::item_spike_feedback().to_dec_targets()
   let mut found = false
   for target in targets {
     if target.metric == "equip_upgrades" {
@@ -248,7 +248,7 @@ test "to_dec_targets includes equip_upgrades target for item spike hypotheses" {
 
 ///|
 test "to_dec_targets includes learned_skill_count target for build diversity hypotheses" {
-  let targets = BalanceTargets::build_diverse_hackslash().to_dec_targets()
+  let targets = @balance_lib.BalanceTargets::build_diverse_hackslash().to_dec_targets()
   let mut found = false
   for target in targets {
     if target.metric == "learned_skill_count" {
@@ -262,7 +262,7 @@ test "to_dec_targets includes learned_skill_count target for build diversity hyp
 
 ///|
 test "autoplay rebalance specs only nerf player spells and buff pressure" {
-  let specs = param_specs_autoplay_rebalance()
+  let specs = @balance_lib.param_specs_autoplay_rebalance()
   let names = @game.BalanceParams::param_names()
   let find = fn(name : String) -> @dec.ParamSpec {
     for i = 0; i < names.length(); i = i + 1 {
@@ -284,8 +284,8 @@ test "autoplay rebalance specs only nerf player spells and buff pressure" {
 
 ///|
 test "autoplay progression specs stay closer to current defaults than rebalance" {
-  let progression = param_specs_for_hypothesis("autoplay_progression")
-  let rebalance = param_specs_for_hypothesis("autoplay_rebalance")
+  let progression = @balance_lib.param_specs_for_hypothesis("autoplay_progression")
+  let rebalance = @balance_lib.param_specs_for_hypothesis("autoplay_rebalance")
   let names = @game.BalanceParams::param_names()
   let find = fn(
     specs : Array[@dec.ParamSpec],

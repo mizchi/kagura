@@ -1,14 +1,14 @@
 ///|
 test "balance_param_count matches to_array length" {
-  let params = BalanceParams::default()
-  assert_eq(params.to_array().length(), balance_param_count)
+  let params = @game.BalanceParams::default()
+  assert_eq(params.to_array().length(), @game.balance_param_count)
 }
 
 ///|
 test "to_array/from_array roundtrip" {
-  let params = BalanceParams::default()
+  let params = @game.BalanceParams::default()
   let arr = params.to_array()
-  let restored = BalanceParams::from_array(arr)
+  let restored = @game.BalanceParams::from_array(arr)
   let arr2 = restored.to_array()
   for i = 0; i < arr.length(); i = i + 1 {
     assert_true((arr[i] - arr2[i]).abs() < 0.0001)
@@ -17,12 +17,12 @@ test "to_array/from_array roundtrip" {
 
 ///|
 test "param_names matches param count" {
-  assert_eq(BalanceParams::param_names().length(), balance_param_count)
+  assert_eq(@game.BalanceParams::param_names().length(), @game.balance_param_count)
 }
 
 ///|
 test "clamp enforces bounds" {
-  let extreme : BalanceParams = {
+  let extreme : @game.BalanceParams = {
     player_speed: 100.0,
     enemy_speed_basic: -1.0,
     enemy_speed_fast: 0.0,
@@ -91,7 +91,7 @@ test "clamp enforces bounds" {
 
 ///|
 test "get_affix_profile mapping" {
-  let params = BalanceParams::default()
+  let params = @game.BalanceParams::default()
   assert_true(
     match { ..params, affix_profile: 0, }.get_affix_profile() {
       Classic => true
@@ -133,7 +133,7 @@ test "get_affix_profile mapping" {
 ///|
 test "spell cooldown and damage helpers apply global multipliers" {
   let params = {
-    ..BalanceParams::default(),
+    ..@game.BalanceParams::default(),
     spell_cooldown_mult: 1.5,
     spell_damage_mult: 0.5,
   }
@@ -147,7 +147,7 @@ test "spell cooldown and damage helpers apply global multipliers" {
 ///|
 test "enemy ranged pressure helpers apply parameter values" {
   let params = {
-    ..BalanceParams::default(),
+    ..@game.BalanceParams::default(),
     enemy_bolt_damage: 3.8,
     ranged_shot_cooldown: 45.0,
   }
@@ -158,7 +158,7 @@ test "enemy ranged pressure helpers apply parameter values" {
 ///|
 test "levelup and drop table configs follow tuned parameters" {
   let params = {
-    ..BalanceParams::default(),
+    ..@game.BalanceParams::default(),
     levelup_xp_base: 18.0,
     levelup_xp_growth: 7.0,
     drop_equipment_weight: 40.0,
@@ -193,7 +193,7 @@ test "levelup and drop table configs follow tuned parameters" {
 ///|
 test "enemy floor scaling helpers increase pressure on deeper floors" {
   let params = {
-    ..BalanceParams::default(),
+    ..@game.BalanceParams::default(),
     enemy_hp_floor_scale: 0.2,
     enemy_speed_floor_scale: 0.05,
     enemy_damage_floor_scale: 0.15,
@@ -207,7 +207,7 @@ test "enemy floor scaling helpers increase pressure on deeper floors" {
 ///|
 test "map exploration helpers expose broader room and pack tuning" {
   let params = {
-    ..BalanceParams::default(),
+    ..@game.BalanceParams::default(),
     map_room_count_scale: 1.4,
     map_room_size_scale: 1.3,
     map_corridor_width_bonus: 1.0,
@@ -222,19 +222,19 @@ test "map exploration helpers expose broader room and pack tuning" {
 ///|
 test "balance preset parser maps known names" {
   assert_true(
-    match balance_preset_from_name("build_diverse_hackslash") {
+    match @game.balance_preset_from_name("build_diverse_hackslash") {
       BuildDiverseHackSlash => true
       _ => false
     },
   )
   assert_true(
-    match balance_preset_from_name("mechanics_roguelike_v2") {
+    match @game.balance_preset_from_name("mechanics_roguelike_v2") {
       MechanicsRoguelike => true
       _ => false
     },
   )
   assert_true(
-    match balance_preset_from_name("unknown") {
+    match @game.balance_preset_from_name("unknown") {
       Default => true
       _ => false
     },
@@ -243,11 +243,11 @@ test "balance preset parser maps known names" {
 
 ///|
 test "balance presets expose distinct gameplay priorities" {
-  let build_diverse = BalanceParams::from_preset(
-    balance_preset_from_name("build_diverse_hackslash"),
+  let build_diverse = @game.BalanceParams::from_preset(
+    @game.balance_preset_from_name("build_diverse_hackslash"),
   )
-  let mechanics = BalanceParams::from_preset(
-    balance_preset_from_name("mechanics_roguelike_v2"),
+  let mechanics = @game.BalanceParams::from_preset(
+    @game.balance_preset_from_name("mechanics_roguelike_v2"),
   )
 
   assert_true(build_diverse.player_speed > mechanics.player_speed)

@@ -16,8 +16,8 @@ fn mk_affix(
   dex_scale? : Double = 0.0,
   spell_dmg? : Double = 0.0,
   chain? : Int = 0,
-  tags? : Array[TagBonusEntry] = [],
-) -> Affix {
+  tags? : Array[@game.TagBonusEntry] = [],
+) -> @game.Affix {
   {
     name,
     atk,
@@ -69,7 +69,7 @@ test "affix struct fields" {
 
 ///|
 test "prefix_table_for returns 10+ entries for each profile" {
-  let profiles : Array[AffixProfile] = [
+  let profiles : Array[@game.AffixProfile] = [
     Classic,
     GlassCannon,
     Tank,
@@ -77,14 +77,14 @@ test "prefix_table_for returns 10+ entries for each profile" {
     Expanded,
   ]
   for profile in profiles {
-    let prefixes = prefix_table_for(profile)
+    let prefixes = @game.prefix_table_for(profile)
     assert_true(prefixes.length() >= 10)
   }
 }
 
 ///|
 test "suffix_table_for returns 10+ entries for each profile" {
-  let profiles : Array[AffixProfile] = [
+  let profiles : Array[@game.AffixProfile] = [
     Classic,
     GlassCannon,
     Tank,
@@ -92,14 +92,14 @@ test "suffix_table_for returns 10+ entries for each profile" {
     Expanded,
   ]
   for profile in profiles {
-    let suffixes = suffix_table_for(profile)
+    let suffixes = @game.suffix_table_for(profile)
     assert_true(suffixes.length() >= 10)
   }
 }
 
 ///|
 test "mobility profile has speed_bonus affixes" {
-  let prefixes = prefix_table_for(Mobility)
+  let prefixes = @game.prefix_table_for(Mobility)
   let mut has_speed = false
   for p in prefixes {
     if p.speed_bonus > 0.0 {
@@ -112,7 +112,7 @@ test "mobility profile has speed_bonus affixes" {
 
 ///|
 test "mobility profile has cooldown_reduction affixes" {
-  let suffixes = suffix_table_for(Mobility)
+  let suffixes = @game.suffix_table_for(Mobility)
   let mut has_cdr = false
   for s in suffixes {
     if s.cooldown_reduction > 0.0 {
@@ -125,8 +125,8 @@ test "mobility profile has cooldown_reduction affixes" {
 
 ///|
 test "classic profile has no speed_bonus or cooldown_reduction" {
-  let prefixes = prefix_table_for(Classic)
-  let suffixes = suffix_table_for(Classic)
+  let prefixes = @game.prefix_table_for(Classic)
+  let suffixes = @game.suffix_table_for(Classic)
   for p in prefixes {
     assert_true(p.speed_bonus < 0.001)
     assert_true(p.cooldown_reduction < 0.001)
@@ -139,8 +139,8 @@ test "classic profile has no speed_bonus or cooldown_reduction" {
 
 ///|
 test "generate_item deterministic" {
-  let item1 = generate_item(42, 3)
-  let item2 = generate_item(42, 3)
+  let item1 = @game.generate_item(42, 3)
+  let item2 = @game.generate_item(42, 3)
   assert_eq(item1.name, item2.name)
   assert_eq(item1.atk_bonus, item2.atk_bonus)
   assert_eq(item1.def_bonus, item2.def_bonus)
@@ -148,8 +148,8 @@ test "generate_item deterministic" {
 
 ///|
 test "generate_item_with_profile uses correct tables" {
-  let classic = generate_item_with_profile(1000, 5, Classic)
-  let glass = generate_item_with_profile(1000, 5, GlassCannon)
+  let classic = @game.generate_item_with_profile(1000, 5, Classic)
+  let glass = @game.generate_item_with_profile(1000, 5, GlassCannon)
   assert_true(classic.name.length() > 0)
   assert_true(glass.name.length() > 0)
 }
@@ -157,7 +157,7 @@ test "generate_item_with_profile uses correct tables" {
 ///|
 test "scale_affix preserves speed_bonus and cooldown_reduction" {
   let affix = mk_affix("Swift", spd=0.15, cdr=0.1, atk=2)
-  let scaled = scale_affix(affix, 10)
+  let scaled = @game.scale_affix(affix, 10)
   // atk scales: 2 * (1 + 10/5) = 6
   assert_eq(scaled.atk, 6)
   assert_true((scaled.speed_bonus - 0.15).abs() < 0.001)
@@ -166,8 +166,8 @@ test "scale_affix preserves speed_bonus and cooldown_reduction" {
 
 ///|
 test "equipment speed_bonus and cooldown_reduction aggregate" {
-  let equip = Equipment::new()
-  let weapon : ItemData = {
+  let equip = @game.Equipment::new()
+  let weapon : @game.ItemData = {
     name: "Sword",
     rarity: Rare,
     slot: Weapon,
@@ -184,7 +184,7 @@ test "equipment speed_bonus and cooldown_reduction aggregate" {
     suffix: Some(mk_affix("of Alacrity", cdr=0.2)),
     icon_id: 0,
   }
-  let armor : ItemData = {
+  let armor : @game.ItemData = {
     name: "Armor",
     rarity: Uncommon,
     slot: Armor,
@@ -209,18 +209,18 @@ test "equipment speed_bonus and cooldown_reduction aggregate" {
 
 ///|
 test "compute_player_stats with custom base_hp" {
-  let equip = Equipment::new()
-  let skills = SkillTree::new()
-  let stats_default = compute_player_stats(equip, skills)
-  let stats_custom = compute_player_stats(equip, skills, base_hp=20)
+  let equip = @game.Equipment::new()
+  let skills = @game.SkillTree::new()
+  let stats_default = @game.compute_player_stats(equip, skills)
+  let stats_custom = @game.compute_player_stats(equip, skills, base_hp=20)
   assert_eq(stats_default.max_hp, 8)
   assert_eq(stats_custom.max_hp, 20)
 }
 
 ///|
 test "compute_player_stats includes speed_bonus and cooldown_reduction" {
-  let equip = Equipment::new()
-  let weapon : ItemData = {
+  let equip = @game.Equipment::new()
+  let weapon : @game.ItemData = {
     name: "Sword",
     rarity: Rare,
     slot: Weapon,
@@ -238,16 +238,16 @@ test "compute_player_stats includes speed_bonus and cooldown_reduction" {
     icon_id: 0,
   }
   equip.equip(weapon) |> ignore
-  let skills = SkillTree::new()
-  let stats = compute_player_stats(equip, skills)
+  let skills = @game.SkillTree::new()
+  let stats = @game.compute_player_stats(equip, skills)
   assert_true((stats.speed_bonus - 0.15).abs() < 0.001)
   assert_true((stats.cooldown_reduction - 0.12).abs() < 0.001)
 }
 
 ///|
 test "compute_player_stats starts from 10/10/10 core stats and applies equipment scaling" {
-  let equip = Equipment::new()
-  let weapon : ItemData = {
+  let equip = @game.Equipment::new()
+  let weapon : @game.ItemData = {
     name: "Sorcerer Bow",
     rarity: Epic,
     slot: Weapon,
@@ -264,7 +264,7 @@ test "compute_player_stats starts from 10/10/10 core stats and applies equipment
     suffix: None,
     icon_id: 0,
   }
-  let accessory : ItemData = {
+  let accessory : @game.ItemData = {
     name: "Scholar Ring",
     rarity: Rare,
     slot: Accessory,
@@ -283,8 +283,8 @@ test "compute_player_stats starts from 10/10/10 core stats and applies equipment
   }
   equip.equip(weapon) |> ignore
   equip.equip(accessory) |> ignore
-  let skills = SkillTree::new()
-  let stats = compute_player_stats(equip, skills, base_hp=8)
+  let skills = @game.SkillTree::new()
+  let stats = @game.compute_player_stats(equip, skills, base_hp=8)
   assert_eq(stats.max_hp, 10)
   assert_eq(stats.strength, 11)
   assert_eq(stats.intelligence, 17)
@@ -296,14 +296,14 @@ test "compute_player_stats starts from 10/10/10 core stats and applies equipment
 
 ///|
 test "compute_player_stats uses archetype-specific core stats" {
-  let equip = Equipment::new()
-  let melee = compute_player_stats(equip, SkillTree::new_for_archetype(Melee))
-  let mage = compute_player_stats(equip, SkillTree::new_for_archetype(Mage))
-  let summoner = compute_player_stats(
+  let equip = @game.Equipment::new()
+  let melee = @game.compute_player_stats(equip, @game.SkillTree::new_for_archetype(Melee))
+  let mage = @game.compute_player_stats(equip, @game.SkillTree::new_for_archetype(Mage))
+  let summoner = @game.compute_player_stats(
     equip,
-    SkillTree::new_for_archetype(Summoner),
+    @game.SkillTree::new_for_archetype(Summoner),
   )
-  let ranger = compute_player_stats(equip, SkillTree::new_for_archetype(Ranger))
+  let ranger = @game.compute_player_stats(equip, @game.SkillTree::new_for_archetype(Ranger))
   assert_true(melee.strength > mage.strength)
   assert_true(mage.intelligence > melee.intelligence)
   assert_true(ranger.dexterity > melee.dexterity)
@@ -312,10 +312,10 @@ test "compute_player_stats uses archetype-specific core stats" {
 
 ///|
 test "SkillTree::new_for_archetype unlocks archetype starter skills" {
-  let melee = SkillTree::new_for_archetype(Melee)
-  let mage = SkillTree::new_for_archetype(Mage)
-  let summoner = SkillTree::new_for_archetype(Summoner)
-  let ranger = SkillTree::new_for_archetype(Ranger)
+  let melee = @game.SkillTree::new_for_archetype(Melee)
+  let mage = @game.SkillTree::new_for_archetype(Mage)
+  let summoner = @game.SkillTree::new_for_archetype(Summoner)
+  let ranger = @game.SkillTree::new_for_archetype(Ranger)
   assert_eq(melee.get_level(PowerStrike), 1)
   assert_eq(mage.get_level(ChainLightning), 1)
   assert_eq(summoner.get_level(HomingMissile), 1)
@@ -324,9 +324,9 @@ test "SkillTree::new_for_archetype unlocks archetype starter skills" {
 
 ///|
 test "soulslike damage scaling has diminishing returns after soft cap" {
-  let low = soulslike_scaled_damage(10, 20, 1.0)
-  let mid = soulslike_scaled_damage(10, 40, 1.0)
-  let high = soulslike_scaled_damage(10, 60, 1.0)
+  let low = @game.soulslike_scaled_damage(10, 20, 1.0)
+  let mid = @game.soulslike_scaled_damage(10, 40, 1.0)
+  let high = @game.soulslike_scaled_damage(10, 60, 1.0)
   assert_true(low > 10)
   assert_true(mid > low)
   assert_true(high > mid)
@@ -335,7 +335,7 @@ test "soulslike damage scaling has diminishing returns after soft cap" {
 
 ///|
 test "player damage helpers map skills to different core stats" {
-  let stats : PlayerStats = {
+  let stats : @game.PlayerStats = {
     max_hp: 8,
     atk: 5,
     attack_power: 5,
@@ -352,19 +352,19 @@ test "player damage helpers map skills to different core stats" {
     cooldown_reduction: 0.0,
     spell_damage_pct: 0.0,
     chain_bonus: 0,
-    tag_bonuses: new_tag_bonuses_array(),
+    tag_bonuses: @game.new_tag_bonuses_array(),
   }
-  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0, }
+  let params = { ..@game.BalanceParams::default(), spell_damage_mult: 1.0, }
   assert_true(
-    player_spell_damage(stats, params, Mage, ChainLightning) >
-    player_spell_damage(stats, params, Mage, HomingMissile),
+    @game.player_spell_damage(stats, params, Mage, ChainLightning) >
+    @game.player_spell_damage(stats, params, Mage, HomingMissile),
   )
-  assert_true(player_basic_attack_damage(stats, Ranger) > 0)
+  assert_true(@game.player_basic_attack_damage(stats, Ranger) > 0)
 }
 
 ///|
 test "archetype affinity boosts aligned damage and punishes offspec damage" {
-  let stats : PlayerStats = {
+  let stats : @game.PlayerStats = {
     max_hp: 8,
     atk: 5,
     attack_power: 10,
@@ -381,26 +381,26 @@ test "archetype affinity boosts aligned damage and punishes offspec damage" {
     cooldown_reduction: 0.0,
     spell_damage_pct: 0.0,
     chain_bonus: 0,
-    tag_bonuses: new_tag_bonuses_array(),
+    tag_bonuses: @game.new_tag_bonuses_array(),
   }
-  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0, }
+  let params = { ..@game.BalanceParams::default(), spell_damage_mult: 1.0, }
   assert_true(
-    player_spell_damage(stats, params, Mage, ChainLightning) >
-    player_spell_damage(stats, params, Melee, ChainLightning),
+    @game.player_spell_damage(stats, params, Mage, ChainLightning) >
+    @game.player_spell_damage(stats, params, Melee, ChainLightning),
   )
   assert_true(
-    player_spell_damage(stats, params, Summoner, HomingMissile) >
-    player_spell_damage(stats, params, Mage, HomingMissile),
+    @game.player_spell_damage(stats, params, Summoner, HomingMissile) >
+    @game.player_spell_damage(stats, params, Mage, HomingMissile),
   )
   assert_true(
-    player_basic_attack_damage(stats, Ranger) >
-    player_basic_attack_damage(stats, Mage),
+    @game.player_basic_attack_damage(stats, Ranger) >
+    @game.player_basic_attack_damage(stats, Mage),
   )
 }
 
 ///|
 test "inventory add_fifo keeps newest items when capacity is full" {
-  let inv = Inventory::new(2)
+  let inv = @game.Inventory::new(2)
   ignore(
     inv.add_fifo({
       name: "Oldest",
@@ -475,7 +475,7 @@ test "inventory add_fifo keeps newest items when capacity is full" {
 
 ///|
 test "available_level_up_skill_ids excludes locked and maxed skills" {
-  let skills = SkillTree::new()
+  let skills = @game.SkillTree::new()
   let offers0 = skills.available_level_up_skill_ids()
   assert_eq(offers0.length(), 9)
   assert_true(contains_skill_id(offers0, PowerStrike))
@@ -497,9 +497,9 @@ test "available_level_up_skill_ids excludes locked and maxed skills" {
 
 ///|
 test "level_progression add_xp creates three offers and choosing one learns it" {
-  let skills = SkillTree::new()
-  let progress = LevelProgression::new()
-  let config = LevelUpConfig::default()
+  let skills = @game.SkillTree::new()
+  let progress = @game.LevelProgression::new()
+  let config = @game.LevelUpConfig::default()
   let leveled = progress.add_xp(skills, Melee, ArchetypeAligned, 12, 17, config)
   assert_true(leveled)
   assert_eq(progress.level, 2)
@@ -514,14 +514,14 @@ test "level_progression add_xp creates three offers and choosing one learns it" 
 
 ///|
 test "level progression favors archetype-aligned offers" {
-  let mage = SkillTree::new_for_archetype(Mage)
-  let progress = LevelProgression::new()
-  let config = LevelUpConfig::default()
+  let mage = @game.SkillTree::new_for_archetype(Mage)
+  let progress = @game.LevelProgression::new()
+  let config = @game.LevelUpConfig::default()
   ignore(progress.add_xp(mage, Mage, ArchetypeAligned, 12, 0, config))
   assert_true(progress.current_offers.length() > 0)
   let mut has_spell = false
   for offer in progress.current_offers {
-    if skill_id_eq(offer, SplittingFireball) || skill_id_eq(offer, IceNova) {
+    if @game.skill_id_eq(offer, SplittingFireball) || @game.skill_id_eq(offer, IceNova) {
       has_spell = true
       break
     }
@@ -531,13 +531,13 @@ test "level progression favors archetype-aligned offers" {
 
 ///|
 test "generate_item_with_profile_and_drop_config applies slot weights" {
-  let config : DropTableConfig = {
-    ..DropTableConfig::default(),
+  let config : @game.DropTableConfig = {
+    ..@game.DropTableConfig::default(),
     weapon_weight: 100,
     armor_weight: 0,
     accessory_weight: 0,
   }
-  let item = generate_item_with_profile_and_drop_config(42, 5, Classic, config)
+  let item = @game.generate_item_with_profile_and_drop_config(42, 5, Classic, config)
   match item.slot {
     Weapon => ()
     _ => fail("expected weapon slot")
@@ -546,19 +546,19 @@ test "generate_item_with_profile_and_drop_config applies slot weights" {
 
 ///|
 test "roll_item_rarity becomes stronger with floor bias" {
-  let config : DropTableConfig = {
-    ..DropTableConfig::default(),
+  let config : @game.DropTableConfig = {
+    ..@game.DropTableConfig::default(),
     rarity_bonus_per_floor: 4.0,
   }
-  let low = roll_item_rarity(123, 1, config)
-  let high = roll_item_rarity(123, 12, config)
-  assert_true(item_rarity_rank(high) >= item_rarity_rank(low))
+  let low = @game.roll_item_rarity(123, 1, config)
+  let high = @game.roll_item_rarity(123, 12, config)
+  assert_true(@game.item_rarity_rank(high) >= @game.item_rarity_rank(low))
 }
 
 ///|
 test "generate_item_with_profile_and_drop_config scales base and affix tiers by floor" {
-  let config : DropTableConfig = {
-    ..DropTableConfig::default(),
+  let config : @game.DropTableConfig = {
+    ..@game.DropTableConfig::default(),
     base_item_tier_base: 1,
     base_item_tier_per_floor: 0.5,
     prefix_tier_base: 1,
@@ -569,8 +569,8 @@ test "generate_item_with_profile_and_drop_config scales base and affix tiers by 
     modifier_tier_per_floor: 0.3,
     rarity_bonus_per_floor: 6.0,
   }
-  let low = generate_item_with_profile_and_drop_config(123, 2, Expanded, config)
-  let high = generate_item_with_profile_and_drop_config(
+  let low = @game.generate_item_with_profile_and_drop_config(123, 2, Expanded, config)
+  let high = @game.generate_item_with_profile_and_drop_config(
     123,
     12,
     Expanded,
@@ -580,9 +580,9 @@ test "generate_item_with_profile_and_drop_config scales base and affix tiers by 
 }
 
 ///|
-fn contains_skill_id(ids : Array[SkillId], id : SkillId) -> Bool {
+fn contains_skill_id(ids : Array[@game.SkillId], id : @game.SkillId) -> Bool {
   for current in ids {
-    if skill_id_eq(current, id) {
+    if @game.skill_id_eq(current, id) {
       return true
     }
   }
@@ -591,7 +591,7 @@ fn contains_skill_id(ids : Array[SkillId], id : SkillId) -> Bool {
 
 ///|
 test "equipment should_equip compares total stat score across matching slot" {
-  let equip = Equipment::new()
+  let equip = @game.Equipment::new()
   ignore(
     equip.equip({
       name: "Bronze Charm",
@@ -611,7 +611,7 @@ test "equipment should_equip compares total stat score across matching slot" {
       icon_id: 0,
     }),
   )
-  let better : ItemData = {
+  let better : @game.ItemData = {
     name: "Crit Charm",
     rarity: Common,
     slot: Accessory,
@@ -633,8 +633,8 @@ test "equipment should_equip compares total stat score across matching slot" {
 
 ///|
 test "equipment should_equip_for_build follows archetype policy" {
-  let equip = Equipment::new()
-  let str_weapon : ItemData = {
+  let equip = @game.Equipment::new()
+  let str_weapon : @game.ItemData = {
     name: "Iron Sword",
     rarity: Rare,
     slot: Weapon,
@@ -652,7 +652,7 @@ test "equipment should_equip_for_build follows archetype policy" {
     icon_id: 0,
   }
   ignore(equip.equip(str_weapon))
-  let int_weapon : ItemData = {
+  let int_weapon : @game.ItemData = {
     name: "Scholar Wand",
     rarity: Rare,
     slot: Weapon,

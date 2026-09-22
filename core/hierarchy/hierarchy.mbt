@@ -10,6 +10,9 @@ pub(all) struct Node {
 } derive(ToJson)
 
 ///|
+pub extend Node with ToJson::{to_json}
+
+///|
 /// Keys are scoped to siblings. Slash is reserved for the resolved hierarchy path.
 pub fn valid_key(key : String) -> Bool {
   key.length() > 0 &&

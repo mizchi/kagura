@@ -6,6 +6,18 @@ struct Fixture {
 } derive(FromJson, ToJson, Eq, Debug)
 
 ///|
+pub extend Fixture with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Fixture with ToJson::{to_json}
+
+///|
+pub extend Fixture with Eq::{equal, not_equal}
+
+///|
+pub extend Fixture with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 fn fixture_inspector() -> Inspector[Fixture] raise {
   Inspector::new([
     bind_subject("bird", name="Bird", fields=[

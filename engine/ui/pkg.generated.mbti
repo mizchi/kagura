@@ -208,6 +208,9 @@ pub(all) struct UISafeArea {
   bottom : Double
   left : Double
 } derive(@debug.Debug)
+pub fn UISafeArea::output(Self, &Logger) -> Unit
+pub fn UISafeArea::to_repr(Self) -> @debug.Repr
+pub fn UISafeArea::to_string(Self) -> String
 pub impl Show for UISafeArea
 
 pub(all) enum UISizing {
@@ -230,7 +233,10 @@ pub(all) struct UISnapshot {
   nodes : Array[UISnapshotNode]
   focus_order : Array[String]
 } derive(@debug.Debug)
+pub fn UISnapshot::output(Self, &Logger) -> Unit
 pub fn UISnapshot::to_json(Self) -> String
+pub fn UISnapshot::to_repr(Self) -> @debug.Repr
+pub fn UISnapshot::to_string(Self) -> String
 pub impl Show for UISnapshot
 
 pub(all) struct UISnapshotNode {
@@ -252,6 +258,9 @@ pub(all) struct UISnapshotNode {
   focused : Bool
   hit : UISnapshotRect?
 } derive(@debug.Debug)
+pub fn UISnapshotNode::output(Self, &Logger) -> Unit
+pub fn UISnapshotNode::to_repr(Self) -> @debug.Repr
+pub fn UISnapshotNode::to_string(Self) -> String
 pub impl Show for UISnapshotNode
 
 pub(all) struct UISnapshotRect {
@@ -260,12 +269,18 @@ pub(all) struct UISnapshotRect {
   width : Double
   height : Double
 } derive(@debug.Debug)
+pub fn UISnapshotRect::output(Self, &Logger) -> Unit
+pub fn UISnapshotRect::to_repr(Self) -> @debug.Repr
+pub fn UISnapshotRect::to_string(Self) -> String
 pub impl Show for UISnapshotRect
 
 pub(all) struct UITextMetrics {
   width : Double
   height : Double
 } derive(@debug.Debug)
+pub fn UITextMetrics::output(Self, &Logger) -> Unit
+pub fn UITextMetrics::to_repr(Self) -> @debug.Repr
+pub fn UITextMetrics::to_string(Self) -> String
 pub impl Show for UITextMetrics
 
 pub struct UITree {

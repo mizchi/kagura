@@ -6,6 +6,9 @@ pub(all) struct Snapshot[S] {
 } derive(ToJson)
 
 ///|
+pub extend Snapshot with ToJson::{to_json}
+
+///|
 /// The game owns validation/commit; this adapter owns the typed inspection and wire boundary.
 pub struct Runtime[S] {
   game : String
@@ -44,6 +47,12 @@ struct WireEdit {
   field : String
   value : Json
 } derive(FromJson, ToJson)
+
+///|
+pub extend WireEdit with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend WireEdit with ToJson::{to_json}
 
 ///|
 pub fn[S : FromJson + ToJson] decode_state(value : Json) -> S raise {

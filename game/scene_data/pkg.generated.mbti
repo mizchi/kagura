@@ -16,6 +16,8 @@ pub(all) struct Definition {
   entities : Array[Entity]
 } derive(ToJson, @json.FromJson)
 pub fn Definition::blocked(Self, Double, Double, Double) -> Bool
+pub fn Definition::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Definition::to_json(Self) -> Json
 
 pub(all) struct Entity {
   id : String
@@ -25,16 +27,22 @@ pub(all) struct Entity {
   color : Int
   target : String
 } derive(ToJson, @json.FromJson)
+pub fn Entity::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Entity::to_json(Self) -> Json
 
 pub(all) struct Entry {
   id : String
   data : Definition
 } derive(ToJson, @json.FromJson)
+pub fn Entry::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Entry::to_json(Self) -> Json
 
 pub(all) struct Project {
   entry : String
   scenes : Array[Entry]
 } derive(ToJson, @json.FromJson)
+pub fn Project::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Project::to_json(Self) -> Json
 
 pub struct Session {
   project : Project

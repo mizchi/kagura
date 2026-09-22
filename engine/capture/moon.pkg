@@ -1,7 +1,8 @@
 import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/encoding/utf8",
   "mizchi/kagura_platform/services",
   "mizchi/atlas",
-  "moonbitlang/core/encoding/utf8",
 }
 
 warnings = "-6-29-53-68"

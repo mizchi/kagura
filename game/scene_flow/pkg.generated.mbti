@@ -29,6 +29,8 @@ pub(all) struct Portal {
   target : String
 } derive(ToJson, @json.FromJson)
 pub fn Portal::contains(Self, Double, Double) -> Bool
+pub fn Portal::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Portal::to_json(Self) -> Json
 
 // Type aliases
 

@@ -81,6 +81,7 @@ pub(all) struct HeadlessFrame {
 }
 
 type HeadlessGamepadStep derive(@json.FromJson)
+pub fn HeadlessGamepadStep::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 
 pub(all) struct HeadlessInput {
   cursor_x : Double
@@ -89,6 +90,7 @@ pub(all) struct HeadlessInput {
 }
 
 type HeadlessInputStep derive(@json.FromJson)
+pub fn HeadlessInputStep::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 
 pub(all) struct HeadlessTexture {
   id : Int

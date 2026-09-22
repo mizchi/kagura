@@ -12,6 +12,12 @@ pub(all) struct Document {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend Document with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Document with ToJson::{to_json}
+
+///|
 pub(all) struct Node {
   id : String
   name : String
@@ -24,6 +30,12 @@ pub(all) struct Node {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend Node with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Node with ToJson::{to_json}
+
+///|
 pub(all) struct Action {
   target : String
   duration : Double
@@ -31,6 +43,12 @@ pub(all) struct Action {
   recoilDuration : Double
   recoilStrength : Double
 } derive(FromJson, ToJson)
+
+///|
+pub extend Action with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Action with ToJson::{to_json}
 
 ///|
 pub(all) struct Resource {
@@ -41,11 +59,20 @@ pub(all) struct Resource {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend Resource with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Resource with ToJson::{to_json}
+
+///|
 struct Binding {
   node : String
   component : String
   properties : Json
 } derive(FromJson)
+
+///|
+pub extend Binding with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
 struct Bindings {
@@ -54,9 +81,15 @@ struct Bindings {
 } derive(FromJson)
 
 ///|
+pub extend Bindings with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
 struct Destination {
   target : String
 } derive(FromJson)
+
+///|
+pub extend Destination with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
 /// Compile an editable declaration into the portable runtime recipe used by Arena/FPS.

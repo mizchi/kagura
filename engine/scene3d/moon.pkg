@@ -1,5 +1,6 @@
 import {
   "mizchi/kagura_core/hierarchy",
+  "moonbitlang/core/debug",
   "moonbitlang/core/math",
   "mizchi/geom/math3d",
   "mizchi/gfx",

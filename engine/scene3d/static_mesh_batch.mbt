@@ -7,6 +7,12 @@ pub struct StaticMeshSpan {
 } derive(Eq, Debug)
 
 ///|
+pub extend StaticMeshSpan with Eq::{equal, not_equal}
+
+///|
+pub extend StaticMeshSpan with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Geometry copied once in source order. Treat the mesh and spans as immutable
 /// after construction, so GPU backends can retain their buffers across draws.
 pub struct StaticMeshBatch {

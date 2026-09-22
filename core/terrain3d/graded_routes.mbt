@@ -8,6 +8,9 @@ pub(all) struct TerrainPad {
 } derive(ToJson)
 
 ///|
+pub extend TerrainPad with ToJson::{to_json}
+
+///|
 /// A graded segment. Curves and switchbacks are represented by several segments.
 pub(all) struct TerrainRoute {
   ax : Double
@@ -18,6 +21,9 @@ pub(all) struct TerrainRoute {
   bh : Double
   width : Double
 } derive(ToJson)
+
+///|
+pub extend TerrainRoute with ToJson::{to_json}
 
 ///|
 pub fn TerrainRoute::projection(

@@ -6,6 +6,9 @@ struct HeadlessGamepadStep {
 } derive(FromJson)
 
 ///|
+pub extend HeadlessGamepadStep with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
 struct HeadlessInputStep {
   cursor_x : Double
   cursor_y : Double
@@ -13,6 +16,9 @@ struct HeadlessInputStep {
   mouse_buttons : Array[Int]
   gamepads : Array[HeadlessGamepadStep]
 } derive(FromJson)
+
+///|
+pub extend HeadlessInputStep with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
 fn HeadlessInputStep::to_input(self : HeadlessInputStep) -> @core.InputSnapshot {

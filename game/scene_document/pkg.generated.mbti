@@ -18,12 +18,17 @@ pub(all) struct Action {
   recoilDuration : Double
   recoilStrength : Double
 } derive(ToJson, @json.FromJson)
+pub fn Action::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Action::to_json(Self) -> Json
 
 type Binding derive(@json.FromJson)
+pub fn Binding::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 
 type Bindings derive(@json.FromJson)
+pub fn Bindings::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 
 type Destination derive(@json.FromJson)
+pub fn Destination::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 
 pub(all) struct Document {
   version : Int
@@ -36,6 +41,8 @@ pub(all) struct Document {
   resources : Array[Resource]
 } derive(ToJson, @json.FromJson)
 pub fn Document::compile_entities(Self, String) -> @scene_data.Definition raise
+pub fn Document::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Document::to_json(Self) -> Json
 
 pub(all) struct Node {
   id : String
@@ -47,6 +54,8 @@ pub(all) struct Node {
   scale : Array[Double]
   color : Int
 } derive(ToJson, @json.FromJson)
+pub fn Node::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Node::to_json(Self) -> Json
 
 pub(all) struct Resource {
   id : String
@@ -54,6 +63,8 @@ pub(all) struct Resource {
   version : Int
   data : Json
 } derive(ToJson, @json.FromJson)
+pub fn Resource::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Resource::to_json(Self) -> Json
 
 // Type aliases
 

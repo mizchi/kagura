@@ -10,10 +10,22 @@ pub(all) struct Entity {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend Entity with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Entity with ToJson::{to_json}
+
+///|
 pub(all) struct Definition {
   version : Int
   entities : Array[Entity]
 } derive(FromJson, ToJson)
+
+///|
+pub extend Definition with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Definition with ToJson::{to_json}
 
 ///|
 pub(all) struct Entry {
@@ -22,10 +34,22 @@ pub(all) struct Entry {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend Entry with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Entry with ToJson::{to_json}
+
+///|
 pub(all) struct Project {
   entry : String
   scenes : Array[Entry]
 } derive(FromJson, ToJson)
+
+///|
+pub extend Project with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Project with ToJson::{to_json}
 
 ///|
 pub struct Session {

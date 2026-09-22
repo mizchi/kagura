@@ -77,6 +77,12 @@ pub(all) struct Portal {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend Portal with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Portal with ToJson::{to_json}
+
+///|
 pub fn Portal::contains(self : Portal, x : Double, z : Double) -> Bool {
   let dx = x - self.x
   let dz = z - self.z

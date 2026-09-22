@@ -19,6 +19,7 @@ pub(all) struct Node {
   subject : String?
   children : Array[Node]
 } derive(ToJson)
+pub fn Node::to_json(Self) -> Json
 
 // Type aliases
 

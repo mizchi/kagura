@@ -183,6 +183,9 @@ pub struct StaticMeshSpan {
   first_index : Int
   index_count : Int
 } derive(Eq, @debug.Debug)
+pub fn StaticMeshSpan::equal(Self, Self) -> Bool
+pub fn StaticMeshSpan::not_equal(Self, Self) -> Bool
+pub fn StaticMeshSpan::to_repr(Self) -> @debug.Repr
 
 pub(all) enum View {
   Element(String, String, SceneNode, Array[View])

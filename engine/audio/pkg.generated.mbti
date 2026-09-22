@@ -148,6 +148,11 @@ pub(all) enum CuePlayback {
   Muted
   Missing
 } derive(Eq, @debug.Debug)
+pub fn CuePlayback::equal(Self, Self) -> Bool
+pub fn CuePlayback::not_equal(Self, Self) -> Bool
+pub fn CuePlayback::output(Self, &Logger) -> Unit
+pub fn CuePlayback::to_repr(Self) -> @debug.Repr
+pub fn CuePlayback::to_string(Self) -> String
 pub impl Show for CuePlayback
 
 pub struct MixerAudioContext {

@@ -18,6 +18,8 @@ pub(all) struct Document {
   objects : Array[Element]
 } derive(ToJson, @json.FromJson)
 pub fn Document::element(Self, String) -> Element raise
+pub fn Document::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Document::to_json(Self) -> Json
 pub fn Document::validate(Self) -> Unit raise
 
 pub(all) struct Element {
@@ -30,6 +32,8 @@ pub(all) struct Element {
   height : Double
   color : Int
 } derive(ToJson, @json.FromJson)
+pub fn Element::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Element::to_json(Self) -> Json
 
 // Type aliases
 

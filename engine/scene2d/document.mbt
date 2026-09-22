@@ -12,6 +12,12 @@ pub(all) struct Element {
 } derive(FromJson, ToJson)
 
 ///|
+pub extend Element with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Element with ToJson::{to_json}
+
+///|
 pub(all) struct Document {
   coordinates : String
   width : Int
@@ -19,6 +25,12 @@ pub(all) struct Document {
   background : Int
   objects : Array[Element]
 } derive(FromJson, ToJson)
+
+///|
+pub extend Document with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Document with ToJson::{to_json}
 
 ///|
 fn valid_id(value : String) -> Bool {

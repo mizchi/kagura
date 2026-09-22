@@ -20,11 +20,19 @@ pub struct RasterTarget {
   mut next_image_id : Int
   mut next_shader_id : Int
 }
+pub fn RasterTarget::begin(Self, @gfx.RenderPassDesc) -> Unit raise
 pub fn RasterTarget::clear(Self, @gfx.Color) -> Unit
 pub fn RasterTarget::draw_command(Self, @gfx.DrawTrianglesCommand) -> Int
+pub fn RasterTarget::draw_triangles(Self, @gfx.DrawTrianglesCommand) -> Unit raise
+pub fn RasterTarget::end(Self, Bool) -> Unit raise
+pub fn RasterTarget::initialize(Self) -> Unit raise
 pub fn RasterTarget::new(Int, Int) -> Self
+pub fn RasterTarget::new_image(Self, Int, Int) -> @gfx.ImageHandle raise
+pub fn RasterTarget::new_shader(Self, String) -> @gfx.ShaderHandle raise
+pub fn RasterTarget::read_pixels(Self, Int, Int, Int, Int) -> Array[Int]? raise
 pub fn RasterTarget::read_rect(Self, Int, Int, Int, Int) -> Array[Int]
 pub fn RasterTarget::register_texture(Self, Int, Int, Int, Array[Int]) -> Unit
+pub fn RasterTarget::resize(Self, Int, Int) -> Unit raise
 pub fn RasterTarget::resize_target(Self, Int, Int) -> Unit
 pub impl @gfx.GraphicsDriver for RasterTarget
 

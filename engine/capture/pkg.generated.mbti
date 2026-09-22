@@ -25,6 +25,9 @@ pub(all) enum CaptureBackend {
   Cpu
   Gpu
 } derive(Eq, @debug.Debug)
+pub fn CaptureBackend::equal(Self, Self) -> Bool
+pub fn CaptureBackend::not_equal(Self, Self) -> Bool
+pub fn CaptureBackend::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CaptureConfig {
   screenshot_path : String
@@ -33,6 +36,9 @@ pub(all) struct CaptureConfig {
   binarize : Bool
   backend : CaptureBackend
 } derive(@debug.Debug)
+pub fn CaptureConfig::output(Self, &Logger) -> Unit
+pub fn CaptureConfig::to_repr(Self) -> @debug.Repr
+pub fn CaptureConfig::to_string(Self) -> String
 pub impl Show for CaptureConfig
 
 // Type aliases

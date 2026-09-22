@@ -8,9 +8,18 @@ pub(all) enum CuePlayback {
 } derive(Eq, Debug)
 
 ///|
+pub extend CuePlayback with Eq::{equal, not_equal}
+
+///|
+pub extend CuePlayback with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub impl Show for CuePlayback with fn output(self, logger) {
   logger.write_object(Repr(self))
 }
+
+///|
+pub extend CuePlayback with Show::{to_string, output}
 
 ///|
 /// Owns one non-overlapping voice per game-defined key in an existing mixer.

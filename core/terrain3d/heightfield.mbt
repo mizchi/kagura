@@ -8,6 +8,18 @@ pub(all) enum TerrainPattern {
 } derive(Eq, Debug, ToJson, FromJson)
 
 ///|
+pub extend TerrainPattern with Eq::{equal, not_equal}
+
+///|
+pub extend TerrainPattern with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TerrainPattern with ToJson::{to_json}
+
+///|
+pub extend TerrainPattern with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
 pub(all) struct TerrainConfig {
   pattern : TerrainPattern
   seed : Int
@@ -15,6 +27,15 @@ pub(all) struct TerrainConfig {
   scale : Double
   roughness : Double
 } derive(Eq, ToJson, FromJson)
+
+///|
+pub extend TerrainConfig with Eq::{equal, not_equal}
+
+///|
+pub extend TerrainConfig with ToJson::{to_json}
+
+///|
+pub extend TerrainConfig with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
 pub fn TerrainConfig::default() -> TerrainConfig {
@@ -160,6 +181,9 @@ pub(all) struct HeightFieldStats {
   max_slope : Double
   triangles : Int
 } derive(ToJson)
+
+///|
+pub extend HeightFieldStats with ToJson::{to_json}
 
 ///|
 pub fn HeightField::statistics(self : HeightField) -> HeightFieldStats {

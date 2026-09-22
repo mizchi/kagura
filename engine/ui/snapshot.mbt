@@ -21,9 +21,15 @@ pub(all) struct UISnapshotRect {
 } derive(Debug)
 
 ///|
+pub extend UISnapshotRect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub impl Show for UISnapshotRect with fn output(self, logger) {
   logger.write_object(Repr(self))
 }
+
+///|
+pub extend UISnapshotRect with Show::{to_string, output}
 
 ///|
 pub(all) struct UISafeArea {
@@ -34,9 +40,15 @@ pub(all) struct UISafeArea {
 } derive(Debug)
 
 ///|
+pub extend UISafeArea with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub impl Show for UISafeArea with fn output(self, logger) {
   logger.write_object(Repr(self))
 }
+
+///|
+pub extend UISafeArea with Show::{to_string, output}
 
 ///|
 /// Measured extent of a node's text, as reported by `@text.TextRenderer::measure`.
@@ -47,9 +59,15 @@ pub(all) struct UITextMetrics {
 } derive(Debug)
 
 ///|
+pub extend UITextMetrics with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub impl Show for UITextMetrics with fn output(self, logger) {
   logger.write_object(Repr(self))
 }
+
+///|
+pub extend UITextMetrics with Show::{to_string, output}
 
 ///|
 /// One node of a UI snapshot.
@@ -80,9 +98,15 @@ pub(all) struct UISnapshotNode {
 } derive(Debug)
 
 ///|
+pub extend UISnapshotNode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub impl Show for UISnapshotNode with fn output(self, logger) {
   logger.write_object(Repr(self))
 }
+
+///|
+pub extend UISnapshotNode with Show::{to_string, output}
 
 ///|
 /// A node with every optional field cleared. Fill in with struct update syntax:
@@ -122,9 +146,15 @@ pub(all) struct UISnapshot {
 } derive(Debug)
 
 ///|
+pub extend UISnapshot with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub impl Show for UISnapshot with fn output(self, logger) {
   logger.write_object(Repr(self))
 }
+
+///|
+pub extend UISnapshot with Show::{to_string, output}
 
 ///|
 pub fn default_ui_snapshot(

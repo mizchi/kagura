@@ -43,6 +43,7 @@ pub(all) struct HeightFieldStats {
   max_slope : Double
   triangles : Int
 } derive(ToJson)
+pub fn HeightFieldStats::to_json(Self) -> Json
 
 pub(all) struct TerrainConfig {
   pattern : TerrainPattern
@@ -52,6 +53,10 @@ pub(all) struct TerrainConfig {
   roughness : Double
 } derive(Eq, ToJson, @json.FromJson)
 pub fn TerrainConfig::default() -> Self
+pub fn TerrainConfig::equal(Self, Self) -> Bool
+pub fn TerrainConfig::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TerrainConfig::not_equal(Self, Self) -> Bool
+pub fn TerrainConfig::to_json(Self) -> Json
 pub fn TerrainConfig::validated(Self) -> Self
 
 pub(all) struct TerrainPad {
@@ -60,6 +65,7 @@ pub(all) struct TerrainPad {
   height : Double
   radius : Double
 } derive(ToJson)
+pub fn TerrainPad::to_json(Self) -> Json
 
 pub(all) enum TerrainPattern {
   Flat
@@ -68,6 +74,11 @@ pub(all) enum TerrainPattern {
   Voronoi
   Hybrid
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn TerrainPattern::equal(Self, Self) -> Bool
+pub fn TerrainPattern::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TerrainPattern::not_equal(Self, Self) -> Bool
+pub fn TerrainPattern::to_json(Self) -> Json
+pub fn TerrainPattern::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TerrainRoute {
   ax : Double
@@ -79,6 +90,7 @@ pub(all) struct TerrainRoute {
   width : Double
 } derive(ToJson)
 pub fn TerrainRoute::projection(Self, Double, Double) -> (Double, Double)
+pub fn TerrainRoute::to_json(Self) -> Json
 
 pub(all) struct WarpedDensityField {
   frequency_x : Double

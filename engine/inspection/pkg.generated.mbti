@@ -35,6 +35,7 @@ pub(all) enum Field {
   Text(String, String, String, Bool)
   Boolean(String, String, Bool, Bool)
 }
+pub fn Field::to_json(Self) -> Json
 pub impl ToJson for Field
 
 pub struct Inspector[S] {
@@ -69,12 +70,14 @@ pub(all) struct Snapshot[S] {
   paused : Bool
   state : S
 } derive(ToJson)
+pub fn[S : ToJson] Snapshot::to_json(Self[S]) -> Json
 
 pub(all) struct Subject {
   id : String
   name : String
   fields : Array[Field]
 } derive(ToJson)
+pub fn Subject::to_json(Self) -> Json
 
 pub struct SubjectBinding[S] {
   id : String
@@ -83,6 +86,8 @@ pub struct SubjectBinding[S] {
 }
 
 type WireEdit derive(ToJson, @json.FromJson)
+pub fn WireEdit::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn WireEdit::to_json(Self) -> Json
 
 // Type aliases
 

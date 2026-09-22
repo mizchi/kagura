@@ -1,6 +1,8 @@
 ///|
 test "quadruped rig keeps its four legs, jaw and tail independently bound" {
-  let skeleton = build_quadruped_skeleton(default_quadruped_proportions())
+  let skeleton = @procedural3d.build_quadruped_skeleton(
+    @procedural3d.default_quadruped_proportions(),
+  )
   assert_eq(skeleton.bones.length(), 15)
   let rest = skeleton.bones.map(b => b.local_transform)
   let skin = skeleton.compute_skinning_matrices(

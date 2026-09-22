@@ -445,6 +445,18 @@ pub impl @gfx.GraphicsDriver for RasterTarget with fn initialize(_self) {
 }
 
 ///|
+pub extend RasterTarget with @gfx.GraphicsDriver::{
+  begin,
+  draw_triangles,
+  new_shader,
+  new_image,
+  initialize,
+  end,
+  read_pixels,
+  resize,
+}
+
+///|
 pub impl @gfx.GraphicsDriver for RasterTarget with fn begin(self, pass) {
   if pass.clear_enabled {
     self.clear(pass.clear_color)

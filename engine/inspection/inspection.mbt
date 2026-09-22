@@ -7,6 +7,9 @@ pub(all) struct Subject {
 } derive(ToJson)
 
 ///|
+pub extend Subject with ToJson::{to_json}
+
+///|
 pub(all) enum Field {
   Number(String, String, Double, String, Bool)
   Text(String, String, String, Bool)
@@ -47,3 +50,6 @@ pub impl ToJson for Field with fn to_json(self) {
     },
   }
 }
+
+///|
+pub extend Field with ToJson::{to_json}

@@ -31,6 +31,12 @@ pub(all) enum CaptureBackend {
 } derive(Eq, Debug)
 
 ///|
+pub extend CaptureBackend with Eq::{equal, not_equal}
+
+///|
+pub extend CaptureBackend with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub(all) struct CaptureConfig {
   /// Where the frame PNG goes.
   screenshot_path : String
@@ -46,9 +52,15 @@ pub(all) struct CaptureConfig {
 } derive(Debug)
 
 ///|
+pub extend CaptureConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub impl Show for CaptureConfig with fn output(self, logger) {
   logger.write_object(Repr(self))
 }
+
+///|
+pub extend CaptureConfig with Show::{to_string, output}
 
 ///|
 /// Decode config bytes as ASCII.

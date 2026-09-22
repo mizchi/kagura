@@ -4,20 +4,37 @@ pub(all) enum EnemyAwareness {
   Waking(Int)
   Alert
 } derive(Eq, Debug, ToJson, FromJson)
-
+///|
+pub extend EnemyAwareness with Eq::{not_equal, equal}
+///|
+pub extend EnemyAwareness with @moonbitlang/core/debug.Debug::{to_repr}
+///|
+pub extend EnemyAwareness with ToJson::{to_json}
+///|
+pub extend EnemyAwareness with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) enum EnemyRestPose {
   Standing
   Sitting
 } derive(Eq, Debug, ToJson, FromJson)
-
+///|
+pub extend EnemyRestPose with Eq::{not_equal, equal}
+///|
+pub extend EnemyRestPose with @moonbitlang/core/debug.Debug::{to_repr}
+///|
+pub extend EnemyRestPose with ToJson::{to_json}
+///|
+pub extend EnemyRestPose with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) struct EnemyCamp {
   pack_id : Int
   pose : EnemyRestPose
   mut awareness : EnemyAwareness
 } derive(ToJson, FromJson)
-
+///|
+pub extend EnemyCamp with ToJson::{to_json}
+///|
+pub extend EnemyCamp with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 /// Stable site/room membership: an alarm never chains to an unrelated nearby pack.
 fn configure_enemy_camps(enemies : Array[Enemy], seed : Int) -> Unit {

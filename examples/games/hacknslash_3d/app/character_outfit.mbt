@@ -7,7 +7,10 @@ enum CharacterSpecies {
   Kobold
   Skeleton
 } derive(Eq, Debug)
-
+///|
+pub extend CharacterSpecies with Eq::{not_equal, equal}
+///|
+pub extend CharacterSpecies with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 fn CharacterSpecies::index(self : CharacterSpecies) -> Int {
   match self {
@@ -35,7 +38,10 @@ enum GearStyle {
   Plate
   Occult
 } derive(Eq, Debug)
-
+///|
+pub extend GearStyle with Eq::{not_equal, equal}
+///|
+pub extend GearStyle with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 fn GearStyle::index(self : GearStyle) -> Int {
   match self {
@@ -50,7 +56,10 @@ fn GearStyle::index(self : GearStyle) -> Int {
 struct CharacterOutfit {
   slots : Array[GearStyle?]
 } derive(Eq, Debug)
-
+///|
+pub extend CharacterOutfit with Eq::{not_equal, equal}
+///|
+pub extend CharacterOutfit with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 fn CharacterOutfit::empty() -> CharacterOutfit {
   { slots: Array::make(8, None), }

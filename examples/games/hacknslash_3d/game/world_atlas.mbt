@@ -9,7 +9,8 @@ pub(all) struct WorldRegion {
   z : Int
   tier : Int
 } derive(ToJson)
-
+///|
+pub extend WorldRegion with ToJson::{to_json}
 ///|
 pub let world_regions : Array[WorldRegion] = [
   {

@@ -8,7 +8,12 @@ struct HunterCameraTuning {
   height : Double
   forward : Double
 } derive(ToJson, FromJson, Eq)
-
+///|
+pub extend HunterCameraTuning with ToJson::{to_json}
+///|
+pub extend HunterCameraTuning with @moonbitlang/core/json.FromJson::{from_json}
+///|
+pub extend HunterCameraTuning with Eq::{not_equal, equal}
 ///|
 fn hunter_camera_defaults(mode : Int) -> HunterCameraTuning {
   if mode == 1 {
@@ -51,7 +56,10 @@ struct HunterCameraPreferences {
   quarter : HunterCameraTuning
   tps : HunterCameraTuning
 } derive(ToJson, FromJson)
-
+///|
+pub extend HunterCameraPreferences with ToJson::{to_json}
+///|
+pub extend HunterCameraPreferences with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 struct HunterCameraSettings {
   mut mode : Int
@@ -133,7 +141,8 @@ struct HunterCameraView {
   tuning : HunterCameraTuning
   crosshair : Bool
 } derive(ToJson)
-
+///|
+pub extend HunterCameraView with ToJson::{to_json}
 ///|
 fn GameState::hunter_camera_view(self : GameState) -> HunterCameraView {
   {

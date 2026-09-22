@@ -5,7 +5,10 @@ pub(all) enum HunterPreset {
   MarksmanPreset
   SummonerPreset
 } derive(Eq, Debug)
-
+///|
+pub extend HunterPreset with Eq::{not_equal, equal}
+///|
+pub extend HunterPreset with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 pub(all) struct HunterPresetProfile {
   id : String

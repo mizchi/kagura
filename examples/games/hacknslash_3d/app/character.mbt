@@ -22,7 +22,8 @@ enum CharAnimState {
   Hurt
   Dodging
 } derive(Eq, Debug)
-
+///|
+pub extend CharAnimState with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 struct CharacterModel {
   skeleton : @skeleton3d.Skeleton

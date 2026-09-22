@@ -86,7 +86,10 @@ pub(all) struct ItemDrop {
   // Session identity, reassigned when loading legacy or saved region loot.
   mut pickup_id : Int?
 } derive(ToJson, FromJson)
-
+///|
+pub extend ItemDrop with ToJson::{to_json}
+///|
+pub extend ItemDrop with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) struct Projectile {
   mut x : Double
@@ -140,14 +143,20 @@ pub(all) enum EnemyKind {
   Swarm // tiny, weak, spawns in large groups
   Caster // channels area damage spells, must be interrupted
 } derive(Eq, ToJson, FromJson)
-
+///|
+pub extend EnemyKind with ToJson::{to_json}
+///|
+pub extend EnemyKind with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) enum ItemKind {
   Health
   Score
   Equipment(ItemData)
 } derive(ToJson, FromJson)
-
+///|
+pub extend ItemKind with ToJson::{to_json}
+///|
+pub extend ItemKind with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub fn ItemKind::op_equal(self : ItemKind, other : ItemKind) -> Bool {
   match (self, other) {

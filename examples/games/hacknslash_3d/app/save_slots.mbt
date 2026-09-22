@@ -11,7 +11,8 @@ struct SaveSlotView {
   build_name : String
   region : String
 } derive(ToJson)
-
+///|
+pub extend SaveSlotView with ToJson::{to_json}
 ///|
 fn save_slot_key(slot : Int) -> String {
   // Keep the existing save in slot 1 without copying or deleting it.

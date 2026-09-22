@@ -3,7 +3,10 @@ pub(all) enum HuntingSiteKind {
   Ruins
   Encampment
 } derive(Eq, Debug)
-
+///|
+pub extend HuntingSiteKind with Eq::{not_equal, equal}
+///|
+pub extend HuntingSiteKind with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 pub(all) struct HuntingSite {
   id : Int
@@ -47,7 +50,10 @@ pub(all) enum HuntingPropKind {
   RoadSign
   BrokenCart
 } derive(Eq, Debug)
-
+///|
+pub extend HuntingPropKind with Eq::{not_equal, equal}
+///|
+pub extend HuntingPropKind with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Tile-aligned occupied footprints are shared by navigation and visible geometry.
 pub(all) struct HuntingProp {

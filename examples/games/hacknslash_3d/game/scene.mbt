@@ -7,7 +7,10 @@ pub(all) struct SceneRectangle {
   width : Int
   depth : Int
 } derive(FromJson, ToJson)
-
+///|
+pub extend SceneRectangle with @moonbitlang/core/json.FromJson::{from_json}
+///|
+pub extend SceneRectangle with ToJson::{to_json}
 ///|
 pub(all) struct SceneEnemy {
   id : String
@@ -16,7 +19,10 @@ pub(all) struct SceneEnemy {
   kind : String
   hp : Int
 } derive(FromJson, ToJson)
-
+///|
+pub extend SceneEnemy with @moonbitlang/core/json.FromJson::{from_json}
+///|
+pub extend SceneEnemy with ToJson::{to_json}
 ///|
 pub(all) struct AuthoredScene {
   version : Int
@@ -24,7 +30,10 @@ pub(all) struct AuthoredScene {
   spawn : Array[Double]
   enemies : Array[SceneEnemy]
 } derive(FromJson, ToJson)
-
+///|
+pub extend AuthoredScene with @moonbitlang/core/json.FromJson::{from_json}
+///|
+pub extend AuthoredScene with ToJson::{to_json}
 ///|
 fn scene_enemy_kind(name : String) -> EnemyKind {
   match name {

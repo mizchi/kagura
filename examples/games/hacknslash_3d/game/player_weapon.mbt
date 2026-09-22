@@ -6,7 +6,10 @@ pub(all) enum PlayerWeaponKind {
   Focus
   Bow
 } derive(Eq, Debug)
-
+///|
+pub extend PlayerWeaponKind with Eq::{not_equal, equal}
+///|
+pub extend PlayerWeaponKind with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Frame timing is shared by combat, rig playback and portable motion exports.
 pub(all) struct PlayerWeaponProfile {

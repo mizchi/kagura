@@ -5,7 +5,8 @@ struct HunterSummonedZombieView {
   x : Double
   y : Double
 } derive(ToJson)
-
+///|
+pub extend HunterSummonedZombieView with ToJson::{to_json}
 ///|
 struct HunterSkullView {
   remaining : Int
@@ -13,7 +14,8 @@ struct HunterSkullView {
   y : Double
   attacking : Bool
 } derive(ToJson)
-
+///|
+pub extend HunterSkullView with ToJson::{to_json}
 ///|
 struct HunterSummonsView {
   zombies : Array[HunterSummonedZombieView]
@@ -22,7 +24,8 @@ struct HunterSummonsView {
   skull_limit : Int
   lifetime : Int
 } derive(ToJson)
-
+///|
+pub extend HunterSummonsView with ToJson::{to_json}
 ///|
 fn GameState::hunter_summons_view(self : GameState) -> HunterSummonsView {
   {

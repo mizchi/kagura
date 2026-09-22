@@ -63,7 +63,8 @@ struct HunterDamageView {
   alpha : Double
   scale : Double
 } derive(ToJson)
-
+///|
+pub extend HunterDamageView with ToJson::{to_json}
 ///|
 struct HunterCombatView {
   damage : Array[HunterDamageView]
@@ -75,7 +76,8 @@ struct HunterCombatView {
   combo_active : Bool
   combo_recovery : Bool
 } derive(ToJson)
-
+///|
+pub extend HunterCombatView with ToJson::{to_json}
 ///|
 fn GameState::hunter_combat_view(self : GameState) -> HunterCombatView {
   let damage : Array[HunterDamageView] = []

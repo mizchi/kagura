@@ -9,7 +9,10 @@ pub(all) enum HunterArtKind {
   RaiseZombieArt
   FlamingSkullArt
 } derive(Eq, Debug)
-
+///|
+pub extend HunterArtKind with Eq::{not_equal, equal}
+///|
+pub extend HunterArtKind with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 pub(all) enum CombatImpactKind {
   FlameBlast
@@ -17,7 +20,10 @@ pub(all) enum CombatImpactKind {
   DashCut
   WhirlwindCut
 } derive(Eq, Debug)
-
+///|
+pub extend CombatImpactKind with Eq::{not_equal, equal}
+///|
+pub extend CombatImpactKind with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 pub(all) struct HunterArt {
   kind : HunterArtKind

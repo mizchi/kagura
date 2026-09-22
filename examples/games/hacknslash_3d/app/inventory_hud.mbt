@@ -16,7 +16,8 @@ struct HunterItemView {
   rotated : Bool
   stats : Array[(String, Double)]
 } derive(ToJson)
-
+///|
+pub extend HunterItemView with ToJson::{to_json}
 ///|
 struct HunterEquipmentView {
   id : Int
@@ -24,7 +25,8 @@ struct HunterEquipmentView {
   glyph : String
   item : HunterItemView?
 } derive(ToJson)
-
+///|
+pub extend HunterEquipmentView with ToJson::{to_json}
 ///|
 struct HunterInventoryView {
   width : Int
@@ -37,7 +39,8 @@ struct HunterInventoryView {
   hp : Int
   notice : String
 } derive(ToJson)
-
+///|
+pub extend HunterInventoryView with ToJson::{to_json}
 ///|
 fn equipment_glyph(slot : @game.EquipSlot) -> String {
   match slot {

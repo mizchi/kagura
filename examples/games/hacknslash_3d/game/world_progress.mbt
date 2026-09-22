@@ -13,7 +13,10 @@ struct RegionEnemyProgress {
   alive : Bool
   room : Int
 } derive(ToJson, FromJson)
-
+///|
+pub extend RegionEnemyProgress with ToJson::{to_json}
+///|
+pub extend RegionEnemyProgress with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 struct RegionProgress {
   id : Int
@@ -24,7 +27,10 @@ struct RegionProgress {
   cleared : Array[Bool]
   opened_chests : Array[Int]?
 } derive(ToJson, FromJson)
-
+///|
+pub extend RegionProgress with ToJson::{to_json}
+///|
+pub extend RegionProgress with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 struct WorldProgress {
   version : Int
@@ -38,7 +44,10 @@ struct WorldProgress {
   unlocked : Array[Bool]
   regions : Array[RegionProgress]
 } derive(ToJson, FromJson)
-
+///|
+pub extend WorldProgress with ToJson::{to_json}
+///|
+pub extend WorldProgress with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
   guard self.atlas is Some(atlas) else { return "" }

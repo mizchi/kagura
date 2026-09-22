@@ -9,7 +9,10 @@ pub(all) enum EnemyAttackMotion {
   BowShot
   Charge
 } derive(Eq, Debug)
-
+///|
+pub extend EnemyAttackMotion with Eq::{not_equal, equal}
+///|
+pub extend EnemyAttackMotion with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Frame zero is anticipation. Impact is exactly windup; the remainder recovers.
 pub fn Enemy::begin_attack(

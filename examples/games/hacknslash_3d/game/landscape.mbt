@@ -9,7 +9,10 @@ pub(all) enum LandscapeKind {
   Bridge
   CaveFloor
 } derive(Eq, Debug)
-
+///|
+pub extend LandscapeKind with Eq::{not_equal, equal}
+///|
+pub extend LandscapeKind with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 pub(all) struct Landscape {
   region : Int

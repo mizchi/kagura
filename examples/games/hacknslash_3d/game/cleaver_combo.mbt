@@ -4,7 +4,10 @@ pub(all) enum CleaverComboStep {
   Return
   Finisher
 } derive(Eq, Debug)
-
+///|
+pub extend CleaverComboStep with Eq::{not_equal, equal}
+///|
+pub extend CleaverComboStep with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 pub fn CleaverComboStep::index(self : CleaverComboStep) -> Int {
   match self {

@@ -158,7 +158,8 @@ struct TerrainLabView {
   stats : @terrain3d.HeightFieldStats
   player_height : Double
 } derive(ToJson)
-
+///|
+pub extend TerrainLabView with ToJson::{to_json}
 ///|
 fn GameState::terrain_lab_view(self : GameState) -> TerrainLabView {
   let lab = self.terrain_lab

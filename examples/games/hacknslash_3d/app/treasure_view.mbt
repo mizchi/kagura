@@ -7,7 +7,8 @@ struct HunterChestView {
   opened : Bool
   kind : String
 } derive(ToJson)
-
+///|
+pub extend HunterChestView with ToJson::{to_json}
 ///|
 struct HunterExplorationView {
   nearby_chest : Int
@@ -16,7 +17,8 @@ struct HunterExplorationView {
   wolves : Int
   road_path : String
 } derive(ToJson)
-
+///|
+pub extend HunterExplorationView with ToJson::{to_json}
 ///|
 fn GameState::hunter_exploration_view(
   self : GameState,

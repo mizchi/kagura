@@ -11,7 +11,8 @@ struct HunterSkillView {
   remaining : Int
   total : Int
 } derive(ToJson)
-
+///|
+pub extend HunterSkillView with ToJson::{to_json}
 ///|
 struct HunterNodeView {
   id : Int
@@ -32,7 +33,8 @@ struct HunterNodeView {
   cost : Int
   available : Bool
 } derive(ToJson)
-
+///|
+pub extend HunterNodeView with ToJson::{to_json}
 ///|
 struct HunterExtraSkillView {
   key : Int
@@ -41,7 +43,8 @@ struct HunterExtraSkillView {
   remaining : Int
   total : Int
 } derive(ToJson)
-
+///|
+pub extend HunterExtraSkillView with ToJson::{to_json}
 ///|
 struct HunterHudView {
   resting_enemies : Int
@@ -100,7 +103,8 @@ struct HunterHudView {
   weapon_locked : Bool
   weapons : Array[String]
 } derive(ToJson)
-
+///|
+pub extend HunterHudView with ToJson::{to_json}
 ///|
 fn hunter_skill_name(id : @game.SkillId) -> String {
   match id {

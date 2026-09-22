@@ -8,7 +8,12 @@ pub(all) enum EnemySpecies {
   Skeleton
   Wolf
 } derive(Eq, Debug)
-
+///|
+pub extend EnemySpecies with Eq::{not_equal, equal}
+///|
+pub extend EnemySpecies with @moonbitlang/core/debug.Debug::{to_repr}
+///|
+pub extend EnemySpecies with Show::{to_string, output}
 ///|
 pub impl Show for EnemySpecies with fn output(self, logger) {
   logger.write_object(Repr(self))

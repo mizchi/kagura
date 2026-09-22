@@ -6,7 +6,8 @@ struct ExpeditionMapView {
   features : String
   report : @game.ExpeditionValidation
 } derive(ToJson)
-
+///|
+pub extend ExpeditionMapView with ToJson::{to_json}
 ///|
 struct ExpeditionAnchorView {
   id : Int
@@ -17,7 +18,8 @@ struct ExpeditionAnchorView {
   unlocked : Bool
   reward : String
 } derive(ToJson)
-
+///|
+pub extend ExpeditionAnchorView with ToJson::{to_json}
 ///|
 /// Geometry-derived UI is cached with the region mesh; HUD serialization never
 /// reruns generation, pathfinding or slope validation.

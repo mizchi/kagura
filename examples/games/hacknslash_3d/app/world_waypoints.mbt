@@ -11,7 +11,8 @@ struct HunterRegionView {
   ready : Bool
   progress : Int
 } derive(ToJson)
-
+///|
+pub extend HunterRegionView with ToJson::{to_json}
 ///|
 struct HunterAtlasView {
   generation : Int
@@ -35,7 +36,8 @@ struct HunterAtlasView {
   batches_built : Int
   chunks_built : Int
 } derive(ToJson)
-
+///|
+pub extend HunterAtlasView with ToJson::{to_json}
 ///|
 fn GameState::hunter_atlas_view(self : GameState) -> HunterAtlasView? {
   guard self.world.atlas is Some(atlas) else { return None }

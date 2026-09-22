@@ -11,7 +11,10 @@ pub(all) enum SkillTag {
   Defense
   Utility
 } derive(Eq, ToJson, FromJson)
-
+///|
+pub extend SkillTag with ToJson::{to_json}
+///|
+pub extend SkillTag with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub fn skill_tag_to_int(tag : SkillTag) -> Int {
   match tag {

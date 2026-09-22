@@ -9,7 +9,8 @@ pub(all) struct SceneAction {
   shotSound : String
   hitSound : String
 } derive(FromJson)
-
+///|
+pub extend SceneAction with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) struct SceneSolid {
   id : String
@@ -18,14 +19,16 @@ pub(all) struct SceneSolid {
   size : Array[Double]
   color : Int
 } derive(FromJson)
-
+///|
+pub extend SceneSolid with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) struct SceneTarget {
   id : String
   position : Array[Double]
   yaw : Double
 } derive(FromJson)
-
+///|
+pub extend SceneTarget with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) struct SceneRecipe {
   bounds : Array[Double]
@@ -39,7 +42,8 @@ pub(all) struct SceneRecipe {
   sun : Double
   action : SceneAction
 } derive(FromJson)
-
+///|
+pub extend SceneRecipe with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 fn vector_from_array(v : Array[Double]) -> @math3d.Vec3 {
   vec(v[0], v[1], v[2])

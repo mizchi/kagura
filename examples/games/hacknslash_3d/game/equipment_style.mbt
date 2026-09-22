@@ -5,7 +5,10 @@ pub(all) enum EquipmentStyle {
   PlateGear
   OccultGear
 } derive(Eq, Debug)
-
+///|
+pub extend EquipmentStyle with Eq::{not_equal, equal}
+///|
+pub extend EquipmentStyle with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 pub fn EquipmentStyle::index(self : EquipmentStyle) -> Int {
   match self {

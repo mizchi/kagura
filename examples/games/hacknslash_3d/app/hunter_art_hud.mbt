@@ -18,7 +18,8 @@ struct HunterArtsView {
   impact_pending : Bool
   feedback : String
 } derive(ToJson)
-
+///|
+pub extend HunterArtsView with ToJson::{to_json}
 ///|
 fn GameState::hunter_arts_view(self : GameState) -> HunterArtsView {
   let arts = self.world.arts

@@ -8,6 +8,9 @@ struct CaptureRequest {
 } derive(FromJson)
 
 ///|
+pub extend CaptureRequest with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
 priv suberror InvalidCaptureRequest {
   InvalidCaptureRequest(String)
 }

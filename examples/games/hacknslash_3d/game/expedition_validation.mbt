@@ -5,7 +5,8 @@ pub(all) struct ExpeditionValidation {
   ground_triangles : Int
   collision_tiles : Int
 } derive(ToJson)
-
+///|
+pub extend ExpeditionValidation with ToJson::{to_json}
 ///|
 /// Offline/authoring check. Never run graph searches in the frame loop.
 pub fn validate_expedition(

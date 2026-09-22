@@ -11,7 +11,8 @@ struct HunterLootView {
   rarity : String
   blocked : Bool
 } derive(ToJson)
-
+///|
+pub extend HunterLootView with ToJson::{to_json}
 ///|
 fn rarity_name(rarity : @game.ItemRarity) -> String {
   match rarity {

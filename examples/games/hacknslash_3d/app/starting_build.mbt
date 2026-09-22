@@ -9,7 +9,8 @@ struct StartingBuildView {
   equipment : Array[String]
   skills : Array[String]
 } derive(ToJson)
-
+///|
+pub extend StartingBuildView with ToJson::{to_json}
 ///|
 fn GameState::starting_build_views(
   self : GameState,

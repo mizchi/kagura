@@ -31,7 +31,10 @@ pub(all) struct TagBonusEntry {
   aoe_radius_pct : Double
   crit_bonus : Double
 } derive(ToJson, FromJson)
-
+///|
+pub extend TagBonusEntry with ToJson::{to_json}
+///|
+pub extend TagBonusEntry with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub fn new_tag_bonuses_array() -> Array[TagBonus] {
   let arr : Array[TagBonus] = []
@@ -50,7 +53,10 @@ pub(all) enum ItemRarity {
   Rare
   Epic
 } derive(ToJson, FromJson)
-
+///|
+pub extend ItemRarity with ToJson::{to_json}
+///|
+pub extend ItemRarity with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub fn ItemRarity::color(self : ItemRarity) -> Int {
   match self {
@@ -72,7 +78,12 @@ pub(all) enum EquipSlot {
   Offhand
   Amulet
 } derive(Eq, ToJson, FromJson)
-
+///|
+pub extend EquipSlot with Eq::{not_equal, equal}
+///|
+pub extend EquipSlot with ToJson::{to_json}
+///|
+pub extend EquipSlot with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) struct Affix {
   name : String
@@ -93,7 +104,10 @@ pub(all) struct Affix {
   chain_bonus : Int // +chain targets (legacy, converted to tag bonus)
   tag_bonuses : Array[TagBonusEntry]
 } derive(ToJson, FromJson)
-
+///|
+pub extend Affix with ToJson::{to_json}
+///|
+pub extend Affix with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 pub(all) struct ItemData {
   name : String
@@ -112,7 +126,10 @@ pub(all) struct ItemData {
   suffix : Affix?
   icon_id : Int
 } derive(ToJson, FromJson)
-
+///|
+pub extend ItemData with ToJson::{to_json}
+///|
+pub extend ItemData with @moonbitlang/core/json.FromJson::{from_json}
 ///|
 fn affix_sum_int(item : ItemData, base : Int, f : (Affix) -> Int) -> Int {
   let mut v = base

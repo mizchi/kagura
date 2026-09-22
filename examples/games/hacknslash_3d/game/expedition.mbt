@@ -6,7 +6,8 @@ pub(all) struct ExpeditionPlan {
   pads : Array[@terrain3d.TerrainPad]
   routes : Array[@terrain3d.TerrainRoute]
 } derive(ToJson)
-
+///|
+pub extend ExpeditionPlan with ToJson::{to_json}
 ///|
 pub fn expedition_plan(seed : Int, region : Int) -> ExpeditionPlan {
   let variation = hunting_hash(region, 71, seed)

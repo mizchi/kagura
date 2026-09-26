@@ -15,10 +15,32 @@ fn parse_accessor(obj : Json) -> GltfAccessor {
 
 ///|
 fn parse_buffer_view(obj : Json) -> GltfBufferView {
+  let ext = match json_get(obj, "extensions") {
+    Some(exts) =>
+      match json_get(exts, "EXT_meshopt_compression") {
+        Some(e) => Some(e)
+        None => json_get(exts, "KHR_meshopt_compression")
+      }
+    None => None
+  }
+  let compressed = match ext {
+    Some(e) =>
+      Some({
+        buffer: json_get_int(e, "buffer", 0),
+        byte_offset: json_get_int(e, "byteOffset", 0),
+        byte_length: json_get_int(e, "byteLength", 0),
+        byte_stride: json_get_int(e, "byteStride", 0),
+        count: json_get_int(e, "count", 0),
+        mode: json_get_string(e, "mode", ""),
+        filter: json_get_string(e, "filter", "NONE"),
+      })
+    None => None
+  }
   {
     buffer: json_get_int(obj, "buffer", 0),
     byte_offset: json_get_int(obj, "byteOffset", 0),
     byte_stride: json_get_int(obj, "byteStride", 0),
+    compressed,
   }
 }
 

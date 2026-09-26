@@ -7,4 +7,5 @@ suberror GltfError {
   UnsupportedMode(Int)
   BufferOutOfRange(Int)
   MissingAttribute(String)
+  CompressionError(String)
 }

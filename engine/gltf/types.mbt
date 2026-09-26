@@ -9,10 +9,24 @@ priv struct GltfAccessor {
 }
 
 ///|
+/// The EXT_meshopt_compression / KHR_meshopt_compression part of a
+/// bufferView: where the compressed bytes are and how to decode them.
+priv struct GltfCompressedView {
+  buffer : Int
+  byte_offset : Int
+  byte_length : Int
+  byte_stride : Int
+  count : Int
+  mode : String
+  filter : String
+}
+
+///|
 priv struct GltfBufferView {
   buffer : Int
   byte_offset : Int
   byte_stride : Int
+  compressed : GltfCompressedView?
 }
 
 ///|

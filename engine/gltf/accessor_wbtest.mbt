@@ -79,8 +79,12 @@ test "read_accessor_floats rejects UNSIGNED_INT attributes" {
     #|"bufferViews":[{"buffer":0,"byteOffset":0,"byteLength":12}],
     #|"meshes":[{"primitives":[{"attributes":{"POSITION":0}}]}]}
   let buffers = [Bytes::make(12, b'\x00')]
-  let result = try? mesh_from_gltf(json, buffers)
-  assert_true(result is Err(GltfError::UnsupportedComponentType(5125)))
+  try mesh_from_gltf(json, buffers) catch {
+    UnsupportedComponentType(5125) => ()
+    _ => fail("unexpected error")
+  } noraise {
+    _ => fail("UNSIGNED_INT attribute was accepted")
+  }
 }
 
 ///|

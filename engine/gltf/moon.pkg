@@ -1,5 +1,6 @@
 import {
   "moonbitlang/core/json",
+  "mizchi/kagura_core/meshopt",
   "mizchi/mesh3d",
   "mizchi/kagura_engine/scene3d",
   "mizchi/geom/math3d",

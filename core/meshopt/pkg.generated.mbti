@@ -1,0 +1,36 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_core/meshopt"
+
+// Values
+pub fn decode_filter_color(FixedArray[Byte], Int, Int) -> Unit raise MeshoptError
+
+pub fn decode_filter_exp(FixedArray[Byte], Int, Int) -> Unit raise MeshoptError
+
+pub fn decode_filter_oct(FixedArray[Byte], Int, Int) -> Unit raise MeshoptError
+
+pub fn decode_filter_quat(FixedArray[Byte], Int, Int) -> Unit raise MeshoptError
+
+pub fn decode_gltf_buffer(Int, Int, BytesView, String, String) -> Bytes raise MeshoptError
+
+pub fn decode_index_buffer(FixedArray[Byte], Int, Int, BytesView) -> Unit raise MeshoptError
+
+pub fn decode_index_sequence(FixedArray[Byte], Int, Int, BytesView) -> Unit raise MeshoptError
+
+pub fn decode_vertex_buffer(FixedArray[Byte], Int, Int, BytesView) -> Unit raise MeshoptError
+
+// Errors
+pub(all) suberror MeshoptError {
+  InvalidArgument(String)
+  InvalidHeader(String)
+  UnexpectedEnd(String)
+  TrailingData(String)
+}
+pub fn MeshoptError::output(Self, &Logger) -> Unit
+pub fn MeshoptError::to_string(Self) -> String
+pub impl Show for MeshoptError
+
+// Types and methods
+
+// Type aliases
+
+// Traits

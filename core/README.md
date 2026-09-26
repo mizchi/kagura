@@ -7,6 +7,7 @@
 `geom`、`mesh3d`、`anim3d`（骨格・IK）、`pathfind` は独立 module です。
 `physics2d`、`physics3d`、`collision3d`、`terrain3d`、`procedural3d` はこの module の package です。
 `packing2d` は矩形配置、`particle3d` は粒子の生成・運動・寿命、`statistics` は数値集計を担当します。
+`meshopt` は meshoptimizer の頂点・index コーデックとフィルタの復号で、`engine/gltf` が `EXT_meshopt_compression` の読み込みに使います。
 再生時間の `Timeline` は独立 module 内の `anim3d/playback` にあり、2D・3D・Web ビューアで共有します。
 
 描画 callback と実行オプションは `mizchi/kagura_engine/application` を使用します。

@@ -5,6 +5,7 @@ priv struct GltfAccessor {
   component_type : Int
   count : Int
   type_ : String
+  normalized : Bool
 }
 
 ///|

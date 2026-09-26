@@ -6,6 +6,10 @@ fn parse_accessor(obj : Json) -> GltfAccessor {
     component_type: json_get_int(obj, "componentType", 5126),
     count: json_get_int(obj, "count", 0),
     type_: json_get_string(obj, "type", "SCALAR"),
+    normalized: match json_get(obj, "normalized") {
+      Some(True) => true
+      _ => false
+    },
   }
 }
 

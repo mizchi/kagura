@@ -16,7 +16,7 @@ node examples/games/iron_yard/experiments/meshopt/bench.mjs --json
 
 ## 結論
 
-- **エンジンは `EXT_meshopt_compression` をまだ読めない。** normalized 整数の accessor（下の「組み込む場合の作業」の 1）は対応済みで、gltfpack の既定の出力（`KHR_mesh_quantization`）は `scene_graph_from_gltf` / `skinned_scene_from_gltf` で読める。`-c` の出力は復号器が無いので読めない。`convert-assets.mjs` は今も `normalized` を無視するため、strix の `-noq` 出力は `Expected rigid one-bone skin` で落ちる（weight 1.0 が 255 と読まれる）。量子化あり・`-c` の出力は `Unsupported component type` / `Unsupported accessor` で落ちる
+- **エンジンは gltfpack の出力をそのまま読める。** normalized 整数の accessor と `EXT_meshopt_compression`（`KHR_meshopt_compression` も同じ扱い）に対応した（下の「組み込む場合の作業」の 1 と 3）。`-c` / `-cc` の出力も `scene_graph_from_gltf` / `skinned_scene_from_gltf` で読める。ただし UV の `KHR_texture_transform` はまだ読まない。Iron Yard の `convert-assets.mjs` は今も `normalized` を無視するため、strix の `-noq` 出力は `Expected rigid one-bone skin` で落ちる（weight 1.0 が 255 と読まれる）。量子化あり・`-c` の出力は `Unsupported component type` / `Unsupported accessor` で落ちる
 - **効果の大半はコーデックではなく量子化による。** 配信を brotli で圧縮するなら、量子化しただけの生バイナリのほうが meshopt 符号化より小さかった（下の表 2）。meshopt コーデックが勝ったのは gzip の場合と、圧縮しない raw サイズの場合だけ
 - **大きなメッシュでは効果がはっきり出る。** 29 万頂点 / 47 万三角形の trellis チェストは 15,100 KiB → `-c` で 2,550 KiB（brotli 後は 7,425 KiB → 2,086 KiB）。この規模では brotli を通しても `-c` が量子化のみ（3,011 KiB）より小さい
 - **デコードは速い。** strix / bastion の全バッチを JS で float に戻すまで含めて 1〜2 ms。現状の geometry JSON の `JSON.parse`（5.6 ms / 17.9 ms）より速い。ただし実際の起動では JS の配列を再び `JSON.stringify` して MoonBit 側でもう一度 parse しているので、ここは別に測る必要がある
@@ -92,7 +92,7 @@ bastion: 43 バッチ、35,028 頂点、45,630 index
 
 1. **normalized 整数の accessor を読む（対応済み）。** `read_accessor_floats` が `BYTE` / `UNSIGNED_BYTE` / `SHORT` / `UNSIGNED_SHORT` を読み、`normalized` なら glTF 2.0 の規則で float に戻す。`KHR_mesh_quantization` が許す normalized でない整数はそのまま値として返す
 2. **`KHR_mesh_quantization` の残り。** 位置のデクオンタイズは gltfpack がノードの TRS に移すので、1 だけでシーングラフとしては正しい位置に出る（下の画像）。ただしノードを無視して頂点をまとめる `mesh_from_gltf` / `meshes_from_gltf` ではスケールが戻らない。UV のデクオンタイズは `KHR_texture_transform` に移るが、これはまだ読んでいない
-3. **`EXT_meshopt_compression`。** bufferView の拡張から圧縮済み範囲を読み、`ATTRIBUTES` / `TRIANGLES` / `INDICES` モードと `OCTAHEDRAL` / `QUATERNION` / `EXPONENTIAL` / `COLOR` フィルタを復号して、元の bufferView のバイト列を作る。復号後は 1 と 2 の経路に流れる
+3. **`EXT_meshopt_compression`（対応済み）。** bufferView の拡張から圧縮済み範囲を読み、`ATTRIBUTES` / `TRIANGLES` / `INDICES` モードと `OCTAHEDRAL` / `QUATERNION` / `EXPONENTIAL` / `COLOR` フィルタを復号して、元の bufferView のバイト列を作る。復号後は 1 と 2 の経路に流れる
 
 ### 量子化済み GLB の読み込み（1 の確認）
 
@@ -115,9 +115,46 @@ trellis チェスト（467,523 三角形）を `engine/gltf` の `scene_graph_fr
 | `RiggedFigure` の `gltfpack -noq` | panic | 316 頂点、weight の合計と 1 の差の最大値 1.1e-16 |
 | `RiggedFigure` の `gltfpack` 既定 | `UnsupportedComponentType` | 312 頂点、weight の合計と 1 の差の最大値 1.1e-16 |
 
-3 のデコーダをどこに置くかは 2 通りある。
+### `EXT_meshopt_compression` の復号（3 の確認）
 
-- **MoonBit に移植する。** 参照実装 `meshopt_decoder_reference.js` は 472 行で、SIMD を使わないスカラー実装。移植すれば js / native / wasm で同じコードが動き、「コアロジックは MoonBit」という方針にも合う。速度は wasm SIMD 版より落ちるはずなので、移植したら別に測ること
-- **JS の `MeshoptDecoder`（wasm）を host 側で呼ぶ。** `meshopt_decoder.mjs` は 29 KB（gzip 7.5 KB）。Web ではすぐ使えるが native には無いので、native 用には別に C の `meshoptimizer` を FFI でリンクすることになる
+デコーダは `core/meshopt`（`mizchi/kagura_core/meshopt`）に MoonBit で移植した。移植元は参照 JS 実装ではなく C の scalar 実装（`vertexcodec.cpp` / `indexcodec.cpp` / `vertexfilter.cpp`）。理由は次の 3 つ。
+
+- 参照 JS 実装は index codec の version 0 を受け付けない
+- 壊れた入力の検出は C 側にしかない
+- フィルタを C と同じ f32 の演算順で計算しないと結果がずれる
+
+`engine/gltf` は文書を読んだ直後に圧縮 bufferView を復号し、以降は非圧縮のファイルと同じ経路で読む。
+
+C の scalar ビルド（`MESHOPTIMIZER_NO_SIMD`）との差分テスト:
+
+| 入力 | 件数 | 結果 |
+|---|---:|---|
+| C の encoder で作ったランダムなストリーム（vertex v0/v1・全 level、4 フィルタ、index v0/v1、index sequence。切り詰め・ビット反転・末尾追加の壊れた入力を含む） | 10,567 | 復号した 7,526 件がバイト一致。C が拒否した 3,041 件は MoonBit も拒否 |
+| strix / bastion / RiggedFigure / trellis の `gltfpack -c` / `-cc` / `-cc -vpf` 出力にある圧縮 bufferView 全部 | 88 | 全件バイト一致 |
+
+- **C の SIMD ビルドとは完全には一致しない。** 壊れていない入力でも、SIMD ビルドは scalar ビルドと octahedral / quaternion / color フィルタで最大 1 LSB ずれた（値の 0.13% / 0.05% / 0.4%）。npm の `MeshoptDecoder` は SIMD 版なので、比較の基準には scalar ビルドを使った
+- **alpha 0 の扱いだけは C と違う。** color フィルタで alpha 0 になるのは壊れた入力だけ（encoder は alpha の最上位ビットを必ず立てる）。このとき C は inf を int に変換するので未定義動作になる。MoonBit 版は x86 と同じ結果になるよう 0 を書く
+- CI ではこの差分テストを回していない。CI で回るのは C から作った fixture（`core/meshopt/fixtures_test.mbt`）との一致と、壊れた入力の拒否の検査
+
+trellis チェストの `gltfpack -c` 出力（2,550 KiB）を `engine/gltf` で読み、1 の確認と同じ方法で描いた。
+
+![左: 元の float GLB / 中: -c 出力を変更前（e480a1f）に読んだもの / 右: 同じファイルを変更後に読んだもの](meshopt-load-comparison.png)
+
+| | 入力 | 結果 |
+|---|---|---|
+| 左 | 元の GLB（15,100 KiB、全属性 FLOAT） | 467,523 三角形 |
+| 中 | `gltfpack -c`（2,550 KiB）を変更前に読んだもの | `BufferOutOfRange`。bufferView が指す fallback buffer に中身が無いため |
+| 右 | 同じファイルを変更後に読んだもの | 467,523 三角形。量子化のみの出力を読んだ画とバイト一致（`-c` は量子化済みデータを可逆に圧縮するだけ）。元との差は 1 の確認と同じ |
+
+`RiggedFigure` の `-c` / `-cc` / `-cc -vpf` 出力も `skinned_scene_from_gltf` で読めた（312 頂点、19 ボーン、クリップ 1）。変更前は `BufferOutOfRange` で落ちていた。
+
+復号速度（Node 22 の JS、trellis の圧縮 bufferView 10.3 MB 分）:
+
+| デコーダ | 時間 |
+|---|---:|
+| MoonBit（`core/meshopt`、JS release ビルド） | 93 ms（5 回で 92〜99 ms） |
+| npm `MeshoptDecoder`（wasm SIMD） | 15.8 ms（7 回の中央値） |
+
+MoonBit 版は wasm SIMD 版の約 6 倍遅い。それでも 15 MB の float GLB を読むよりは転送量が小さい。native と wasm ターゲットの速度は測っていない。速さが必要になったら、Web では host 側で `MeshoptDecoder` を呼ぶ経路を足す手がある。
 
 Iron Yard だけに限るなら、glTF の拡張は要らない。`convert-assets.mjs` の出力を「メタデータの JSON + 量子化済みの頂点バイナリ」に分けるだけで、brotli 後のジオメトリは strix で 56.1 → 25.3 KiB、bastion で 172.4 → 83.5 KiB になる。meshopt コーデックを入れるかどうかは配信の圧縮方式を確かめてから決める。

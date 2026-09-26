@@ -16,7 +16,7 @@ node examples/games/iron_yard/experiments/meshopt/bench.mjs --json
 
 ## 結論
 
-- **エンジンは今のままでは読めない。** `engine/gltf` は属性を `FLOAT` でしか読まず（`read_accessor_floats`、`mesh_builder.mbt`）、拡張も解釈しない。gltfpack の出力は `-noq` を付けても skin weight を normalized `UNSIGNED_BYTE` にするので、コアの glTF 2.0 の範囲でも読めない。`convert-assets.mjs` も `normalized` を無視するため、strix の `-noq` 出力は `Expected rigid one-bone skin` で落ちる（weight 1.0 が 255 と読まれる）。量子化あり・`-c` の出力は `Unsupported component type` / `Unsupported accessor` で落ちる
+- **エンジンは `EXT_meshopt_compression` をまだ読めない。** normalized 整数の accessor（下の「組み込む場合の作業」の 1）は対応済みで、gltfpack の既定の出力（`KHR_mesh_quantization`）は `scene_graph_from_gltf` / `skinned_scene_from_gltf` で読める。`-c` の出力は復号器が無いので読めない。`convert-assets.mjs` は今も `normalized` を無視するため、strix の `-noq` 出力は `Expected rigid one-bone skin` で落ちる（weight 1.0 が 255 と読まれる）。量子化あり・`-c` の出力は `Unsupported component type` / `Unsupported accessor` で落ちる
 - **効果の大半はコーデックではなく量子化による。** 配信を brotli で圧縮するなら、量子化しただけの生バイナリのほうが meshopt 符号化より小さかった（下の表 2）。meshopt コーデックが勝ったのは gzip の場合と、圧縮しない raw サイズの場合だけ
 - **大きなメッシュでは効果がはっきり出る。** 29 万頂点 / 47 万三角形の trellis チェストは 15,100 KiB → `-c` で 2,550 KiB（brotli 後は 7,425 KiB → 2,086 KiB）。この規模では brotli を通しても `-c` が量子化のみ（3,011 KiB）より小さい
 - **デコードは速い。** strix / bastion の全バッチを JS で float に戻すまで含めて 1〜2 ms。現状の geometry JSON の `JSON.parse`（5.6 ms / 17.9 ms）より速い。ただし実際の起動では JS の配列を再び `JSON.stringify` して MoonBit 側でもう一度 parse しているので、ここは別に測る必要がある
@@ -90,9 +90,30 @@ bastion: 43 バッチ、35,028 頂点、45,630 index
 
 エンジンで使えるようにするには、軽い順に次の作業が要る。
 
-1. **normalized 整数の accessor を読む。** `read_accessor_floats` が `5120/5121/5122/5123` + `normalized` を読めればよい。コアの glTF 2.0 の範囲なので、gltfpack の `-noq` 出力（weight が `UNSIGNED_BYTE`）はこれだけで読める見込み
-2. **`KHR_mesh_quantization`。** 位置や UV が整数になる。gltfpack はデクオンタイズをノードの TRS（位置）と `KHR_texture_transform`（UV）に移すので、UV の変換も読む必要がある
+1. **normalized 整数の accessor を読む（対応済み）。** `read_accessor_floats` が `BYTE` / `UNSIGNED_BYTE` / `SHORT` / `UNSIGNED_SHORT` を読み、`normalized` なら glTF 2.0 の規則で float に戻す。`KHR_mesh_quantization` が許す normalized でない整数はそのまま値として返す
+2. **`KHR_mesh_quantization` の残り。** 位置のデクオンタイズは gltfpack がノードの TRS に移すので、1 だけでシーングラフとしては正しい位置に出る（下の画像）。ただしノードを無視して頂点をまとめる `mesh_from_gltf` / `meshes_from_gltf` ではスケールが戻らない。UV のデクオンタイズは `KHR_texture_transform` に移るが、これはまだ読んでいない
 3. **`EXT_meshopt_compression`。** bufferView の拡張から圧縮済み範囲を読み、`ATTRIBUTES` / `TRIANGLES` / `INDICES` モードと `OCTAHEDRAL` / `QUATERNION` / `EXPONENTIAL` / `COLOR` フィルタを復号して、元の bufferView のバイト列を作る。復号後は 1 と 2 の経路に流れる
+
+### 量子化済み GLB の読み込み（1 の確認）
+
+trellis チェスト（467,523 三角形）を `engine/gltf` の `scene_graph_from_gltf` で読み、ノードのワールド変換を掛けた三角形を z バッファ + Lambert で CPU ラスタライズした。これは確認用の描画で、kagura のレンダラーの出力ではない。法線は頂点法線の平均で陰影を付けているので、法線の復号結果が画に出る。
+
+![左: 元の float GLB / 中: gltfpack 既定出力を変更前のローダーで読んだもの / 右: 同じファイルを変更後のローダーで読んだもの](quantized-load-comparison.png)
+
+| | 入力 | 結果 |
+|---|---|---|
+| 左 | 元の GLB（15,100 KiB、FLOAT） | 467,523 三角形。変更の前後で出力バイトが一致 |
+| 中 | `gltfpack` 既定（10,530 KiB、`POSITION` が `UNSIGNED_SHORT`、`NORMAL` が normalized `BYTE`、`TEXCOORD_0` が normalized `UNSIGNED_SHORT`）を変更前に読んだもの | `UnsupportedComponentType` で何も読めない |
+| 右 | 同じファイルを変更後に読んだもの | 467,523 三角形。左と比べて前景 67,411 px のうち 21,867 px が変わるが、21,790 px は 2/255 以下（法線の 8bit 化）で、2/255 を超えるのは 77 px（位置の 16bit 化による輪郭の揺れ） |
+
+スキン付きの読み込み（`skinned_scene_from_gltf`）も確かめた。`MAT4` の accessor を 1 要素として数えていたので、逆バインド行列を持つファイルは量子化と関係なく落ちていた。
+
+| ファイル | 変更前 | 変更後 |
+|---|---|---|
+| `RiggedFigure.glb`（元） | panic（`MAT4` の要素数） | 370 頂点、19 ボーン、クリップ 1 |
+| `RiggedSimple.glb`（元） | panic（`MAT4` の要素数） | 160 頂点、2 ボーン、クリップ 1 |
+| `RiggedFigure` の `gltfpack -noq` | panic | 316 頂点、weight の合計と 1 の差の最大値 1.1e-16 |
+| `RiggedFigure` の `gltfpack` 既定 | `UnsupportedComponentType` | 312 頂点、weight の合計と 1 の差の最大値 1.1e-16 |
 
 3 のデコーダをどこに置くかは 2 通りある。
 

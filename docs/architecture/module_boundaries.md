@@ -118,6 +118,7 @@ module 内に置く。共通 prebuild 変数を同じ module で解決できる�
 | JS オブジェクトとの変換 | `game/inventory_web` |
 | Timeline・再生時間の進行 | `core/anim3d/playback` |
 | 矩形パッキング・粒子の運動・統計 | `core/packing2d`、`core/particle3d`、`core/statistics` |
+| meshoptimizer の頂点・index 復号（glTF の `EXT_meshopt_compression`） | `core/meshopt`（`engine/gltf` が使用） |
 | 粒子の描画・sprite と atlas の対応付け | `engine/particle3d`、`engine/sprite_packer`、`engine/animation2d` |
 
 再生時間は独立 anim3d module 内に置き、core root → anim3d の既存依存を逆転させない。

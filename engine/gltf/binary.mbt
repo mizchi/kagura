@@ -4,6 +4,26 @@ fn read_u16_le(buf : Bytes, offset : Int) -> Int {
 }
 
 ///|
+fn read_i8(buf : Bytes, offset : Int) -> Int {
+  let v = buf[offset].to_int()
+  if v >= 0x80 {
+    v - 0x100
+  } else {
+    v
+  }
+}
+
+///|
+fn read_i16_le(buf : Bytes, offset : Int) -> Int {
+  let v = read_u16_le(buf, offset)
+  if v >= 0x8000 {
+    v - 0x10000
+  } else {
+    v
+  }
+}
+
+///|
 fn read_u32_le(buf : Bytes, offset : Int) -> Int {
   buf[offset].to_int() |
   (buf[offset + 1].to_int() << 8) |

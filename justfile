@@ -174,6 +174,10 @@ iron-yard-editor-build: iron-yard-build
 iron-yard-simd:
     node examples/games/iron_yard/experiments/simd/bench.mjs
 
+# Encode Iron Yard's converted batches with meshoptimizer; report size, decode time, error.
+iron-yard-meshopt:
+    node examples/games/iron_yard/experiments/meshopt/bench.mjs
+
 # Price Wasm SIMD and relaxed SIMD against the scalar 3D contact solve.
 # Needs `wabt` from npm (not a repo dependency): npm install --no-save wabt
 physics-simd:

@@ -5,11 +5,45 @@ fn component_count(type_ : String) -> Int {
     "VEC2" => 2
     "VEC3" => 3
     "VEC4" => 4
+    "MAT2" => 4
+    "MAT3" => 9
+    "MAT4" => 16
     _ => 1
   }
 }
 
 ///|
+/// Read one integer component as a float. Normalized values follow the
+/// glTF 2.0 decoding rules (signed: `max(c / (2^(b-1) - 1), -1)`, unsigned:
+/// `c / (2^b - 1)`). Non-normalized integers, which KHR_mesh_quantization
+/// allows for attributes, are returned as-is.
+fn read_integer_component(
+  buf : Bytes,
+  offset : Int,
+  component_type : Int,
+  normalized : Bool,
+) -> Double {
+  let (value, scale) = match component_type {
+    5120 => (read_i8(buf, offset), 127.0)
+    5121 => (buf[offset].to_int(), 255.0)
+    5122 => (read_i16_le(buf, offset), 32767.0)
+    _ => (read_u16_le(buf, offset), 65535.0)
+  }
+  let v = value.to_double()
+  if !normalized {
+    v
+  } else if v / scale < -1.0 {
+    -1.0
+  } else {
+    v / scale
+  }
+}
+
+///|
+/// Read an accessor as floats. Accepts FLOAT and the (normalized) BYTE /
+/// UNSIGNED_BYTE / SHORT / UNSIGNED_SHORT forms that glTF allows for
+/// weights, colors, texture coordinates and animation samplers, and that
+/// quantizing exporters such as gltfpack emit.
 fn read_accessor_floats(
   doc : GltfDocument,
   accessor_index : Int,
@@ -35,18 +69,27 @@ fn read_accessor_floats(
   let total = acc.count * comp_count
   let result : Array[Double] = Array::make(total, 0.0)
   let base_offset = bv.byte_offset + acc.byte_offset
-  let default_stride = comp_count * 4
-  let stride = if bv.byte_stride > 0 { bv.byte_stride } else { default_stride }
-  match acc.component_type {
-    5126 =>
-      // FLOAT
-      for i in 0..<acc.count {
-        let elem_offset = base_offset + i * stride
-        for j in 0..<comp_count {
-          result[i * comp_count + j] = read_f32_le(buf, elem_offset + j * 4)
-        }
-      }
+  let comp_size = match acc.component_type {
+    5120 | 5121 => 1 // BYTE, UNSIGNED_BYTE
+    5122 | 5123 => 2 // SHORT, UNSIGNED_SHORT
+    5126 => 4 // FLOAT
     _ => raise GltfError::UnsupportedComponentType(acc.component_type)
+  }
+  let stride = if bv.byte_stride > 0 {
+    bv.byte_stride
+  } else {
+    comp_count * comp_size
+  }
+  for i in 0..<acc.count {
+    let elem_offset = base_offset + i * stride
+    for j in 0..<comp_count {
+      let offset = elem_offset + j * comp_size
+      result[i * comp_count + j] = if acc.component_type == 5126 {
+        read_f32_le(buf, offset)
+      } else {
+        read_integer_component(buf, offset, acc.component_type, acc.normalized)
+      }
+    }
   }
   result
 }

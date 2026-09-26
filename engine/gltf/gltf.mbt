@@ -6,7 +6,7 @@ pub fn mesh_from_gltf(
   let root = @json.parse(source) catch {
     _ => raise GltfError::ParseError("invalid JSON")
   }
-  let doc = parse_document(root)
+  let (doc, buffers) = decompress_buffer_views(parse_document(root), buffers)
   if doc.meshes.is_empty() {
     return @mesh3d.Mesh3D::new([], [])
   }
@@ -33,7 +33,7 @@ pub fn meshes_from_gltf(
   let root = @json.parse(source) catch {
     _ => raise GltfError::ParseError("invalid JSON")
   }
-  let doc = parse_document(root)
+  let (doc, buffers) = decompress_buffer_views(parse_document(root), buffers)
   let result : Array[@mesh3d.Mesh3D] = []
   for i in 0..<doc.meshes.length() {
     result.push(build_mesh(doc, i, buffers))
@@ -50,7 +50,7 @@ pub fn scene_graph_from_gltf(
   let root = @json.parse(source) catch {
     _ => raise GltfError::ParseError("invalid JSON")
   }
-  let doc = parse_document(root)
+  let (doc, buffers) = decompress_buffer_views(parse_document(root), buffers)
   let idx = match scene_index {
     Some(i) => i
     None => doc.default_scene
@@ -74,7 +74,7 @@ pub fn skinned_scene_from_gltf(
   let root = @json.parse(source) catch {
     _ => raise GltfError::ParseError("invalid JSON")
   }
-  let doc = parse_document(root)
+  let (doc, buffers) = decompress_buffer_views(parse_document(root), buffers)
   let idx = match scene_index {
     Some(i) => i
     None => doc.default_scene

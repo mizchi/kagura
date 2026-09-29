@@ -1,9 +1,16 @@
 ///|
-extern "js" fn register(
-  load : (String, String, Array[Bytes], String) -> String,
+extern "js" fn register_ffi(
+  load : (String, String, FixedArray[Bytes], String) -> String,
   reset : () -> Unit,
 ) -> Unit =
   #| (load, reset) => { globalThis.kaguraModel = Object.freeze({apiVersion: 1, load: (...args) => JSON.parse(load(...args)), reset}); }
+
+fn register(
+  load : (String, String, Array[Bytes], String) -> String,
+  reset : () -> Unit,
+) -> Unit {
+  register_ffi(fn(__a1, __a2, __a3, __a4) { load(__a1, __a2, Array::from_fixed_array(__a3), __a4) }, reset)
+}
 
 ///|
 fn main {

@@ -13,7 +13,8 @@ pub fn Game::view(self : Game) -> @scene.SceneNode {
       Battle =>
         match run.battle {
           Some(state) =>
-            if state.phase == Victory || state.phase == Defeat {
+            if (state.phase == Victory || state.phase == Defeat) &&
+              !self.keep_battlefield() {
               nodes.push(
                 view_result(
                   l,
@@ -55,14 +56,24 @@ pub fn Game::view(self : Game) -> @scene.SceneNode {
         )
     }
   }
-  nodes.push(view_header(run, l))
+  nodes.push(self.view_header(run, l))
+  nodes.push(self.view_screen_fade())
   @scene.fragment(nodes)
 }
 
 ///|
-fn view_header(run : RunState, l : GameLayout) -> @scene.SceneNode {
+fn Game::view_header(
+  self : Game,
+  run : RunState,
+  l : GameLayout,
+) -> @scene.SceneNode {
   let hp = match run.battle {
-    Some(b) => if run.phase == Battle { b.player.hp } else { run.player_hp }
+    Some(b) =>
+      if run.phase == Battle {
+        self.shown_hp(b.player, -1)
+      } else {
+        run.player_hp
+      }
     None => run.player_hp
   }
   @scene.fragment([
@@ -144,8 +155,13 @@ fn view_route(run : RunState, l : GameLayout) -> @scene.SceneNode {
 fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
   let l = self.layout
   let selected = self.selected_card.get()
-  let dragging = self.gesture is Some({ dragged: true, .. })
-  let hovered = hit_card(l, state.hand.length(), self.cursor_x, self.cursor_y)
+  let dragging = self.drag.snapshot() is Some({ dragging: true, .. })
+  let busy = self.presentation is Some(_)
+  let hovered = if busy {
+    -1
+  } else {
+    hit_card(l, state.hand.length(), self.cursor_x, self.cursor_y)
+  }
   let nodes : Array[@scene.SceneNode] = [view_route(self.run.get(), l)]
   let area = l.play_area()
   nodes.push(@scene.rect(x=area.x, y=area.y, w=area.w, h=area.h, fill=0x1A2533))
@@ -162,7 +178,8 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
     )
   }
   let player = l.player_rect()
-  let count = state.hand.length()
+  let outcome = self.presentation is Some({ step: BattleOutcome(_), .. })
+  let count = if outcome { 0 } else { state.hand.length() }
   let crowded = count > 1 &&
     l.card_rect(1, count).x - l.card_rect(0, count).x <
     l.card_rect(0, count).w - 8.0
@@ -170,12 +187,12 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
   if inspecting {
     nodes.push(view_card_detail(state.hand[hovered], area))
   } else {
-    nodes.push(view_player(state, player))
+    nodes.push(self.view_player(state, player))
     for i = 0; i < state.enemies.length(); i = i + 1 {
-      if !state.enemies[i].fighter.is_dead() {
+      if self.show_enemy(state.enemies[i].fighter, i) {
         let enemy = state.enemies[i]
         nodes.push(
-          view_enemy(
+          self.view_enemy(
             enemy,
             l.enemy_rect(i, state.enemies.length()),
             i,
@@ -252,7 +269,20 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
       color=muted_ink,
     ),
   )
-  nodes.push(ui_button("end_turn_btn", l.end_turn_rect(), "END TURN"))
+  nodes.push(
+    ui_button(
+      "end_turn_btn",
+      l.end_turn_rect(),
+      if state.phase == EnemyTurn {
+        "ENEMY TURN"
+      } else if busy {
+        "WAIT"
+      } else {
+        "END TURN"
+      },
+      accent=if busy { muted_ink } else { gold },
+    ),
+  )
   if l.h >= 440.0 {
     let log = if state.logs.length() > 0 {
       state.logs[state.logs.length() - 1]
@@ -274,9 +304,11 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
   for i = 0; i < count; i = i + 1 {
     if !(dragging && selected == i) {
       let r = l.card_rect(i, count)
+      let draw_offset = self.draw_card_offset(i)
       let raised : UiRect = {
         ..r,
-        y: r.y -
+        y: r.y +
+        draw_offset -
         (if !crowded && (i == selected || i == hovered) { 8.0 } else { 0.0 }),
       }
       nodes.push(
@@ -304,7 +336,7 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
     )
     nodes.push(
       @scene.line(
-        x0=self.gesture.unwrap().start_x,
+        x0=self.drag.snapshot().unwrap().start_x,
         y0=l.hand_y,
         x1=self.cursor_x,
         y1=self.cursor_y,
@@ -333,7 +365,8 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
       ),
     )
   }
-  let hint = if selected >= 0 {
+  nodes.push(self.view_combat_effects(state))
+  let hint = if busy || selected >= 0 {
     self.hint
   } else if hovered >= 0 && !can_play_card(state, hovered) {
     "NOT ENOUGH ENERGY"
@@ -357,26 +390,41 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
 }
 
 ///|
-fn view_player(state : BattleState, r : UiRect) -> @scene.SceneNode {
+fn Game::view_player(
+  self : Game,
+  state : BattleState,
+  r : UiRect,
+) -> @scene.SceneNode {
   let p = state.player
   let compact = r.h < 110.0
+  let pose = self.actor_pose(p, -1)
+  let hero_color = self.actor_color(p, -1, 0xC98A65)
   let nodes : Array[@scene.SceneNode] = [
     ui_text("name", r.w / 2.0, 13.0, "IRONCLAD", scale=0.7, color=cyan),
-    ui_meter("hp_bar", 10.0, r.h - 23.0, r.w - 20.0, p.hp, p.max_hp, 0x86453D),
+    ui_meter(
+      "hp_bar",
+      10.0,
+      r.h - 23.0,
+      r.w - 20.0,
+      self.shown_hp(p, -1),
+      p.max_hp,
+      0x86453D,
+    ),
   ]
   if !compact {
     nodes.push(
       pixel_actor(
         "hero",
-        r.w / 2.0 - 27.0,
-        34.0,
+        r.w / 2.0 - (if r.h < 150.0 { 21.0 } else { 27.0 }) + pose.x,
+        34.0 + pose.y,
         if r.h < 150.0 {
           42.0
         } else {
           54.0
         },
-        0xC98A65,
+        hero_color,
         false,
+        alpha=self.actor_alpha(p),
       ),
     )
     nodes.push(
@@ -395,7 +443,15 @@ fn view_player(state : BattleState, r : UiRect) -> @scene.SceneNode {
     )
   } else {
     nodes.push(
-      pixel_actor("hero", r.w / 2.0 - 7.0, 22.0, 14.0, 0xC98A65, false),
+      pixel_actor(
+        "hero",
+        r.w / 2.0 - 7.0 + pose.x,
+        22.0 + pose.y,
+        14.0,
+        hero_color,
+        false,
+        alpha=self.actor_alpha(p),
+      ),
     )
     nodes.push(
       fit_text(
@@ -428,23 +484,28 @@ fn view_player(state : BattleState, r : UiRect) -> @scene.SceneNode {
 }
 
 ///|
-fn view_enemy(
+fn Game::view_enemy(
+  self : Game,
   enemy : Enemy,
   r : UiRect,
   index : Int,
   targeted : Bool,
 ) -> @scene.SceneNode {
-  let intent = match enemy.intent {
-    AttackIntent(n) =>
-      "ATTACK " + (n + enemy.fighter.status.strength).to_string()
-    MultiAttack(n, t) =>
-      "ATK " +
-      (n + enemy.fighter.status.strength).to_string() +
-      " X" +
-      t.to_string()
-    DefendIntent(n) => "BLOCK " + n.to_string()
-    BuffIntent => "BUFF"
-    DebuffIntent => "DEBUFF"
+  let intent = if enemy.fighter.is_dead() {
+    "DEFEATED"
+  } else {
+    match self.shown_intent(enemy, index) {
+      AttackIntent(n) =>
+        "ATTACK " + (n + enemy.fighter.status.strength).to_string()
+      MultiAttack(n, t) =>
+        "ATK " +
+        (n + enemy.fighter.status.strength).to_string() +
+        " X" +
+        t.to_string()
+      DefendIntent(n) => "BLOCK " + n.to_string()
+      BuffIntent => "BUFF"
+      DebuffIntent => "DEBUFF"
+    }
   }
   let nodes : Array[@scene.SceneNode] = [
     fit_text(
@@ -469,7 +530,7 @@ fn view_enemy(
       8.0,
       r.h - 28.0,
       r.w - 16.0,
-      enemy.fighter.hp,
+      self.shown_hp(enemy.fighter, index),
       enemy.fighter.max_hp,
       0x86453D,
     ),
@@ -488,24 +549,30 @@ fn view_enemy(
       color=muted_ink,
     ),
   ]
+  let pose = self.actor_pose(enemy.fighter, index)
   let sprite_size = ui_min(48.0, ui_max(0.0, r.h - 72.0))
   if sprite_size > 0.0 {
     nodes.push(
       pixel_actor(
         "foe",
-        r.w / 2.0 - sprite_size / 2.0,
+        r.w / 2.0 - sprite_size / 2.0 + pose.x,
         if r.h >= 130.0 {
-          48.0
+          48.0 + pose.y
         } else {
-          40.0
+          40.0 + pose.y
         },
         sprite_size,
-        if enemy.fighter.status.vulnerable > 0 {
-          0xE1997E
-        } else {
-          0xB2829B
-        },
+        self.actor_color(
+          enemy.fighter,
+          index,
+          if enemy.fighter.status.vulnerable > 0 {
+            0xE1997E
+          } else {
+            0xB2829B
+          },
+        ),
         true,
+        alpha=self.actor_alpha(enemy.fighter),
       ),
     )
   }
@@ -524,12 +591,13 @@ fn view_enemy(
 
 ///|
 fn pixel_actor(
-  _key : String,
+  key : String,
   x : Double,
   y : Double,
   size : Double,
   color : Int,
   monster : Bool,
+  alpha? : Double = 1.0,
 ) -> @scene.SceneNode {
   let pattern = if monster {
     [
@@ -549,17 +617,18 @@ fn pixel_actor(
       if pattern[row][col] == '1' {
         nodes.push(
           @scene.rect(
-            x=x + col.to_double() * p,
-            y=y + row.to_double() * p,
+            x=col.to_double() * p,
+            y=row.to_double() * p,
             w=p,
             h=p,
             fill=color,
+            alpha~,
           ),
         )
       }
     }
   }
-  @scene.fragment(nodes)
+  @scene.rect(key~, x~, y~, w=size, h=size, alpha=0.0, children=nodes)
 }
 
 ///|

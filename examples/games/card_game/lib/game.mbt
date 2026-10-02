@@ -904,8 +904,8 @@ fn trigger_exhaust(state : BattleState) -> Unit {
 }
 
 ///|
-/// End the player's turn
-pub fn end_player_turn(state : BattleState) -> Unit {
+/// Begin the enemy phase without executing any intents.
+fn begin_enemy_turn(state : BattleState) -> Unit {
   if state.phase != PlayerTurn {
     return
   }
@@ -954,35 +954,48 @@ pub fn end_player_turn(state : BattleState) -> Unit {
   tick_status_effects(state.player)
   // Enemy turn
   state.phase = EnemyTurn
-  execute_enemy_turn(state)
-  // Check for defeat
-  if state.player.is_dead() {
-    state.phase = Defeat
-    state.logs.push("You have been defeated...")
-    return
-  }
-  // Start next player turn
-  start_player_turn(state)
 }
 
 ///|
-/// Execute all enemy actions
-fn execute_enemy_turn(state : BattleState) -> Unit {
-  let mut i = 0
-  while i < state.enemies.length() {
-    let enemy = state.enemies[i]
-    if !enemy.fighter.is_dead() {
-      let enemy_logs = execute_enemy_intent(enemy, state.player)
-      for log in enemy_logs {
-        state.logs.push(log)
-      }
-      // Tick enemy status effects
-      tick_status_effects(enemy.fighter)
-      // Reset enemy block
-      reset_block(enemy.fighter)
-    }
-    i += 1
+/// Execute exactly one living enemy. The presentation layer controls pacing.
+fn execute_enemy_action(state : BattleState, index : Int) -> Unit {
+  if state.phase != EnemyTurn || index < 0 || index >= state.enemies.length() {
+    return
   }
+  let enemy = state.enemies[index]
+  if enemy.fighter.is_dead() {
+    return
+  }
+  for log in execute_enemy_intent(enemy, state.player) {
+    state.logs.push(log)
+  }
+  tick_status_effects(enemy.fighter)
+  reset_block(enemy.fighter)
+  if state.player.is_dead() {
+    state.phase = Defeat
+    state.logs.push("You have been defeated...")
+  }
+}
+
+///|
+fn finish_enemy_turn(state : BattleState) -> Unit {
+  if state.phase == EnemyTurn {
+    start_player_turn(state)
+  }
+}
+
+///|
+/// Synchronous rules API for simulations and balance tests.
+/// Interactive play uses the same steps with presentation pauses between them.
+pub fn end_player_turn(state : BattleState) -> Unit {
+  if state.phase != PlayerTurn {
+    return
+  }
+  begin_enemy_turn(state)
+  for index in 0..<state.enemies.length() {
+    execute_enemy_action(state, index)
+  }
+  finish_enemy_turn(state)
 }
 
 ///|

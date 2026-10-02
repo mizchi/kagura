@@ -31,6 +31,39 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
       run.player_hp = 0
     }
     "battle_victory" => run.battle.unwrap().phase = Victory
+    "card_impact" | "block_effect" => {
+      let b = run.battle.unwrap()
+      b.hand[0] = if name == "block_effect" { Defend } else { Strike }
+      game.commit_card(b, 0, 1)
+    }
+    "enemy_windup" => {
+      let b = run.battle.unwrap()
+      begin_enemy_turn(b)
+      game.present(EnemyWindup(1))
+      game.hint = "RED LOUSE ACTS"
+    }
+    "enemy_impact" => {
+      let b = run.battle.unwrap()
+      begin_enemy_turn(b)
+      let before = CombatFeedback::capture(b)
+      execute_enemy_action(b, 1)
+      game.present(EnemyImpact(1, before))
+      game.hint = "RED LOUSE ACTS"
+    }
+    "draw_hand" => {
+      let b = run.battle.unwrap()
+      end_player_turn(b)
+      game.present(DrawHand)
+      game.hint = "YOUR TURN"
+    }
+    "battle_outcome" => {
+      let b = run.battle.unwrap()
+      for enemy in b.enemies {
+        enemy.fighter.hp = 0
+      }
+      b.phase = Victory
+      game.present(BattleOutcome([0, 1]))
+    }
     "deck" => game.deck_open = true
     "large_hand" | "inspect_card" => {
       let b = run.battle.unwrap()
@@ -72,13 +105,29 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
       let card = game.layout.card_rect(0, b.hand.length())
       let target = game.layout.player_rect()
       game.selected_card.set(0)
-      game.gesture = Some({
-        index: 0,
-        start_x: card.x + 12.0,
-        start_y: card.y + 30.0,
-        touch_id: None,
-        dragged: true,
-      })
+      let source_at = fn(x, y) { game.drag_source_at(x, y) }
+      let target_at = fn(source, x, y) { game.drag_target_at(source, x, y) }
+      let _ = game.drag.handle_pointer(
+        @ui.UIPointerFrame::new(
+          Mouse,
+          card.x + 12.0,
+          card.y + 30.0,
+          pressed=true,
+          down=true,
+        ),
+        source_at~,
+        target_at~,
+      )
+      let _ = game.drag.handle_pointer(
+        @ui.UIPointerFrame::new(
+          Mouse,
+          target.x + target.w / 2.0,
+          target.y + target.h / 2.0,
+          down=true,
+        ),
+        source_at~,
+        target_at~,
+      )
       game.cursor_x = target.x + target.w / 2.0
       game.cursor_y = target.y + target.h / 2.0
       game.hint = "DROP ON THE BATTLEFIELD"

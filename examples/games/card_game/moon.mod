@@ -6,6 +6,7 @@ warnings = "-6-29-53-68-deprecated"
 
 import {
   "mizchi/kagura_engine@0.6.0",
+  "mizchi/kagura_ui@0.6.0",
   "mizchi/signals@0.6.5",
   "mizchi/web_runtime_hooks@0.6.0",
   "mizchi/kagura_game@0.6.0",

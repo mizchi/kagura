@@ -1,11 +1,8 @@
 ///|
-struct CardGesture {
-  index : Int
-  start_x : Double
-  start_y : Double
-  touch_id : Int?
-  mut dragged : Bool
-}
+let enemy_drag_id_base : Int = 1000
+
+///|
+let battlefield_drag_id : Int = 2000
 
 ///|
 /// Transient input state is separate from persistent combat/run rules.
@@ -18,15 +15,21 @@ pub struct Game {
   mut cursor_x : Double
   mut cursor_y : Double
   mut need_target : Bool
-  mut gesture : CardGesture?
+  drag : @ui.UIDragController
   mut hint : String
   mut deck_open : Bool
   mut deck_page : Int
+  mut presentation : Presentation?
+  mut last_frame_ms : Double?
+  mut reduced_motion : Bool
 }
 
 ///|
 pub impl @scene.SceneGame for Game with fn update_game(self, input) {
-  self.update(self.surface_input(input))
+  if prefers_reduced_motion() is Some(reduced) {
+    self.reduced_motion = reduced
+  }
+  self.update(self.surface_input(input), elapsed_ms=self.frame_delta())
 }
 
 ///|
@@ -48,10 +51,13 @@ pub fn Game::new() -> Game {
     cursor_x: -1.0,
     cursor_y: -1.0,
     need_target: false,
-    gesture: None,
+    drag: @ui.UIDragController::new(),
     hint: "DRAG A CARD TO PLAY",
     deck_open: false,
     deck_page: 0,
+    presentation: None,
+    last_frame_ms: None,
+    reduced_motion: false,
   }
 }
 
@@ -65,10 +71,13 @@ pub fn Game::set_viewport(self : Game, width : Int, height : Int) -> Unit {
 
 ///|
 pub fn Game::snapshot_state(self : Game) -> String {
+  if self.presentation_state() is Some(state) {
+    return state
+  }
   if self.deck_open {
     return "deck"
   }
-  if self.gesture is Some({ dragged: true, .. }) {
+  if self.drag.snapshot() is Some({ dragging: true, .. }) {
     return "dragging"
   }
   match self.run.get().phase {
@@ -87,7 +96,7 @@ pub fn Game::snapshot_state(self : Game) -> String {
 
 ///|
 fn Game::cancel_card(self : Game) -> Unit {
-  self.gesture = None
+  let _ = self.drag.cancel()
   self.selected_card.set(-1)
   self.target_enemy.set(-1)
   self.need_target = false
@@ -100,6 +109,16 @@ fn Game::commit_card(
   index : Int,
   target : Int,
 ) -> Unit {
+  let before = CombatFeedback::capture(state)
+  let flight = if index >= 0 && index < state.hand.length() {
+    Some({
+      card: state.hand[index],
+      slot: index,
+      hand_count: state.hand.length(),
+    })
+  } else {
+    None
+  }
   let result = play_card(state, index, target)
   self.hint = match result {
     Ok => "CARD PLAYED"
@@ -108,6 +127,9 @@ fn Game::commit_card(
     _ => "CANNOT PLAY THIS CARD"
   }
   self.cancel_card()
+  if result == Ok && flight is Some(flight) {
+    self.present(CardPlay(flight, before))
+  }
   self.run.set(self.run.get())
 }
 
@@ -134,51 +156,30 @@ fn deck_button_rect(layout : GameLayout) -> UiRect {
 }
 
 ///|
-pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
+pub fn Game::update(
+  self : Game,
+  input : @core.InputSnapshot,
+  elapsed_ms? : Double = 1000.0 / 60.0,
+) -> Unit {
   @inpututil.update_input_helper(self.input, input)
+  let events = self.drag.update(
+    input,
+    source_at=fn(x, y) { self.drag_source_at(x, y) },
+    target_at=fn(source, x, y) { self.drag_target_at(source, x, y) },
+    enabled=self.presentation is None && !self.deck_open,
+  )
+  let pointer = self.drag.pointer()
+  if pointer.x != -1.0 || pointer.y != -1.0 {
+    self.cursor_x = pointer.x
+    self.cursor_y = pointer.y
+  }
+  // Both input helpers consume edges while presentation locks gameplay.
+  if self.advance_presentation(elapsed_ms) {
+    return
+  }
   let keys = self.input.key_state
   let mouse = self.input.mouse_state
-  let previous_x = self.cursor_x
-  let previous_y = self.cursor_y
-  if input.cursor_x != -1.0 || input.cursor_y != -1.0 {
-    self.cursor_x = input.cursor_x
-    self.cursor_y = input.cursor_y
-  }
-  let mut pressed = @inputstate.is_mouse_button_just_pressed(mouse, 0)
-  let mut released = @inputstate.is_mouse_button_just_released(mouse, 0)
-  let mut down = @inputstate.is_mouse_button_pressed(mouse, 0)
-  let mut touch_id : Int? = None
-  // A gesture owns its touch; a second finger must not retarget it.
-  let active_touch = match self.gesture {
-    Some(g) => g.touch_id
-    None => None
-  }
-  if active_touch is Some(id) {
-    let mut found = false
-    for touch in input.touches {
-      if touch.id == id {
-        self.cursor_x = touch.x
-        self.cursor_y = touch.y
-        down = true
-        found = true
-      }
-    }
-    released = !found
-    if !found {
-      self.cursor_x = previous_x
-      self.cursor_y = previous_y
-    }
-  } else if input.touches.length() > 0 {
-    let touch = input.touches[0]
-    self.cursor_x = touch.x
-    self.cursor_y = touch.y
-    touch_id = Some(touch.id)
-    pressed = @inputstate.is_touch_just_pressed(
-      self.input.touch_state,
-      touch.id,
-    )
-    down = true
-  }
+  let pressed = pointer.pressed
   let cx = self.cursor_x
   let cy = self.cursor_y
   let escape = @inputstate.is_key_just_pressed(keys, 27) ||
@@ -216,16 +217,11 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
   match run.phase {
     RunVictory | RunDefeat =>
       if confirm || (pressed && self.layout.continue_rect().contains(cx, cy)) {
-        self.run.set(RunState::new(seed=run.rng_seed + 1))
-        self.cancel_card()
-        self.hint = "DRAG A CARD TO PLAY"
+        self.travel(Restart(run.rng_seed + 1))
       }
     RestSite =>
       if confirm || (pressed && self.layout.continue_rect().contains(cx, cy)) {
-        rest_heal(run)
-        self.run.set(run)
-        self.cancel_card()
-        self.hint = "RESTORED AND READY"
+        self.travel(Rest)
       }
     CardReward => {
       let mut choice = -2
@@ -245,10 +241,7 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
         choice = -1
       }
       if choice >= -1 {
-        pick_card_reward(run, choice)
-        self.run.set(run)
-        self.cancel_card()
-        self.hint = "DRAG A CARD TO PLAY"
+        self.travel(ChooseReward(choice))
       }
     }
     Battle =>
@@ -259,13 +252,7 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
             Victory | Defeat =>
               if confirm ||
                 (pressed && self.layout.continue_rect().contains(cx, cy)) {
-                if state.phase == Victory {
-                  on_battle_victory(run)
-                } else {
-                  on_battle_defeat(run)
-                }
-                self.run.set(run)
-                self.cancel_card()
+                self.travel(ContinueBattle)
               }
             EnemyTurn => self.cancel_card()
             PlayerTurn => {
@@ -273,18 +260,21 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
                 (
                   pressed &&
                   self.layout.end_turn_rect().contains(cx, cy) &&
-                  self.gesture is None
+                  self.drag.snapshot() is None
                 ) {
                 self.cancel_card()
-                end_player_turn(state)
+                begin_enemy_turn(state)
+                self.present(EnemyNotice)
                 self.run.set(run)
-                self.hint = "NEW TURN"
+                self.hint = "ENEMY TURN"
                 return
               }
+              let mut keyboard_selected = false
               for i = 0; i < ui_min(state.hand.length(), 9); i = i + 1 {
                 if @inputstate.is_key_just_pressed(keys, 49 + i) {
                   self.cancel_card()
                   self.select_card(state, i)
+                  keyboard_selected = true
                 }
               }
               if self.need_target &&
@@ -321,6 +311,9 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
                 )
                 return
               }
+              if keyboard_selected {
+                return
+              }
               if pressed {
                 if self.need_target {
                   let target = hit_enemy(self.layout, state, cx, cy)
@@ -331,16 +324,8 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
                 }
                 let index = hit_card(self.layout, state.hand.length(), cx, cy)
                 if index >= 0 {
-                  self.cancel_card()
                   self.select_card(state, index)
                   if can_play_card(state, index) {
-                    self.gesture = Some({
-                      index,
-                      start_x: cx,
-                      start_y: cy,
-                      touch_id,
-                      dragged: false,
-                    })
                     self.hint = if self.need_target {
                       "DROP ON AN ENEMY"
                     } else {
@@ -351,36 +336,55 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
                   self.cancel_card()
                 }
               }
-              if self.gesture is Some(g) {
-                let dx = cx - g.start_x
-                let dy = cy - g.start_y
-                if dx * dx + dy * dy >= 64.0 {
-                  g.dragged = true
-                }
-                if g.dragged && down {
-                  self.target_enemy.set(hit_enemy(self.layout, state, cx, cy))
-                }
-                if released {
-                  if g.dragged {
-                    let target = if card_needs_target(state.hand[g.index]) {
-                      hit_enemy(self.layout, state, cx, cy)
-                    } else if self.layout.play_area().contains(cx, cy) {
-                      0
-                    } else {
-                      -1
+              for event in events {
+                match event {
+                  @ui.UIEvent::Click(source) =>
+                    if source.value == self.selected_card.get() &&
+                      (!self.need_target || alive_enemy_count(state) == 1) {
+                      self.commit_card(
+                        state,
+                        source.value,
+                        first_alive_enemy(state),
+                      )
+                      return
                     }
-                    if target >= 0 {
-                      self.commit_card(state, g.index, target)
-                    } else {
-                      self.cancel_card()
-                      self.hint = "CANCELLED - CARD RETURNED"
+                  @ui.UIEvent::Drag(drag) =>
+                    match drag.phase {
+                      @ui.UIDragPhase::Start | Move | Enter =>
+                        self.target_enemy.set(
+                          match drag.target {
+                            Some(id) =>
+                              if id.value >= enemy_drag_id_base &&
+                                id.value < battlefield_drag_id {
+                                id.value - enemy_drag_id_base
+                              } else {
+                                -1
+                              }
+                            None => -1
+                          },
+                        )
+                      Leave => self.target_enemy.set(-1)
+                      Drop =>
+                        if drag.source.value == self.selected_card.get() &&
+                          drag.target is Some(id) {
+                          self.commit_card(
+                            state,
+                            drag.source.value,
+                            if id.value == battlefield_drag_id {
+                              0
+                            } else {
+                              id.value - enemy_drag_id_base
+                            },
+                          )
+                          return
+                        }
+                      Cancel(_) => {
+                        self.cancel_card()
+                        self.hint = "CANCELLED - CARD RETURNED"
+                      }
+                      End(_) => ()
                     }
-                  } else {
-                    self.gesture = None
-                    if !self.need_target || alive_enemy_count(state) == 1 {
-                      self.commit_card(state, g.index, first_alive_enemy(state))
-                    }
-                  }
+                  _ => ()
                 }
               }
             }
@@ -392,4 +396,48 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
 ///|
 fn deck_next_rect(layout : GameLayout) -> UiRect {
   { x: layout.w / 2.0 - 70.0, y: layout.h - 130.0, w: 140.0, h: 40.0, }
+}
+
+///|
+fn Game::drag_source_at(self : Game, x : Double, y : Double) -> @ui.UINodeId? {
+  let run = self.run.get()
+  if run.phase != Battle {
+    return None
+  }
+  guard run.battle is Some(state) else { return None }
+  if state.phase != PlayerTurn {
+    return None
+  }
+  let index = hit_card(self.layout, state.hand.length(), x, y)
+  if can_play_card(state, index) {
+    Some(@ui.UINodeId::new(index))
+  } else {
+    None
+  }
+}
+
+///|
+/// The shared UI handles gestures; acceptance and identities are game policy.
+fn Game::drag_target_at(
+  self : Game,
+  source : @ui.UINodeId,
+  x : Double,
+  y : Double,
+) -> @ui.UINodeId? {
+  guard self.run.get().battle is Some(state) else { return None }
+  if !can_play_card(state, source.value) {
+    return None
+  }
+  if card_needs_target(state.hand[source.value]) {
+    let enemy = hit_enemy(self.layout, state, x, y)
+    if enemy >= 0 {
+      Some(@ui.UINodeId::new(enemy_drag_id_base + enemy))
+    } else {
+      None
+    }
+  } else if self.layout.play_area().contains(x, y) {
+    Some(@ui.UINodeId::new(battlefield_drag_id))
+  } else {
+    None
+  }
 }

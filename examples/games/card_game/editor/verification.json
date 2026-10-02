@@ -98,6 +98,42 @@
       "initialState": "inspect_card",
       "expectedState": "battle",
       "expectedFocus": null
+    },
+    "card_impact": {
+      "frames": 10,
+      "initialState": "card_impact",
+      "expectedState": "card_play",
+      "expectedFocus": null
+    },
+    "block_effect": {
+      "frames": 10,
+      "initialState": "block_effect",
+      "expectedState": "card_play",
+      "expectedFocus": null
+    },
+    "enemy_windup": {
+      "frames": 8,
+      "initialState": "enemy_windup",
+      "expectedState": "enemy_turn",
+      "expectedFocus": null
+    },
+    "enemy_impact": {
+      "frames": 8,
+      "initialState": "enemy_impact",
+      "expectedState": "enemy_turn",
+      "expectedFocus": null
+    },
+    "draw_hand": {
+      "frames": 8,
+      "initialState": "draw_hand",
+      "expectedState": "draw_hand",
+      "expectedFocus": null
+    },
+    "battle_outcome": {
+      "frames": 16,
+      "initialState": "battle_outcome",
+      "expectedState": "battle_outcome",
+      "expectedFocus": null
     }
   }
 }

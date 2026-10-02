@@ -17,6 +17,8 @@ options(
     "viewport_native.mbt": [ "native" ],
     "verification_debug.mbt": [ "debug" ],
     "verification_release.mbt": [ "release" ],
+    "preview_request_debug_js.mbt": [ "and", "js", "debug" ],
+    "preview_request_debug_native.mbt": [ "and", "native", "debug" ],
   },
   link: {
     "native": {

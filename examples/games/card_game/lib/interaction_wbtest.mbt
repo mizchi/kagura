@@ -76,7 +76,7 @@ test "dragging outside the battlefield cancels without consuming the card" {
   assert_eq(battle.player.energy, 3)
   assert_eq(battle.hand.length(), 3)
   assert_eq(game.selected_card.get(), -1)
-  assert_true(game.gesture is None)
+  assert_true(game.drag.snapshot() is None)
 }
 
 ///|
@@ -143,7 +143,7 @@ test "escape cancels an active drag even when the pointer is later released" {
   game.update(pointer_input(440.0, 160.0, false))
   assert_eq(b.player.energy, 3)
   assert_eq(b.hand.length(), 3)
-  assert_true(game.gesture is None)
+  assert_true(game.drag.snapshot() is None)
 }
 
 ///|
@@ -152,7 +152,7 @@ test "unaffordable cards cannot be dragged" {
   let b = game.run.get().battle.unwrap()
   b.player.energy = 0
   press_card(game, 0)
-  assert_true(game.gesture is None)
+  assert_true(game.drag.snapshot() is None)
   assert_eq(game.selected_card.get(), -1)
 }
 
@@ -177,7 +177,7 @@ test "X cost cards can be dragged with zero energy" {
   b.hand[0] = Whirlwind
   b.player.energy = 0
   press_card(game, 0)
-  assert_true(game.gesture is Some(_))
+  assert_true(game.drag.snapshot() is Some(_))
 }
 
 ///|
@@ -212,6 +212,7 @@ test "end turn clears selection and refills energy" {
   let b = game.run.get().battle.unwrap()
   game.update(key_input([49]))
   game.update(key_input([69]))
+  settle_presentation(game)
   assert_eq(b.turn, 2)
   assert_eq(b.player.energy, 3)
   assert_eq(game.selected_card.get(), -1)
@@ -238,6 +239,7 @@ test "reward selection grows the deck and advances the floor" {
   run.card_rewards.push(Inflame)
   let n = run.deck.length()
   game.update(key_input([49]))
+  settle_presentation(game)
   assert_eq(run.deck.length(), n + 1)
   assert_eq(run.deck[n], Inflame)
   assert_eq(run.floor, 2)
@@ -253,6 +255,7 @@ test "rest does not advance on an accidental background click" {
   game.update(pointer_input(2.0, 80.0, true))
   assert_eq(run.phase, RestSite)
   game.update(key_input([13]))
+  settle_presentation(game)
   assert_eq(run.player_hp, 60)
   assert_eq(run.floor, 6)
 }
@@ -342,9 +345,9 @@ test "resizing cancels the gesture and applying the same viewport preserves it" 
   let game = interaction_game()
   press_card(game, 0)
   game.set_viewport(640, 480)
-  assert_true(game.gesture is Some(_))
+  assert_true(game.drag.snapshot() is Some(_))
   game.set_viewport(360, 640)
-  assert_true(game.gesture is None)
+  assert_true(game.drag.snapshot() is None)
   assert_eq(game.run.get().battle.unwrap().player.energy, 3)
 }
 

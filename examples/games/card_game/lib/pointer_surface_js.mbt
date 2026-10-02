@@ -7,6 +7,34 @@ extern "js" fn surface_height(fallback : Double) -> Double =
   #| fallback => globalThis.document?.querySelector('#app')?.getBoundingClientRect().height || fallback
 
 ///|
+extern "js" fn host_presentation_clock_ms() -> Double =
+  #| () => globalThis.__kaguraHeadless ? -1 : (globalThis.performance?.now() ?? -1)
+
+///|
+fn presentation_clock_ms() -> Double? {
+  let now = host_presentation_clock_ms()
+  if now < 0.0 {
+    None
+  } else {
+    Some(now)
+  }
+}
+
+///|
+extern "js" fn host_reduced_motion() -> Int =
+  #| () => globalThis.matchMedia ? (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0) : -1
+
+///|
+fn prefers_reduced_motion() -> Bool? {
+  let preference = host_reduced_motion()
+  if preference < 0 {
+    None
+  } else {
+    Some(preference == 1)
+  }
+}
+
+///|
 fn Game::surface_input(
   self : Game,
   input : @core.InputSnapshot,

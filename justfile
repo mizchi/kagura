@@ -45,7 +45,14 @@ web-runtime-test: web-runtime-build
 card-game-dev:
     PORT=5196 node scripts/dev-server.mjs card_game
 
-card-game-test:
+# UI-owned mouse/touch normalization and reusable drag event lifecycle.
+ui-dnd-test:
+    moon -C engine/ui check . --target js --deny-warn
+    moon -C engine/ui test . --target js
+    moon -C engine/ui check . --target native --deny-warn
+    moon -C engine/ui test . --target native
+
+card-game-test: ui-dnd-test
     moon -C examples/games/card_game check --target js --deny-warn
     moon -C examples/games/card_game test lib --target js
     moon -C examples/games/card_game test lib --target native

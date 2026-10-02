@@ -7,7 +7,13 @@
 ///|
 pub struct UINodeId {
   value : Int
-} derive(Debug)
+} derive(Debug, Eq)
+
+///|
+/// Construct an application-owned identity when a UI is not backed by UITree.
+pub fn UINodeId::new(value : Int) -> UINodeId {
+  { value, }
+}
 
 ///|
 pub impl Show for UINodeId with fn output(self, logger) {
@@ -59,6 +65,9 @@ pub enum UIEvent {
   Scroll(Double, Double)
   KeyDown(Int)
   KeyUp(Int)
+  PointerCancel
+  Click(UINodeId)
+  Drag(UIDragEvent)
 } derive(Debug)
 
 ///|
@@ -350,3 +359,6 @@ pub extend UIFocusEvent with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub extend UIFocusEvent with Show::{to_string, output}
+
+///|
+pub extend UINodeId with Eq::{not_equal, equal}

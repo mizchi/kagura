@@ -122,6 +122,72 @@ pub fn UIDirection::to_repr(Self) -> @debug.Repr
 pub fn UIDirection::to_string(Self) -> String
 pub impl Show for UIDirection
 
+pub(all) enum UIDragCancelReason {
+  Explicit
+  InputCancelled
+  Disabled
+  NoTarget
+} derive(Eq, @debug.Debug)
+pub fn UIDragCancelReason::equal(Self, Self) -> Bool
+pub fn UIDragCancelReason::not_equal(Self, Self) -> Bool
+pub fn UIDragCancelReason::output(Self, &Logger) -> Unit
+pub fn UIDragCancelReason::to_repr(Self) -> @debug.Repr
+pub fn UIDragCancelReason::to_string(Self) -> String
+pub impl Show for UIDragCancelReason
+
+pub struct UIDragController {
+  input : UIPointerInputAdapter
+  threshold : Double
+  mut gesture : UIDragGesture?
+}
+pub fn UIDragController::cancel(Self, reason? : UIDragCancelReason) -> Array[UIEvent]
+pub fn UIDragController::handle_pointer(Self, UIPointerFrame, source_at~ : (Double, Double) -> UINodeId?, target_at~ : (UINodeId, Double, Double) -> UINodeId?, enabled? : Bool) -> Array[UIEvent]
+pub fn UIDragController::new(threshold? : Double) -> Self
+pub fn UIDragController::pointer(Self) -> UIPointerFrame
+pub fn UIDragController::snapshot(Self) -> UIDragSnapshot?
+pub fn UIDragController::update(Self, @kagura_core.InputSnapshot, source_at~ : (Double, Double) -> UINodeId?, target_at~ : (UINodeId, Double, Double) -> UINodeId?, enabled? : Bool) -> Array[UIEvent]
+
+pub struct UIDragEvent {
+  phase : UIDragPhase
+  source : UINodeId
+  target : UINodeId?
+  pointer : UIPointerId
+  start_x : Double
+  start_y : Double
+  x : Double
+  y : Double
+} derive(@debug.Debug)
+pub fn UIDragEvent::to_repr(Self) -> @debug.Repr
+
+type UIDragGesture
+
+pub(all) enum UIDragPhase {
+  Start
+  Move
+  Enter
+  Leave
+  Drop
+  Cancel(UIDragCancelReason)
+  End(Bool)
+} derive(Eq, @debug.Debug)
+pub fn UIDragPhase::equal(Self, Self) -> Bool
+pub fn UIDragPhase::not_equal(Self, Self) -> Bool
+pub fn UIDragPhase::output(Self, &Logger) -> Unit
+pub fn UIDragPhase::to_repr(Self) -> @debug.Repr
+pub fn UIDragPhase::to_string(Self) -> String
+pub impl Show for UIDragPhase
+
+pub struct UIDragSnapshot {
+  source : UINodeId
+  target : UINodeId?
+  pointer : UIPointerId
+  start_x : Double
+  start_y : Double
+  x : Double
+  y : Double
+  dragging : Bool
+}
+
 pub enum UIEvent {
   PointerDown(Double, Double)
   PointerUp(Double, Double)
@@ -129,6 +195,9 @@ pub enum UIEvent {
   Scroll(Double, Double)
   KeyDown(Int)
   KeyUp(Int)
+  PointerCancel
+  Click(UINodeId)
+  Drag(UIDragEvent)
 } derive(@debug.Debug)
 pub fn UIEvent::output(Self, &Logger) -> Unit
 pub fn UIEvent::to_repr(Self) -> @debug.Repr
@@ -178,7 +247,10 @@ pub impl Show for UINode
 
 pub struct UINodeId {
   value : Int
-} derive(@debug.Debug)
+} derive(Eq, @debug.Debug)
+pub fn UINodeId::equal(Self, Self) -> Bool
+pub fn UINodeId::new(Int) -> Self
+pub fn UINodeId::not_equal(Self, Self) -> Bool
 pub fn UINodeId::output(Self, &Logger) -> Unit
 pub fn UINodeId::to_repr(Self) -> @debug.Repr
 pub fn UINodeId::to_string(Self) -> String
@@ -201,6 +273,40 @@ pub fn UINodeStyle::output(Self, &Logger) -> Unit
 pub fn UINodeStyle::to_repr(Self) -> @debug.Repr
 pub fn UINodeStyle::to_string(Self) -> String
 pub impl Show for UINodeStyle
+
+pub struct UIPointerFrame {
+  pointer : UIPointerId
+  x : Double
+  y : Double
+  pressed : Bool
+  released : Bool
+  down : Bool
+  cancelled : Bool
+}
+pub fn UIPointerFrame::new(UIPointerId, Double, Double, pressed? : Bool, released? : Bool, down? : Bool, cancelled? : Bool) -> Self
+
+pub(all) enum UIPointerId {
+  Mouse
+  Touch(Int)
+} derive(Eq, @debug.Debug)
+pub fn UIPointerId::equal(Self, Self) -> Bool
+pub fn UIPointerId::not_equal(Self, Self) -> Bool
+pub fn UIPointerId::output(Self, &Logger) -> Unit
+pub fn UIPointerId::to_repr(Self) -> @debug.Repr
+pub fn UIPointerId::to_string(Self) -> String
+pub impl Show for UIPointerId
+
+pub struct UIPointerInputAdapter {
+  keys : @inputstate.KeyInputState
+  mouse : @inputstate.MouseButtonInputState
+  touches : @inputstate.TouchInputState
+  mut owned_touch : Int?
+  mut frame : UIPointerFrame
+}
+pub fn UIPointerInputAdapter::from_input_snapshot(Self, @kagura_core.InputSnapshot) -> Array[UIEvent]
+pub fn UIPointerInputAdapter::new() -> Self
+pub fn UIPointerInputAdapter::pointer(Self) -> UIPointerFrame
+pub impl UIInputAdapter for UIPointerInputAdapter
 
 pub(all) struct UISafeArea {
   top : Double

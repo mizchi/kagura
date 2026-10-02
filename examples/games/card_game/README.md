@@ -9,7 +9,7 @@ Ironclad のデータをベースに、StS の面白さを構成する要素を�
 just card-game-dev         # http://127.0.0.1:5196
 just card-game-test        # MoonBit JS / native + release build
 just card-game-e2e         # Chromium ヘッドレスのマウス / キーボード / タッチ
-just card-game-vrt         # 12状態 × 5画面サイズの画像差分・vlmkit検査
+just card-game-vrt         # 18状態 × 5画面サイズの画像差分・vlmkit検査
 just card-game-vrt-update  # 意図したUI変更を確認してから基準画像を更新
 ```
 
@@ -28,7 +28,19 @@ just card-game-vrt-update  # 意図したUI変更を確認してから基準画�
 - 報酬はカードクリックか `1–3`、スキップは `S`。休息・継続・再挑戦はボタンか `Enter`。
 - 手札が多いときはカードにポインターを置くと詳しい効果を表示します。タッチでのドラッグにも対応します。
 
-画面上のカード・ボタン・HPバーは既存の `@scene` コンポーネントで描画します。`layout.mbt` の同じ矩形を描画と当たり判定で使用し、`interaction.mbt` が一時的な選択・ドラッグ状態を管理します。戦闘とランのルールは従来の `game.mbt` / `run.mbt` にあります。
+画面上のカード・ボタン・HPバーは既存の `@scene` コンポーネントで描画します。`layout.mbt` の同じ矩形を描画と当たり判定で使用します。ドラッグの認識とマウス・タッチの取得は共通UIの [`UIDragController`](../../../engine/ui/README.md) が担当し、`interaction.mbt` は `UIEvent::Drag` を受けて選択表示やカード使用へ変換します。使用可能なカード、敵と戦場のドロップ可否はゲーム側で判定します。戦闘とランのルールは従来の `game.mbt` / `run.mbt` にあります。
+
+## アニメーションと進行
+
+カード使用は360msの演出で、攻撃の踏み込み、命中のフラッシュ・揺れ・数値、防御の発光、使用カードの移動を描画します。HP表示は変化量を補間します。敵ターンは320msの予告後、各敵が240msの予備動作と360msの効果表示を順に行い、380msで次の手札を配ります。撃破・敗北は650ms表示してから結果へ進み、報酬・休息・次の戦闘は400msのフェードで切り替えます。繰り返し続ける装飾アニメーションはありません。
+
+`presentation.mbt` が型付きの進行状態と時間を、`presentation_view.mbt` が描画を管理します。入力は演出中もエッジを記録して消費し、カードやターン終了の連打を受け付けません。ブラウザ・nativeでは実時間、ヘッドレスでは60Hzで進めます。長時間のタブ離脱から戻っても、敵全員の行動を一度に飛ばしません。`prefers-reduced-motion: reduce` では移動・揺れ・粒子・フェードを止め、数値と短い間を残します。
+
+戦闘ルールの同期API `end_player_turn` はシミュレーション用に維持し、画面側も同じターン開始・敵行動・ターン終了の処理を使います。演出が戦闘結果を変更しないこと、勝敗や報酬の二重進行を防ぐことをMoonBitとPlaywrightで検証します。
+
+debug版の起動URLに `?preview=card_impact`、`block_effect`、`enemy_windup`、`enemy_impact`、`draw_hand`、`battle_outcome` を付けると、ヘッドレスと同じ状態で演出を確認できます。これらのプレビューはrelease版には含めません。
+
+Canvasの演出途中も画像とUI snapshotでvlmkitのintegrityを検査します。DOM/CSSのanimationゲートではCanvas内の要素を列挙できません。virtual-timeでGPUを有効にすると画素の変化と停止を測れますが、初回描画やHP・数値の更新も「motion」に含みます。この検査では`--skip-reduced-motion`を使い、動きを減らす設定は別途Playwrightでキャラクターの座標固定とカード移動の非表示、MoonBitでHP補間の停止を検証します。
 
 `editor/verification.json` に状態と表示サイズを定義し、ヘッドレス描画の画像と UI snapshot を vlmkit 0.23.2 に渡して、文字の衝突・画面外へのはみ出し・コントラストを検査します。キャプチャ用の状態生成は debug ビルドだけに含まれます。
 

@@ -2,6 +2,10 @@ import { test, expect, type Page } from '@playwright/test';
 
 type UiNode = { id: string; path: string; left: number; top: number; width: number; height: number; text?: string };
 const snapshot = (page: Page) => page.evaluate(() => (globalThis as any).__kaguraUISnapshot?.parsed);
+const effectStates = ['card_play', 'enemy_turn', 'draw_hand', 'battle_outcome', 'transition'];
+async function settle(page: Page) {
+  await expect.poll(async () => effectStates.includes((await snapshot(page)).state)).toBe(false);
+}
 async function node(page: Page, id: string, ancestor?: string): Promise<UiNode> {
   const ui = await snapshot(page);
   const result = ui.nodes.find((n: UiNode) => n.id === id && (!ancestor || n.path.startsWith(ancestor + '>')));
@@ -128,7 +132,7 @@ test('a won encounter offers cards and the chosen reward is in the deck', async 
         const hint = await node(page, 'hint');
         if (hint.text === 'NOT ENOUGH ENERGY') continue;
         await page.keyboard.press('Enter', { delay: 80 });
-        await page.waitForTimeout(45);
+        await settle(page);
         const after = await snapshot(page);
         if (after.state !== 'battle' || after.nodes.filter((n: UiNode) => /^card_frame_\d+$/.test(n.id)).length < cards.length) {
           played = true; break;
@@ -138,7 +142,7 @@ test('a won encounter offers cards and the chosen reward is in the deck', async 
     }
     if ((await snapshot(page)).state === 'battle') {
       await page.keyboard.press('KeyE', { delay: 80 });
-      await page.waitForTimeout(60);
+      await settle(page);
     }
   }
   await expect.poll(async () => (await snapshot(page)).state).toBe('battle_victory');
@@ -156,6 +160,72 @@ test('a won encounter offers cards and the chosen reward is in the deck', async 
   expect(names).toContain(reward);
   await page.keyboard.press('Escape', { delay: 80 });
   await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+});
+
+test('card effects visibly move, settle and reject repeated actions', async ({ page }, info) => {
+  const hero = await node(page, 'hero');
+  await page.keyboard.press('Digit1', { delay: 60 });
+  await page.keyboard.press('Enter', { delay: 40 });
+  await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('card_play');
+  await expect.poll(async () => Math.abs((await node(page, 'hero')).left - hero.left), { intervals: [10] }).toBeGreaterThan(1);
+  await page.locator('#app').screenshot({ path: info.outputPath('card-impact.png') });
+  await page.keyboard.down('Digit1');
+  await page.keyboard.down('Enter');
+  await page.keyboard.down('KeyE');
+  await settle(page);
+  await page.keyboard.up('Digit1');
+  await page.keyboard.up('Enter');
+  await page.keyboard.up('KeyE');
+  expect((await node(page, 'energy')).text).toBe('ENERGY 2/3');
+  expect((await node(page, 'turn')).text).toContain('TURN 1');
+  expect((await node(page, 'hero')).left).toBe(hero.left);
+  expect((await snapshot(page)).nodes.some((n: UiNode) => n.id.startsWith('combat_popup_') || n.id === 'played_card')).toBe(false);
+});
+
+test('enemy turns pause, resolve one by one and then deal a new hand', async ({ page }, info) => {
+  const hp = (await node(page, 'value', 'player>hp_bar')).text;
+  const started = Date.now();
+  await page.keyboard.press('KeyE', { delay: 40 });
+  await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('enemy_turn');
+  expect((await node(page, 'value', 'player>hp_bar')).text).toBe(hp);
+  expect((await snapshot(page)).nodes.some((n: UiNode) => /^card_frame_\d+$/.test(n.id))).toBe(false);
+  await expect.poll(async () => (await snapshot(page)).nodes.some((n: UiNode) => n.path === 'combat_popup_0>amount' && n.text === 'GUARD'), { intervals: [20] }).toBe(true);
+  expect((await node(page, 'value', 'player>hp_bar')).text).toBe(hp);
+  await expect.poll(async () => (await snapshot(page)).nodes.some((n: UiNode) => n.path === 'combat_popup_-1>amount' && n.text === '-6'), { intervals: [20] }).toBe(true);
+  await page.locator('#app').screenshot({ path: info.outputPath('enemy-impact.png') });
+  await expect.poll(async () => (await snapshot(page)).state, { intervals: [20] }).toBe('draw_hand');
+  await settle(page);
+  expect(Date.now() - started).toBeGreaterThan(1500);
+  expect((await node(page, 'turn')).text).toContain('TURN 2');
+  expect((await snapshot(page)).nodes.filter((n: UiNode) => /^card_frame_\d+$/.test(n.id))).toHaveLength(5);
+});
+
+test('reduced motion keeps the action pause without travel or shaking', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const hero = await node(page, 'hero');
+  await page.keyboard.press('Digit1', { delay: 60 });
+  await page.keyboard.press('Enter', { delay: 40 });
+  await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('card_play');
+  expect((await node(page, 'hero')).left).toBe(hero.left);
+  expect((await snapshot(page)).nodes.some((n: UiNode) => n.id === 'played_card')).toBe(false);
+  await settle(page);
+  expect((await node(page, 'energy')).text).toBe('ENERGY 2/3');
+});
+
+test('result transitions preserve the outgoing screen and consume repeated choices', async ({ page }, info) => {
+  await page.goto('/?preview=battle_victory');
+  await expect.poll(async () => (await snapshot(page))?.state).toBe('battle_victory');
+  await page.locator('#app').focus();
+  await page.keyboard.press('Enter', { delay: 40 });
+  await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('transition');
+  expect((await snapshot(page)).nodes.some((n: UiNode) => n.text === 'BATTLE WON')).toBe(true);
+  expect((await snapshot(page)).nodes.some((n: UiNode) => n.id === 'screen_fade')).toBe(true);
+  await page.keyboard.press('Digit1', { delay: 40 });
+  await page.locator('#app').screenshot({ path: info.outputPath('result-transition.png') });
+  await settle(page);
+  expect((await snapshot(page)).state).toBe('card_reward');
+  expect((await node(page, 'floor')).text).toContain('FLOOR 1');
+  expect((await node(page, 'text', 'deck_btn')).text).toBe('DECK 10');
 });
 
 test('leaving the window during a drag cancels the card', async ({ page }) => {

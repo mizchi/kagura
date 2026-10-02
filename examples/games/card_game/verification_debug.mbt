@@ -4,7 +4,8 @@ fn initial_states() -> @engine.InitialStates[@lib.Game] {
   for
     name in [
       "card_reward", "complex_reward", "inspect_card", "rest", "victory", "defeat",
-      "battle_victory", "deck", "large_hand", "low_energy", "dragging",
+      "battle_victory", "deck", "large_hand", "low_energy", "dragging", "card_impact",
+      "block_effect", "enemy_windup", "enemy_impact", "draw_hand", "battle_outcome",
     ] {
     named.push(
       (name, (width, height) => @lib.Game::preview(name, width, height)),
@@ -12,6 +13,10 @@ fn initial_states() -> @engine.InitialStates[@lib.Game] {
   }
   @engine.InitialStates::new(
     default=(width, height) => {
+      let name = preview_request_name()
+      if name != "" {
+        return @lib.Game::preview(name, width, height)
+      }
       let game = @lib.Game::new()
       game.set_viewport(width, height)
       game

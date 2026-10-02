@@ -57,3 +57,13 @@ test("loader tells users that browser demos are WebGPU only", () => {
 
   assert.match(moduleCode, /WebGPU only/i);
 });
+
+test("every game opens in fullscreen presentation with reachable display controls", () => {
+  for (const demo of DEMO_PAGES.filter(demo => demo.sourcePath.startsWith('examples/games/'))) {
+    const html = renderDemoHtml({ demo, scriptTag: '' });
+    assert.match(html, /data-kagura-presentation="fullscreen"/, demo.name);
+    assert.match(html, /id="fullscreen"[^>]*type="button"/, demo.name);
+    assert.match(html, /data-kagura-overlay/, demo.name);
+    assert.doesNotMatch(html, /class="hero"|class="stage-panel"/, demo.name);
+  }
+});

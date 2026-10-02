@@ -362,18 +362,20 @@ fn RasterTarget::draw_triangle(
   if min_x > max_x || min_y > max_y {
     return false
   }
-  let bias0 = if is_top_left(bx, by, cx, cy) { 0.0 } else { -epsilon }
-  let bias1 = if is_top_left(cx, cy, ax, ay) { 0.0 } else { -epsilon }
-  let bias2 = if is_top_left(ax, ay, bx, by) { 0.0 } else { -epsilon }
+  let inclusive0 = is_top_left(bx, by, cx, cy)
+  let inclusive1 = is_top_left(cx, cy, ax, ay)
+  let inclusive2 = is_top_left(ax, ay, bx, by)
   let mut covered = false
   for py in min_y..<=max_y {
     let sample_y = py.to_double() + 0.5
     for px in min_x..<=max_x {
       let sample_x = px.to_double() + 0.5
-      let w0 = edge_function(bx, by, cx, cy, sample_x, sample_y) + bias0
-      let w1 = edge_function(cx, cy, ax, ay, sample_x, sample_y) + bias1
-      let w2 = edge_function(ax, ay, bx, by, sample_x, sample_y) + bias2
-      if w0 < 0.0 || w1 < 0.0 || w2 < 0.0 {
+      let w0 = edge_function(bx, by, cx, cy, sample_x, sample_y)
+      let w1 = edge_function(cx, cy, ax, ay, sample_x, sample_y)
+      let w2 = edge_function(ax, ay, bx, by, sample_x, sample_y)
+      if !edge_contains_sample(w0, inclusive0) ||
+        !edge_contains_sample(w1, inclusive1) ||
+        !edge_contains_sample(w2, inclusive2) {
         continue
       }
       covered = true
@@ -655,6 +657,18 @@ fn edge_function(
 /// triangle; samples on the others belong to the neighbour.
 fn is_top_left(ax : Double, ay : Double, bx : Double, by : Double) -> Bool {
   (ay == by && bx < ax) || by > ay
+}
+
+///|
+fn edge_contains_sample(value : Double, inclusive : Bool) -> Bool {
+  // NDC conversion can put the same shared-edge sample just below zero in
+  // both triangles. Treat roundoff as the edge, owned only by its top-left
+  // triangle. Keep the unmodified weights for texture interpolation.
+  if value >= -epsilon && value <= epsilon {
+    inclusive
+  } else {
+    value > 0.0
+  }
 }
 
 ///|

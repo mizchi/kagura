@@ -1,7 +1,7 @@
 {
   "format": "kagura.project",
   "version": 1,
-  "name": "Card Game",
+  "name": "Ember Ascent",
   "editor": {
     "id": "kagura.example2d",
     "apiVersion": 1
@@ -28,8 +28,8 @@
     "artifact": "card_game.js"
   },
   "display": {
-    "width": 800,
-    "height": 600
+    "width": 960,
+    "height": 640
   },
   "sceneSchema": {
     "id": "kagura.example",

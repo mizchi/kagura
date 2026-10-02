@@ -95,3 +95,48 @@ test('responsive games fill a portrait viewport and capture their canvas plus DO
   p.dispose();
   assert.equal(attrs.has('data-kagura-capture'),false);
 });
+
+test('fullscreen follows game-owned resolution changes and reserves the launch toolbar', () => {
+  const listeners = new Map(), attrs = new Map([['data-kagura-inset-top', '48']]);
+  let onMutation, disconnected = false;
+  const host = {innerWidth: 375, innerHeight: 812,
+    addEventListener: (k, fn) => listeners.set(k, fn), removeEventListener: k => listeners.delete(k),
+    MutationObserver: class {
+      constructor(fn) { onMutation = fn; }
+      observe() {} disconnect() { disconnected = true; }
+    }};
+  const canvas = {width: 960, height: 640, style: {cssText: ''},
+    getAttribute: k => attrs.get(k) ?? null, setAttribute: (k, v) => attrs.set(k, v), removeAttribute: k => attrs.delete(k),
+    ownerDocument: {defaultView: host}};
+  const p = installGamePresentation(canvas, {mode: 'fullscreen'});
+  canvas.width = 360; canvas.height = 640;
+  onMutation();
+  assert.equal(p.aspectRatio, 360 / 640);
+  assert.equal(canvas.style.width, '375px');
+  assert.equal(canvas.style.height, `${375 * 640 / 360}px`);
+  assert.ok(Number.parseFloat(canvas.style.top) >= 48);
+  host.innerWidth = 1280; host.innerHeight = 720;
+  listeners.get('resize')();
+  assert.equal(canvas.style.height, '672px');
+  assert.equal(canvas.style.top, '48px');
+  p.dispose();
+  assert.equal(disconnected, true);
+});
+
+test('logical viewport ratio is preserved when CSS sizing and DPR change backing pixels', () => {
+  const attrs = new Map(), listeners = new Map();
+  const host = {innerWidth: 375, innerHeight: 812,
+    addEventListener: (k, fn) => listeners.set(k, fn), removeEventListener: k => listeners.delete(k)};
+  const canvas = {width: 960, height: 640, style: {cssText: ''}, ownerDocument: {defaultView: host},
+    getAttribute: k => attrs.get(k) ?? null, setAttribute: (k, v) => attrs.set(k, v), removeAttribute: k => attrs.delete(k)};
+  const p = installGamePresentation(canvas, {mode: 'fullscreen'});
+  p.setGameViewport(360, 640);
+  canvas.width = 750; canvas.height = 1333;
+  listeners.get('resize')();
+  assert.equal(p.aspectRatio, 360 / 640);
+  assert.equal(canvas.style.height, `${375 * 640 / 360}px`);
+  assert.throws(() => p.setGameViewport(0, 640), RangeError);
+  assert.equal(p.aspectRatio, 360 / 640);
+  p.dispose();
+  assert.throws(() => p.setGameViewport(360, 640), /disposed/);
+});

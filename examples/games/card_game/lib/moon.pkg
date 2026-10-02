@@ -11,3 +11,9 @@ import {
 warnings = "-29"
 
 supported_targets = "js+native"
+
+options(targets: {
+  "preview_debug.mbt": [ "debug" ],
+  "pointer_surface_js.mbt": [ "js" ],
+  "pointer_surface_native.mbt": [ "native" ],
+})

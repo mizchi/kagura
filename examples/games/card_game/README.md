@@ -1,39 +1,56 @@
-# Card Game — Slay the Spire-style Deckbuilder
+# Ember Ascent — Roguelike Deckbuilder
 
 kagura エンジン上で動作する Slay the Spire スタイルのデッキ構築型ローグライトカードゲーム。
 Ironclad のデータをベースに、StS の面白さを構成する要素を形式的にモデル化している。
 
-## 起動
+## 起動と検証
 
 ```bash
-# GUI（ブラウザ）
-just dev card_game
-
-# ヘッドレス実行テスト（CI 向け）
-cd examples/games/card_game
-moon run headless --target js
-
-# ユニットテスト
-cd examples/games/card_game
-moon test --target js
+just card-game-dev         # http://127.0.0.1:5196
+just card-game-test        # MoonBit JS / native + release build
+just card-game-e2e         # Chromium ヘッドレスのマウス / キーボード / タッチ
+just card-game-vrt         # 12状態 × 5画面サイズの画像差分・vlmkit検査
+just card-game-vrt-update  # 意図したUI変更を確認してから基準画像を更新
 ```
+
+既存の `just dev card_game` でも起動できます。ゲームは戦闘から始まり、勝利後にカードを選び、休息を挟みながら 2 Act / 30 フロアを進みます。
+
+プレイヤーは左、敵は右に配置します。縦長の画面でも左右の関係を保ち、複数の敵は右側で並びます。ゲーム起動ページは共通でウィンドウいっぱいに表示し、「全画面」ボタンでブラウザのフルスクリーンへ切り替えます。「操作ガイド」から操作説明とソースを確認できます。
+
+## 操作
+
+- 攻撃カードを敵にドラッグして離すと、その敵に使用します。
+- Skill / Power / 全体攻撃は戦場にドロップします。戦場の外に離すとカードを戻します。
+- クリックでも操作できます。対象が複数いる攻撃は、カードをクリックした後に敵をクリックします。
+- `1–9` でカード選択、`← / →` で対象変更、`Enter` で使用、`E` でターン終了。
+- `D` または DECK ボタンでデッキと獲得レリックを確認します。次ページはボタンか `→`。
+- `Esc` / 右クリックで選択を取り消します。ウィンドウを離れた場合もドラッグを取り消します。
+- 報酬はカードクリックか `1–3`、スキップは `S`。休息・継続・再挑戦はボタンか `Enter`。
+- 手札が多いときはカードにポインターを置くと詳しい効果を表示します。タッチでのドラッグにも対応します。
+
+画面上のカード・ボタン・HPバーは既存の `@scene` コンポーネントで描画します。`layout.mbt` の同じ矩形を描画と当たり判定で使用し、`interaction.mbt` が一時的な選択・ドラッグ状態を管理します。戦闘とランのルールは従来の `game.mbt` / `run.mbt` にあります。
+
+`editor/verification.json` に状態と表示サイズを定義し、ヘッドレス描画の画像と UI snapshot を vlmkit 0.23.2 に渡して、文字の衝突・画面外へのはみ出し・コントラストを検査します。キャプチャ用の状態生成は debug ビルドだけに含まれます。
 
 ## プロジェクト構成
 
 ```
 examples/games/card_game/
 ├── lib/                  # ゲームロジックライブラリ
-│   ├── cards.mbt         # カード定義（31枚）
+│   ├── cards.mbt         # カード定義（42枚）
 │   ├── combat.mbt        # 戦闘システム（Fighter, StatusEffects, ダメージ計算）
 │   ├── enemy.mbt         # 敵AI・エンカウンター定義（10体 + ボス2体）
 │   ├── game.mbt          # バトルステート・カード実行ロジック
-│   ├── run.mbt           # ラン進行（15フロア Act 1）
-│   ├── relics.mbt        # レリック（8種）
+│   ├── run.mbt           # ラン進行（2 Act / 30フロア）
+│   ├── relics.mbt        # レリック（12種）
 │   ├── balance.mbt       # AI戦略（Aggressive/Defensive/Smart）
 │   ├── economy.mbt       # Machinations経済モデル・ラン全体シミュレーション
 │   ├── ml_balance.mbt    # ML用特徴量抽出・感度分析
 │   ├── fun_metrics.mbt   # Fun指標（7次元）・StS面白さ定量化
-│   ├── view.mbt          # UI描画（SceneNode ツリー）
+│   ├── view.mbt          # 各ゲーム画面（SceneNode ツリー）
+│   ├── components.mbt    # カード・ボタン・HPバー・説明部品
+│   ├── layout.mbt        # 描画と入力が共有する矩形
+│   ├── interaction.mbt   # マウス・タッチ・キーボードの制御
 │   └── *_wbtest.mbt      # ホワイトボックステスト
 ├── headless/             # ヘッドレスランナー（moon run）
 │   ├── main.mbt          # バランスチェック・ラン全体テスト
@@ -51,23 +68,23 @@ examples/games/card_game/
 |--------|------|------|
 | 1-3 | Easy | Jaw Worm, Two Louses |
 | 4 | Elite | Red Slaver / Sentry Pair / Gremlin Nob |
-| 5 | Rest | HP 30% 回復 |
+| 5 | Rest | HP 25% 回復 |
 | 6-8 | Normal | Cultist, Fungi Pair, Red Slaver |
-| 9 | Rest | HP 30% 回復 |
+| 9 | Rest | HP 25% 回復 |
 | 10-11 | Normal | 同上 |
-| 12 | Rest | HP 30% 回復 |
+| 12 | Rest | HP 25% 回復 |
 | 13 | Elite | 同上 |
-| 14 | Rest | HP 30% 回復 |
+| 14 | Rest | HP 25% 回復 |
 | 15 | **Boss** | **The Guardian (240HP) / Hexaghost (250HP)** |
 
-### カード一覧（37枚）
+### カード一覧（42枚）
 
 **スターター (3種)**
 
 | カード | コスト | 種別 | 効果 |
 |--------|--------|------|------|
 | Strike | 1 | Attack | 6 ダメージ |
-| Defend | 1 | Skill | 5 ブロック |
+| Defend | 1 | Skill | 6 ブロック |
 | Bash | 2 | Attack | 8 ダメージ, Vulnerable 2 |
 
 **コモン Attack (7種)**
@@ -77,7 +94,7 @@ examples/games/card_game/
 | Cleave | 1 | 8 ダメージ (全体) |
 | Pommel Strike | 1 | 9 ダメージ, 1枚ドロー |
 | Twin Strike | 1 | 5×2 ダメージ |
-| Iron Wave | 1 | 5 ダメージ + 5 ブロック |
+| Iron Wave | 1 | 5 ダメージ + 6 ブロック |
 | Anger | 0 | 6 ダメージ, 捨て札にコピー追加 |
 | Headbutt | 1 | 9 ダメージ, 捨て札→山札トップ |
 | Heavy Blade | 2 | 14 ダメージ, 筋力3倍適用 |

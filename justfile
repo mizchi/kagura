@@ -41,6 +41,30 @@ web-runtime-test: web-runtime-build
     moon test platform_web/input platform_web/render platform_web/playback platform_web/diagnostics platform_web/ui_sync platform_web/fetch game/inventory game/inventory_web core/anim3d/playback core/statistics --target js
     node --test platform_web/host/kagura-runtime.test.mjs platform_web/host/kagura-controls.test.mjs platform_web/host/kagura-gamepad.test.mjs platform_web/host/kagura-ui-sync.test.mjs platform_web/host/kagura-profile.test.mjs platform_web/host/kagura-gfx.test.mjs scripts/web-runtime-assets.test.mjs
 
+# EMBER ASCENT: scene components, drag-and-drop cards and a 30-floor deckbuilding run.
+card-game-dev:
+    PORT=5196 node scripts/dev-server.mjs card_game
+
+card-game-test:
+    moon -C examples/games/card_game check --target js --deny-warn
+    moon -C examples/games/card_game test lib --target js
+    moon -C examples/games/card_game test lib --target native
+    moon -C examples/games/card_game check --target native --deny-warn
+    moon -C examples/games/card_game build --target js --release
+    moon -C engine test raster --target js
+    moon -C engine test raster --target native
+    node --test scripts/web-demo-pages.test.mjs scripts/web-demo-package.test.mjs platform_web/host/kagura-presentation.test.mjs
+
+card-game-e2e:
+    pnpm exec playwright test -c examples/games/card_game/playwright.config.mjs
+
+# Inspect captures before accepting an intended UI change.
+card-game-vrt:
+    node scripts/ui-matrix.mjs card_game
+
+card-game-vrt-update:
+    node scripts/ui-matrix.mjs card_game --update
+
 # Shared platform lifecycle, adapter conformance, and distribution boundaries.
 platform-test:
     moon test platform platform_web --target {{target}}

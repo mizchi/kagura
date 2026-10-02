@@ -1,1189 +1,746 @@
 ///|
-let card_w : Double = 70.0
-
-///|
-let card_h : Double = 90.0
-
-///|
-let layout_w : Ref[Double] = Ref(480.0)
-
-///|
-let layout_h : Ref[Double] = Ref(360.0)
-
-///|
-fn layout_sw() -> Double {
-  layout_w.val
-}
-
-///|
-fn layout_sh() -> Double {
-  layout_h.val
-}
-
-///|
-/// Main game struct wrapping run state with UI state
-pub(all) struct Game {
-  run : @signals.Signal[RunState]
-  selected_card : @signals.Signal[Int] // -1 = none
-  target_enemy : @signals.Signal[Int] // -1 = none
-  input : @inpututil.InputHelper
-  mut cursor_x : Double
-  mut cursor_y : Double
-  mut need_target : Bool // waiting for target selection
-}
-
-///|
-pub impl @scene.SceneGame for Game with fn update_game(self, input) {
-  self.update(input)
-}
-
-///|
-pub impl @scene.SceneGame for Game with fn view_game(self) {
-  self.view()
-}
-
-///|
-pub fn Game::set_viewport(_self : Game, width : Int, height : Int) -> Unit {
-  layout_w.val = width.to_double()
-  layout_h.val = height.to_double()
-}
-
-///|
-pub fn Game::snapshot_state(self : Game) -> String {
-  match self.run.get().phase {
-    Battle => "battle"
-    CardReward => "card_reward"
-    RestSite => "rest"
-    RunVictory => "victory"
-    RunDefeat => "defeat"
-  }
-}
-
-///|
-pub fn Game::new() -> Game {
-  let run = RunState::new()
-  {
-    run: @signals.signal(run),
-    selected_card: @signals.signal(-1),
-    target_enemy: @signals.signal(-1),
-    input: @inpututil.new_input_helper(),
-    cursor_x: 0.0,
-    cursor_y: 0.0,
-    need_target: false,
-  }
-}
-
-///|
-pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
-  @inpututil.update_input_helper(self.input, input)
-  self.cursor_x = input.cursor_x
-  self.cursor_y = input.cursor_y
-  let clicked = @inputstate.is_mouse_button_just_pressed(
-    self.input.mouse_state,
-    0,
-  )
-  if !clicked {
-    return
-  }
-  @signals.batch(fn() {
-    let run = self.run.get()
-    let cx = self.cursor_x
-    let cy = self.cursor_y
+pub fn Game::view(self : Game) -> @scene.SceneNode {
+  let run = self.run.get()
+  let l = self.layout
+  let nodes : Array[@scene.SceneNode] = [
+    @scene.rect(w=l.w, h=l.h, fill=0x10151C),
+    @scene.rect(y=52.0, w=l.w, h=l.h - 52.0, fill=0x151E2A),
+  ]
+  if self.deck_open {
+    nodes.push(view_deck(run, l, self.deck_page))
+  } else {
     match run.phase {
-      RunVictory | RunDefeat => {
-        // Restart a new run
-        let new_run = RunState::new(seed=run.rng_seed + 1)
-        self.run.set(new_run)
-        self.selected_card.set(-1)
-        self.need_target = false
-      }
-      RestSite => {
-        // Click anywhere to rest and heal
-        rest_heal(run)
-        self.run.set(run)
-      }
-      CardReward => {
-        // Check if user clicked a reward card or skip
-        let choice = hit_test_card_reward(run, cx, cy)
-        if choice >= -1 {
-          // -1 = skip, 0-2 = pick card
-          pick_card_reward(run, choice)
-          self.run.set(run)
-          self.selected_card.set(-1)
-          self.need_target = false
-        }
-      }
       Battle =>
         match run.battle {
           Some(state) =>
-            match state.phase {
-              Victory => {
-                on_battle_victory(run)
-                self.run.set(run)
-                self.selected_card.set(-1)
-                self.need_target = false
-              }
-              Defeat => {
-                on_battle_defeat(run)
-                self.run.set(run)
-              }
-              PlayerTurn => {
-                if hit_test_end_turn(cx, cy) {
-                  end_player_turn(state)
-                  self.run.set(run)
-                  self.selected_card.set(-1)
-                  self.need_target = false
-                  return
-                }
-                if self.need_target {
-                  let enemy_idx = hit_test_enemy(state, cx, cy)
-                  if enemy_idx >= 0 {
-                    let card_idx = self.selected_card.get()
-                    let result = play_card(state, card_idx, enemy_idx)
-                    if result == Ok {
-                      self.run.set(run)
-                    }
-                    self.selected_card.set(-1)
-                    self.need_target = false
+            if state.phase == Victory || state.phase == Defeat {
+              nodes.push(
+                view_result(
+                  l,
+                  if state.phase == Victory {
+                    "BATTLE WON"
                   } else {
-                    self.selected_card.set(-1)
-                    self.need_target = false
-                  }
-                } else {
-                  let card_idx = hit_test_card(state, cx, cy)
-                  if card_idx >= 0 {
-                    let card_id = state.hand[card_idx]
-                    let def = card_def(card_id)
-                    if state.player.energy >= def.cost {
-                      if card_needs_target(card_id) {
-                        if alive_enemy_count(state) == 1 {
-                          let target = first_alive_enemy(state)
-                          let result = play_card(state, card_idx, target)
-                          if result == Ok {
-                            self.run.set(run)
-                          }
-                        } else {
-                          self.selected_card.set(card_idx)
-                          self.need_target = true
-                        }
-                      } else {
-                        let result = play_card(state, card_idx, 0)
-                        if result == Ok {
-                          self.run.set(run)
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              _ => ()
+                    "YOU HAVE FALLEN"
+                  },
+                  if state.phase == Victory {
+                    "CHOOSE A CARD AND CONTINUE"
+                  } else {
+                    "YOUR JOURNEY ENDS HERE"
+                  },
+                  "CONTINUE",
+                ),
+              )
+            } else {
+              nodes.push(self.view_battle(state))
             }
           None => ()
         }
+      CardReward => nodes.push(view_reward(run, l))
+      RestSite => nodes.push(view_rest(run, l))
+      RunVictory | RunDefeat =>
+        nodes.push(
+          view_result(
+            l,
+            if run.phase == RunVictory {
+              "SUMMIT REACHED"
+            } else {
+              "RUN ENDED"
+            },
+            "FLOOR " +
+            run.floor.to_string() +
+            " / DECK " +
+            run.deck.length().to_string(),
+            "NEW RUN",
+          ),
+        )
     }
-  })
-}
-
-///|
-/// Hit test for card reward selection (returns -2 if no hit, -1 for skip, 0-2 for card)
-fn hit_test_card_reward(run : RunState, cx : Double, cy : Double) -> Int {
-  let sw = layout_sw()
-  let reward_w = 80.0
-  let reward_h = 110.0
-  let gap = 16.0
-  let count = run.card_rewards.length()
-  let total_w = count.to_double() * reward_w + (count - 1).to_double() * gap
-  let start_x = (sw - total_w) / 2.0
-  let card_y = 100.0
-  let mut i = 0
-  while i < count {
-    let x = start_x + i.to_double() * (reward_w + gap)
-    if cx >= x && cx <= x + reward_w && cy >= card_y && cy <= card_y + reward_h {
-      return i
-    }
-    i += 1
   }
-  // Skip button
-  let skip_x = sw / 2.0 - 40.0
-  let skip_y = 240.0
-  if cx >= skip_x && cx <= skip_x + 80.0 && cy >= skip_y && cy <= skip_y + 30.0 {
-    return -1
-  }
-  -2 // No hit
+  nodes.push(view_header(run, l))
+  @scene.fragment(nodes)
 }
 
 ///|
-fn hand_card_width(count : Int) -> Double {
-  if count <= 0 {
-    return card_w
-  }
-  let gap = 4.0
-  let avail = layout_sw() - 16.0
-  let width = (avail - (count - 1).to_double() * gap) / count.to_double()
-  if width > card_w {
-    card_w
-  } else if width < 40.0 {
-    40.0
-  } else {
-    width
-  }
-}
-
-///|
-fn hit_test_card(state : BattleState, cx : Double, cy : Double) -> Int {
-  let hand_count = state.hand.length()
-  if hand_count == 0 {
-    return -1
-  }
-  let cw = hand_card_width(hand_count)
-  let gap = 4.0
-  let total_w = hand_count.to_double() * cw + (hand_count - 1).to_double() * gap
-  let start_x = (layout_sw() - total_w) / 2.0
-  let card_y = layout_sh() - card_h - 10.0
-  let mut i = 0
-  while i < hand_count {
-    let x = start_x + i.to_double() * (cw + gap)
-    if cx >= x && cx <= x + cw && cy >= card_y && cy <= card_y + card_h {
-      return i
-    }
-    i += 1
-  }
-  -1
-}
-
-///|
-fn hit_test_enemy(state : BattleState, cx : Double, cy : Double) -> Int {
-  let enemy_w = 60.0
-  let enemy_h = 80.0
-  let count = state.enemies.length()
-  let total_w = count.to_double() * enemy_w + (count - 1).to_double() * 20.0
-  let start_x = (layout_sw() - total_w) / 2.0
-  let enemy_y = 40.0
-  let mut i = 0
-  while i < count {
-    if !state.enemies[i].fighter.is_dead() {
-      let x = start_x + i.to_double() * (enemy_w + 20.0)
-      if cx >= x &&
-        cx <= x + enemy_w &&
-        cy >= enemy_y &&
-        cy <= enemy_y + enemy_h {
-        return i
-      }
-    }
-    i += 1
-  }
-  -1
-}
-
-///|
-fn hit_test_end_turn(cx : Double, cy : Double) -> Bool {
-  let bx = layout_sw() - 90.0
-  let by = layout_sh() - card_h - 50.0
-  cx >= bx && cx <= bx + 80.0 && cy >= by && cy <= by + 30.0
-}
-
-///|
-pub fn Game::view(self : Game) -> @scene.SceneNode {
-  let sw = layout_sw()
-  let sh = layout_sh()
-  let run = self.run.get()
-  @scene.fragment([
-    @scene.rect(w=sw, h=sh, fill=0x1a1a2e),
-    // Floor indicator (always visible)
-    view_floor_bar(run),
-    // Phase-specific views
-    @scene.show(fn() { self.run.get().phase == Battle }, fn() {
-      let r = self.run.get()
-      match r.battle {
-        Some(state) =>
-          @scene.fragment([
-            view_enemies(state),
-            view_player_info_from_run(r),
-            view_relics(state),
-            view_hand(state, self.selected_card.get()),
-            @scene.show(
-              fn() {
-                match self.run.get().battle {
-                  Some(b) => b.phase == PlayerTurn
-                  None => false
-                }
-              },
-              fn() { view_end_turn_button() },
-            ),
-            @scene.show(fn() { self.need_target }, fn() {
-              @scene.label(
-                x=sw / 2.0 - 40.0,
-                y=sh / 2.0 - 10.0,
-                content="Select target",
-                color=0xFFFF00,
-              )
-            }),
-            view_logs(state),
-            @scene.show(
-              fn() {
-                match self.run.get().battle {
-                  Some(b) => b.phase == Victory || b.phase == Defeat
-                  None => false
-                }
-              },
-              fn() {
-                match self.run.get().battle {
-                  Some(b) => view_battle_result(b)
-                  None => @scene.fragment([])
-                }
-              },
-            ),
-          ])
-        None => @scene.fragment([])
-      }
-    }),
-    @scene.show(fn() { self.run.get().phase == CardReward }, fn() {
-      view_card_reward(self.run.get())
-    }),
-    @scene.show(fn() { self.run.get().phase == RestSite }, fn() {
-      view_rest_site(self.run.get())
-    }),
-    @scene.show(
-      fn() {
-        let p = self.run.get().phase
-        p == RunVictory || p == RunDefeat
-      },
-      fn() { view_run_over(self.run.get()) },
-    ),
-  ])
-}
-
-///|
-fn view_enemies(state : BattleState) -> @scene.SceneNode {
-  let enemy_w = 60.0
-  let enemy_h = 80.0
-  let count = state.enemies.length()
-  let total_w = count.to_double() * enemy_w + (count - 1).to_double() * 20.0
-  let start_x = (layout_sw() - total_w) / 2.0
-  let enemy_y = 40.0
-  @scene.for_each(fn() {
-    let nodes : Array[@scene.SceneNode] = []
-    let mut i = 0
-    while i < count {
-      let enemy = state.enemies[i]
-      let x = start_x + i.to_double() * (enemy_w + 20.0)
-      if !enemy.fighter.is_dead() {
-        let body_color = if enemy.fighter.status.vulnerable > 0 {
-          0xFF6666
-        } else {
-          0xCC4444
-        }
-        nodes.push(
-          @scene.rect(
-            key="enemy_body_" + i.to_string(),
-            x~,
-            y=enemy_y,
-            w=enemy_w,
-            h=enemy_h,
-            fill=body_color,
-          ),
-        )
-        nodes.push(
-          @scene.label(
-            key="enemy_" + i.to_string(),
-            x=x + enemy_w / 2.0,
-            y=enemy_y + 12.0,
-            content=enemy.fighter.name,
-            scale=0.6,
-            color=0xFFFFFF,
-          ),
-        )
-        // HP bar
-        nodes.push(
-          @scene.rect(
-            key="enemy_hp_" + i.to_string(),
-            x~,
-            y=enemy_y + enemy_h + 2.0,
-            w=enemy_w,
-            h=8.0,
-            fill=0x333333,
-          ),
-        )
-        let hp_ratio = enemy.fighter.hp.to_double() /
-          enemy.fighter.max_hp.to_double()
-        nodes.push(
-          @scene.rect(
-            x~,
-            y=enemy_y + enemy_h + 2.0,
-            w=enemy_w * hp_ratio,
-            h=8.0,
-            fill=0x44CC44,
-          ),
-        )
-        nodes.push(
-          @scene.label(
-            x=x + 2.0,
-            y=enemy_y + enemy_h + 2.0,
-            content=enemy.fighter.hp.to_string() +
-              "/" +
-              enemy.fighter.max_hp.to_string(),
-            scale=0.5,
-          ),
-        )
-        // Block
-        if enemy.fighter.block > 0 {
-          nodes.push(
-            @scene.rect(
-              x=x + enemy_w - 20.0,
-              y=enemy_y,
-              w=20.0,
-              h=16.0,
-              fill=0x4488CC,
-            ),
-          )
-          nodes.push(
-            @scene.label(
-              x=x + enemy_w - 18.0,
-              y=enemy_y + 1.0,
-              content=enemy.fighter.block.to_string(),
-              scale=0.6,
-            ),
-          )
-        }
-        // Intent
-        let intent_text = match enemy.intent {
-          AttackIntent(n) => "ATK " + n.to_string()
-          DefendIntent(n) => "DEF " + n.to_string()
-          BuffIntent => "BUFF"
-          MultiAttack(n, t) => "ATK " + n.to_string() + "x" + t.to_string()
-          DebuffIntent => "DEBUFF"
-        }
-        nodes.push(
-          @scene.label(
-            x=x + 2.0,
-            y=enemy_y - 14.0,
-            content=intent_text,
-            color=0xFF8800,
-            scale=0.6,
-          ),
-        )
-        // Status effects
-        let mut status_x = x + 2.0
-        if enemy.fighter.status.strength > 0 {
-          nodes.push(
-            @scene.label(
-              x=status_x,
-              y=enemy_y + enemy_h + 14.0,
-              content="STR+" + enemy.fighter.status.strength.to_string(),
-              color=0xFF4444,
-              scale=0.5,
-            ),
-          )
-          status_x += 30.0
-        }
-        if enemy.fighter.status.vulnerable > 0 {
-          nodes.push(
-            @scene.label(
-              x=status_x,
-              y=enemy_y + enemy_h + 14.0,
-              content="VUL" + enemy.fighter.status.vulnerable.to_string(),
-              color=0xFFAA00,
-              scale=0.5,
-            ),
-          )
-          status_x += 28.0
-        }
-        if enemy.fighter.status.weak > 0 {
-          nodes.push(
-            @scene.label(
-              x=status_x,
-              y=enemy_y + enemy_h + 14.0,
-              content="WK" + enemy.fighter.status.weak.to_string(),
-              color=0xAA88FF,
-              scale=0.5,
-            ),
-          )
-        }
-      }
-      i += 1
-    }
-    nodes
-  })
-}
-
-///|
-fn view_player_info(state : BattleState) -> @scene.SceneNode {
-  let p = state.player
-  let info_x = 10.0
-  let info_y = layout_sh() - card_h - 60.0
-  @scene.fragment([
-    // HP bar
-    @scene.rect(key="hp_bar", x=info_x, y=info_y, w=100.0, h=12.0, fill=0x333333),
-    @scene.rect(
-      key="hp_fill",
-      x=info_x,
-      y=info_y,
-      w=100.0 * p.hp.to_double() / p.max_hp.to_double(),
-      h=12.0,
-      fill=0xCC4444,
-    ),
-    @scene.label(
-      key="hp",
-      x=info_x + 50.0,
-      y=info_y + 6.0,
-      content="HP " + p.hp.to_string() + "/" + p.max_hp.to_string(),
-      scale=0.6,
-      color=0xFFFFFF,
-    ),
-    // Energy
-    @scene.rect(x=info_x, y=info_y + 16.0, w=40.0, h=20.0, fill=0x2244AA),
-    @scene.label(
-      x=info_x + 4.0,
-      y=info_y + 18.0,
-      content=p.energy.to_string() + "/" + p.max_energy.to_string(),
-      color=0xFFDD44,
-      scale=0.8,
-    ),
-    // Block
-    @scene.show(fn() { state.player.block > 0 }, fn() {
-      @scene.fragment([
-        @scene.rect(
-          x=info_x + 50.0,
-          y=info_y + 16.0,
-          w=40.0,
-          h=20.0,
-          fill=0x4488CC,
-        ),
-        @scene.label(
-          x=info_x + 54.0,
-          y=info_y + 18.0,
-          content="BLK " + state.player.block.to_string(),
-          scale=0.6,
-        ),
-      ])
-    }),
-    // Status effects
-    @scene.for_each(fn() {
-      let nodes : Array[@scene.SceneNode] = []
-      let mut sx = info_x
-      let sy = info_y + 40.0
-      if state.player.status.strength > 0 {
-        nodes.push(
-          @scene.label(
-            x=sx,
-            y=sy,
-            content="STR+" + state.player.status.strength.to_string(),
-            color=0xFF4444,
-            scale=0.5,
-          ),
-        )
-        sx += 35.0
-      }
-      if state.player.status.weak > 0 {
-        nodes.push(
-          @scene.label(
-            x=sx,
-            y=sy,
-            content="WK" + state.player.status.weak.to_string(),
-            color=0xAA88FF,
-            scale=0.5,
-          ),
-        )
-        sx += 25.0
-      }
-      if state.player.status.vulnerable > 0 {
-        nodes.push(
-          @scene.label(
-            x=sx,
-            y=sy,
-            content="VUL" + state.player.status.vulnerable.to_string(),
-            color=0xFFAA00,
-            scale=0.5,
-          ),
-        )
-      }
-      nodes
-    }),
-    // Deck info
-    @scene.label(
-      key="deck",
-      x=info_x + 110.0,
-      y=info_y,
-      content="Deck:" + state.draw_pile.length().to_string(),
-      scale=0.5,
-      color=0xDDDDDD,
-    ),
-    @scene.label(
-      key="discard",
-      x=info_x + 110.0,
-      y=info_y + 10.0,
-      content="Disc:" + state.discard_pile.length().to_string(),
-      scale=0.5,
-      color=0xDDDDDD,
-    ),
-    @scene.label(
-      key="exhaust",
-      x=info_x + 110.0,
-      y=info_y + 20.0,
-      content="Exh:" + state.exhaust_pile.length().to_string(),
-      scale=0.5,
-      color=0xDDDDDD,
-    ),
-  ])
-}
-
-///|
-fn view_relics(state : BattleState) -> @scene.SceneNode {
-  let relic_y = layout_sh() - card_h - 80.0
-  let relic_size = 16.0
-  let gap = 4.0
-  @scene.for_each(fn() {
-    let nodes : Array[@scene.SceneNode] = []
-    let mut i = 0
-    let base_x = layout_sw() - 100.0
-    while i < state.relics.length() {
-      let def = relic_def(state.relics[i])
-      let x = base_x + i.to_double() * (relic_size + gap)
-      let color = relic_color(state.relics[i])
-      nodes.push(
-        @scene.rect(x~, y=relic_y, w=relic_size, h=relic_size, fill=color),
-      )
-      nodes.push(
-        @scene.rect_outline(
-          x~,
-          y=relic_y,
-          w=relic_size,
-          h=relic_size,
-          color=0xAAAAAA,
-        ),
-      )
-      // First letter as icon
-      let initial = def.name[:1].to_string()
-      nodes.push(
-        @scene.label(x=x + 2.0, y=relic_y + 1.0, content=initial, scale=0.5),
-      )
-      i += 1
-    }
-    // Label
-    if state.relics.length() > 0 {
-      nodes.push(
-        @scene.label(
-          x=base_x,
-          y=relic_y - 12.0,
-          content="Relics",
-          scale=0.45,
-          color=0x888888,
-        ),
-      )
-    }
-    nodes
-  })
-}
-
-///|
-fn relic_color(id : RelicId) -> Int {
-  match id {
-    BurningBlood => 0x882222
-    Vajra => 0x884422
-    Anchor => 0x224488
-    Orichalcum => 0x448844
-    BagOfMarbles => 0x664488
-    Lantern => 0x888844
-    PenNib => 0x444488
-    MeatOnTheBone => 0x884444
-    RedSkull => 0xAA2222
-    Akabeko => 0xAA6622
-    OrnamentalFan => 0x226688
-    HappyFlower => 0x448822
-  }
-}
-
-///|
-fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
-  let hand_count = state.hand.length()
-  let cw = hand_card_width(hand_count)
-  let gap = 4.0
-  let total_w = hand_count.to_double() * cw + (hand_count - 1).to_double() * gap
-  let start_x = (layout_sw() - total_w) / 2.0
-  let base_y = layout_sh() - card_h - 10.0
-  @scene.for_each(fn() {
-    let nodes : Array[@scene.SceneNode] = []
-    let mut i = 0
-    while i < hand_count {
-      let card_id = state.hand[i]
-      let def = card_def(card_id)
-      let x = start_x + i.to_double() * (cw + gap)
-      let y = if i == selected { base_y - 10.0 } else { base_y }
-      let can_play = state.player.energy >= def.cost &&
-        state.phase == PlayerTurn
-      // Card background
-      let bg_color = if !can_play {
-        0x333344
-      } else {
-        match def.card_type {
-          Attack => 0x884444
-          Skill => 0x165528
-          Power => 0x444488
-        }
-      }
-      nodes.push(
-        @scene.rect(
-          key="card_frame_" + i.to_string(),
-          x~,
-          y~,
-          w=cw,
-          h=card_h,
-          fill=bg_color,
-        ),
-      )
-      let border_color = if i == selected { 0xFFFF00 } else { 0x666666 }
-      nodes.push(
-        @scene.rect_outline(x~, y~, w=cw, h=card_h, color=border_color),
-      )
-      // Card name
-      nodes.push(
-        @scene.label(
-          key="card_" + i.to_string(),
-          x=x + cw / 2.0,
-          y=y + 28.0,
-          content=def.name,
-          scale=0.55,
-          color=0xFFFFFF,
-        ),
-      )
-      // Cost
-      nodes.push(@scene.rect(x~, y~, w=16.0, h=16.0, fill=0x2244AA))
-      nodes.push(
-        @scene.label(
-          key="cost_" + i.to_string(),
-          x=x + 12.0,
-          y=y + 8.0,
-          content=def.cost.to_string(),
-          color=0xFFDD44,
-          scale=0.7,
-        ),
-      )
-      // Description
-      nodes.push(
-        @scene.label(
-          key="desc_" + i.to_string(),
-          x=x + cw / 2.0,
-          y=y + 50.0,
-          content=short_desc(def),
-          scale=0.4,
-          color=0xFFFFFF,
-        ),
-      )
-      // Exhaust indicator
-      if def.exhaust {
-        nodes.push(
-          @scene.label(
-            x=x + 3.0,
-            y=y + card_h - 14.0,
-            content="Exhaust",
-            scale=0.35,
-            color=0xFF6666,
-          ),
-        )
-      }
-      i += 1
-    }
-    nodes
-  })
-}
-
-///|
-fn short_desc(def : CardDef) -> String {
-  match def.id {
-    Strike => "DMG 6"
-    Defend => "BLK 5"
-    Bash => "DMG 8 VUL2"
-    Cleave => "DMG 8 ALL"
-    Pommel_Strike => "DMG 9 +1"
-    Twin_Strike => "DMG 5x2"
-    Iron_Wave => "BLK5 DMG5"
-    Anger => "DMG 6 +copy"
-    Headbutt => "DMG 9 recur"
-    Shrug_It_Off => "BLK 8 +1"
-    Armaments => "BLK 5"
-    True_Grit => "BLK 7 exh"
-    Flex => "+2 tmpSTR"
-    Clothesline => "D12 WK2"
-    Uppercut => "D13 WK1VU1"
-    Body_Slam => "DMG=BLK"
-    Sword_Boomerang => "D3x3 rng"
-    Rampage => "D8 +5/play"
-    Bloodletting => "-3HP +2E"
-    Offering => "-6HP+2E+3"
-    Seeing_Red => "+2 Energy"
-    Battle_Trance => "Draw 3"
-    Shockwave => "WK3VU3 ALL"
-    Disarm => "STR-2"
-    Inflame => "STR +2"
-    Metallicize => "+3BLK/turn"
-    Bludgeon => "DMG 32"
-    Impervious => "BLK 30"
-    Demon_Form => "+2STR/turn"
-    Barricade => "Keep BLK"
-    Feel_No_Pain => "+3BLK/exh"
-    Corruption => "Free SKL"
-    Heavy_Blade => "D14 STRx3"
-    Whirlwind => "D5xE ALL"
-    Feed => "D10 +3MHP"
-    Fiend_Fire => "Exh hand"
-    Limit_Break => "STR x2"
-    Carnage => "D20 Ether"
-    Immolate => "D21 ALL"
-    Reaper => "D4 ALL+Heal"
-    Entrench => "BLK x2"
-    Pummel => "D2 x4"
-  }
-}
-
-///|
-fn view_end_turn_button() -> @scene.SceneNode {
-  let bx = layout_sw() - 90.0
-  let by = layout_sh() - card_h - 50.0
-  @scene.fragment([
-    @scene.rect(key="end_turn_btn", x=bx, y=by, w=80.0, h=30.0, fill=0x885522),
-    @scene.rect_outline(key="end_turn_frame", x=bx, y=by, w=80.0, h=30.0, color=0xAA7744),
-    @scene.label(
-      key="end_turn",
-      x=bx + 40.0,
-      y=by + 15.0,
-      content="End Turn",
-      scale=0.7,
-      color=0xFFFFFF,
-    ),
-  ])
-}
-
-///|
-fn view_logs(state : BattleState) -> @scene.SceneNode {
-  let log_y = 150.0
-  @scene.for_each(fn() {
-    let nodes : Array[@scene.SceneNode] = []
-    let logs = state.logs
-    let start = if logs.length() > 4 { logs.length() - 4 } else { 0 }
-    let mut idx = 0
-    let mut i = start
-    while i < logs.length() {
-      nodes.push(
-        @scene.label(
-          key="log_" + idx.to_string(),
-          x=120.0,
-          y=log_y + idx.to_double() * 12.0,
-          content=logs[i],
-          scale=0.45,
-          color=0xDDDDDD,
-        ),
-      )
-      idx += 1
-      i += 1
-    }
-    nodes
-  })
-}
-
-///|
-fn view_battle_result(state : BattleState) -> @scene.SceneNode {
-  let sw = layout_sw()
-  let sh = layout_sh()
-  let (text, color) = match state.phase {
-    Victory => ("VICTORY!", 0x44FF44)
-    Defeat => ("DEFEATED", 0xFF4444)
-    _ => ("", 0xFFFFFF)
+fn view_header(run : RunState, l : GameLayout) -> @scene.SceneNode {
+  let hp = match run.battle {
+    Some(b) => if run.phase == Battle { b.player.hp } else { run.player_hp }
+    None => run.player_hp
   }
   @scene.fragment([
-    @scene.rect(w=sw, h=sh, fill=0x000000, alpha=0.6),
-    @scene.label(
-      x=sw / 2.0 - 40.0,
-      y=sh / 2.0 - 10.0,
-      content=text,
-      color~,
-      scale=2.0,
-    ),
-    @scene.label(
-      x=sw / 2.0 - 50.0,
-      y=sh / 2.0 + 20.0,
-      content="Click to continue",
-      scale=0.7,
-    ),
-  ])
-}
-
-///|
-fn view_floor_bar(run : RunState) -> @scene.SceneNode {
-  let sw = layout_sw()
-  let bar_h = 16.0
-  let nodes : Array[@scene.SceneNode] = []
-  nodes.push(@scene.rect(w=sw, h=bar_h, fill=0x222244))
-  // Floor dots
-  let n = max_floor.to_double()
-  let max_span = sw - 100.0
-  let dot_gap = 2.0
-  let mut dot_size = (max_span - (n - 1.0) * dot_gap) / n
-  if dot_size > 10.0 {
-    dot_size = 10.0
-  }
-  if dot_size < 4.0 {
-    dot_size = 4.0
-  }
-  let total = n * dot_size + (n - 1.0) * dot_gap
-  let start_x = (sw - total) / 2.0
-  let mut i = 1
-  while i <= max_floor {
-    let x = start_x + (i - 1).to_double() * (dot_size + dot_gap)
-    let color = if i < run.floor {
-      0x44AA44 // completed
-    } else if i == run.floor {
-      0xFFDD44 // current
-    } else {
-      0x8888AA // future
-    }
-    nodes.push(@scene.rect(x~, y=3.0, w=dot_size, h=dot_size, fill=color))
-    if i <= run.floor {
-      let label = match floor_type(i) {
-        Combat(Easy) => "E"
-        Combat(Normal) => "N"
-        Combat(Elite) => "!"
-        Combat(Boss) | Boss => "B"
-        Rest => "R"
-      }
-      nodes.push(
-        @scene.label(
-          key="floor_" + i.to_string(),
-          x=x + dot_size / 2.0,
-          y=8.0,
-          content=label,
-          scale=0.45,
-          color=0x111122,
-        ),
-      )
-    }
-    i += 1
-  }
-  // HP display on the right
-  nodes.push(
-    @scene.label(
-      key="run_hp",
-      x=sw - 40.0,
-      y=8.0,
-      content="HP " +
-        run.player_hp.to_string() +
-        "/" +
-        run.player_max_hp.to_string(),
+    @scene.rect(w=l.w, h=52.0, fill=0x0C1119),
+    fit_text("title", 80.0, 17.0, "EMBER ASCENT", 136.0, scale=0.95, color=gold),
+    ui_text(
+      "floor",
+      80.0,
+      37.0,
+      "ACT " +
+      floor_act(run.floor).to_string() +
+      " / FLOOR " +
+      run.floor.to_string(),
       scale=0.55,
-      color=0xFFFFFF,
+      color=muted_ink,
     ),
-  )
-  @scene.fragment(nodes)
-}
-
-///|
-fn view_player_info_from_run(run : RunState) -> @scene.SceneNode {
-  match run.battle {
-    Some(state) => view_player_info(state)
-    None => @scene.fragment([])
-  }
-}
-
-///|
-fn view_card_reward(run : RunState) -> @scene.SceneNode {
-  let sw = layout_sw()
-  let nodes : Array[@scene.SceneNode] = []
-  // Title
-  nodes.push(
-    @scene.label(
-      x=sw / 2.0 - 60.0,
-      y=30.0,
-      content="Choose a Card",
-      scale=1.2,
-      color=0xFFDD44,
+    fit_text(
+      "run_hp",
+      (160.0 + l.w - 112.0) / 2.0,
+      26.0,
+      "HP " + hp.to_string() + "/" + run.player_max_hp.to_string(),
+      l.w - 284.0,
+      scale=0.75,
     ),
-  )
-  nodes.push(
-    @scene.label(
-      x=sw / 2.0 - 80.0,
-      y=55.0,
-      content="Deck: " + run.deck.length().to_string() + " cards",
-      scale=0.6,
-      color=0x888888,
-    ),
-  )
-  // Card rewards
-  let reward_w = 80.0
-  let reward_h = 110.0
-  let gap = 16.0
-  let count = run.card_rewards.length()
-  let total_w = count.to_double() * reward_w + (count - 1).to_double() * gap
-  let start_x = (sw - total_w) / 2.0
-  let card_y = 100.0
-  let mut i = 0
-  while i < count {
-    let card_id = run.card_rewards[i]
-    let def = card_def(card_id)
-    let x = start_x + i.to_double() * (reward_w + gap)
-    // Card background
-    let bg_color = match def.card_type {
-      Attack => 0x884444
-      Skill => 0x448844
-      Power => 0x444488
-    }
-    nodes.push(@scene.rect(x~, y=card_y, w=reward_w, h=reward_h, fill=bg_color))
-    nodes.push(
-      @scene.rect_outline(x~, y=card_y, w=reward_w, h=reward_h, color=0xAA8844),
-    )
-    // Cost
-    nodes.push(@scene.rect(x~, y=card_y, w=18.0, h=18.0, fill=0x2244AA))
-    nodes.push(
-      @scene.label(
-        x=x + 4.0,
-        y=card_y + 2.0,
-        content=def.cost.to_string(),
-        color=0xFFDD44,
-        scale=0.7,
-      ),
-    )
-    // Name
-    nodes.push(
-      @scene.label(x=x + 4.0, y=card_y + 22.0, content=def.name, scale=0.6),
-    )
-    // Description
-    nodes.push(
-      @scene.label(
-        x=x + 4.0,
-        y=card_y + 44.0,
-        content=def.description,
-        scale=0.35,
-        color=0xCCCCCC,
-      ),
-    )
-    // Type
-    let type_str = match def.card_type {
-      Attack => "Attack"
-      Skill => "Skill"
-      Power => "Power"
-    }
-    nodes.push(
-      @scene.label(
-        x=x + 4.0,
-        y=card_y + reward_h - 16.0,
-        content=type_str,
-        scale=0.4,
-        color=0x999999,
-      ),
-    )
-    if def.exhaust {
-      nodes.push(
-        @scene.label(
-          x=x + 4.0,
-          y=card_y + reward_h - 28.0,
-          content="Exhaust",
-          scale=0.35,
-          color=0xFF6666,
-        ),
-      )
-    }
-    i += 1
-  }
-  // Skip button
-  let skip_x = sw / 2.0 - 40.0
-  let skip_y = 240.0
-  nodes.push(@scene.rect(x=skip_x, y=skip_y, w=80.0, h=30.0, fill=0x553333))
-  nodes.push(
-    @scene.rect_outline(x=skip_x, y=skip_y, w=80.0, h=30.0, color=0x774444),
-  )
-  nodes.push(
-    @scene.label(x=skip_x + 18.0, y=skip_y + 6.0, content="Skip", scale=0.7),
-  )
-  @scene.fragment(nodes)
-}
-
-///|
-fn view_rest_site(run : RunState) -> @scene.SceneNode {
-  let sw = layout_sw()
-  let sh = layout_sh()
-  let heal = run.player_max_hp * 3 / 10
-  @scene.fragment([
-    @scene.label(
-      x=sw / 2.0 - 40.0,
-      y=sh / 2.0 - 60.0,
-      content="Rest Site",
-      scale=1.5,
-      color=0x88CCFF,
-    ),
-    @scene.rect(
-      x=sw / 2.0 - 30.0,
-      y=sh / 2.0 - 20.0,
-      w=60.0,
-      h=60.0,
-      fill=0x334455,
-    ),
-    @scene.label(
-      x=sw / 2.0 - 22.0,
-      y=sh / 2.0 - 5.0,
-      content="Rest",
-      scale=1.0,
-      color=0x88CCFF,
-    ),
-    @scene.label(
-      x=sw / 2.0 - 28.0,
-      y=sh / 2.0 + 15.0,
-      content="+" + heal.to_string() + " HP",
-      scale=0.7,
-      color=0x44CC44,
-    ),
-    @scene.label(
-      x=sw / 2.0 - 40.0,
-      y=sh / 2.0 + 50.0,
-      content="Click to rest",
-      scale=0.6,
-      color=0x888888,
+    ui_button(
+      "deck_btn",
+      deck_button_rect(l),
+      "DECK " + run.deck.length().to_string(),
+      accent=cyan,
     ),
   ])
 }
 
 ///|
-fn view_run_over(run : RunState) -> @scene.SceneNode {
-  let sw = layout_sw()
-  let sh = layout_sh()
-  let (text, color) = match run.phase {
-    RunVictory => ("RUN COMPLETE!", 0x44FF44)
-    RunDefeat => ("RUN FAILED", 0xFF4444)
-    _ => ("", 0xFFFFFF)
+fn view_route(run : RunState, l : GameLayout) -> @scene.SceneNode {
+  let nodes : Array[@scene.SceneNode] = []
+  let act_start = if run.floor <= 15 { 1 } else { 16 }
+  let step = ui_min(36.0, (l.w - 32.0) / 15.0)
+  let start_x = (l.w - step * 15.0) / 2.0
+  for i = 0; i < 15; i = i + 1 {
+    let floor = act_start + i
+    let color = if floor < run.floor {
+      cyan
+    } else if floor == run.floor {
+      gold
+    } else {
+      muted_ink
+    }
+    let label = match floor_type(floor) {
+      Rest => "R"
+      Boss | Combat(Boss) => "B"
+      Combat(Elite) => "E"
+      _ => "+"
+    }
+    nodes.push(
+      @scene.rect(
+        x=start_x + i.to_double() * step + 3.0,
+        y=61.0,
+        w=step - 6.0,
+        h=14.0,
+        fill=if floor == run.floor { 0x3B3024 } else { 0x222C3B },
+      ),
+    )
+    nodes.push(
+      ui_text(
+        "route_" + floor.to_string(),
+        start_x + (i.to_double() + 0.5) * step,
+        68.0,
+        label,
+        scale=0.6,
+        color~,
+      ),
+    )
   }
-  let floor_text = "Reached Floor " + run.floor.to_string()
-  let deck_text = "Deck: " + run.deck.length().to_string() + " cards"
-  @scene.fragment([
-    @scene.rect(w=sw, h=sh, fill=0x000000, alpha=0.8),
-    @scene.label(
-      x=sw / 2.0 - 60.0,
-      y=sh / 2.0 - 30.0,
-      content=text,
-      color~,
-      scale=1.8,
+  @scene.fragment(nodes)
+}
+
+///|
+fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
+  let l = self.layout
+  let selected = self.selected_card.get()
+  let dragging = self.gesture is Some({ dragged: true, .. })
+  let hovered = hit_card(l, state.hand.length(), self.cursor_x, self.cursor_y)
+  let nodes : Array[@scene.SceneNode] = [view_route(self.run.get(), l)]
+  let area = l.play_area()
+  nodes.push(@scene.rect(x=area.x, y=area.y, w=area.w, h=area.h, fill=0x1A2533))
+  if dragging && selected >= 0 && !card_needs_target(state.hand[selected]) {
+    nodes.push(
+      @scene.rect_outline(
+        x=area.x,
+        y=area.y,
+        w=area.w,
+        h=area.h,
+        line_width=2.0,
+        color=cyan,
+      ),
+    )
+  }
+  let player = l.player_rect()
+  let count = state.hand.length()
+  let crowded = count > 1 &&
+    l.card_rect(1, count).x - l.card_rect(0, count).x <
+    l.card_rect(0, count).w - 8.0
+  let inspecting = crowded && hovered >= 0 && !dragging
+  if inspecting {
+    nodes.push(view_card_detail(state.hand[hovered], area))
+  } else {
+    nodes.push(view_player(state, player))
+    for i = 0; i < state.enemies.length(); i = i + 1 {
+      if !state.enemies[i].fighter.is_dead() {
+        let enemy = state.enemies[i]
+        nodes.push(
+          view_enemy(
+            enemy,
+            l.enemy_rect(i, state.enemies.length()),
+            i,
+            self.need_target && self.target_enemy.get() == i,
+          ),
+        )
+      }
+    }
+  }
+  let energy_text = "ENERGY " +
+    state.player.energy.to_string() +
+    "/" +
+    state.player.max_energy.to_string()
+  nodes.push(
+    ui_panel(
+      "energy_panel",
+      {
+        x: 16.0,
+        y: l.command_y,
+        w: if l.w < 400.0 {
+          104.0
+        } else {
+          130.0
+        },
+        h: 44.0,
+      },
+      0x253044,
+      cyan,
+      [
+        fit_text(
+          "energy",
+          if l.w < 400.0 {
+            52.0
+          } else {
+            65.0
+          },
+          22.0,
+          energy_text,
+          if l.w < 400.0 {
+            92.0
+          } else {
+            118.0
+          },
+          scale=0.85,
+          color=cyan,
+        ),
+      ],
     ),
-    @scene.label(
-      x=sw / 2.0 - 40.0,
-      y=sh / 2.0 + 10.0,
-      content=floor_text,
-      scale=0.7,
-      color=0xCCCCCC,
+  )
+  let pile_x = if l.w < 400.0 { 178.0 } else { 212.0 }
+  nodes.push(
+    ui_text(
+      "piles",
+      pile_x,
+      l.command_y + 13.0,
+      "DRAW " +
+      state.draw_pile.length().to_string() +
+      " / DISC " +
+      state.discard_pile.length().to_string(),
+      scale=if l.w < 400.0 { 0.45 } else { 0.55 },
+      color=muted_ink,
     ),
-    @scene.label(
-      x=sw / 2.0 - 40.0,
-      y=sh / 2.0 + 26.0,
-      content=deck_text,
-      scale=0.6,
-      color=0x888888,
+  )
+  nodes.push(
+    ui_text(
+      "turn",
+      pile_x,
+      l.command_y + 31.0,
+      "TURN " +
+      state.turn.to_string() +
+      " / EXH " +
+      state.exhaust_pile.length().to_string(),
+      scale=0.5,
+      color=muted_ink,
     ),
-    @scene.label(
-      x=sw / 2.0 - 50.0,
-      y=sh / 2.0 + 50.0,
-      content="Click to start new run",
+  )
+  nodes.push(ui_button("end_turn_btn", l.end_turn_rect(), "END TURN"))
+  if l.h >= 440.0 {
+    let log = if state.logs.length() > 0 {
+      state.logs[state.logs.length() - 1]
+    } else {
+      ""
+    }
+    nodes.push(
+      fit_text(
+        "battle_log",
+        l.w / 2.0,
+        l.command_y - 16.0,
+        log,
+        l.w - 40.0,
+        scale=0.6,
+        color=muted_ink,
+      ),
+    )
+  }
+  for i = 0; i < count; i = i + 1 {
+    if !(dragging && selected == i) {
+      let r = l.card_rect(i, count)
+      let raised : UiRect = {
+        ..r,
+        y: r.y -
+        (if !crowded && (i == selected || i == hovered) { 8.0 } else { 0.0 }),
+      }
+      nodes.push(
+        ui_card(
+          "card_frame_" + i.to_string(),
+          raised,
+          state.hand[i],
+          card_play_cost(state, state.hand[i]),
+          can_play_card(state, i),
+          i == selected,
+          spine=crowded,
+        ),
+      )
+    }
+  }
+  if dragging && selected >= 0 {
+    // Keep the dragged preview clear of the target's intent and HP.
+    let card = state.hand[selected]
+    let preview = drag_card_rect(
+      l,
+      state,
+      selected,
+      self.cursor_x,
+      self.cursor_y,
+    )
+    nodes.push(
+      @scene.line(
+        x0=self.gesture.unwrap().start_x,
+        y0=l.hand_y,
+        x1=self.cursor_x,
+        y1=self.cursor_y,
+        width=2.0,
+        color=gold,
+      ),
+    )
+    nodes.push(
+      ui_card(
+        "drag_card",
+        preview,
+        card,
+        card_play_cost(state, card),
+        true,
+        true,
+      ),
+    )
+    nodes.push(
+      @scene.rect_outline(
+        x=self.cursor_x - 5.0,
+        y=self.cursor_y - 5.0,
+        w=10.0,
+        h=10.0,
+        line_width=2.0,
+        color=gold,
+      ),
+    )
+  }
+  let hint = if selected >= 0 {
+    self.hint
+  } else if hovered >= 0 && !can_play_card(state, hovered) {
+    "NOT ENOUGH ENERGY"
+  } else if crowded {
+    "HOVER TO INSPECT / DRAG TO PLAY"
+  } else {
+    self.hint
+  }
+  nodes.push(
+    fit_text(
+      "hint",
+      l.w / 2.0,
+      l.h - 10.0,
+      hint,
+      l.w - 24.0,
+      scale=0.55,
+      color=gold,
+    ),
+  )
+  @scene.fragment(nodes)
+}
+
+///|
+fn view_player(state : BattleState, r : UiRect) -> @scene.SceneNode {
+  let p = state.player
+  let compact = r.h < 110.0
+  let nodes : Array[@scene.SceneNode] = [
+    ui_text("name", r.w / 2.0, 13.0, "IRONCLAD", scale=0.7, color=cyan),
+    ui_meter("hp_bar", 10.0, r.h - 23.0, r.w - 20.0, p.hp, p.max_hp, 0x86453D),
+  ]
+  if !compact {
+    nodes.push(
+      pixel_actor(
+        "hero",
+        r.w / 2.0 - 27.0,
+        34.0,
+        if r.h < 150.0 {
+          42.0
+        } else {
+          54.0
+        },
+        0xC98A65,
+        false,
+      ),
+    )
+    nodes.push(
+      fit_text(
+        "block",
+        r.w / 2.0,
+        r.h - 43.0,
+        "BLOCK " +
+        p.block.to_string() +
+        " / STR " +
+        p.status.strength.to_string(),
+        r.w - 12.0,
+        scale=0.55,
+        color=cyan,
+      ),
+    )
+  } else {
+    nodes.push(
+      pixel_actor("hero", r.w / 2.0 - 7.0, 22.0, 14.0, 0xC98A65, false),
+    )
+    nodes.push(
+      fit_text(
+        "block",
+        r.w / 2.0,
+        r.h / 2.0 - 2.0,
+        "BLOCK " + p.block.to_string() + " STR " + p.status.strength.to_string(),
+        r.w - 12.0,
+        scale=0.55,
+        color=cyan,
+      ),
+    )
+  }
+  let status = "WK " +
+    p.status.weak.to_string() +
+    " / VUL " +
+    p.status.vulnerable.to_string()
+  nodes.push(
+    fit_text(
+      "status",
+      r.w / 2.0,
+      r.h - 7.0,
+      status,
+      r.w - 12.0,
+      scale=0.45,
+      color=muted_ink,
+    ),
+  )
+  ui_panel("player", r, 0x202E3E, 0x456277, nodes)
+}
+
+///|
+fn view_enemy(
+  enemy : Enemy,
+  r : UiRect,
+  index : Int,
+  targeted : Bool,
+) -> @scene.SceneNode {
+  let intent = match enemy.intent {
+    AttackIntent(n) =>
+      "ATTACK " + (n + enemy.fighter.status.strength).to_string()
+    MultiAttack(n, t) =>
+      "ATK " +
+      (n + enemy.fighter.status.strength).to_string() +
+      " X" +
+      t.to_string()
+    DefendIntent(n) => "BLOCK " + n.to_string()
+    BuffIntent => "BUFF"
+    DebuffIntent => "DEBUFF"
+  }
+  let nodes : Array[@scene.SceneNode] = [
+    fit_text(
+      "name",
+      r.w / 2.0,
+      12.0,
+      enemy.fighter.name,
+      r.w - 12.0,
       scale=0.65,
     ),
+    fit_text(
+      "intent",
+      r.w / 2.0,
+      30.0,
+      intent,
+      r.w - 12.0,
+      scale=0.65,
+      color=gold,
+    ),
+    ui_meter(
+      "hp",
+      8.0,
+      r.h - 28.0,
+      r.w - 16.0,
+      enemy.fighter.hp,
+      enemy.fighter.max_hp,
+      0x86453D,
+    ),
+    fit_text(
+      "status",
+      r.w / 2.0,
+      r.h - 10.0,
+      "B " +
+      enemy.fighter.block.to_string() +
+      " V " +
+      enemy.fighter.status.vulnerable.to_string() +
+      " W " +
+      enemy.fighter.status.weak.to_string(),
+      r.w - 10.0,
+      scale=0.45,
+      color=muted_ink,
+    ),
+  ]
+  let sprite_size = ui_min(48.0, ui_max(0.0, r.h - 72.0))
+  if sprite_size > 0.0 {
+    nodes.push(
+      pixel_actor(
+        "foe",
+        r.w / 2.0 - sprite_size / 2.0,
+        if r.h >= 130.0 {
+          48.0
+        } else {
+          40.0
+        },
+        sprite_size,
+        if enemy.fighter.status.vulnerable > 0 {
+          0xE1997E
+        } else {
+          0xB2829B
+        },
+        true,
+      ),
+    )
+  }
+  ui_panel(
+    "enemy_body_" + index.to_string(),
+    r,
+    0x302A36,
+    if targeted {
+      gold
+    } else {
+      0x806776
+    },
+    nodes,
+  )
+}
+
+///|
+fn pixel_actor(
+  _key : String,
+  x : Double,
+  y : Double,
+  size : Double,
+  color : Int,
+  monster : Bool,
+) -> @scene.SceneNode {
+  let pattern = if monster {
+    [
+      "00100100", "01111110", "11011011", "11111111", "01111110", "00111100", "01100110",
+      "11000011",
+    ]
+  } else {
+    [
+      "00111100", "00111100", "00011000", "01111110", "10111101", "00111100", "00100100",
+      "01100110",
+    ]
+  }
+  let p = size / 8.0
+  let nodes : Array[@scene.SceneNode] = []
+  for row = 0; row < 8; row = row + 1 {
+    for col = 0; col < 8; col = col + 1 {
+      if pattern[row][col] == '1' {
+        nodes.push(
+          @scene.rect(
+            x=x + col.to_double() * p,
+            y=y + row.to_double() * p,
+            w=p,
+            h=p,
+            fill=color,
+          ),
+        )
+      }
+    }
+  }
+  @scene.fragment(nodes)
+}
+
+///|
+fn view_reward(run : RunState, l : GameLayout) -> @scene.SceneNode {
+  let nodes : Array[@scene.SceneNode] = [
+    fit_text(
+      "reward_title",
+      l.w / 2.0,
+      l.h * 0.19,
+      "CHOOSE YOUR NEXT CARD",
+      l.w - 32.0,
+      scale=1.15,
+      color=gold,
+    ),
+    fit_text(
+      "reward_hint",
+      l.w / 2.0,
+      l.h * 0.27,
+      "ADD ONE TO YOUR DECK / 1 2 3",
+      l.w - 32.0,
+      scale=0.6,
+      color=muted_ink,
+    ),
+    ui_button("skip_reward", l.continue_rect(), "SKIP / S", accent=muted_ink),
+  ]
+  for i = 0; i < run.card_rewards.length(); i = i + 1 {
+    let card = run.card_rewards[i]
+    nodes.push(
+      ui_card(
+        "reward_" + i.to_string(),
+        l.reward_rect(i, run.card_rewards.length()),
+        card,
+        card_def(card).cost,
+        true,
+        false,
+        detailed=true,
+      ),
+    )
+  }
+  @scene.fragment(nodes)
+}
+
+///|
+fn view_rest(run : RunState, l : GameLayout) -> @scene.SceneNode {
+  let heal = ui_min(run.player_max_hp - run.player_hp, run.player_max_hp / 4)
+  @scene.fragment([
+    fit_text(
+      "rest_title",
+      l.w / 2.0,
+      l.h * 0.23,
+      "A MOMENT OF REST",
+      l.w - 32.0,
+      scale=1.3,
+      color=gold,
+    ),
+    card_icon(Inflame, l.w / 2.0 - 35.0, l.h * 0.35, 70.0, gold),
+    ui_text(
+      "rest_heal",
+      l.w / 2.0,
+      l.h * 0.57,
+      "RECOVER " + heal.to_string() + " HP",
+      scale=0.9,
+      color=cyan,
+    ),
+    fit_text(
+      "rest_hp",
+      l.w / 2.0,
+      l.h * 0.66,
+      "HP " +
+      run.player_hp.to_string() +
+      " > " +
+      (run.player_hp + heal).to_string(),
+      l.w - 32.0,
+      scale=0.65,
+      color=muted_ink,
+    ),
+    ui_button("rest_btn", l.continue_rect(), "REST / ENTER"),
   ])
 }
 
 ///|
-pub extend Game with @mizchi/kagura_engine/scene.SceneGame::{
-  update_game,
-  view_game,
+fn view_result(
+  l : GameLayout,
+  title : String,
+  subtitle : String,
+  action : String,
+) -> @scene.SceneNode {
+  @scene.fragment([
+    fit_text(
+      "result_title",
+      l.w / 2.0,
+      l.h * 0.35,
+      title,
+      l.w - 32.0,
+      scale=1.6,
+      color=gold,
+    ),
+    fit_text(
+      "result_detail",
+      l.w / 2.0,
+      l.h * 0.5,
+      subtitle,
+      l.w - 32.0,
+      scale=0.7,
+      color=muted_ink,
+    ),
+    ui_button("continue_btn", l.continue_rect(), action),
+  ])
+}
+
+///|
+fn view_deck(run : RunState, l : GameLayout, page : Int) -> @scene.SceneNode {
+  let nodes : Array[@scene.SceneNode] = [
+    fit_text(
+      "deck_title",
+      l.w / 2.0,
+      90.0,
+      "DECK AND RELICS",
+      l.w - 24.0,
+      scale=1.15,
+      color=gold,
+    ),
+    fit_text(
+      "relics",
+      l.w / 2.0,
+      110.0,
+      "RELICS " +
+      run.relics.length().to_string() +
+      " / PAGE " +
+      (page + 1).to_string() +
+      "/" +
+      deck_page_count(run).to_string(),
+      l.w - 32.0,
+      scale=0.5,
+      color=cyan,
+    ),
+    ui_button("deck_close", l.continue_rect(), "CLOSE / ESC", accent=cyan),
+    ui_button("deck_next", deck_next_rect(l), "NEXT PAGE >"),
+  ]
+  let start = page * 8
+  for i = 0
+      i < 8 && start + i < run.deck.length() + run.relics.length()
+      i = i + 1 {
+    let y = 125.0 + i.to_double() * ui_min(30.0, (l.h - 265.0) / 8.0)
+    if start + i < run.deck.length() {
+      let card = run.deck[start + i]
+      nodes.push(
+        fit_text(
+          "deck_card_" + i.to_string(),
+          l.w / 2.0,
+          y,
+          (start + i + 1).to_string() +
+          " " +
+          card_def(card).name +
+          " / " +
+          card_def(card).cost.to_string() +
+          " E",
+          l.w - 40.0,
+          scale=0.65,
+          color=card_accent(card),
+        ),
+      )
+    } else {
+      let relic = run.relics[start + i - run.deck.length()]
+      nodes.push(
+        fit_text(
+          "deck_relic_" + i.to_string(),
+          l.w / 2.0,
+          y,
+          "RELIC / " + relic_def(relic).name,
+          l.w - 40.0,
+          scale=0.65,
+          color=cyan,
+        ),
+      )
+    }
+  }
+  @scene.fragment(nodes)
+}
+
+///|
+fn deck_page_count(run : RunState) -> Int {
+  ui_max(1, (run.deck.length() + run.relics.length() + 7) / 8)
 }

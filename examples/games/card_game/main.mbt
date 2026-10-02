@@ -1,11 +1,12 @@
 ///|
 fn main {
-  let game = @lib.Game::new()
+  let (width, height) = default_viewport()
+  let game = initial_states().create_for_capture(width~, height~)
   @scene.run_game(
     game,
-    width=@lib.screen_w,
-    height=@lib.screen_h,
-    title="Card Battle",
+    width~,
+    height~,
+    title="Ember Ascent",
     canvas="#app",
     snapshot_state=fn() { game.snapshot_state() },
     apply_viewport=fn(width, height) { game.set_viewport(width, height) },

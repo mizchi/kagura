@@ -1,6 +1,7 @@
 import {
   "mizchi/card_game/lib",
   "mizchi/kagura_engine/scene",
+  "mizchi/kagura_engine" @engine,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -11,6 +12,12 @@ supported_targets = "js+native"
 pkgtype(kind: "executable")
 
 options(
+  targets: {
+    "viewport_js.mbt": [ "js" ],
+    "viewport_native.mbt": [ "native" ],
+    "verification_debug.mbt": [ "debug" ],
+    "verification_release.mbt": [ "release" ],
+  },
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

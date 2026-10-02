@@ -16,13 +16,15 @@ const HIDDEN_PAGE_NAMES = new Set([
 const RAW_DEMO_PAGES = [
   {
     name: "card_game",
-    title: "Card Game",
+    title: "Ember Ascent",
     group: "Games",
     summary: "Build a deck, balance attacks and defense, and climb through increasingly difficult encounters.",
-    start: "Opens directly into a card battle. Click a card to play it.",
-    controls: ["Click a card to play it", "Use the on-screen buttons to choose targets, end turns and collect rewards"],
+    start: "Drag attacks onto enemies, and drop skills onto the battlefield. Win battles to build your deck and climb 30 floors.",
+    controls: ["Drag a card to play; release outside the battlefield to cancel", "Click a card, then an enemy to choose a target", "1–9: select a card; arrows: choose an enemy; Enter: play", "E: end turn; D: inspect your deck; Esc: cancel", "Choose one card after each victory; rest to recover HP"],
     tags: ["2D", "Cards", "Roguelite"],
     sourcePath: "examples/games/card_game/main.mbt",
+    width: 960,
+    height: 640,
   },
   {
     name: "emberwing",
@@ -568,231 +570,97 @@ export function renderDemoHtml({
   libPrefix = "../lib",
 }) {
   if (demo.name === "hacknslash_3d") return renderHunterPage({ scriptTag, homeHref, homeLabel, libPrefix });
-  const tagHtml = demo.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join("");
-  const controlsHtml = demo.controls
-    .map((control) => `<li>${escapeHtml(control)}</li>`)
-    .join("");
+  const controlsHtml = demo.controls.map(control => `<li>${escapeHtml(control)}</li>`).join('');
   return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>${escapeHtml(demo.title)} - Kagura</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #08101a;
-        --panel: rgba(10, 16, 28, 0.88);
-        --panel-border: rgba(128, 156, 196, 0.22);
-        --muted: #9fb0c7;
-        --text: #eef4ff;
-        --accent: #79d4ff;
-        --accent-strong: #ffe082;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        min-height: 100svh;
-        font-family: system-ui, sans-serif;
-        color: var(--text);
-        background:
-          radial-gradient(circle at top, rgba(73, 122, 183, 0.24), transparent 34rem),
-          linear-gradient(180deg, #0d1524 0%, var(--bg) 100%);
-      }
-      a {
-        color: inherit;
-      }
-      .page {
-        width: min(100%, 72rem);
-        margin: 0 auto;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .hero,
-      .stage-panel,
-      .card {
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        border-radius: 1.25rem;
-        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
-      }
-      .hero {
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .hero-top {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.75rem;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .hero-links {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-      }
-      .hero-link,
-      .hero-link:visited {
-        text-decoration: none;
-        color: var(--accent);
-        font-weight: 600;
-      }
-      .hero-link:hover {
-        text-decoration: underline;
-      }
-      h1,
-      h2,
-      p {
-        margin: 0;
-      }
-      .hero p,
-      .card p,
-      .support-copy {
-        color: var(--muted);
-        line-height: 1.55;
-      }
-      .tag-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-      .tag-list li {
-        padding: 0.25rem 0.6rem;
-        border-radius: 999px;
-        background: rgba(121, 212, 255, 0.12);
-        border: 1px solid rgba(121, 212, 255, 0.24);
-        color: #d7f5ff;
-        font-size: 0.82rem;
-      }
-      .content {
-        display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
-        gap: 1rem;
-        align-items: start;
-      }
-      .stage-panel {
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .stage-shell {
-        border-radius: 1rem;
-        background: #02060d;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 0.75rem;
-        display: flex;
-        justify-content: center;
-      }
-      .stage-canvas {
-        display: block;
-        width: min(100%, 28rem);
-        height: auto;
-        aspect-ratio: 4 / 3;
-        max-height: 62svh;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: #000;
-        image-rendering: pixelated;
-      }
-      .side {
-        display: grid;
-        gap: 1rem;
-      }
-      .card {
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-      }
-      .card ul {
-        margin: 0;
-        padding-left: 1.1rem;
-        color: var(--text);
-      }
-      .card li + li {
-        margin-top: 0.35rem;
-      }
-      .card strong {
-        color: var(--accent-strong);
-      }
-      @media (max-width: 860px) {
-        .content {
-          grid-template-columns: 1fr;
-        }
-      }
-      @media (max-width: 520px) {
-        .page {
-          padding: 0.75rem;
-        }
-        .hero,
-        .stage-panel,
-        .card {
-          border-radius: 1rem;
-        }
-        .stage-panel {
-          padding: 0.75rem;
-        }
-        .stage-shell {
-          padding: 0.5rem;
-        }
-        .stage-canvas {
-          width: 100%;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page">
-      <header class="hero">
-        <div class="hero-top">
-          <div class="hero-links">
-            <a class="hero-link" href="${escapeAttr(homeHref)}">${escapeHtml(homeLabel)}</a>
-            <a class="hero-link" href="${escapeAttr(demo.githubHref)}">Source</a>
-          </div>
-        </div>
-        <h1>${escapeHtml(demo.title)}</h1>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>${escapeHtml(demo.title)} - Kagura</title>
+  <style>
+    :root { color-scheme: dark; font: 14px system-ui, sans-serif; color: #eef4ff; background: #08101a; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    body { margin: 0; min-height: 100dvh; overflow: hidden; }
+    .stage-canvas { display: block; background: #000; touch-action: none; }
+    .presentation-tools { position: fixed; inset: 0 0 auto; height: 48px; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 4px max(8px, env(safe-area-inset-right)) 4px max(8px, env(safe-area-inset-left));
+      background: #101b2a; border-bottom: 1px solid #304357; }
+    .game-title { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+    .tool-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    button, summary { min-height: 36px; border: 1px solid #536c83; border-radius: 6px;
+      background: #203246; padding: 8px 12px; color: #eef4ff; font: inherit; cursor: pointer; }
+    :focus-visible { outline: 2px solid #ffe082; outline-offset: 2px; }
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    details:not([open]) .guide { display: none; }
+    .guide { position: absolute; right: 8px; top: 48px; width: min(400px, calc(100vw - 16px));
+      max-height: calc(100dvh - 64px); overflow: auto; padding: 20px; border: 1px solid #536c83;
+      border-radius: 8px; background: #101b2a; box-shadow: 0 12px 32px #0008; line-height: 1.6; }
+    .guide h2 { margin: 0; font-size: 17px; }
+    .guide p { color: #b7c8da; }
+    .guide ul { padding-left: 20px; }
+    .guide a { color: #a2e2ff; }
+    .guide-links { display: flex; gap: 20px; }
+    #display-status { margin: 0; color: #ffe082; }
+  </style>
+</head>
+<body>
+  <canvas id="app" class="stage-canvas" width="${demo.width || 320}" height="${demo.height || 240}"
+    data-kagura-presentation="fullscreen" data-kagura-inset-top="48" tabindex="0"
+    aria-label="${escapeAttr(demo.title)} ゲーム画面"></canvas>
+  <nav class="presentation-tools" data-kagura-overlay aria-label="表示と操作">
+    <h1 class="game-title">${escapeHtml(demo.title)}</h1>
+    <div class="tool-actions">
+      <button id="fullscreen" type="button" aria-pressed="false">全画面</button>
+      <details id="game-guide"><summary>操作ガイド</summary><section class="guide">
+        <h2>Controls</h2>
         <p>${escapeHtml(demo.summary)}</p>
-        <ul class="tag-list">${tagHtml}</ul>
-      </header>
-
-      <main class="content">
-        <section class="stage-panel">
-          <div class="stage-shell">
-            <canvas id="app" class="stage-canvas" style="aspect-ratio: ${demo.width || 320} / ${demo.height || 240};" width="${demo.width || 320}" height="${demo.height || 240}"></canvas>
-          </div>
-          <p class="support-copy">
-            <strong>Start:</strong> ${escapeHtml(demo.start)}
-          </p>
-        </section>
-
-        <aside class="side">
-          <section class="card">
-            <h2>Controls</h2>
-            <ul>${controlsHtml}</ul>
-          </section>
-          <section class="card">
-            <h2>Source</h2>
-            <p>${escapeHtml(demo.sourcePath)}</p>
-            <p>
-              Open the source if you want to map the controls directly to the implementation.
-            </p>
-          </section>
-        </aside>
-      </main>
+        <p>${escapeHtml(demo.start)}</p>
+        <ul>${controlsHtml}</ul>
+        <p class="guide-links"><a href="${escapeAttr(homeHref)}">${escapeHtml(homeLabel)}</a>
+          <a href="${escapeAttr(demo.githubHref)}">Source</a></p>
+        <p id="display-status" role="status"></p>
+      </section></details>
     </div>
-    ${renderWebRuntimeImportMap(libPrefix)}
-    ${scriptTag}
-  </body>
+  </nav>
+  <script>
+    const canvas = document.querySelector('#app');
+    const tools = document.querySelector('.presentation-tools');
+    const fullscreen = document.querySelector('#fullscreen');
+    const guide = document.querySelector('#game-guide');
+    const status = document.querySelector('#display-status');
+    canvas.addEventListener('contextmenu', event => event.preventDefault());
+    for (const type of ['mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend', 'keydown', 'keyup']) {
+      tools.addEventListener(type, event => event.stopPropagation());
+    }
+    fullscreen.addEventListener('click', async () => {
+      try {
+        const entered = document.fullscreenElement ? (await document.exitFullscreen(), true)
+          : await globalThis.__kaguraPresentation?.requestFullscreen();
+        status.textContent = entered ? '' : 'このブラウザでは全画面表示を使用できません。';
+        if (!entered) guide.open = true;
+      } catch {
+        status.textContent = '全画面表示を開始できませんでした。';
+        guide.open = true;
+      }
+      canvas.focus({preventScroll: true});
+    });
+    document.addEventListener('fullscreenchange', () => {
+      fullscreen.textContent = document.fullscreenElement ? '全画面を終了' : '全画面';
+      fullscreen.setAttribute('aria-pressed', String(Boolean(document.fullscreenElement)));
+    });
+    document.addEventListener('pointerdown', event => {
+      if (guide.open && !tools.contains(event.target)) guide.open = false;
+    });
+    guide.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { guide.open = false; canvas.focus({preventScroll: true}); }
+    });
+  </script>
+  ${renderWebRuntimeImportMap(libPrefix)}
+  ${scriptTag}
+</body>
 </html>
 `;
 }

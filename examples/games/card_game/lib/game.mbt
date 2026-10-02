@@ -1,8 +1,8 @@
 ///|
-pub let screen_w : Int = 480
+pub let screen_w : Int = 960
 
 ///|
-pub let screen_h : Int = 360
+pub let screen_h : Int = 640
 
 ///|
 let hand_size : Int = 5
@@ -232,13 +232,7 @@ pub fn play_card(
   let card_id = state.hand[hand_index]
   let def = card_def(card_id)
   // Corruption: Skills cost 0
-  let effective_cost = if state.powers.corruption && def.card_type == Skill {
-    0
-  } else if card_id == Whirlwind {
-    0 // X-cost: handled in execute_card
-  } else {
-    def.cost
-  }
+  let effective_cost = card_play_cost(state, card_id)
   // Check energy
   if state.player.energy < effective_cost {
     return NotEnoughEnergy
@@ -274,6 +268,27 @@ pub fn play_card(
   // Check for victory
   check_battle_end(state)
   Ok
+}
+
+///|
+/// One cost contract for the rules, hand styling and interaction validation.
+pub fn card_play_cost(state : BattleState, card_id : CardId) -> Int {
+  let def = card_def(card_id)
+  if state.powers.corruption && def.card_type == Skill {
+    0
+  } else if card_id == Whirlwind {
+    0 // X-cost: handled in execute_card
+  } else {
+    def.cost
+  }
+}
+
+///|
+fn can_play_card(state : BattleState, index : Int) -> Bool {
+  state.phase == PlayerTurn &&
+  index >= 0 &&
+  index < state.hand.length() &&
+  state.player.energy >= card_play_cost(state, state.hand[index])
 }
 
 ///|

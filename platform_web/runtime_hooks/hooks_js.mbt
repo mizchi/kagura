@@ -2577,6 +2577,10 @@ fn sync_surface_info(fallback_width : Int, fallback_height : Int) -> Bool {
 }
 
 ///|
+extern "js" fn js_set_presentation_viewport(width : Int, height : Int) -> Unit =
+  #| (width, height) => globalThis.__kaguraPresentation?.setGameViewport?.(width, height)
+
+///|
 fn bridge_web_try_initialize(
   canvas_selector : String,
   options : @platform.WindowOptions,
@@ -2585,6 +2589,7 @@ fn bridge_web_try_initialize(
     false
   } else {
     js_ensure_window_state(canvas_selector)
+    js_set_presentation_viewport(options.width, options.height)
     sync_surface_info(options.width, options.height)
   }
 }

@@ -144,6 +144,43 @@ test "the shared diagonal of a quad is not blended twice" {
 }
 
 ///|
+test "subpixel UI quads have no cracks or double blends along shared edges" {
+  for size in [(960, 640), (360, 640), (840, 360)] {
+    for rect in [(155.0, 175.0, 6.75), (337.5, 531.5, 3.5), (34.8, 18.8, 2.1)] {
+      let (width, height) = size
+      let (left, top, side) = rect
+      if left + side >= width.to_double() || top + side >= height.to_double() {
+        continue
+      }
+      let target = RasterTarget::new(width, height)
+      target.clear(@gfx.new_color(0.0, 0.0, 0.0, 1.0))
+      let _ = target.draw_command(
+        quad_command(
+          left,
+          top,
+          side,
+          side,
+          width.to_double(),
+          height.to_double(),
+          [255, 255, 255, 128],
+          @gfx.BlendMode::Alpha,
+        ),
+      )
+      for y = top.to_int(); y <= (top + side).to_int(); y = y + 1 {
+        for x = left.to_int(); x <= (left + side).to_int(); x = x + 1 {
+          if x.to_double() + 0.5 > left &&
+            x.to_double() + 0.5 < left + side &&
+            y.to_double() + 0.5 > top &&
+            y.to_double() + 0.5 < top + side {
+            assert_eq(pixel_at(target, x, y), (128, 128, 128, 255))
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
 test "Copy overwrites the destination, Alpha composites over it" {
   let copy_target = RasterTarget::new(4, 4)
   copy_target.clear(@gfx.new_color(1.0, 1.0, 1.0, 1.0))

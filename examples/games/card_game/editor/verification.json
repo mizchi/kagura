@@ -1,8 +1,101 @@
 {
   "version": 1,
+  "viewports": [
+    {
+      "name": "wide",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "name": "standard",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "name": "portrait",
+      "width": 360,
+      "height": 640
+    },
+    {
+      "name": "ultrawide",
+      "width": 840,
+      "height": 360
+    },
+    {
+      "name": "desktop",
+      "width": 960,
+      "height": 640
+    }
+  ],
   "states": {
     "battle": {
       "frames": 1,
+      "expectedState": "battle",
+      "expectedFocus": null
+    },
+    "card_reward": {
+      "frames": 1,
+      "initialState": "card_reward",
+      "expectedState": "card_reward",
+      "expectedFocus": null
+    },
+    "rest": {
+      "frames": 1,
+      "initialState": "rest",
+      "expectedState": "rest",
+      "expectedFocus": null
+    },
+    "victory": {
+      "frames": 1,
+      "initialState": "victory",
+      "expectedState": "victory",
+      "expectedFocus": null
+    },
+    "defeat": {
+      "frames": 1,
+      "initialState": "defeat",
+      "expectedState": "defeat",
+      "expectedFocus": null
+    },
+    "battle_victory": {
+      "frames": 1,
+      "initialState": "battle_victory",
+      "expectedState": "battle_victory",
+      "expectedFocus": null
+    },
+    "deck": {
+      "frames": 1,
+      "initialState": "deck",
+      "expectedState": "deck",
+      "expectedFocus": null
+    },
+    "large_hand": {
+      "frames": 1,
+      "initialState": "large_hand",
+      "expectedState": "battle",
+      "expectedFocus": null
+    },
+    "low_energy": {
+      "frames": 1,
+      "initialState": "low_energy",
+      "expectedState": "battle",
+      "expectedFocus": null
+    },
+    "dragging": {
+      "frames": 1,
+      "initialState": "dragging",
+      "expectedState": "dragging",
+      "expectedFocus": null
+    },
+    "complex_reward": {
+      "frames": 1,
+      "initialState": "complex_reward",
+      "expectedState": "card_reward",
+      "expectedFocus": null
+    },
+    "inspect_card": {
+      "frames": 1,
+      "initialState": "inspect_card",
       "expectedState": "battle",
       "expectedFocus": null
     }

@@ -108,7 +108,6 @@ pub fn Game::snapshot_state(self : Game) -> String {
     Title => return "title"
     Settings => return "settings"
     CharacterSelect => return "character_select"
-    StageSelect => return "stage_select"
     Playing => ()
   }
   if self.popup is Some(kind) {

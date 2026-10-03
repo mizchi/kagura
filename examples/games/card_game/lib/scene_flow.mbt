@@ -34,7 +34,6 @@ fn Game::scene_item_count(self : Game) -> Int {
   match self.scene {
     Title | Settings => 2
     CharacterSelect => 3
-    StageSelect => 4
     Playing => 0
   }
 }
@@ -68,7 +67,6 @@ fn Game::scene_back(self : Game) -> Unit {
     Title => ()
     Settings => self.travel(SwitchScene(self.scene_return))
     CharacterSelect => self.travel(SwitchScene(Title))
-    StageSelect => self.travel(SwitchScene(CharacterSelect))
     Playing => ()
   }
 }
@@ -96,19 +94,8 @@ fn Game::activate_scene_item(self : Game) -> Unit {
     CharacterSelect =>
       if self.scene_focus < 2 {
         self.character = if self.scene_focus == 0 { Ironclad } else { Warden }
-        self.travel(SwitchScene(StageSelect))
-      } else {
-        self.scene_back()
-      }
-    StageSelect =>
-      if self.scene_focus < 3 {
-        let stage = match self.scene_focus {
-          0 => Ascent
-          1 => ActTwo
-          _ => GuardianTrial
-        }
         self.travel(
-          StartAdventure(self.character, stage, self.run.get().rng_seed + 1),
+          StartAdventure(self.character, Ascent, self.run.get().rng_seed + 1),
         )
       } else {
         self.scene_back()

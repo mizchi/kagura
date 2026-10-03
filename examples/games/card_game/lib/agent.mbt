@@ -1,6 +1,6 @@
 ///|
 pub fn AgentSession::new(seed? : Int = 42) -> AgentSession {
-  { scene: Title, character: Ironclad, seed, run: None, revision: 0, }
+  { scene: Title, seed, run: None, revision: 0, }
 }
 
 ///|
@@ -11,7 +11,6 @@ pub fn AgentSession::start(
 ) -> AgentSession {
   {
     scene: Playing,
-    character,
     seed,
     run: Some(RunState::adventure(character, stage, seed~)),
     revision: 0,
@@ -55,24 +54,6 @@ pub fn AgentSession::choices(self : AgentSession) -> Array[AgentChoice] {
           id: "character:warden",
           label: "Warden: 96 HP, Anchor gives 10 starting Block, Body Slam deals damage equal to Block",
           action: ChooseCharacter(Warden),
-        },
-      ]
-    StageSelect =>
-      return [
-        {
-          id: "stage:ascent",
-          label: "Ember Ascent: start at floor 1, build a deck over 30 floors and two acts",
-          action: ChooseStage(Ascent),
-        },
-        {
-          id: "stage:act_two",
-          label: "Act Two: start at floor 16 with a starter deck against stronger enemies",
-          action: ChooseStage(ActTwo),
-        },
-        {
-          id: "stage:guardian_trial",
-          label: "Guardian Trial: defeat the Guardian boss with a starter deck",
-          action: ChooseStage(GuardianTrial),
         },
       ]
     Playing => ()
@@ -216,13 +197,7 @@ pub fn AgentSession::step(
   match choice.action {
     Begin => self.scene = CharacterSelect
     ChooseCharacter(character) => {
-      self.character = character
-      self.scene = StageSelect
-    }
-    ChooseStage(stage) => {
-      self.run = Some(
-        RunState::adventure(self.character, stage, seed=self.seed),
-      )
+      self.run = Some(RunState::adventure(character, Ascent, seed=self.seed))
       self.scene = Playing
     }
     _ => {

@@ -78,8 +78,6 @@ fn AgentChoice::to_json(self : AgentChoice) -> Json {
     Begin => { "kind": "begin" }
     ChooseCharacter(character) =>
       { "kind": "choose_character", "character": character_name(character) }
-    ChooseStage(stage) =>
-      { "kind": "choose_stage", "stage": stage.to_repr().to_string() }
     PlayCard(index, target) =>
       { "kind": "play_card", "handIndex": index, "targetIndex": target }
     UsePotion(index, target) =>
@@ -109,7 +107,6 @@ fn AgentSession::phase_name(self : AgentSession) -> String {
   match self.scene {
     Title => "title"
     CharacterSelect => "character_select"
-    StageSelect => "stage_select"
     Settings => "settings"
     Playing => {
       guard self.run is Some(run) else { return "title" }

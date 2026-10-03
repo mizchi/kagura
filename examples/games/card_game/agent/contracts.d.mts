@@ -1,12 +1,11 @@
 export type Character = 'ironclad' | 'warden';
 export type Stage = 'ascent' | 'act_two' | 'guardian_trial';
-export type Phase = 'title' | 'character_select' | 'stage_select' | 'battle' |
+export type Phase = 'title' | 'character_select' | 'battle' |
   'battle_victory' | 'battle_defeat' | 'card_reward' | 'rest' | 'victory' | 'defeat' |
   'map' | 'event' | 'shop' | 'card_removal' | 'treasure';
 export type Action =
   | { kind: 'begin' | 'end_turn' | 'continue' | 'skip_reward' | 'rest' }
   | { kind: 'choose_character'; character: 'Ironclad' | 'Warden' }
-  | { kind: 'choose_stage'; stage: 'Ascent' | 'ActTwo' | 'GuardianTrial' }
   | { kind: 'play_card'; handIndex: number; targetIndex: number }
   | { kind: 'use_potion'; potionIndex: number; targetIndex: number }
   | { kind: 'choose_reward'; rewardIndex: number }

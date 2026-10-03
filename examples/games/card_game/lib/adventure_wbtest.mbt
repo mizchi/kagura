@@ -1,4 +1,47 @@
 ///|
+test "event completion displays progress and pointer can enter the next connected floor" {
+  for id in [HealingSpring, LostPurse, BloodAltar, ForgottenLibrary] {
+    let game = Game::new()
+    game.set_viewport(640, 440)
+    game.apply_screen_action(StartAdventure(Ironclad, Ascent, 42))
+    let run = game.run.get()
+    assert_true(apply_run_choice(run, "node:1"))
+    run.battle.unwrap().phase = Victory
+    on_battle_victory(run)
+    pick_card_reward(run, -1)
+    for node in available_rooms(run) {
+      if node.kind == RoomEvent {
+        assert_true(apply_run_choice(run, "node:\{node.id}"))
+        break
+      }
+    }
+    assert_eq(run.phase, EventRoom)
+    let event_node = run.route.unwrap().current.unwrap()
+    run.event = Some(id)
+    let leave = run_choices(run).filter(c => c.id == "event:2")[0]
+    let rect = game.room_choice_rect(leave)
+    game.update(pointer_input(rect.cx(), rect.cy(), true))
+    settle_presentation(game)
+    assert_eq(run.phase, RouteMap)
+    assert_eq(drop_text(game, "floor"), Some("ACT 1 / NEXT FLOOR 3"))
+    assert_true(
+      drop_snapshot(game).nodes.any(n => {
+        n.path.has_prefix("map_node_\{event_node}>") && n.text == Some("DONE")
+      }),
+    )
+    assert_true(available_rooms(run).all(n => n.floor == 3))
+    let next = run_choices(run)[0]
+    let next_rect = game.room_choice_rect(next)
+    game.update(pointer_input(next_rect.cx(), next_rect.cy(), false))
+    game.update(pointer_input(next_rect.cx(), next_rect.cy(), true))
+    settle_presentation(game)
+    assert_eq(run.floor, 3)
+    assert_true(run.phase != RouteMap)
+    assert_false(apply_run_choice(run, "event:2"))
+  }
+}
+
+///|
 test "branch maps are seeded connected and expose only the next reachable rooms" {
   let run = RunState::adventure(Ironclad, Ascent, seed=42)
   let other = RunState::adventure(Ironclad, Ascent, seed=42)

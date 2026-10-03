@@ -9,23 +9,20 @@ fn agent_field(value : Json, key : String) -> Json? {
 }
 
 ///|
-test "agent menu choices start the same character and stage rules without rendering" {
+test "agent character choice starts the first act without a stage menu" {
   let session = AgentSession::new(seed=17)
   assert_eq(agent_ids(session), ["begin"])
   assert_eq(session.step(0, "begin"), Applied)
   assert_eq(agent_ids(session), ["character:ironclad", "character:warden"])
   assert_eq(session.step(1, "character:warden"), Applied)
-  assert_eq(agent_ids(session), [
-    "stage:ascent", "stage:act_two", "stage:guardian_trial",
-  ])
-  assert_eq(session.step(2, "stage:guardian_trial"), Applied)
+  assert_eq(agent_ids(session), ["node:0", "node:1", "node:2"])
   let run = session.run.unwrap()
-  assert_eq(run.floor, 15)
-  assert_eq(run.battle.unwrap().player.hp, 96)
-  assert_eq(run.battle.unwrap().player.block, 10)
+  assert_eq(run.floor, 0)
+  assert_eq(run.player_hp, 96)
   assert_true(run.deck.contains(Body_Slam))
-  assert_eq(run.battle.unwrap().enemies[0].id, TheGuardian)
-  assert_eq(agent_field(session.observe(), "revision"), Some((3).to_json()))
+  assert_eq(agent_field(session.observe(), "revision"), Some((2).to_json()))
+  assert_eq(session.step(2, "node:1"), Applied)
+  assert_eq(run.battle.unwrap().player.block, 10)
 }
 
 ///|

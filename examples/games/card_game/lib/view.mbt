@@ -90,6 +90,12 @@ fn Game::view_header(
   run : RunState,
   l : GameLayout,
 ) -> @scene.SceneNode {
+  let next_rooms = available_rooms(run)
+  let next_floor = if next_rooms.is_empty() {
+    run.floor
+  } else {
+    next_rooms[0].floor
+  }
   let hp = match run.battle {
     Some(b) =>
       if run.phase == Battle {
@@ -107,9 +113,9 @@ fn Game::view_header(
       80.0,
       37.0,
       "ACT " +
-      floor_act(run.floor).to_string() +
-      " / FLOOR " +
-      run.floor.to_string(),
+      floor_act(next_floor).to_string() +
+      (if run.phase == RouteMap { " / NEXT FLOOR " } else { " / FLOOR " }) +
+      next_floor.to_string(),
       scale=0.55,
       color=muted_ink,
     ),

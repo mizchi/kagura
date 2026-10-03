@@ -35,6 +35,11 @@ test('headless menus, immutable observations and revision rejection need no brow
   assert.throws(() => session.step({ revision: 0, choiceId: 'character:warden' }), /stale_revision/);
   assert.throws(() => session.step({ revision: 1, choiceId: 'play:0:0' }), /illegal_choice/);
   assert.deepEqual(session.observe(), before);
+  const map = session.step({ revision: 1, choiceId: 'character:warden' });
+  assert.equal(map.phase, 'map');
+  assert.equal(map.run.hp, 96);
+  assert.equal(map.run.floor, 0);
+  assert.deepEqual(map.choices.map(c => c.id), ['node:0', 'node:1', 'node:2']);
 });
 
 test('headless validates host values before MoonBit integer coercion', () => {

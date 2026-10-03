@@ -7,7 +7,9 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
   match name {
     "map"
     | "map_unique"
+    | "map_event"
     | "event"
+    | "event_complete"
     | "shop"
     | "shop_sold"
     | "card_removal"
@@ -29,11 +31,27 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
             game.scene_focus = index
           }
         }
-      } else if name == "event" {
-        adventure.phase = EventRoom
-        adventure.event = Some(HealingSpring)
-        adventure.player_hp = 40
-        adventure.gold = 20
+      } else if name == "map_event" ||
+        name == "event" ||
+        name == "event_complete" {
+        apply_run_choice(adventure, "node:1") |> ignore
+        adventure.battle.unwrap().phase = Victory
+        on_battle_victory(adventure)
+        pick_card_reward(adventure, -1)
+        if name != "map_event" {
+          for node in available_rooms(adventure) {
+            if node.kind == RoomEvent {
+              apply_run_choice(adventure, "node:\{node.id}") |> ignore
+              break
+            }
+          }
+          adventure.event = Some(HealingSpring)
+          adventure.player_hp = 40
+          adventure.gold = 20
+        }
+        if name == "event_complete" {
+          apply_run_choice(adventure, "event:0") |> ignore
+        }
       } else if name == "shop" || name == "shop_sold" || name == "card_removal" {
         adventure.phase = ShopRoom
         adventure.gold = 240
@@ -122,7 +140,6 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
     "title" => game.scene = Title
     "settings" => game.scene = Settings
     "character_select" => game.scene = CharacterSelect
-    "stage_select" => game.scene = StageSelect
     "boss" => game.run.set(RunState::start(Ironclad, GuardianTrial))
     "deck" => game.open_pile(Deck)
     "draw_pile" => game.open_pile(Draw)

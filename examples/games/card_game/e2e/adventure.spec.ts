@@ -30,7 +30,7 @@ async function preview(page: Page, name: string, expected = name) {
 test('new adventure reaches the branching map and directions select a connected first battle', async ({ page }) => {
   await page.goto('/');
   await state(page, 'title');
-  for (const next of ['character_select', 'stage_select', 'map']) {
+  for (const next of ['character_select', 'map']) {
     await click(page, 'scene_choice_0');
     await state(page, next);
   }
@@ -62,18 +62,45 @@ for (const [id, room] of [[19, 'treasure'], [20, 'shop']] as const) {
   });
 }
 
-test('event costs are visible and unavailable choices cannot run before healing returns to the map', async ({ page }) => {
+test('event completion marks the visited room and allows the next connected floor', async ({ page }, info) => {
   await preview(page, 'event');
   expect((await node(page, 'event_1')).focusable).toBe(false);
   await click(page, 'event_1');
   await state(page, 'event');
   expect((await node(page, 'run_hp')).text).toBe('HP 40/80');
   expect((await node(page, 'run_gold')).text).toBe('GOLD 20');
+  expect((await node(page, 'floor')).text).toBe('ACT 1 / FLOOR 2');
   await click(page, 'event_0');
   await state(page, 'map');
   expect((await node(page, 'run_hp')).text).toBe('HP 56/80');
   expect((await node(page, 'run_gold')).text).toBe('GOLD 20');
+  expect((await node(page, 'floor')).text).toBe('ACT 1 / NEXT FLOOR 3');
+  expect((await node(page, 'name', 'map_node_4')).text).toBe('DONE');
+  await page.locator('#app').screenshot({path: info.outputPath('event-complete.png')});
+  const next = (await snapshot(page)).nodes.filter((n: Node) => n.id.startsWith('map_node_') && n.focusable);
+  expect(next.map((n: Node) => n.id)).toEqual(['map_node_6', 'map_node_7', 'map_node_8']);
+  await click(page, next[0].id);
+  await expect.poll(async () => (await snapshot(page)).state).not.toMatch(/^(map|transition)$/);
+  expect((await node(page, 'floor')).text).toBe('ACT 1 / FLOOR 3');
 });
+
+for (const viewport of [{width: 1280, height: 900}, {width: 375, height: 812}]) {
+  test(`event map node can be entered and left for floor 3 at ${viewport.width}px`, async ({page}, info) => {
+    await page.setViewportSize(viewport);
+    await preview(page, 'map_event', 'map');
+    await click(page, 'map_node_4');
+    await state(page, 'event');
+    await page.locator('#app').screenshot({path: info.outputPath('event.png')});
+    await click(page, 'event_2');
+    await state(page, 'map');
+    expect((await node(page, 'floor')).text).toBe('ACT 1 / NEXT FLOOR 3');
+    expect((await node(page, 'name', 'map_node_4')).text).toBe('DONE');
+    await page.locator('#app').screenshot({path: info.outputPath('event-map.png')});
+    await click(page, 'map_node_6');
+    await state(page, 'battle');
+    expect((await node(page, 'floor')).text).toBe('ACT 1 / FLOOR 3');
+  });
+}
 
 test('shop buys once during a double click and removal charges only after selecting a card', async ({ page }) => {
   await preview(page, 'shop');
@@ -152,7 +179,7 @@ test('unique enemy victory grants signature loot once and skipping the card foll
   expect((await node(page, 'reward_hint')).text).toBe('+77 GOLD / MERCHANT CHARM');
   await click(page, 'skip_reward');
   await state(page, 'map');
-  expect((await node(page, 'floor')).text).toContain('FLOOR 7');
+  expect((await node(page, 'floor')).text).toContain('NEXT FLOOR 8');
   const next = (await snapshot(page)).nodes.filter((n: Node) => n.id.startsWith('map_node_') && n.focusable);
   expect(next.map((n: Node) => n.id)).toEqual(['map_node_21', 'map_node_22']);
   await tapGameKey(page, 'KeyD', { delay: 60 });

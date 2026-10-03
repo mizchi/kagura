@@ -154,13 +154,14 @@ fn Game::view_adventure(self : Game) -> @scene.SceneNode {
           muted_ink,
         ),
       )
-      for index, option in event_options(run.event.unwrap()) {
+      let options = event_options(run.event.unwrap())
+      for index, option in options {
         let id = "event:\{index}"
         let enabled = event_option_enabled(run, option)
         nodes.push(
           room_option(
             "event_\{index}",
-            l.room_list_rect(index, 3),
+            l.room_list_rect(index, options.length()),
             option.label + (if enabled { "" } else { " / UNAVAILABLE" }),
             option.detail,
             enabled,
@@ -476,7 +477,7 @@ fn Game::view_branch_map(self : Game) -> @scene.SceneNode {
             "symbol",
             rect.w / 2.0,
             13.0,
-            room_symbol(node.kind) + (if current { " +" } else { "" }),
+            room_symbol(node.kind),
             rect.w - 12.0,
             scale=0.85,
             color=if enabled { room_color(node.kind) } else { 0x30291D },
@@ -485,7 +486,11 @@ fn Game::view_branch_map(self : Game) -> @scene.SceneNode {
             "name",
             rect.w / 2.0,
             33.0,
-            room_name(node.kind),
+            if current && visited {
+              "DONE"
+            } else {
+              room_name(node.kind)
+            },
             rect.w - 10.0,
             scale=0.42,
             color=if enabled { ink } else { 0x30291D },
@@ -579,7 +584,7 @@ fn Game::view_branch_map(self : Game) -> @scene.SceneNode {
       if self.room_page != 0 {
         "CONFIRM TO RETURN TO NEXT NODES"
       } else {
-        "CHOOSE A CONNECTED NODE / DIRECTIONS + CONFIRM"
+        "CLICK A LIT NODE / DIRECTIONS + CONFIRM"
       },
       l.w - 32.0,
       scale=0.5,

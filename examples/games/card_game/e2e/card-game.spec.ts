@@ -73,7 +73,7 @@ async function padPress(page: Page, button: number) {
     (globalThis as any).__kaguraWebRuntime?.gamepadFrame?.[0]?.pressedButtons.length), {intervals: [10]}).toBe(0);
 }
 
-test('title character stage boss and settings scenes form a playable flow', async ({ page }, info) => {
+test('title character map battle and settings scenes form a playable flow', async ({ page }, info) => {
   await page.goto('/');
   await expect.poll(async () => (await snapshot(page))?.state).toBe('title');
   expect((await node(page, 'scene_choice_0')).focused).toBe(true);
@@ -82,20 +82,19 @@ test('title character stage boss and settings scenes form a playable flow', asyn
   await tapGameKey(page, 'ArrowDown', {delay: 60});
   expect((await node(page, 'scene_choice_1')).focused).toBe(true);
   await tapGameKey(page, 'Enter', {delay: 60});
-  await expect.poll(async () => (await snapshot(page)).state).toBe('stage_select');
-  await clickNode(page, 'scene_choice_2');
-  await expect.poll(async () => (await snapshot(page)).state).toBe('boss');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('map');
+  await clickNode(page, 'map_node_0');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
   expect((await node(page, 'name', 'player')).text).toBe('WARDEN');
   expect((await node(page, 'block')).text).toContain('BLOCK 10');
-  expect((await node(page, 'name', 'enemy_body_0')).text).toBe('THE GUARDIAN');
   await expectHeroOnLeft(page);
-  await page.locator('#app').screenshot({path: info.outputPath('boss.png')});
+  await page.locator('#app').screenshot({path: info.outputPath('warden.png')});
   await tapGameKey(page, 'KeyP', {delay: 60});
   await expect.poll(async () => (await snapshot(page)).state).toBe('settings');
   await clickNode(page, 'scene_choice_0');
   expect((await node(page, 'name', 'scene_choice_0')).text).toBe('MOTION: REDUCED');
   await tapGameKey(page, 'Escape', {delay: 60});
-  await expect.poll(async () => (await snapshot(page)).state).toBe('boss');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
   expect((await node(page, 'block')).text).toContain('BLOCK 10');
 });
 

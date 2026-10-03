@@ -184,12 +184,6 @@
       "expectedState": "character_select",
       "expectedFocus": "scene_choice_0"
     },
-    "stage_select": {
-      "frames": 1,
-      "initialState": "stage_select",
-      "expectedState": "stage_select",
-      "expectedFocus": "scene_choice_0"
-    },
     "boss": {
       "frames": 1,
       "initialState": "boss",
@@ -267,6 +261,12 @@
       "initialState": "unique_reward",
       "expectedState": "unique_battle",
       "expectedFocus": null
+    },
+    "event_complete": {
+      "frames": 1,
+      "initialState": "event_complete",
+      "expectedState": "map",
+      "expectedFocus": "map_node_6"
     }
   }
 }

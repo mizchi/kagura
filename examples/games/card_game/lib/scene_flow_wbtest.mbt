@@ -1,5 +1,5 @@
 ///|
-test "new application travels through title character stage and boss scenes" {
+test "character selection starts the first act without a stage menu" {
   let game = Game::new_app()
   assert_eq(game.snapshot_state(), "title")
   game.update(key_input([13]))
@@ -8,13 +8,10 @@ test "new application travels through title character stage and boss scenes" {
   assert_eq(game.snapshot_state(), "character_select")
   game.update(key_input([13]))
   settle_presentation(game)
-  assert_eq(game.snapshot_state(), "stage_select")
-  game.scene_focus = 2
-  game.update(key_input([13]))
-  settle_presentation(game)
-  assert_eq(game.snapshot_state(), "boss")
-  assert_eq(game.run.get().floor, 15)
-  assert_eq(game.run.get().battle.unwrap().enemies[0].id, TheGuardian)
+  assert_eq(game.snapshot_state(), "map")
+  assert_eq(game.run.get().floor, 0)
+  assert_true(available_rooms(game.run.get()).all(n => n.floor == 1))
+  assert_eq(game.run.get().stage, Ascent)
 }
 
 ///|

@@ -3,7 +3,6 @@ enum AppScene {
   Title
   Settings
   CharacterSelect
-  StageSelect
   Playing
 } derive(Eq)
 

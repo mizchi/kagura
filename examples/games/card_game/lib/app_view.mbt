@@ -6,17 +6,12 @@ fn Game::view_app_scene(self : Game) -> @scene.SceneNode {
     Settings => ("SETTINGS", "YOUR CHOICES APPLY TO THE CURRENT RUN")
     CharacterSelect =>
       ("CHOOSE YOUR CHARACTER", "A DIFFERENT DECK. A DIFFERENT WAY TO CLIMB.")
-    StageSelect =>
-      (
-        "CHOOSE YOUR STAGE",
-        character_name(self.character).to_upper() + " IS READY",
-      )
     Playing => ("", "")
   }
   let items : Array[(String, String, Int)] = match self.scene {
     Title =>
       [
-        ("BEGIN ASCENT", "CHOOSE A CHARACTER AND A STAGE", gold),
+        ("BEGIN ASCENT", "CHOOSE A CHARACTER AND BEGIN THE CLIMB", gold),
         ("SETTINGS", "MOTION AND CONTROLLER GUIDE", cyan),
       ]
     Settings =>
@@ -38,18 +33,6 @@ fn Game::view_app_scene(self : Game) -> @scene.SceneNode {
         ("IRONCLAD", "80 HP / STRIKES AND BASH / BURNING BLOOD", 0xFFB0A5),
         ("WARDEN", "96 HP / DEFENDS AND BODY SLAM / ANCHOR", cyan),
         ("BACK", "RETURN TO TITLE", muted_ink),
-      ]
-    StageSelect =>
-      [
-        (
-          "ACT I - THE ASCENT", "START AT FLOOR 1 / BUILD YOUR DECK TO THE SUMMIT",
-          gold,
-        ),
-        ("ACT II - THE CITY", "START AT FLOOR 16 / HARDER ENCOUNTERS", cyan),
-        (
-          "BOSS TRIAL - THE GUARDIAN", "FLOOR 15 / A SINGLE BOSS CHALLENGE", 0xFFB0A5,
-        ),
-        ("BACK", "CHOOSE ANOTHER CHARACTER", muted_ink),
       ]
     Playing => []
   }

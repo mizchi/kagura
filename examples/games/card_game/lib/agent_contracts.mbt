@@ -3,7 +3,6 @@
 pub(all) enum AgentAction {
   Begin
   ChooseCharacter(CharacterId)
-  ChooseStage(StageId)
   PlayCard(Int, Int)
   UsePotion(Int, Int)
   EndTurn
@@ -33,7 +32,6 @@ pub(all) enum AgentStepResult {
 /// Only this owner can mutate a run. Observations and choices are detached values.
 pub struct AgentSession {
   priv mut scene : AppScene
-  priv mut character : CharacterId
   priv seed : Int
   priv mut run : RunState?
   priv mut revision : Int

@@ -38,7 +38,7 @@ export async function clickCardGameNode(page: Page, id: string) {
 
 export async function startCardGameAdventure(page: Page) {
   await waitForCardGameState(page, 'title');
-  for (const state of ['character_select', 'stage_select', 'map']) {
+  for (const state of ['character_select', 'map']) {
     await clickCardGameNode(page, 'scene_choice_0');
     await waitForCardGameState(page, state);
   }

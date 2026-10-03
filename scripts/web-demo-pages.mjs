@@ -19,7 +19,7 @@ const RAW_DEMO_PAGES = [
     title: "Ember Ascent",
     group: "Games",
     summary: "Build your deck across a branching adventure with events, gold, shops, relics and unique enemies.",
-    start: "Choose a character and stage, then follow the branching map through 30 floors or challenge the Guardian boss. Drag cards or use a controller to play.",
+    start: "Choose a character, then follow the branching map through 30 floors and two acts. Drag cards or use a controller to play.",
     controls: ["Drag a card to play; release outside the battlefield to cancel", "Arrows / D-pad / left stick: choose a card; A / Enter: select, then confirm its target", "1–9: select a card; arrows: choose an enemy; Enter: play", "E / Y: end turn; D / X: deck; Q / LB: draw; R / RB: discard", "P / Start: settings; Esc / B: back; Tab: cycle popup controls", "Choose one card after each victory; rest to recover HP"],
     tags: ["2D", "Cards", "Roguelite"],
     sourcePath: "examples/games/card_game/main.mbt",

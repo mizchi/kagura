@@ -22,7 +22,7 @@ just card-game-agent-test  # エージェント契約、JS/native、API/CLI の�
 [`mizchi/jev-playground`](https://github.com/mizchi/jev-playground) の五目並べ・MOBAと同様に、ゲーム側が現在の状態と合法手を列挙し、Jev が `choice` で次の一手を選びます。Node.js 上で既存の `RunState` / `BattleState` を直接進めるため、ブラウザ、画像、GPU、座標入力、アニメーションの待ち時間は不要です。画面の入力と同じカードコスト・ダメージ・敵行動・ラン進行のルールを使います。
 
 ```bash
-# ~/.profile の TYPESAFE_API_KEY を読み、Jev がキャラとステージも選択
+# ~/.profile の TYPESAFE_API_KEY を読み、Jev がキャラクターを選んで第1幕から開始
 just card-game-agent
 
 # 戦闘から開始してゲームの初期条件を固定する
@@ -60,7 +60,7 @@ const next = session.step({revision: observation.revision, choiceId: 'begin'});
 
 seed はゲームの乱数を固定します。実APIでのJevの判断は同じ条件でも変わる可能性があり、厳密な再現には記録した選択を使います。導入時の実測では Warden / Ascent / seed 42 を331判断でクリアし、記録の全状態が再生と一致しました。検証条件と結果は [実プレイ検証記録](../../../docs/reports/card-game-jev-2026-10-03.md) にあります。
 
-既存の `just dev card_game` でも起動できます。開始画面からキャラクターとステージを選びます。Ironclad（80 HP、Burning Blood、Bash）とWarden（96 HP、Anchor、Body Slam）で初期デッキと戦い方が変わります。第1幕から30フロアを登る通常ラン、第2幕からのラン、ガーディアンだけと戦うボスチャレンジを選べます。通常ランでは分岐マップから次の部屋を選び、戦闘・イベント・ショップ・休息・宝箱を通って進みます。
+既存の `just dev card_game` でも起動できます。開始画面でキャラクターを選ぶと、第1幕のマップから冒険が始まります。Ironclad（80 HP、Burning Blood、Bash）とWarden（96 HP、Anchor、Body Slam）で初期デッキと戦い方が変わります。通常ランは2幕・30フロアを登り、各幕の最後にボスと戦います。シミュレーション用CLIでは第2幕やボス戦からの開始も指定できます。通常ランでは分岐マップから次の部屋を選び、戦闘・イベント・ショップ・休息・宝箱を通って進みます。
 
 プレイヤーは左、敵は右に配置します。縦長の画面でも左右の関係を保ち、複数の敵は右側で並びます。ゲーム起動ページは共通でウィンドウいっぱいに表示し、「全画面」ボタンでブラウザのフルスクリーンへ切り替えます。「操作ガイド」から操作説明とソースを確認できます。
 

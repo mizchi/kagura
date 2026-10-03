@@ -18,5 +18,6 @@ Ember AscentのCanvasに `image-rendering: pixelated` を指定し、非整数�
 | vlmkit 0.23.2と画像幾何・コントラスト | 公開版のマップ・戦闘をPC/スマートフォンで撮影した4画像すべて通過 |
 | Pagesテンプレート・カタログ | Nodeテスト13件通過 |
 | Nodeスクリプト全体 | 328件通過。更新したWebランタイムを埋め込むCLIの生成物も同期 |
+| ブラウザ不要のフレーム回帰検査 | 15件すべて差分なし。ゲームの既定起動が戦闘からタイトルへ変わったため、開始画面の基準を確認して更新 |
 
 デプロイ後は `just pages-test https://mizchi.github.io/kagura/` で実際の公開URLを検証する。

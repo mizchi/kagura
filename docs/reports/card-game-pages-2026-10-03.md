@@ -16,6 +16,7 @@ Ember AscentのCanvasに `image-rendering: pixelated` を指定し、非整数�
 | `just pages-test` | ローカル静的サイトで11件通過。画像更新専用7件は通常実行時にスキップ |
 | 公開版の起動・操作 | 1280px/390pxで一覧→タイトル→キャラクター→ステージ→分岐マップ→戦闘、山札、ドラッグ、ターン終了を検証。debugプレビュー指定でもタイトルから開始 |
 | vlmkit 0.23.2と画像幾何・コントラスト | 公開版のマップ・戦闘をPC/スマートフォンで撮影した4画像すべて通過 |
-| Pagesテンプレート | Nodeテスト10件通過 |
+| Pagesテンプレート・カタログ | Nodeテスト13件通過 |
+| Nodeスクリプト全体 | 328件通過。更新したWebランタイムを埋め込むCLIの生成物も同期 |
 
 デプロイ後は `just pages-test https://mizchi.github.io/kagura/` で実際の公開URLを検証する。

@@ -686,7 +686,7 @@ pages-test url="http://127.0.0.1:8082/kagura/":
     KAGURA_PAGES_URL="{{url}}" pnpm exec playwright test -c playwright.pages.config.mjs
 
 pages-gallery-test:
-    node --test scripts/pages-game-gallery.test.mjs scripts/web-demo-pages.test.mjs scripts/web-demo-package.test.mjs
+    node --test scripts/example-catalog.test.mjs scripts/pages-game-gallery.test.mjs scripts/web-demo-pages.test.mjs scripts/web-demo-package.test.mjs
 
 # Refresh checked-in screenshots from a running Pages build, then run `just pages` again.
 pages-thumbnails url="http://127.0.0.1:8082/kagura/":

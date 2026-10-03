@@ -24,7 +24,7 @@ test('the catalog separates code examples from one shared model asset project', 
     assert.ok(existsSync(join(catalogProjectDir(entry), entry.manifest)), entry.id);
     if (entry.category !== 'assets') assert.ok(code.includes(entry.id), entry.id);
   }
-  assert.deepEqual(catalog.filter(entry => entry.kind === 'game').map(entry => entry.id).sort(), ['emberwing', 'hacknslash_3d', 'iron_yard']);
+  assert.deepEqual(catalog.filter(entry => entry.kind === 'game').map(entry => entry.id).sort(), ['card_game', 'emberwing', 'hacknslash_3d', 'iron_yard']);
   assert.equal(models.kind, 'asset');
 });
 

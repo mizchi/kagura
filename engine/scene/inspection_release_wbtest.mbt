@@ -21,7 +21,9 @@ test "release UI identity retains dialog controls without inspector metadata" {
     ]),
   )
   let snapshot = ui_snapshot_from_scene(
-    node, screen_width=100.0, screen_height=100.0,
+    node,
+    screen_width=100.0,
+    screen_height=100.0,
   )
   assert_eq(snapshot.nodes.length(), 3)
   assert_eq(snapshot.nodes[0].id, "modal")

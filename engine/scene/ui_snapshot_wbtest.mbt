@@ -186,16 +186,24 @@ test "scene snapshot publishes keyed rects with the drawn hit box" {
   assert_eq(button.hit.unwrap().width, 80.0)
   assert_eq(snapshot_node_by_id(snapshot, "hp").path, "hud>hp")
 }
+
 ///|
 test "UI identity overrides inspector identity and updates without duplicates" {
   let tree = ui_key(
     "controls",
     group(key="debug-group", children=[
-      ui_key("button", ui_key("old-id", rect(key="debug-rect", w=20.0, h=12.0, focused=true))),
+      ui_key(
+        "button",
+        ui_key("old-id", rect(key="debug-rect", w=20.0, h=12.0, focused=true)),
+      ),
       ui_key("caption", label(key="debug-label", content="PLAY")),
     ]),
   )
-  let snapshot = ui_snapshot_from_scene(tree, screen_width=100.0, screen_height=100.0)
+  let snapshot = ui_snapshot_from_scene(
+    tree,
+    screen_width=100.0,
+    screen_height=100.0,
+  )
   assert_eq(snapshot.nodes.length(), 2)
   assert_eq(snapshot.nodes[0].path, "controls>button")
   assert_eq(snapshot.nodes[1].path, "controls>caption")

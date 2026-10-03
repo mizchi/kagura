@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
+import {tapGameKey, clickGamePoint} from '../../../../e2e/helpers/frame-input';
 
-type UiNode = { id: string; path: string; left: number; top: number; width: number; height: number; text?: string };
+type UiNode = { id: string; path: string; left: number; top: number; width: number; height: number; text?: string; focused: boolean };
 const snapshot = (page: Page) => page.evaluate(() => (globalThis as any).__kaguraUISnapshot?.parsed);
 const effectStates = ['card_play', 'enemy_turn', 'draw_hand', 'battle_outcome', 'transition'];
 async function settle(page: Page) {
@@ -21,7 +22,7 @@ async function point(page: Page, n: UiNode) {
 }
 async function clickNode(page: Page, id: string) {
   const p = await point(page, await node(page, id));
-  await page.mouse.click(p.x, p.y, { delay: 80 });
+  await clickGamePoint(page, p);
 }
 async function expectHeroOnLeft(page: Page) {
   const hero = await node(page, 'player');
@@ -43,9 +44,200 @@ async function dragCard(page: Page, index: number, target: UiNode) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?preview=battle');
   await expect.poll(async () => (await snapshot(page))?.state).toBe('battle');
   await page.locator('#app').focus();
+});
+
+async function installGamepad(page: Page) {
+  await page.addInitScript(() => {
+    const pad = {index: 0, id: 'Headless standard controller', mapping: 'standard', connected: true,
+      axes: [0, 0, 0, 0], buttons: Array.from({length: 17}, () => ({pressed: false, value: 0}))};
+    (globalThis as any).__cardTestPad = pad;
+    Object.defineProperty(navigator, 'getGamepads', {configurable: true, value: () => [pad]});
+  });
+  await page.reload();
+  await expect.poll(async () => (await snapshot(page))?.state).toBe('battle');
+  await page.locator('#app').focus();
+}
+async function padPress(page: Page, button: number) {
+  await page.evaluate(button => {
+    const pad = (globalThis as any).__cardTestPad;
+    pad.buttons[button] = {pressed: true, value: 1};
+  }, button);
+  await expect.poll(() => page.evaluate(button =>
+    (globalThis as any).__kaguraWebRuntime?.gamepadFrame?.[0]?.pressedButtons.includes(button), button), {intervals: [10]}).toBe(true);
+  await page.waitForTimeout(65);
+  await page.evaluate(button => { (globalThis as any).__cardTestPad.buttons[button] = {pressed: false, value: 0}; }, button);
+  await expect.poll(() => page.evaluate(() =>
+    (globalThis as any).__kaguraWebRuntime?.gamepadFrame?.[0]?.pressedButtons.length), {intervals: [10]}).toBe(0);
+}
+
+test('title character stage boss and settings scenes form a playable flow', async ({ page }, info) => {
+  await page.goto('/');
+  await expect.poll(async () => (await snapshot(page))?.state).toBe('title');
+  expect((await node(page, 'scene_choice_0')).focused).toBe(true);
+  await clickNode(page, 'scene_choice_0');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('character_select');
+  await tapGameKey(page, 'ArrowDown', {delay: 60});
+  expect((await node(page, 'scene_choice_1')).focused).toBe(true);
+  await tapGameKey(page, 'Enter', {delay: 60});
+  await expect.poll(async () => (await snapshot(page)).state).toBe('stage_select');
+  await clickNode(page, 'scene_choice_2');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('boss');
+  expect((await node(page, 'name', 'player')).text).toBe('WARDEN');
+  expect((await node(page, 'block')).text).toContain('BLOCK 10');
+  expect((await node(page, 'name', 'enemy_body_0')).text).toBe('THE GUARDIAN');
+  await expectHeroOnLeft(page);
+  await page.locator('#app').screenshot({path: info.outputPath('boss.png')});
+  await tapGameKey(page, 'KeyP', {delay: 60});
+  await expect.poll(async () => (await snapshot(page)).state).toBe('settings');
+  await clickNode(page, 'scene_choice_0');
+  expect((await node(page, 'name', 'scene_choice_0')).text).toBe('MOTION: REDUCED');
+  await tapGameKey(page, 'Escape', {delay: 60});
+  await expect.poll(async () => (await snapshot(page)).state).toBe('boss');
+  expect((await node(page, 'block')).text).toContain('BLOCK 10');
+});
+
+test('draw and discard modals show cards trap focus and consume background actions', async ({ page }, info) => {
+  await clickNode(page, 'draw_pile_btn');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('draw_pile');
+  expect((await node(page, 'pile_close')).focused).toBe(true);
+  expect((await snapshot(page)).nodes.some((n: UiNode) => n.id === 'end_turn_btn')).toBe(false);
+  await tapGameKey(page, 'Tab', {delay: 60});
+  expect((await node(page, 'pile_next')).focused).toBe(true);
+  await expect(page.locator('#app')).toBeFocused();
+  // A tick must observe Tab's release before the same key is pressed again.
+  const submittedFrames = () => page.evaluate(() => (globalThis as any).__kaguraPresentation.captureTarget().renderedFrames);
+  const releasedFrame = await submittedFrames();
+  await expect.poll(submittedFrames).toBeGreaterThan(releasedFrame);
+  await tapGameKey(page, 'Shift+Tab', {delay: 60});
+  expect((await node(page, 'pile_close')).focused).toBe(true);
+  await tapGameKey(page, 'KeyE', {delay: 60});
+  expect((await snapshot(page)).state).toBe('draw_pile');
+  await page.locator('#app').screenshot({path: info.outputPath('draw-pile.png')});
+  await tapGameKey(page, 'Escape', {delay: 60});
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+  expect((await node(page, 'draw_pile_btn')).focused).toBe(true);
+  expect((await node(page, 'energy')).text).toBe('ENERGY 3/3');
+  await clickNode(page, 'discard_pile_btn');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('discard_pile');
+  expect((await node(page, 'pile_empty')).text).toBe('NO CARDS IN THIS PILE');
+  await clickNode(page, 'pile_close');
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+});
+
+test('standard gamepad selects cards targets piles settings and End Turn', async ({ page }, info) => {
+  await installGamepad(page);
+  const hp = (await node(page, 'value', 'enemy_body_1>hp')).text;
+  await padPress(page, 15);
+  expect((await node(page, 'card_frame_0')).focused).toBe(true);
+  await padPress(page, 0);
+  expect((await node(page, 'enemy_body_0')).focused).toBe(true);
+  expect((await node(page, 'energy')).text).toBe('ENERGY 3/3');
+  await padPress(page, 15);
+  expect((await node(page, 'enemy_body_1')).focused).toBe(true);
+  await page.locator('#app').screenshot({path: info.outputPath('controller-target.png')});
+  await padPress(page, 0);
+  await settle(page);
+  expect((await node(page, 'energy')).text).toBe('ENERGY 2/3');
+  expect((await node(page, 'value', 'enemy_body_1>hp')).text).not.toBe(hp);
+  await padPress(page, 4);
+  await expect.poll(async () => (await snapshot(page)).state).toBe('draw_pile');
+  await padPress(page, 3);
+  expect((await snapshot(page)).state).toBe('draw_pile');
+  await padPress(page, 1);
+  expect((await node(page, 'draw_pile_btn')).focused).toBe(true);
+  await padPress(page, 5);
+  await expect.poll(async () => (await snapshot(page)).state).toBe('discard_pile');
+  expect((await snapshot(page)).nodes.some((n: UiNode) => n.text === 'STRIKE')).toBe(true);
+  await padPress(page, 1);
+  await padPress(page, 9);
+  await expect.poll(async () => (await snapshot(page)).state).toBe('settings');
+  await padPress(page, 0);
+  await padPress(page, 1);
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+  await padPress(page, 3);
+  await expect.poll(async () => (await snapshot(page)).state).toBe('enemy_turn');
+  await settle(page);
+  expect((await node(page, 'turn')).text).toContain('TURN 2');
+});
+
+test('zero energy focuses End Turn after the effect and Enter advances the turn', async ({ page }, info) => {
+  // The deterministic opening hand spends all 3 energy: Strike, Defend, Defend.
+  for (let action = 0; action < 3; action++) {
+    await tapGameKey(page, 'Digit1', {delay: 60});
+    await tapGameKey(page, 'Enter', {delay: 60});
+    await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+  }
+  expect((await node(page, 'energy')).text).toBe('ENERGY 0/3');
+  await expect.poll(async () => (await node(page, 'end_turn_btn')).focused).toBe(true);
+  expect((await node(page, 'hint')).text).toBe('ENERGY 0 - ENTER / E TO END TURN');
+  await page.locator('#app').screenshot({path: info.outputPath('end-turn-focus.png')});
+  await tapGameKey(page, 'Enter', {delay: 60});
+  await expect.poll(async () => (await snapshot(page)).state).toBe('enemy_turn');
+  expect((await node(page, 'end_turn_btn')).focused).toBe(false);
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+  expect((await node(page, 'turn')).text).toContain('TURN 2');
+  expect((await node(page, 'energy')).text).toBe('ENERGY 3/3');
+  expect((await node(page, 'end_turn_btn')).focused).toBe(false);
+});
+
+test('zero cost cards can override End Turn focus and restore energy', async ({ page }) => {
+  await page.goto('/?preview=low_energy');
+  await expect.poll(async () => (await snapshot(page))?.state).toBe('battle');
+  await expect.poll(async () => (await node(page, 'end_turn_btn')).focused).toBe(true);
+  await tapGameKey(page, 'Digit1', {delay: 60});
+  await expect.poll(async () => (await node(page, 'end_turn_btn')).focused).toBe(false);
+  await tapGameKey(page, 'Enter', {delay: 60});
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+  expect((await node(page, 'energy')).text).toBe('ENERGY 2/3');
+  expect((await node(page, 'turn')).text).toContain('TURN 1');
+  expect((await node(page, 'end_turn_btn')).focused).toBe(false);
+});
+
+test('drop targets advertise availability and react to enter leave and release', async ({ page }, info) => {
+  const zones = async () => (await snapshot(page)).nodes.filter((n: UiNode) => n.id.startsWith('drop_zone_')).map((n: UiNode) => n.id);
+  expect(await zones()).toEqual([]);
+  const start = await point(page, await node(page, 'card_frame_0'));
+  const player = await point(page, await node(page, 'player'));
+  const first = await point(page, await node(page, 'enemy_body_0'));
+  const second = await point(page, await node(page, 'enemy_body_1'));
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await expect.poll(async () => (await node(page, 'hint')).text).toBe('DROP ON AN ENEMY');
+  await page.mouse.move(player.x, player.y, {steps: 8});
+  await expect.poll(zones).toEqual(['drop_zone_1000', 'drop_zone_1001']);
+  expect((await node(page, 'drop_badge_text_0')).text).toBe('DROP');
+  expect((await node(page, 'drop_badge_text_1')).text).toBe('DROP');
+  expect((await node(page, 'hint')).text).toBe('MOVE TO A HIGHLIGHTED ENEMY');
+  expect((await node(page, 'energy')).text).toBe('ENERGY 3/3');
+  await page.locator('#app').screenshot({path: info.outputPath('available-targets.png')});
+  await page.mouse.move(second.x, second.y, {steps: 8});
+  await expect.poll(async () => (await node(page, 'drop_badge_text_1')).text).toBe('RELEASE');
+  expect((await node(page, 'hint')).text).toBe('RELEASE TO PLAY');
+  await page.locator('#app').screenshot({path: info.outputPath('active-target.png')});
+  await page.mouse.move(first.x, first.y, {steps: 8});
+  await expect.poll(async () => (await node(page, 'drop_badge_text_0')).text).toBe('RELEASE');
+  expect((await node(page, 'drop_badge_text_1')).text).toBe('DROP');
+  await page.mouse.move(second.x, second.y, {steps: 8});
+  await expect.poll(async () => (await node(page, 'drop_badge_text_1')).text).toBe('RELEASE');
+  await page.mouse.up();
+  await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
+  expect(await zones()).toEqual([]);
+  expect((await node(page, 'energy')).text).toBe('ENERGY 2/3');
+
+  const skill = await point(page, await node(page, 'card_frame_0'));
+  await page.mouse.move(skill.x, skill.y);
+  await page.mouse.down();
+  await expect.poll(async () => (await node(page, 'hint')).text).toBe('DROP ON THE BATTLEFIELD');
+  await page.mouse.move(player.x, player.y, {steps: 8});
+  await expect.poll(zones).toEqual(['drop_zone_2000']);
+  expect((await node(page, 'drop_status')).text).toBe('RELEASE TO PLAY');
+  await tapGameKey(page, 'Escape', {delay: 60});
+  await page.mouse.up();
+  await expect.poll(zones).toEqual([]);
+  expect((await node(page, 'energy')).text).toBe('ENERGY 2/3');
 });
 
 test('cards are spent on a valid drop; cancellation and keyboard controls work', async ({ page }, info) => {
@@ -69,10 +261,10 @@ test('cards are spent on a valid drop; cancellation and keyboard controls work',
   await page.waitForTimeout(60);
   await page.mouse.move(start.x, start.y - 80, { steps: 8 });
   await expect.poll(async () => (await snapshot(page)).state).toBe('dragging');
-  await page.keyboard.press('Escape', { delay: 80 });
+  await tapGameKey(page, 'Escape', { delay: 80 });
   await page.mouse.up();
   await expect.poll(async () => (await node(page, 'energy')).text).toBe('ENERGY 1/3');
-  await page.keyboard.press('KeyE', { delay: 80 });
+  await tapGameKey(page, 'KeyE', { delay: 80 });
   await expect.poll(async () => (await node(page, 'turn')).text).toContain('TURN 2');
   await expect.poll(async () => (await node(page, 'energy')).text).toBe('ENERGY 3/3');
   await page.locator('#app').screenshot({ path: info.outputPath('battle.png') });
@@ -110,9 +302,9 @@ test('the shared launch page maximizes the game and supports browser fullscreen 
   await page.locator('#game-guide summary').click();
   await expect(page.getByRole('heading', {name: 'Controls'})).toBeVisible();
   const energy = (await node(page, 'energy')).text;
-  await page.keyboard.press('KeyE', {delay: 80});
+  await tapGameKey(page, 'KeyE', {delay: 80});
   expect((await node(page, 'energy')).text).toBe(energy);
-  await page.keyboard.press('Escape', {delay: 80});
+  await tapGameKey(page, 'Escape', {delay: 80});
   await expect(page.getByRole('heading', {name: 'Controls'})).toBeHidden();
   await page.screenshot({path: info.outputPath('fullscreen-page.png')});
 });
@@ -127,11 +319,11 @@ test('a won encounter offers cards and the chosen reward is in the deck', async 
       const cards = ui.nodes.filter((n: UiNode) => /^card_frame_\d+$/.test(n.id));
       let played = false;
       for (let i = 0; i < cards.length; i++) {
-        await page.keyboard.press(`Digit${i + 1}`, { delay: 80 });
+        await tapGameKey(page, `Digit${i + 1}`, { delay: 80 });
         await page.waitForTimeout(45);
         const hint = await node(page, 'hint');
         if (hint.text === 'NOT ENOUGH ENERGY') continue;
-        await page.keyboard.press('Enter', { delay: 80 });
+        await tapGameKey(page, 'Enter', { delay: 80 });
         await settle(page);
         const after = await snapshot(page);
         if (after.state !== 'battle' || after.nodes.filter((n: UiNode) => /^card_frame_\d+$/.test(n.id)).length < cards.length) {
@@ -141,7 +333,7 @@ test('a won encounter offers cards and the chosen reward is in the deck', async 
       if (!played) break;
     }
     if ((await snapshot(page)).state === 'battle') {
-      await page.keyboard.press('KeyE', { delay: 80 });
+      await tapGameKey(page, 'KeyE', { delay: 80 });
       await settle(page);
     }
   }
@@ -158,14 +350,14 @@ test('a won encounter offers cards and the chosen reward is in the deck', async 
   await clickNode(page, 'deck_next');
   const names = (await snapshot(page)).nodes.filter((n: UiNode) => n.id.startsWith('deck_card_')).map((n: UiNode) => n.text).join(' ');
   expect(names).toContain(reward);
-  await page.keyboard.press('Escape', { delay: 80 });
+  await tapGameKey(page, 'Escape', { delay: 80 });
   await expect.poll(async () => (await snapshot(page)).state).toBe('battle');
 });
 
 test('card effects visibly move, settle and reject repeated actions', async ({ page }, info) => {
   const hero = await node(page, 'hero');
-  await page.keyboard.press('Digit1', { delay: 60 });
-  await page.keyboard.press('Enter', { delay: 40 });
+  await tapGameKey(page, 'Digit1', { delay: 60 });
+  await tapGameKey(page, 'Enter', { delay: 40 });
   await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('card_play');
   await expect.poll(async () => Math.abs((await node(page, 'hero')).left - hero.left), { intervals: [10] }).toBeGreaterThan(1);
   await page.locator('#app').screenshot({ path: info.outputPath('card-impact.png') });
@@ -185,7 +377,7 @@ test('card effects visibly move, settle and reject repeated actions', async ({ p
 test('enemy turns pause, resolve one by one and then deal a new hand', async ({ page }, info) => {
   const hp = (await node(page, 'value', 'player>hp_bar')).text;
   const started = Date.now();
-  await page.keyboard.press('KeyE', { delay: 40 });
+  await tapGameKey(page, 'KeyE', { delay: 40 });
   await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('enemy_turn');
   expect((await node(page, 'value', 'player>hp_bar')).text).toBe(hp);
   expect((await snapshot(page)).nodes.some((n: UiNode) => /^card_frame_\d+$/.test(n.id))).toBe(false);
@@ -203,8 +395,8 @@ test('enemy turns pause, resolve one by one and then deal a new hand', async ({ 
 test('reduced motion keeps the action pause without travel or shaking', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const hero = await node(page, 'hero');
-  await page.keyboard.press('Digit1', { delay: 60 });
-  await page.keyboard.press('Enter', { delay: 40 });
+  await tapGameKey(page, 'Digit1', { delay: 60 });
+  await tapGameKey(page, 'Enter', { delay: 40 });
   await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('card_play');
   expect((await node(page, 'hero')).left).toBe(hero.left);
   expect((await snapshot(page)).nodes.some((n: UiNode) => n.id === 'played_card')).toBe(false);
@@ -216,11 +408,11 @@ test('result transitions preserve the outgoing screen and consume repeated choic
   await page.goto('/?preview=battle_victory');
   await expect.poll(async () => (await snapshot(page))?.state).toBe('battle_victory');
   await page.locator('#app').focus();
-  await page.keyboard.press('Enter', { delay: 40 });
+  await tapGameKey(page, 'Enter', { delay: 40 });
   await expect.poll(async () => (await snapshot(page)).state, { intervals: [10] }).toBe('transition');
   expect((await snapshot(page)).nodes.some((n: UiNode) => n.text === 'BATTLE WON')).toBe(true);
   expect((await snapshot(page)).nodes.some((n: UiNode) => n.id === 'screen_fade')).toBe(true);
-  await page.keyboard.press('Digit1', { delay: 40 });
+  await tapGameKey(page, 'Digit1', { delay: 40 });
   await page.locator('#app').screenshot({ path: info.outputPath('result-transition.png') });
   await settle(page);
   expect((await snapshot(page)).state).toBe('card_reward');
@@ -261,6 +453,8 @@ test.describe('phone', () => {
     await expect.poll(async () => (await node(page, 'hint')).text).toBe('DROP ON AN ENEMY');
     await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: target.x, y: target.y, id: 7 }] });
     await expect.poll(async () => (await snapshot(page)).state).toBe('dragging');
+    await expect.poll(async () => (await node(page, 'drop_badge_text_1')).text).toBe('RELEASE');
+    expect((await node(page, 'drop_badge_text_0')).text).toBe('DROP');
     await page.locator('#app').screenshot({ path: info.outputPath('touch-drag.png') });
     await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await expect.poll(async () => (await node(page, 'energy')).text).toBe('ENERGY 2/3');

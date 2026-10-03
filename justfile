@@ -45,7 +45,7 @@ web-runtime-test: web-runtime-build
 card-game-dev:
     PORT=5196 node scripts/dev-server.mjs card_game
 
-# UI-owned mouse/touch normalization and reusable drag event lifecycle.
+# UI-owned drag events, modal focus and keyboard/controller navigation.
 ui-dnd-test:
     moon -C engine/ui check . --target js --deny-warn
     moon -C engine/ui test . --target js
@@ -53,17 +53,36 @@ ui-dnd-test:
     moon -C engine/ui test . --target native
 
 card-game-test: ui-dnd-test
+    moon -C engine check scene --target js --deny-warn
+    moon -C engine test scene --target js
+    moon -C engine check scene --target native --deny-warn
+    moon -C engine test scene --target native
+    moon -C engine test scene --target js --release --filter '*release*'
+    moon -C engine test scene --target native --release --filter '*release*'
     moon -C examples/games/card_game check --target js --deny-warn
     moon -C examples/games/card_game test lib --target js
     moon -C examples/games/card_game test lib --target native
     moon -C examples/games/card_game check --target native --deny-warn
     moon -C examples/games/card_game build --target js --release
+    node --test examples/games/card_game/agent/agent.test.mjs examples/games/card_game/agent/cli.test.mjs
     moon -C engine test raster --target js
     moon -C engine test raster --target native
     node --test scripts/web-demo-pages.test.mjs scripts/web-demo-package.test.mjs platform_web/host/kagura-presentation.test.mjs
 
 card-game-e2e:
     pnpm exec playwright test -c examples/games/card_game/playwright.config.mjs
+
+# Semantic state + legal choices: Jev plays without a browser or renderer.
+card-game-agent *args:
+    node scripts/card-game-agent.mjs {{args}}
+
+card-game-agent-test:
+    moon -C examples/games/card_game check --target js --deny-warn
+    moon -C examples/games/card_game check --target native --deny-warn
+    moon -C examples/games/card_game test lib --target js --filter '*agent*'
+    moon -C examples/games/card_game test lib --target native --filter '*agent*'
+    moon -C examples/games/card_game build agent_host --target js --release
+    node --test examples/games/card_game/agent/agent.test.mjs examples/games/card_game/agent/cli.test.mjs
 
 # Inspect captures before accepting an intended UI change.
 card-game-vrt:

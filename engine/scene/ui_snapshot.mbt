@@ -32,7 +32,7 @@ pub fn ui_snapshot_from_scene(
             let x = scene_attr_double(el.attrs, "x", 0.0) + offset_x
             let y = scene_attr_double(el.attrs, "y", 0.0) + offset_y
             let scale = scene_attr_double(el.attrs, "scale", 1.0)
-            let key = scene_attr_string(el.attrs, "key", "")
+            let key = scene_ui_key(el.attrs)
             let (id, segment) = if key == "" {
               let n = label_seq
               label_seq += 1
@@ -73,9 +73,12 @@ pub fn ui_snapshot_from_scene(
             })
           }
           "group" => {
+            if scene_attr_double(el.attrs, "ui_hidden", 0.0) != 0.0 {
+              return
+            }
             let x = scene_attr_double(el.attrs, "x", 0.0)
             let y = scene_attr_double(el.attrs, "y", 0.0)
-            let key = scene_attr_string(el.attrs, "key", "")
+            let key = scene_ui_key(el.attrs)
             let path = join_snapshot_path(parent_path, key)
             for child in el.children {
               walk(child, offset_x + x, offset_y + y, path)
@@ -133,11 +136,14 @@ pub fn ui_snapshot_from_scene(
   }
 
   walk(node, 0.0, 0.0, "")
+  let focusable = nodes.filter(n => n.focusable && n.visible)
+  focusable.sort_by_key(n => n.focus_index)
   {
     ..@kagura_ui.default_ui_snapshot(screen_width~, screen_height~),
     frame,
     state,
     nodes,
+    focus_order: focusable.map(n => n.id),
   }
 }
 
@@ -150,7 +156,7 @@ fn push_keyed_box(
   parent_path : String,
   role : String,
 ) -> String {
-  let key = scene_attr_string(el.attrs, "key", "")
+  let key = scene_ui_key(el.attrs)
   if key == "" {
     return parent_path
   }
@@ -164,7 +170,7 @@ fn push_keyed_box(
     ..@kagura_ui.default_ui_snapshot_node(),
     path,
     id: key,
-    role,
+    role: scene_attr_string(el.attrs, "role", role),
     classes: key,
     left,
     top,
@@ -172,6 +178,9 @@ fn push_keyed_box(
     height,
     z: nodes.length(),
     hit: Some(hit),
+    focusable: scene_attr_double(el.attrs, "focusable", 0.0) != 0.0,
+    focused: scene_attr_double(el.attrs, "focused", 0.0) != 0.0,
+    focus_index: scene_attr_double(el.attrs, "focus_index", -1.0).to_int(),
   })
   path
 }
@@ -228,4 +237,11 @@ fn scene_attr_string(
     Some(SceneText(v)) => v
     _ => default_
   }
+}
+
+///|
+fn scene_ui_key(
+  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
+) -> String {
+  scene_attr_string(attrs, "ui_key", scene_attr_string(attrs, "key", ""))
 }

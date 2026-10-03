@@ -5,6 +5,61 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
   game.set_viewport(width, height)
   let run = game.run.get()
   match name {
+    "map"
+    | "map_unique"
+    | "event"
+    | "shop"
+    | "shop_sold"
+    | "card_removal"
+    | "treasure"
+    | "unique_battle"
+    | "unique_reward" => {
+      let adventure = RunState::adventure(Ironclad, Ascent, seed=42)
+      game.run.set(adventure)
+      if name == "map_unique" {
+        adventure.floor = 6
+        adventure.route.unwrap().current = Some(16)
+        adventure.route.unwrap().visited.append([1, 4, 7, 10, 13, 16])
+        let choices = run_choices(adventure)
+        for index, choice in choices {
+          if choice.action is PickNode(id) &&
+            adventure.route.unwrap().nodes.any(n => {
+              n.id == id && n.kind == RoomUnique
+            }) {
+            game.scene_focus = index
+          }
+        }
+      } else if name == "event" {
+        adventure.phase = EventRoom
+        adventure.event = Some(HealingSpring)
+        adventure.player_hp = 40
+        adventure.gold = 20
+      } else if name == "shop" || name == "shop_sold" || name == "card_removal" {
+        adventure.phase = ShopRoom
+        adventure.gold = 240
+        adventure.shop = Some(ShopState::new(adventure))
+        if name == "shop_sold" {
+          apply_run_choice(adventure, "buy:0") |> ignore
+        }
+        if name == "card_removal" {
+          apply_run_choice(adventure, "remove_card") |> ignore
+        }
+      } else if name == "treasure" {
+        open_treasure(adventure)
+      } else if name == "unique_battle" || name == "unique_reward" {
+        adventure.current_room = Some(RoomUnique)
+        adventure.floor = 7
+        adventure.phase = Battle
+        adventure.battle = Some(start_run_battle(adventure, UniqueSentinel))
+        adventure.unique_enemies_seen.push(GildedSentinel)
+        adventure.route.unwrap().current = Some(18)
+        adventure.route.unwrap().visited.append([1, 4, 7, 10, 13, 16, 18])
+        if name == "unique_reward" {
+          adventure.battle.unwrap().enemies[0].fighter.hp = 1
+          adventure.battle.unwrap().hand[0] = Strike
+        }
+      }
+    }
     "card_reward" | "complex_reward" => {
       run.phase = CardReward
       run.card_rewards.clear()
@@ -64,7 +119,25 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
       b.phase = Victory
       game.present(BattleOutcome([0, 1]))
     }
-    "deck" => game.deck_open = true
+    "title" => game.scene = Title
+    "settings" => game.scene = Settings
+    "character_select" => game.scene = CharacterSelect
+    "stage_select" => game.scene = StageSelect
+    "boss" => game.run.set(RunState::start(Ironclad, GuardianTrial))
+    "deck" => game.open_pile(Deck)
+    "draw_pile" => game.open_pile(Draw)
+    "discard_pile" => {
+      run.battle.unwrap().discard_pile.push(Strike)
+      run.battle.unwrap().discard_pile.push(Defend)
+      game.open_pile(Discard)
+    }
+    "controller_target" => {
+      let b = run.battle.unwrap()
+      game.select_card(b, 0)
+      game.combat_focus = Some(Target(1))
+      game.target_enemy.set(1)
+      game.hint = "ARROWS: TARGET / A OR ENTER: PLAY / B OR ESC: BACK"
+    }
     "large_hand" | "inspect_card" => {
       let b = run.battle.unwrap()
       b.hand.clear()
@@ -91,20 +164,36 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
         game.cursor_y = r.y + 30.0
       }
     }
-    "low_energy" => {
+    "low_energy" | "energy_empty" | "energy_selected" => {
       let b = run.battle.unwrap()
       b.player.energy = 0
       b.hand.clear()
-      for card in [Offering, Demon_Form, Whirlwind, Corruption, Seeing_Red] {
+      let cards = if name == "energy_empty" {
+        [Strike, Defend, Bash]
+      } else {
+        [Offering, Demon_Form, Whirlwind, Corruption, Seeing_Red]
+      }
+      for card in cards {
         b.hand.push(card)
       }
+      if name == "energy_selected" {
+        game.select_card(b, 0)
+      }
     }
-    "dragging" => {
+    "dragging" | "drag_attack" | "drop_enemy" | "drop_outside" => {
       let b = run.battle.unwrap()
-      b.hand[0] = Defend
+      b.hand[0] = if name == "drag_attack" || name == "drop_enemy" {
+        Strike
+      } else {
+        Defend
+      }
       let card = game.layout.card_rect(0, b.hand.length())
-      let target = game.layout.player_rect()
-      game.selected_card.set(0)
+      let target = match name {
+        "drop_enemy" => game.layout.enemy_rect(1, b.enemies.length())
+        "drop_outside" => game.layout.end_turn_rect()
+        _ => game.layout.player_rect()
+      }
+      game.select_card(b, 0)
       let source_at = fn(x, y) { game.drag_source_at(x, y) }
       let target_at = fn(source, x, y) { game.drag_target_at(source, x, y) }
       let _ = game.drag.handle_pointer(
@@ -130,7 +219,11 @@ pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
       )
       game.cursor_x = target.x + target.w / 2.0
       game.cursor_y = target.y + target.h / 2.0
-      game.hint = "DROP ON THE BATTLEFIELD"
+      game.hint = if game.need_target {
+        "DROP ON AN ENEMY"
+      } else {
+        "DROP ON THE BATTLEFIELD"
+      }
     }
     _ => ()
   }

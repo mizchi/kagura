@@ -52,3 +52,9 @@ test('initialState is distinct from the artifact label and must actually be appl
     assert.throws(() => matrixCells({ version: 1, states: { test: { frames: 1, initialState } } }));
   }
 });
+
+test('matrix accommodates 64 independent game scenarios but limits unbounded expansion', () => {
+  const states = Object.fromEntries(Array.from({ length: 64 }, (_, i) => [`scenario_${i}`, { frames: 1 }]));
+  assert.equal(matrixCells({ version: 1, states, viewports: [{ name: 'phone', width: 360, height: 640 }] }).length, 64);
+  assert.throws(() => matrixCells({ version: 1, states: { ...states, scenario_64: { frames: 1 } } }), /excessive/);
+});

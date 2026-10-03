@@ -51,3 +51,32 @@ for event in events {
 ```bash
 just ui-dnd-test  # JS / nativeの共通UIテストと警告チェック
 ```
+
+## モーダル
+
+`UIModalController` は描画・内容を持たず、モーダルのスタック、入力スコープ、フォーカスの制限と復帰を管理します。
+
+```moonbit
+let modals = @ui.UIModalController::new()
+let _ = modals.open(dialog_id, opener=Some(button_id), focusable=[close_id, next_id])
+// モーダルがある間は accepts(dialog_id) のスコープだけへ入力を送る。
+modals.cycle(1) // Tab / 下方向。-1 は Shift+Tab / 上方向。
+let closed = modals.close(@ui.UIModalCloseReason::Cancel)
+// closed.restore_focus を呼び出し側の表示・入力フォーカスに反映する。
+```
+
+`current()` はID・フォーカス・操作可能IDのコピーを返します。`focus(id)` は最上位モーダル内だけを受け入れ、重複IDの `open` はfalse、空スタックの `close` はNoneです。入れ子を閉じると親に戻ります。`Explicit / Cancel / Backdrop` で閉じた理由を区別できます。フォーカス先がないポップアップはそのルートをフォーカスします。
+
+描画側は背後を暗く描き、背後への入力を止めます。Sceneでは `group(ui_hidden=true, children=background)` で背後を描画しながらアクティブなUI snapshotから外し、ポップアップのrectに `role="dialog"` を付けます。WebのCanvasでは、モーダル中のTabのブラウザ既定動作をホスト側で抑止してください。
+
+## キーボード・コントローラー
+
+`UINavigationInputAdapter.update(input, elapsed_ms=dt)` は矢印キー、標準マッピングの十字キー・左スティックを `Move(Left / Right / Up / Down)` に変換します。Enter / Space / Aは `Confirm`、Esc / Bは `Cancel` です。X / Y / LB / RB / Startは `Auxiliary(2 / 3 / 4 / 5 / 9)` として用途を呼び出し側に渡します。複数接続時はInputSnapshotの最初のコントローラーを使います。
+
+`navigation_input_from_glfw(input)` はnativeのGLFWで異なる十字キー・Startなどの番号を共通形式へ変換します。Web入力とヘッドレスの共通形式の入力には適用しません。
+
+スティックは0.55で方向を取り、0.35より小さくなるまで維持します。方向だけ350ms後から120ms間隔でリピートし、遅れたフレームでも一度に1件まで返します。決定と取消は押した瞬間だけ返します。画面遷移・演出・モーダル中にも毎フレーム更新し、受け付けない入力のエッジも消費してください。
+
+Scene側で公開版にも残すUI識別子は `@scene.ui_key(id, node)` で明示します。
+`key` / `name` / `subject` は開発用の検査情報で、releaseでは削除されます。
+ポップアップの識別やUI snapshotに依存する入力処理には `ui_key` を使います。

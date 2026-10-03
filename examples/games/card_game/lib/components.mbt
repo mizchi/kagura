@@ -19,7 +19,10 @@ fn ui_text(
   scale? : Double = 0.75,
   color? : Int = ink,
 ) -> @scene.SceneNode {
-  @scene.label(key~, x~, y~, content=text.to_upper(), scale~, color~)
+  @scene.ui_key(
+    key,
+    @scene.label(key~, x~, y~, content=text.to_upper(), scale~, color~),
+  )
 }
 
 ///|
@@ -95,14 +98,22 @@ fn ui_panel(
   fill : Int,
   border : Int,
   children : Array[@scene.SceneNode],
+  role? : String = "",
+  focused? : Bool = false,
+  focusable? : Bool = false,
+  focus_index? : Int = 0,
 ) -> @scene.SceneNode {
-  @scene.rect(
+  let node = @scene.rect(
     key~,
     x=rect.x,
     y=rect.y,
     w=rect.w,
     h=rect.h,
     fill~,
+    role~,
+    focused~,
+    focusable~,
+    focus_index~,
     children=[
       @scene.rect_outline(
         x=1.0,
@@ -114,6 +125,7 @@ fn ui_panel(
       ..children,
     ],
   )
+  @scene.ui_key(key, node)
 }
 
 ///|
@@ -122,8 +134,11 @@ fn ui_button(
   rect : UiRect,
   text : String,
   accent? : Int = gold,
+  focused? : Bool = false,
+  focusable? : Bool = false,
+  focus_index? : Int = 0,
 ) -> @scene.SceneNode {
-  ui_panel(key, rect, 0x253044, accent, [
+  let children = [
     fit_text(
       "text",
       rect.w / 2.0,
@@ -133,7 +148,35 @@ fn ui_button(
       scale=0.85,
       color=accent,
     ),
-  ])
+  ]
+  if focused {
+    children.push(
+      @scene.rect_outline(
+        key=key + "_focus_ring",
+        x=3.0,
+        y=3.0,
+        w=rect.w - 6.0,
+        h=rect.h - 6.0,
+        line_width=2.0,
+        color=accent,
+      ),
+    )
+  }
+  ui_panel(
+    key,
+    rect,
+    if focused {
+      0x4C3825
+    } else {
+      0x253044
+    },
+    accent,
+    children,
+    role="button",
+    focused~,
+    focusable~,
+    focus_index~,
+  )
 }
 
 ///|
@@ -150,7 +193,7 @@ fn ui_meter(
     0.0,
     ui_min(1.0, value.to_double() / ui_max(1, maximum).to_double()),
   )
-  @scene.rect(key~, x~, y~, w=width, h=12.0, fill=0x10151C, children=[
+  let node = @scene.rect(key~, x~, y~, w=width, h=12.0, fill=0x10151C, children=[
     @scene.rect(x=1.0, y=1.0, w=(width - 2.0) * ratio, h=10.0, fill=color),
     fit_text(
       "value",
@@ -161,6 +204,7 @@ fn ui_meter(
       scale=0.55,
     ),
   ])
+  @scene.ui_key(key, node)
 }
 
 ///|
@@ -233,6 +277,8 @@ fn ui_card(
   selected : Bool,
   spine? : Bool = false,
   detailed? : Bool = false,
+  interactive? : Bool = true,
+  focused? : Bool = false,
 ) -> @scene.SceneNode {
   let def = card_def(id)
   let accent = card_accent(id)
@@ -320,6 +366,8 @@ fn ui_card(
     },
     border,
     children,
+    role=if interactive { "button" } else { "rect" },
+    focused~,
   )
 }
 
@@ -379,7 +427,20 @@ fn short_desc(def : CardDef) -> String {
 /// The scene font supports uppercase ASCII; convert punctuation to word breaks.
 fn render_copy(text : String) -> String {
   let mut out = ""
-  for ch in text.to_upper() {
+  let upper = text.to_upper()
+  for index in 0..<upper.length() {
+    let ch = upper[index]
+    if ch == '=' &&
+      index > 0 &&
+      (upper[index - 1] == '<' || upper[index - 1] == '>') {
+      continue
+    }
+    if (ch == '<' || ch == '>') &&
+      index + 1 < upper.length() &&
+      upper[index + 1] == '=' {
+      out += if ch == '<' { "AT MOST" } else { "AT LEAST" }
+      continue
+    }
     let n = ch.to_int()
     out += if (n >= 65 && n <= 90) ||
       (n >= 48 && n <= 57) ||
@@ -390,7 +451,7 @@ fn render_copy(text : String) -> String {
       ch == ':' ||
       ch == '>' ||
       ch == '%' {
-      ch.to_string()
+      ch.to_char().unwrap().to_string()
     } else {
       " "
     }

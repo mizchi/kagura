@@ -103,8 +103,12 @@ Run `just studio-install` once to install the Studio build dependencies.
 The repository's Pages source must be **GitHub Actions**.
 
 After deployment, `just pages-test https://mizchi.github.io/kagura/` checks the
-public gallery, Studio modeling, save selection and summoner gameplay with Playwright. It also
+public gallery, Ember Ascent's map, card dragging and popup controls on desktop and mobile,
+Studio modeling, save selection and summoner gameplay with Playwright. It also
 accepts a locally served `_site/` URL, including a project subdirectory.
+
+[Play Ember Ascent](https://mizchi.github.io/kagura/card_game/) starts the roguelike deckbuilder
+with branching stages, events, shops, relics and unique enemies.
 
 [Open kawaiko in Studio](https://mizchi.github.io/kagura/studio/?mode=modeling&model=kawaiko)
 initializes the modeling workspace directly from a shareable URL.

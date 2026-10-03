@@ -3,32 +3,92 @@
 kagura エンジン上で動作する Slay the Spire スタイルのデッキ構築型ローグライトカードゲーム。
 Ironclad のデータをベースに、StS の面白さを構成する要素を形式的にモデル化している。
 
+[GitHub Pages で遊ぶ](https://mizchi.github.io/kagura/card_game/) — マウス、キーボード、コントローラーに対応しています。
+
 ## 起動と検証
 
 ```bash
 just card-game-dev         # http://127.0.0.1:5196
 just card-game-test        # MoonBit JS / native + release build
 just card-game-e2e         # Chromium ヘッドレスのマウス / キーボード / タッチ
-just card-game-vrt         # 18状態 × 5画面サイズの画像差分・vlmkit検査
+just card-game-vrt         # 40状態 × 5画面サイズの画像差分・vlmkit検査
 just card-game-vrt-update  # 意図したUI変更を確認してから基準画像を更新
+just card-game-agent       # Jev が状態と合法手を読み、描画なしで自動プレイ
+just card-game-agent-test  # エージェント契約、JS/native、API/CLI の検証（キー不要）
 ```
 
-既存の `just dev card_game` でも起動できます。ゲームは戦闘から始まり、勝利後にカードを選び、休息を挟みながら 2 Act / 30 フロアを進みます。
+## Jev による自動プレイ
+
+[`mizchi/jev-playground`](https://github.com/mizchi/jev-playground) の五目並べ・MOBAと同様に、ゲーム側が現在の状態と合法手を列挙し、Jev が `choice` で次の一手を選びます。Node.js 上で既存の `RunState` / `BattleState` を直接進めるため、ブラウザ、画像、GPU、座標入力、アニメーションの待ち時間は不要です。画面の入力と同じカードコスト・ダメージ・敵行動・ラン進行のルールを使います。
+
+```bash
+# ~/.profile の TYPESAFE_API_KEY を読み、Jev がキャラとステージも選択
+just card-game-agent
+
+# 戦闘から開始してゲームの初期条件を固定する
+just card-game-agent --character warden --stage ascent --seed 42 --max-decisions 500
+
+# キーも API 呼び出しも使わず、状態・選択肢・送信内容を確認
+just card-game-agent --dry-run --character ironclad --stage guardian_trial
+
+# JSONL の選択を再実行し、毎手の状態が一致することを検証（キー不要）
+just card-game-agent --replay output/card-game-agent/your-run.jsonl
+```
+
+認証は環境変数 `TYPESAFE_API_KEY` / `TYPESAFEAI_API_KEY` を優先し、未設定なら `~/.profile` の `TYPESAFE_API_KEY` へのリテラル代入を読みます。例は `export TYPESAFE_API_KEY="..."` です。シェルとして実行せず、キーの値はログやゲーム状態に含めません。`--profile FILE` で読み込むファイルを指定できます。
+
+各観測には `schemaVersion: 2`、`revision`、局面、終了フラグ、HP・ENERGY・手札、敵の予告と状態、デッキ・レリック・ポーション・報酬、ゴールド、マップの接続と通過履歴、イベントのコスト、ショップの価格と売り切れ状態、合法な `choices` が入ります。山札・捨て札・消耗札はカードの種類と枚数を提供し、山札の順序と内部の乱数状態は公開しません。手札のコストは Corruption や X コストを反映します。
+
+攻撃カードは手札と生存中の対象を組にして列挙し、対象不要のカードは一つの候補になります。ポーション、ターン終了、戦闘終了後の継続、報酬取得・スキップ、休息に加え、分岐選択、イベント、購入、カード削除、宝箱のレリック選択も局面に応じて提示します。敵のターンを同期的に解決し、次の意思決定まで進めます。Jev は [TypeSafe の `POST /v1/systemone`](https://api.typesafe.ai/openapi.json) に渡した候補IDから選びます。
+
+観測と判断ログの形式はv2です。分岐導入前のv1ログは旧ルールの記録として扱い、現在のリプレイでは受け付けません。
+
+Node 用の契約は `agent/contracts.d.mts`、ゲームの型は `lib/agent_contracts.mbt` にあります。独自の判断器も同じAPIを使えます。
+
+```js
+import {createHeadlessSession} from './agent/headless.mjs';
+
+const session = createHeadlessSession({seed: 42});
+const observation = session.observe();
+// observation.choices = [{id: 'begin', label: '...', action: {kind: 'begin'}}]
+const next = session.step({revision: observation.revision, choiceId: 'begin'});
+```
+
+ホストモジュールを先にビルドするには `moon -C examples/games/card_game build agent_host --target js --release` を実行します。CLI は自動でビルドし、`--no-build` で省略できます。古い `revision` の回答と現在の合法手にないIDは、ゲームを変更せず拒否します。API応答は型・選択肢・確率・使用量を検証し、ネットワーク障害・429・5xxへの再試行には回数とタイムアウトの上限があります。
+
+判断ログは既定で `output/card-game-agent/` に保存します。開始条件、毎手の状態と候補、Jev の選択・confidence・確率・実測時間・トークン数、適用後の状態、最終結果を含む JSONL です。`--out FILE` で保存先を指定でき、既存ファイルは上書きしません。`--max-decisions`（既定500）で止まった場合は `limit` と記録し、勝利・敗北と区別します。APIが失敗した場合は最後の局面を記録して停止します。`--quiet` は最終結果だけを表示します。
+
+seed はゲームの乱数を固定します。実APIでのJevの判断は同じ条件でも変わる可能性があり、厳密な再現には記録した選択を使います。導入時の実測では Warden / Ascent / seed 42 を331判断でクリアし、記録の全状態が再生と一致しました。検証条件と結果は [実プレイ検証記録](../../../docs/reports/card-game-jev-2026-10-03.md) にあります。
+
+既存の `just dev card_game` でも起動できます。開始画面からキャラクターとステージを選びます。Ironclad（80 HP、Burning Blood、Bash）とWarden（96 HP、Anchor、Body Slam）で初期デッキと戦い方が変わります。第1幕から30フロアを登る通常ラン、第2幕からのラン、ガーディアンだけと戦うボスチャレンジを選べます。通常ランでは分岐マップから次の部屋を選び、戦闘・イベント・ショップ・休息・宝箱を通って進みます。
 
 プレイヤーは左、敵は右に配置します。縦長の画面でも左右の関係を保ち、複数の敵は右側で並びます。ゲーム起動ページは共通でウィンドウいっぱいに表示し、「全画面」ボタンでブラウザのフルスクリーンへ切り替えます。「操作ガイド」から操作説明とソースを確認できます。
 
 ## 操作
 
 - 攻撃カードを敵にドラッグして離すと、その敵に使用します。
+- ドラッグ中は使用できる敵を水色の枠と `DROP` で示します。重ねた対象は金色の太い枠と `RELEASE` に変わり、離すと使用します。狭い表示では枠と画面下の案内で示します。Skill / Power / 全体攻撃では戦場全体の枠が反応します。
 - Skill / Power / 全体攻撃は戦場にドロップします。戦場の外に離すとカードを戻します。
 - クリックでも操作できます。対象が複数いる攻撃は、カードをクリックした後に敵をクリックします。
 - `1–9` でカード選択、`← / →` で対象変更、`Enter` で使用、`E` でターン終了。
-- `D` または DECK ボタンでデッキと獲得レリックを確認します。次ページはボタンか `→`。
+- ENERGYが0の待機状態ではEND TURNへフォーカスし、二重の枠と `ENTER / E TO END TURN` で案内します。Enterでもターン終了できます。演出中は待ち、コスト0のカードを選択・ドラッグしている間はその操作を優先します。ENERGYが回復すると案内を解除します。
+- `D` / DECK でデッキと獲得レリック、`Q` / DRAWで山札、`R` / DISCで捨て札をモーダルで確認します。開いている間は戦闘入力を止め、閉じると起点へフォーカスを戻します。`← / →` でページ、`↑ / ↓` とTabで内部のボタンを選び、Escで閉じます。
+- 矢印キー・十字キー・左スティックで操作できます。戦闘では左右で手札を選び、A / Enterで対象選択へ進み、方向キーで生存している敵を切り替え、もう一度A / Enterで使用します。B / Escで手札選択へ戻します。
+- コントローラーのXでデッキ、LBで山札、RBで捨て札、Yでターン終了、Startで設定を開きます。手札選択中の上方向から山札・捨て札・ENDにも移動できます。報酬も方向キーと決定で選べます。
+- `P` / Startで設定画面を開き、演出をSYSTEM / REDUCED / FULLで切り替えます。戻ると同じ戦闘状態から再開します。
 - `Esc` / 右クリックで選択を取り消します。ウィンドウを離れた場合もドラッグを取り消します。
 - 報酬はカードクリックか `1–3`、スキップは `S`。休息・継続・再挑戦はボタンか `Enter`。
 - 手札が多いときはカードにポインターを置くと詳しい効果を表示します。タッチでのドラッグにも対応します。
 
+`app_contracts.mbt` の型付きシーン・キャラクター・ステージを、`scene_flow.mbt` の入力と `app_view.mbt` の表示で扱います。`Game::new_app()` が開始画面の入口です。`Game::new()` は戦闘シミュレーション用として維持します。画面間は既存の400msフェードを共有し、切り替え中の連打を消費します。
+
+`popup.mbt` はゲーム側の山札・捨て札・デッキを共通UIの `UIModalController` へ接続し、`popup_view.mbt` が表示します。`controller.mbt` は共通 `UINavigationInputAdapter` のイベントを手札・対象・操作ボタンへ変換します。
+
 画面上のカード・ボタン・HPバーは既存の `@scene` コンポーネントで描画します。`layout.mbt` の同じ矩形を描画と当たり判定で使用します。ドラッグの認識とマウス・タッチの取得は共通UIの [`UIDragController`](../../../engine/ui/README.md) が担当し、`interaction.mbt` は `UIEvent::Drag` を受けて選択表示やカード使用へ変換します。使用可能なカード、敵と戦場のドロップ可否はゲーム側で判定します。戦闘とランのルールは従来の `game.mbt` / `run.mbt` にあります。
+
+ターゲット線は敵・対象枠の後、ENERGYや操作ボタンの前に描きます。敵の上へ重ねても線が隠れず、操作の表示は読み取れます。描画順を回帰テストで確認します。
+
+`drop_feedback.mbt` が受け入れ可能な対象一覧を作り、ドロップ判定と対象の強調表示で共有します。使用不可のカードや倒れた敵には案内を出しません。対象の出入り、取消、カード使用の後は共通DnDのsnapshotに合わせて表示を切り替えます。debug版の `?preview=drag_attack` / `drop_enemy` / `drop_outside` で対象の案内、重ねた状態、対象外の状態を確認できます。
 
 ## アニメーションと進行
 
@@ -53,8 +113,15 @@ examples/games/card_game/
 │   ├── combat.mbt        # 戦闘システム（Fighter, StatusEffects, ダメージ計算）
 │   ├── enemy.mbt         # 敵AI・エンカウンター定義（10体 + ボス2体）
 │   ├── game.mbt          # バトルステート・カード実行ロジック
-│   ├── run.mbt           # ラン進行（2 Act / 30フロア）
-│   ├── relics.mbt        # レリック（12種）
+│   ├── run.mbt           # ラン状態と戦闘報酬（2 Act / 30フロア）
+│   ├── adventure_contracts.mbt # 分岐・部屋・選択の型
+│   ├── adventure.mbt     # 分岐マップと部屋間の進行
+│   ├── rooms.mbt         # イベント・ショップ・宝箱・共通選択API
+│   ├── unique_enemies.mbt # 固有エネミーの抽選と説明
+│   ├── adventure_layout.mbt # 分岐と部屋の描画・入力共通矩形
+│   ├── adventure_view.mbt   # 分岐・イベント・ショップの表示
+│   ├── adventure_input.mbt  # 共通UI入力から部屋の選択へ
+│   ├── relics.mbt        # レリック（15種）
 │   ├── balance.mbt       # AI戦略（Aggressive/Defensive/Smart）
 │   ├── economy.mbt       # Machinations経済モデル・ラン全体シミュレーション
 │   ├── ml_balance.mbt    # ML用特徴量抽出・感度分析
@@ -63,10 +130,15 @@ examples/games/card_game/
 │   ├── components.mbt    # カード・ボタン・HPバー・説明部品
 │   ├── layout.mbt        # 描画と入力が共有する矩形
 │   ├── interaction.mbt   # マウス・タッチ・キーボードの制御
+│   ├── agent_contracts.mbt # 意味操作・選択肢・局面の所有者の型
+│   ├── agent.mbt         # 合法手列挙と revision を検証する同期操作
+│   ├── agent_observation.mbt # 描画に依存しない公開状態の JSON
 │   └── *_wbtest.mbt      # ホワイトボックステスト
 ├── headless/             # ヘッドレスランナー（moon run）
 │   ├── main.mbt          # バランスチェック・ラン全体テスト
 │   └── moon.pkg
+├── agent_host/           # MoonBit ルールの Node 用 ESM エクスポート
+├── agent/                # ヘッドレスAPI・Jev接続・記録/再生・契約とテスト
 ├── main.mbt              # GUI エントリポイント
 ├── moon.pkg
 └── moon.mod
@@ -74,7 +146,36 @@ examples/games/card_game/
 
 ## ゲームシステム
 
-### Act 1 フロア構成（15フロア）
+### 分岐マップと部屋
+
+各幕は3レーン・15階のマップです。破線で接続された次の階のノードだけを選べます。通過済みのノード、現在地、選択可能なノードを色で区別します。14階は休息、15階はボスです。第1幕のボス報酬を終えると全回復して第2幕へ進み、30階のボス報酬を終えるとラン勝利になります。Guardian Trial は開始時からボス戦です。
+
+マウス・タッチでノードや選択肢を押すか、方向キー / 十字キーで選び、Enter / Aで確定します。マップ上端の矢印またはLB/RBで他の階を確認できます。閲覧中に確定すると次の選択可能なノードへ戻ります。ショップはEsc / Bで退出、カード削除はEsc / Bで取り消します。各操作は400msの画面遷移を共有し、購入や報酬の連打を防ぎます。
+
+- **戦闘 / エリート / ボス**: カード報酬とゴールドを獲得します。開始時は99ゴールド。通常戦は20、エリートは50、固有エネミーは70、ボスは100を基準に、階数に応じて0〜10を加算します。
+- **イベント**: 泉、落とし物、祭壇、図書館の4種類。回復、最大HP増加、ゴールド、カード、レリックを選べます。HPやゴールドの費用を表示し、支払えない選択肢は無効にします。
+- **ショップ**: カード3枚、未所持レリック1つ、ポーション1つを販売します。売り切れと所持金、ポーション枠を判定します。カード削除は50ゴールドから始まり、実行ごとに25増えます。削除対象を確定するまで料金を取りません。
+- **宝箱**: 未所持レリックを最大3種類から1つ選びます。通常レリックをすべて所持している場合は60ゴールドになります。
+- **休息**: 最大HPの25%を回復します。
+
+### 固有エネミー
+
+各幕の7階に固有エネミーのノードを配置します。同じランでは既に出会った固有エネミーを再抽選しません。専用のドット絵・色・行動パターンを持ち、撃破時は専用レリックを獲得します。
+
+| 名前 | HP | 行動パターン | 専用レリック |
+| --- | ---: | --- | --- |
+| Cinder Duelist | 76 | 攻撃10 → 筋力+2 → 5×3回攻撃 → Block6 | Ember Seal |
+| Gilded Sentinel | 84 | Block12 → 攻撃15 → 5×2回攻撃 → 筋力+2 | Merchant Charm |
+| Hollow Oracle | 68 | 弱体化 → 4×3回攻撃 → 筋力+2 → 攻撃14 | Wayfinder |
+
+固有エネミーの防御は次のプレイヤーターンにも残ります。予告には筋力の補正も反映します。Jevには固有エネミーの説明と専用報酬も渡します。
+
+ルールと状態の型は `adventure_contracts.mbt`、分岐は `adventure.mbt`、イベントと商取引は `rooms.mbt`、固有戦闘は `unique_enemies.mbt` で管理します。`run_choices` / `apply_run_choice` を画面とJevで共有し、`adventure_layout.mbt` の矩形を描画と入力の両方で使います。
+
+
+### シミュレーション用の旧 Act 1 フロア構成（15フロア）
+
+この固定順序は `RunState::new()` / `RunState::start()` による既存のバランス分析用です。画面とJevは `RunState::adventure()` の分岐マップを使用します。
 
 | フロア | 種別 | 内容 |
 |--------|------|------|
@@ -213,7 +314,11 @@ examples/games/card_game/
 | **Ornamental Fan** | **3回目の攻撃ごとに +4 ブロック** |
 | **Happy Flower** | **3ターンごとに +1 エナジー** |
 
-**レリック獲得**: Elite/Boss 撃破時に未所持レリックから1つ自動獲得
+| Ember Seal | 戦闘開始時 筋力 +2（Cinder Duelist 専用報酬） |
+| Merchant Charm | ショップ購入とカード削除を20%割引（Gilded Sentinel 専用報酬） |
+| Wayfinder | 戦闘勝利のゴールド +10（Hollow Oracle 専用報酬） |
+
+**レリック獲得**: Elite/Bossの撃破、宝箱、ショップ、イベント、固有エネミーの撃破。未所持のレリックだけを提示し、専用報酬3種は固有エネミーから獲得します。
 
 ## AI戦略
 

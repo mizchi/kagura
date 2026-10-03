@@ -438,6 +438,9 @@ fn encounter_difficulty(id : EncounterId) -> Double {
     total_hp += e.fighter.hp.to_double()
     // Estimate average damage per turn from intent pattern
     let avg_dmg = match eid {
+      CinderDuelist => 25.0 / 4.0
+      GildedSentinel => 25.0 / 4.0
+      HollowOracle => 26.0 / 4.0
       JawWorm => (11.0 + 0.0 + 7.0) / 3.0 // chomp, bellow, thrash
       GreenLouse => (0.0 + 6.0 + 6.0) / 3.0
       RedLouse => (6.0 + 6.0 + 0.0) / 3.0
@@ -510,6 +513,13 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
   while safety < 200 {
     safety += 1
     match run.phase {
+      RouteMap | EventRoom | ShopRoom | CardRemoval | TreasureRoom => {
+        let choices = run_choices(run)
+        if choices.is_empty() {
+          break
+        }
+        apply_run_choice(run, choices[0].id) |> ignore
+      }
       Battle =>
         match run.battle {
           Some(state) => {

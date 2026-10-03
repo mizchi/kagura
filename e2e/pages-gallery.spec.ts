@@ -10,8 +10,8 @@ for (const width of [1440, 768, 390]) {
     const cards = page.locator('.game-card');
     const games = catalog.filter(item => item.gallery);
     await expect(cards).toHaveCount(games.length);
-    await expect(page.locator('#games .game-card')).toHaveCount(3);
-    await expect(page.locator('#demos .game-card')).toHaveCount(4);
+    await expect(page.locator('#games .game-card')).toHaveCount(4);
+    await expect(page.locator('#demos .game-card')).toHaveCount(3);
     for (const game of games) {
       const card = cards.filter({has: page.getByRole('heading', {name: game.title, exact: true})});
       await expect(page.locator(game.kind === 'game' ? '#games' : '#demos').getByRole('heading', {name: game.title, exact: true})).toBeVisible();
@@ -36,9 +36,10 @@ for (const width of [1440, 768, 390]) {
     await page.screenshot({path: info.outputPath(`gallery-${width}.png`), fullPage: true});
     await page.screenshot({path: info.outputPath(`gallery-${width}-preview.png`)});
     await page.goto('./');
-    await expect(page.locator('#games article')).toHaveCount(3);
+    await expect(page.locator('#games article')).toHaveCount(4);
+    await expect(page.locator('#games').getByRole('link', {name: 'Ember Ascent', exact: true})).toHaveAttribute('href', './card_game/');
     await expect(page.locator('#games').getByRole('link', {name: 'IRON YARD', exact: true})).toHaveAttribute('href', './studio/games/iron-yard/');
-    for (const title of ['Arena 3D', 'Flappy Bird', 'Survivor', 'Card Game']) {
+    for (const title of ['Arena 3D', 'Flappy Bird', 'Survivor']) {
       await expect(page.locator('#technical-demos').getByRole('heading', {name: title, exact: true})).toBeVisible();
       await expect(page.locator('#games').getByRole('heading', {name: title, exact: true})).toHaveCount(0);
     }

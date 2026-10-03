@@ -41,6 +41,8 @@ jobs:
       - name: Install Studio build dependencies
         run: just studio-install
       - run: just pages-gallery-test
+      - name: Verify release UI identities and modal controls
+        run: moon -C engine test scene --target js --release --filter '*release*'
       - run: node --test scripts/moon-build-artifact-utils.test.mjs
       - run: bash scripts/build-pages.sh
       - uses: actions/configure-pages@v5

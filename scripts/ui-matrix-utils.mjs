@@ -10,7 +10,7 @@ export function matrixCells(manifest) {
   if (manifest?.version !== 1 || !manifest.states || Array.isArray(manifest.states) || typeof manifest.states !== 'object') throw Error('Expected version 1 verification states');
   const states = Object.entries(manifest.states);
   const viewports = manifest.viewports ?? MATRIX_VIEWPORTS;
-  if (!states.length || states.length > 32 || !Array.isArray(viewports) || !viewports.length || viewports.length > 16) throw Error('Empty or excessive matrix');
+  if (!states.length || states.length > 64 || !Array.isArray(viewports) || !viewports.length || viewports.length > 16) throw Error('Empty or excessive matrix');
   const seen = new Set();
   for (const vp of viewports) {
     if (!name(vp.name) || seen.has(vp.name) || !Number.isInteger(vp.width) || !Number.isInteger(vp.height) ||

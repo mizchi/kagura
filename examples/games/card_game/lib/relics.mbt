@@ -13,6 +13,9 @@ pub(all) enum RelicId {
   Akabeko // First attack each combat deals +8 damage
   OrnamentalFan // Every 3rd attack played, gain 4 Block
   HappyFlower // Every 3 turns, gain 1 Energy
+  EmberSeal
+  MerchantCharm
+  Wayfinder
 } derive(Debug, Eq)
 
 ///|
@@ -36,6 +39,24 @@ pub impl Show for RelicDef with fn output(self, logger) {
 ///|
 fn relic_def(id : RelicId) -> RelicDef {
   match id {
+    EmberSeal =>
+      {
+        id,
+        name: "Ember Seal",
+        description: "At battle start, gain 2 Strength. Signature relic of the Cinder Duelist.",
+      }
+    MerchantCharm =>
+      {
+        id,
+        name: "Merchant Charm",
+        description: "Shop prices and card removal cost 20% less. Signature relic of the Gilded Sentinel.",
+      }
+    Wayfinder =>
+      {
+        id,
+        name: "Wayfinder",
+        description: "Gain 10 extra gold after every combat. Signature relic of the Hollow Oracle.",
+      }
     BurningBlood =>
       {
         id: BurningBlood,
@@ -161,6 +182,10 @@ fn relics_on_battle_start(
   relic_state.flower_counter = 0
   for r in relics {
     match r {
+      EmberSeal => {
+        player.status.strength += 2
+        logs.push("[Ember Seal] +2 Strength")
+      }
       Vajra => {
         player.status.strength += 1
         logs.push("[Vajra] +1 Strength")

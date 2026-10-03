@@ -7,6 +7,15 @@ let battlefield_drag_id : Int = 2000
 ///|
 /// Transient input state is separate from persistent combat/run rules.
 pub struct Game {
+  mut scene : AppScene
+  mut scene_return : AppScene
+  mut scene_focus : Int
+  mut character : CharacterId
+  mut motion_mode : MotionMode
+  navigation : @ui.UINavigationInputAdapter
+  modals : @ui.UIModalController
+  mut popup : PileKind?
+  mut combat_focus : CombatFocus?
   run : @signals.Signal[RunState]
   selected_card : @signals.Signal[Int]
   target_enemy : @signals.Signal[Int]
@@ -17,8 +26,8 @@ pub struct Game {
   mut need_target : Bool
   drag : @ui.UIDragController
   mut hint : String
-  mut deck_open : Bool
-  mut deck_page : Int
+  mut room_page : Int
+  mut popup_page : Int
   mut presentation : Presentation?
   mut last_frame_ms : Double?
   mut reduced_motion : Bool
@@ -26,9 +35,7 @@ pub struct Game {
 
 ///|
 pub impl @scene.SceneGame for Game with fn update_game(self, input) {
-  if prefers_reduced_motion() is Some(reduced) {
-    self.reduced_motion = reduced
-  }
+  self.apply_motion_mode()
   self.update(self.surface_input(input), elapsed_ms=self.frame_delta())
 }
 
@@ -43,6 +50,15 @@ pub extend Game with @scene.SceneGame::{update_game, view_game}
 ///|
 pub fn Game::new() -> Game {
   {
+    scene: Playing,
+    scene_return: Title,
+    scene_focus: 0,
+    character: Ironclad,
+    motion_mode: System,
+    navigation: @ui.UINavigationInputAdapter::new(),
+    modals: @ui.UIModalController::new(),
+    popup: None,
+    combat_focus: None,
     run: @signals.signal(RunState::new()),
     selected_card: @signals.signal(-1),
     target_enemy: @signals.signal(-1),
@@ -53,8 +69,8 @@ pub fn Game::new() -> Game {
     need_target: false,
     drag: @ui.UIDragController::new(),
     hint: "DRAG A CARD TO PLAY",
-    deck_open: false,
-    deck_page: 0,
+    room_page: 0,
+    popup_page: 0,
     presentation: None,
     last_frame_ms: None,
     reduced_motion: false,
@@ -65,8 +81,22 @@ pub fn Game::new() -> Game {
 pub fn Game::set_viewport(self : Game, width : Int, height : Int) -> Unit {
   if self.layout.w != width.to_double() || self.layout.h != height.to_double() {
     self.cancel_card()
+    self.combat_focus = None
   }
   self.layout = GameLayout::new(width, height)
+  self.popup_page %= self.pile_pages()
+  if self.run.get().phase == CardRemoval {
+    let choices = run_choices(self.run.get())
+    self.scene_focus %= choices.length()
+    if choices[self.scene_focus].action is RemoveDeckCard(index) {
+      self.room_page = index / self.removal_page_size()
+    } else {
+      self.room_page %= (
+          self.run.get().deck.length() + self.removal_page_size() - 1
+        ) /
+        self.removal_page_size()
+    }
+  }
 }
 
 ///|
@@ -74,8 +104,19 @@ pub fn Game::snapshot_state(self : Game) -> String {
   if self.presentation_state() is Some(state) {
     return state
   }
-  if self.deck_open {
-    return "deck"
+  match self.scene {
+    Title => return "title"
+    Settings => return "settings"
+    CharacterSelect => return "character_select"
+    StageSelect => return "stage_select"
+    Playing => ()
+  }
+  if self.popup is Some(kind) {
+    return match kind {
+      Deck => "deck"
+      Draw => "draw_pile"
+      Discard => "discard_pile"
+    }
   }
   if self.drag.snapshot() is Some({ dragging: true, .. }) {
     return "dragging"
@@ -85,8 +126,20 @@ pub fn Game::snapshot_state(self : Game) -> String {
       match self.run.get().battle {
         Some({ phase: Victory, .. }) => "battle_victory"
         Some({ phase: Defeat, .. }) => "battle_defeat"
-        _ => "battle"
+        _ =>
+          if self.run.get().current_room == Some(RoomUnique) {
+            "unique_battle"
+          } else if floor_type(self.run.get().floor) == Boss {
+            "boss"
+          } else {
+            "battle"
+          }
       }
+    RouteMap => "map"
+    EventRoom => "event"
+    ShopRoom => "shop"
+    CardRemoval => "card_removal"
+    TreasureRoom => "treasure"
     CardReward => "card_reward"
     RestSite => "rest"
     RunVictory => "victory"
@@ -120,6 +173,7 @@ fn Game::commit_card(
     None
   }
   let result = play_card(state, index, target)
+  self.combat_focus = None
   self.hint = match result {
     Ok => "CARD PLAYED"
     NotEnoughEnergy => "NOT ENOUGH ENERGY"
@@ -156,17 +210,48 @@ fn deck_button_rect(layout : GameLayout) -> UiRect {
 }
 
 ///|
+/// Logical focus is derived from gameplay and current interaction, not cached.
+fn Game::end_turn_focused(self : Game) -> Bool {
+  if self.combat_focus
+    is Some(Hand(_) | Target(_) | DrawPile | DiscardPile | DeckButton) ||
+    self.scene != Playing ||
+    self.popup is Some(_) ||
+    self.presentation is Some(_) ||
+    self.selected_card.get() >= 0 ||
+    self.drag.snapshot() is Some(_) {
+    return false
+  }
+  let run = self.run.get()
+  run.phase == Battle &&
+  run.battle is Some(state) &&
+  state.phase == PlayerTurn &&
+  state.player.energy == 0
+}
+
+///|
+fn Game::start_enemy_turn(self : Game, state : BattleState) -> Unit {
+  self.cancel_card()
+  begin_enemy_turn(state)
+  self.present(EnemyNotice)
+  self.run.set(self.run.get())
+  self.hint = "ENEMY TURN"
+}
+
+///|
 pub fn Game::update(
   self : Game,
   input : @core.InputSnapshot,
   elapsed_ms? : Double = 1000.0 / 60.0,
 ) -> Unit {
   @inpututil.update_input_helper(self.input, input)
+  let navigation = self.navigation.update(input, elapsed_ms~)
   let events = self.drag.update(
     input,
     source_at=fn(x, y) { self.drag_source_at(x, y) },
     target_at=fn(source, x, y) { self.drag_target_at(source, x, y) },
-    enabled=self.presentation is None && !self.deck_open,
+    enabled=self.scene == Playing &&
+      self.presentation is None &&
+      self.popup is None,
   )
   let pointer = self.drag.pointer()
   if pointer.x != -1.0 || pointer.y != -1.0 {
@@ -182,39 +267,73 @@ pub fn Game::update(
   let pressed = pointer.pressed
   let cx = self.cursor_x
   let cy = self.cursor_y
-  let escape = @inputstate.is_key_just_pressed(keys, 27) ||
-    @inputstate.is_key_just_pressed(keys, 256) ||
+  if self.update_app_scene(navigation, pressed) {
+    return
+  }
+  if self.popup is Some(_) {
+    self.update_pile(navigation, pressed)
+    return
+  }
+  let escape = navigation.any(e => e is Cancel) ||
     @inputstate.is_mouse_button_just_pressed(mouse, 1) ||
     @inputstate.is_mouse_button_just_pressed(mouse, 2)
   if escape {
+    if self.combat_focus is Some(Target(_)) {
+      let slot = self.selected_card.get()
+      self.cancel_card()
+      self.combat_focus = Some(Hand(ui_max(0, slot)))
+      return
+    }
+    if adventure_phase(self.run.get().phase) {
+      self.update_adventure([@ui.UINavigationEvent::Cancel], false)
+      return
+    }
     self.cancel_card()
-    self.deck_open = false
+    self.combat_focus = None
     self.hint = "CANCELLED"
     return
   }
+  if navigation.any(e => e is Auxiliary(9)) ||
+    @inputstate.is_key_just_pressed(keys, 80) {
+    self.open_settings()
+    return
+  }
   if @inputstate.is_key_just_pressed(keys, 68) ||
+    navigation.any(e => e is Auxiliary(2)) ||
     (pressed && deck_button_rect(self.layout).contains(cx, cy)) {
-    self.deck_open = !self.deck_open
-    self.deck_page = 0
-    self.cancel_card()
+    self.open_pile(Deck)
     return
   }
-  if self.deck_open {
-    if pressed && self.layout.continue_rect().contains(cx, cy) {
-      self.deck_open = false
+  if self.run.get().phase == Battle &&
+    self.run.get().battle is Some({ phase: PlayerTurn, .. }) {
+    if @inputstate.is_key_just_pressed(keys, 81) ||
+      navigation.any(e => e is Auxiliary(4)) ||
+      (pressed && self.layout.draw_pile_rect().contains(cx, cy)) {
+      self.open_pile(Draw)
+      return
     }
-    if @inputstate.is_key_just_pressed(keys, 39) ||
-      @inputstate.is_key_just_pressed(keys, 262) {
-      self.deck_page = (self.deck_page + 1) % deck_page_count(self.run.get())
+    if @inputstate.is_key_just_pressed(keys, 82) ||
+      navigation.any(e => e is Auxiliary(5)) ||
+      (pressed && self.layout.discard_pile_rect().contains(cx, cy)) {
+      self.open_pile(Discard)
+      return
     }
-    if pressed && deck_next_rect(self.layout).contains(cx, cy) {
-      self.deck_page = (self.deck_page + 1) % deck_page_count(self.run.get())
-    }
-    return
   }
-  let confirm = @inpututil.is_confirm_just_pressed(self.input)
+  let confirm = navigation.any(e => e is Confirm)
   let run = self.run.get()
+  if run.phase != Battle && self.combat_focus is Some(DeckButton) {
+    if confirm {
+      self.open_pile(Deck)
+      return
+    }
+    if navigation.any(e => e is Move(_)) {
+      self.combat_focus = None
+      return
+    }
+  }
   match run.phase {
+    RouteMap | EventRoom | ShopRoom | CardRemoval | TreasureRoom =>
+      self.update_adventure(navigation, pressed)
     RunVictory | RunDefeat =>
       if confirm || (pressed && self.layout.continue_rect().contains(cx, cy)) {
         self.travel(Restart(run.rng_seed + 1))
@@ -224,7 +343,26 @@ pub fn Game::update(
         self.travel(Rest)
       }
     CardReward => {
-      let mut choice = -2
+      for event in navigation {
+        match event {
+          Move(Left | Up) =>
+            self.scene_focus = (self.scene_focus + run.card_rewards.length()) %
+              (run.card_rewards.length() + 1)
+          Move(Right | Down) =>
+            self.scene_focus = (self.scene_focus + 1) %
+              (run.card_rewards.length() + 1)
+          _ => ()
+        }
+      }
+      let mut choice = if confirm {
+        if self.scene_focus == run.card_rewards.length() {
+          -1
+        } else {
+          self.scene_focus
+        }
+      } else {
+        -2
+      }
       for i = 0; i < run.card_rewards.length(); i = i + 1 {
         if (
             pressed &&
@@ -257,22 +395,23 @@ pub fn Game::update(
             EnemyTurn => self.cancel_card()
             PlayerTurn => {
               if @inputstate.is_key_just_pressed(keys, 69) ||
+                navigation.any(e => e is Auxiliary(3)) ||
                 (
                   pressed &&
                   self.layout.end_turn_rect().contains(cx, cy) &&
                   self.drag.snapshot() is None
                 ) {
-                self.cancel_card()
-                begin_enemy_turn(state)
-                self.present(EnemyNotice)
-                self.run.set(run)
-                self.hint = "ENEMY TURN"
+                self.start_enemy_turn(state)
+                return
+              }
+              if self.update_combat_navigation(state, navigation) {
                 return
               }
               let mut keyboard_selected = false
               for i = 0; i < ui_min(state.hand.length(), 9); i = i + 1 {
                 if @inputstate.is_key_just_pressed(keys, 49 + i) {
                   self.cancel_card()
+                  self.combat_focus = None
                   self.select_card(state, i)
                   keyboard_selected = true
                 }
@@ -303,7 +442,10 @@ pub fn Game::update(
                   }
                 }
               }
-              if confirm && can_play_card(state, self.selected_card.get()) {
+              if confirm &&
+                !pointer.down &&
+                !pointer.released &&
+                can_play_card(state, self.selected_card.get()) {
                 self.commit_card(
                   state,
                   self.selected_card.get(),
@@ -311,10 +453,18 @@ pub fn Game::update(
                 )
                 return
               }
+              if confirm &&
+                !keyboard_selected &&
+                !pressed &&
+                self.end_turn_focused() {
+                self.start_enemy_turn(state)
+                return
+              }
               if keyboard_selected {
                 return
               }
               if pressed {
+                self.combat_focus = None
                 if self.need_target {
                   let target = hit_enemy(self.layout, state, cx, cy)
                   if target >= 0 {
@@ -395,7 +545,12 @@ pub fn Game::update(
 
 ///|
 fn deck_next_rect(layout : GameLayout) -> UiRect {
-  { x: layout.w / 2.0 - 70.0, y: layout.h - 130.0, w: 140.0, h: 40.0, }
+  {
+    x: layout.w - 28.0 - ui_min(168.0, (layout.w - 72.0) / 2.0),
+    y: layout.h - 72.0,
+    w: ui_min(168.0, (layout.w - 72.0) / 2.0),
+    h: 44.0,
+  }
 }
 
 ///|
@@ -424,20 +579,9 @@ fn Game::drag_target_at(
   x : Double,
   y : Double,
 ) -> @ui.UINodeId? {
-  guard self.run.get().battle is Some(state) else { return None }
-  if !can_play_card(state, source.value) {
-    return None
-  }
-  if card_needs_target(state.hand[source.value]) {
-    let enemy = hit_enemy(self.layout, state, x, y)
-    if enemy >= 0 {
-      Some(@ui.UINodeId::new(enemy_drag_id_base + enemy))
-    } else {
-      None
-    }
-  } else if self.layout.play_area().contains(x, y) {
-    Some(@ui.UINodeId::new(battlefield_drag_id))
-  } else {
-    None
-  }
+  self
+  .card_drop_targets(source)
+  .iter()
+  .find_first(t => t.rect.contains(x, y))
+  .map(t => t.id)
 }

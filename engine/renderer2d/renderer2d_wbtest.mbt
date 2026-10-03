@@ -276,3 +276,16 @@ test "append_number expands numeric glyphs" {
   assert_eq(cmds[0].dst.id, 15)
   assert_eq(cmds[0].indices.length(), lit * 6)
 }
+
+///|
+test "map punctuation renders question shop and both browse directions" {
+  let left = glyph_pattern(60)
+  let right = glyph_pattern(62)
+  assert_true(glyph_pattern(63).any(bit => bit == 1))
+  assert_true(glyph_pattern(36).any(bit => bit == 1))
+  for row in 0..<5 {
+    for col in 0..<3 {
+      assert_eq(left[row * 3 + col], right[row * 3 + 2 - col])
+    }
+  }
+}

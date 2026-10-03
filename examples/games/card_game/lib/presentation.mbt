@@ -40,6 +40,9 @@ priv enum ScreenAction {
   Rest
   ContinueBattle
   Restart(Int)
+  SwitchScene(AppScene)
+  StartAdventure(CharacterId, StageId, Int)
+  AdventureChoice(String)
 }
 
 ///|
@@ -87,6 +90,7 @@ fn Presentation::progress(self : Presentation) -> Double {
 fn Game::present(self : Game, step : PresentationStep) -> Unit {
   self.presentation = Some(Presentation::new(step))
   self.cancel_card()
+  self.combat_focus = None
 }
 
 ///|
@@ -98,6 +102,7 @@ fn Game::travel(self : Game, action : ScreenAction) -> Unit {
 fn Game::apply_screen_action(self : Game, action : ScreenAction) -> Unit {
   let run = self.run.get()
   match action {
+    AdventureChoice(id) => apply_run_choice(run, id) |> ignore
     ChooseReward(index) => pick_card_reward(run, index)
     Rest => rest_heal(run)
     ContinueBattle =>
@@ -106,9 +111,19 @@ fn Game::apply_screen_action(self : Game, action : ScreenAction) -> Unit {
         Some({ phase: Defeat, .. }) => on_battle_defeat(run)
         _ => ()
       }
-    Restart(seed) => self.run.set(RunState::new(seed~))
+    Restart(seed) => {
+      self.run.set(RunState::start(self.character, Ascent, seed~))
+      self.switch_scene(CharacterSelect)
+    }
+    SwitchScene(scene) => self.switch_scene(scene)
+    StartAdventure(character, stage, seed) => {
+      self.run.set(RunState::adventure(character, stage, seed~))
+      self.switch_scene(Playing)
+    }
   }
   self.run.set(self.run.get())
+  self.scene_focus = 0
+  self.room_page = 0
   self.hint = "DRAG A CARD TO PLAY"
 }
 
@@ -262,5 +277,6 @@ fn Game::frame_delta(self : Game) -> Double {
 
 ///|
 pub fn Game::set_reduced_motion(self : Game, reduced : Bool) -> Unit {
+  self.motion_mode = if reduced { Reduced } else { Full }
   self.reduced_motion = reduced
 }

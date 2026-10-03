@@ -24,6 +24,8 @@ test("landing page exposes additional public demos", () => {
   const games = html.match(/<section class="group" id="games"[\s\S]*?<\/section>/)?.[0] ?? '';
   assert.match(games, /EMBERWING/);
   assert.match(games, /ASHEN REALMS/);
+  assert.match(games, /Ember Ascent/);
+  assert.match(games, /href="\.\/card_game\/"/);
   assert.match(games, /href="\.\/studio\/games\/iron-yard\/"/);
   assert.doesNotMatch(games, /Arena 3D|Flappy Bird|Survivor|Card Game/);
   assert.match(html, /id="technical-demos"/);
@@ -66,4 +68,11 @@ test("every game opens in fullscreen presentation with reachable display control
     assert.match(html, /data-kagura-overlay/, demo.name);
     assert.doesNotMatch(html, /class="hero"|class="stage-panel"/, demo.name);
   }
+});
+
+test("Ember Ascent scales its pixel font without smoothing other games", () => {
+  const cardGame = renderDemoHtml({demo: getDemoPage('card_game'), scriptTag: ''});
+  assert.match(cardGame, /image-rendering:\s*pixelated/);
+  const otherGame = renderDemoHtml({demo: getDemoPage('survivor'), scriptTag: ''});
+  assert.doesNotMatch(otherGame, /image-rendering:\s*pixelated/);
 });

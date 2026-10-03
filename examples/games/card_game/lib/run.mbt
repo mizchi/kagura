@@ -7,6 +7,11 @@ pub(all) enum RunPhase {
   Battle
   CardReward
   RestSite
+  RouteMap
+  EventRoom
+  ShopRoom
+  CardRemoval
+  TreasureRoom
   RunVictory
   RunDefeat
 } derive(Debug, Eq)
@@ -32,6 +37,8 @@ pub impl Show for FloorType with fn output(self, logger) {
 ///|
 /// The full run state persisting across battles
 pub(all) struct RunState {
+  character : CharacterId
+  stage : StageId
   deck : Array[CardId]
   relics : Array[RelicId]
   relic_state : RelicState
@@ -43,6 +50,16 @@ pub(all) struct RunState {
   mut battle : BattleState?
   card_rewards : Array[CardId]
   mut rng_seed : Int
+  mut gold : Int
+  mut route : RouteState?
+  mut current_room : RoomKind?
+  mut event : EventId?
+  mut shop : ShopState?
+  treasure_rewards : Array[RelicId]
+  unique_enemies_seen : Array[EnemyId]
+  mut cards_removed : Int
+  mut last_relic : RelicId?
+  mut last_gold : Int
 } derive(Debug)
 
 ///|
@@ -143,20 +160,67 @@ pub fn act_progress(floor : Int) -> Double {
 ///|
 /// Create a new run
 pub fn RunState::new(seed? : Int = 42) -> RunState {
+  RunState::start(Ironclad, Ascent, seed~)
+}
+
+///|
+pub fn RunState::start(
+  character : CharacterId,
+  stage : StageId,
+  seed? : Int = 42,
+) -> RunState {
+  let state = create_run_state(character, stage, seed)
+  advance_floor(state)
+  state
+}
+
+///|
+fn create_run_state(
+  character : CharacterId,
+  stage : StageId,
+  seed : Int,
+) -> RunState {
   let state : RunState = {
-    deck: starter_deck(),
-    relics: [BurningBlood],
+    character,
+    stage,
+    deck: character_deck(character),
+    relics: if character == Warden {
+      [Anchor]
+    } else {
+      [BurningBlood]
+    },
     relic_state: RelicState::new(),
     potions: [],
-    player_hp: 80,
-    player_max_hp: 80,
-    floor: 0,
+    player_hp: if character == Warden {
+      96
+    } else {
+      80
+    },
+    player_max_hp: if character == Warden {
+      96
+    } else {
+      80
+    },
+    floor: match stage {
+      Ascent => 0
+      ActTwo => 15
+      GuardianTrial => 14
+    },
     phase: Battle,
     battle: None,
     card_rewards: [],
     rng_seed: seed,
+    gold: 99,
+    route: None,
+    current_room: None,
+    event: None,
+    shop: None,
+    treasure_rewards: [],
+    unique_enemies_seen: [],
+    cards_removed: 0,
+    last_relic: None,
+    last_gold: 0,
   }
-  advance_floor(state)
   state
 }
 
@@ -200,6 +264,9 @@ fn advance_floor(state : RunState) -> Unit {
 /// Pick a random encounter for a given tier, considering current act
 fn pick_encounter(state : RunState, tier : EncounterTier) -> EncounterId {
   let r = run_random(state)
+  if state.stage == GuardianTrial && tier == Boss {
+    return BossGuardian
+  }
   let act = floor_act(state.floor)
   if act == 1 {
     match tier {
@@ -266,7 +333,11 @@ fn start_run_battle(state : RunState, encounter : EncounterId) -> BattleState {
     deck.push(card)
   }
   let battle : BattleState = {
-    player: Fighter::new("Ironclad", state.player_max_hp, max_energy=3),
+    player: Fighter::new(
+      character_name(state.character),
+      state.player_max_hp,
+      max_energy=3,
+    ),
     enemies,
     relics: state.relics,
     relic_state: state.relic_state,
@@ -313,17 +384,49 @@ fn start_run_battle(state : RunState, encounter : EncounterId) -> BattleState {
 ///|
 /// Handle battle victory: sync HP back to run, offer card rewards
 fn on_battle_victory(state : RunState) -> Unit {
+  if state.phase != Battle {
+    return
+  }
   match state.battle {
     Some(battle) => {
       state.player_hp = battle.player.hp
       // Update max_hp (Feed may have increased it)
       state.player_max_hp = battle.player.max_hp
       state.rng_seed = battle.rng_seed
+      let kind = state.current_room.unwrap_or(
+        if floor_type(state.floor) == Boss {
+          RoomBoss
+        } else {
+          RoomBattle
+        },
+      )
+      state.last_gold = combat_gold(state, kind)
+      state.gold += state.last_gold
+      state.last_relic = None
+      if state.stage == GuardianTrial {
+        state.phase = RunVictory
+        return
+      }
       // Award relic after Elite/Boss floors
-      let ft = floor_type(state.floor)
-      match ft {
-        Combat(Elite) | Combat(Boss) | Boss => award_relic(state)
-        _ => ()
+      if state.current_room is Some(RoomUnique) {
+        let relic = match battle.enemies[0].id {
+          CinderDuelist => EmberSeal
+          GildedSentinel => MerchantCharm
+          HollowOracle => Wayfinder
+          _ => Vajra
+        }
+        if claim_relic(state, relic) {
+          state.last_relic = Some(relic)
+        }
+      } else if state.current_room is Some(RoomElite | RoomBoss) ||
+        (
+          state.current_room is None &&
+          (
+            floor_type(state.floor) == Combat(Elite) ||
+            floor_type(state.floor) == FloorType::Boss
+          )
+        ) {
+        award_relic(state)
       }
       // Potion reward (~40% chance, if room)
       if state.potions.length() < max_potions {
@@ -381,7 +484,10 @@ fn award_relic(state : RunState) -> Unit {
   }
   if available.length() > 0 {
     let idx = run_random(state).abs() % available.length()
-    state.relics.push(available[idx])
+    let relic = available[idx]
+    if claim_relic(state, relic) {
+      state.last_relic = Some(relic)
+    }
   }
 }
 
@@ -406,7 +512,7 @@ fn pick_card_reward(state : RunState, index : Int) -> Unit {
   // index == -1 means skip
   state.card_rewards.clear()
   state.battle = None
-  advance_floor(state)
+  complete_room(state)
 }
 
 ///|
@@ -417,7 +523,7 @@ fn rest_heal(state : RunState) -> Unit {
   if state.player_hp > state.player_max_hp {
     state.player_hp = state.player_max_hp
   }
-  advance_floor(state)
+  complete_room(state)
 }
 
 ///|

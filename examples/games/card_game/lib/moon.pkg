@@ -9,6 +9,7 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/kagura_core/inputstate",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 warnings = "-29"

@@ -25,24 +25,25 @@
   },
   {
     "id": "card_game",
-    "title": "Card Game",
+    "title": "Ember Ascent",
     "category": "games",
-    "kind": "demo",
+    "kind": "game",
     "manifest": "card_game.kgrprj",
     "controls": [
-      "Open the example source for control details"
+      "Drag cards to play; arrows / controller to choose and confirm",
+      "E / Y: end turn; D / X: deck; Esc / B: back"
     ],
-    "width": 800,
-    "height": 600,
+    "width": 960,
+    "height": 640,
     "preview": "webgpu",
-    "purpose": "カード効果・ターン制戦闘・経済バランスを扱う例",
+    "purpose": "分岐マップ・イベント・ショップ・レリックを備えたデッキ構築型ローグライト",
     "gallery": {
       "order": 5,
       "dimension": "2D",
       "genre": "Deck-building Roguelite",
-      "description": "A turn-based card battle with attack and defense cards. Use combat rewards to improve your deck as you advance through the floors.",
-      "input": "Mouse",
-      "thumbnailAlt": "Card Game battle with enemies above a hand of cards."
+      "description": "Build your deck across a branching 30-floor adventure. Discover events, shops and relics, defeat unique enemies, and challenge the bosses.",
+      "input": "Mouse / Keyboard / Controller",
+      "thumbnailAlt": "Ember Ascent battle with the hero on the left, enemies on the right, and a hand of cards."
     }
   },
   {

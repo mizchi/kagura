@@ -51,6 +51,9 @@ pub(all) enum EnemyId {
   BookOfStabbing // 160 HP, escalating multi-stab
   // Act 2 Boss
   BronzeAutomaton // 300 HP, hyper beam + flail
+  CinderDuelist
+  GildedSentinel
+  HollowOracle
 } derive(Debug, Eq)
 
 ///|
@@ -69,12 +72,34 @@ fn enemy_tier(id : EnemyId) -> EncounterTier {
     BookOfStabbing => Elite // Act 2 elite
     TheGuardian | Hexaghost => Boss
     BronzeAutomaton => Boss // Act 2 boss
+    CinderDuelist | GildedSentinel | HollowOracle => Elite
   }
 }
 
 ///|
 pub fn spawn_enemy(id : EnemyId) -> Enemy {
   match id {
+    CinderDuelist =>
+      {
+        id,
+        fighter: Fighter::new("Cinder Duelist", 76),
+        intent: AttackIntent(10),
+        pattern_index: 0,
+      }
+    GildedSentinel =>
+      {
+        id,
+        fighter: Fighter::new("Gilded Sentinel", 84),
+        intent: DefendIntent(12),
+        pattern_index: 0,
+      }
+    HollowOracle =>
+      {
+        id,
+        fighter: Fighter::new("Hollow Oracle", 68),
+        intent: DebuffIntent,
+        pattern_index: 0,
+      }
     GreenLouse =>
       {
         id,
@@ -190,6 +215,30 @@ pub fn spawn_enemy(id : EnemyId) -> Enemy {
 /// Decide next intent based on pattern
 fn next_intent(enemy : Enemy) -> Intent {
   let idx = enemy.pattern_index
+  match enemy.id {
+    CinderDuelist =>
+      return match idx % 4 {
+        0 => AttackIntent(10)
+        1 => BuffIntent
+        2 => MultiAttack(5, 3)
+        _ => DefendIntent(6)
+      }
+    GildedSentinel =>
+      return match idx % 4 {
+        0 => DefendIntent(12)
+        1 => AttackIntent(15)
+        2 => MultiAttack(5, 2)
+        _ => BuffIntent
+      }
+    HollowOracle =>
+      return match idx % 4 {
+        0 => DebuffIntent
+        1 => MultiAttack(4, 3)
+        2 => BuffIntent
+        _ => AttackIntent(14)
+      }
+    _ => ()
+  }
   match enemy.fighter.name {
     "Green Louse" =>
       // Curl Up first, then alternate bite and bite
@@ -397,6 +446,9 @@ fn execute_enemy_intent(enemy : Enemy, player : Fighter) -> Array[String] {
 ///|
 /// Predefined encounter configurations
 pub(all) enum EncounterId {
+  UniqueDuelist
+  UniqueSentinel
+  UniqueOracle
   // Act 1
   SingleJawWorm // Easy: single enemy
   TwoLouses // Easy: two small enemies
@@ -425,6 +477,9 @@ pub impl Show for EncounterId with fn output(self, logger) {
 ///|
 pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
   match id {
+    UniqueDuelist => [CinderDuelist]
+    UniqueSentinel => [GildedSentinel]
+    UniqueOracle => [HollowOracle]
     // Act 1
     SingleJawWorm => [JawWorm]
     TwoLouses => [GreenLouse, RedLouse]
@@ -463,6 +518,7 @@ pub impl Show for EncounterTier with fn output(self, logger) {
 #warnings("-unused_value")
 fn encounter_tier(id : EncounterId) -> EncounterTier {
   match id {
+    UniqueDuelist | UniqueSentinel | UniqueOracle => Elite
     SingleJawWorm | TwoLouses => Easy
     SingleCultist | FungiPair | SlaverFight => Normal
     SingleChosen | SnakePlantFight | ChosenSlaver => Normal

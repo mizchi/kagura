@@ -2,7 +2,7 @@
 let presentation_capture : Ref[Bool?] = Ref(None)
 
 ///|
-fn presentation_clock_ms() -> Double? {
+fn native_capture_enabled() -> Bool {
   if presentation_capture.val is None {
     presentation_capture.val = Some(
       @capture.read_native_capture_text(
@@ -12,7 +12,12 @@ fn presentation_clock_ms() -> Double? {
       is Some(_),
     )
   }
-  if presentation_capture.val == Some(true) {
+  presentation_capture.val == Some(true)
+}
+
+///|
+fn presentation_clock_ms() -> Double? {
+  if native_capture_enabled() {
     None
   } else {
     Some(@runtime.clock_now_ms())
@@ -29,8 +34,13 @@ fn Game::surface_input(
   self : Game,
   input : @core.InputSnapshot,
 ) -> @core.InputSnapshot {
+  let normalized = if native_capture_enabled() {
+    input
+  } else {
+    @ui.navigation_input_from_glfw(input)
+  }
   scale_pointer_input(
-    input,
+    normalized,
     self.layout.w,
     self.layout.h,
     self.layout.w,

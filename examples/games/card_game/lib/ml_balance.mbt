@@ -542,6 +542,7 @@ pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
     Act2EliteBook | Act2EliteSentryTrio => "Elite"
     BossGuardian | BossHexaghost => "Boss"
     BossAutomaton => "Boss"
+    UniqueDuelist | UniqueSentinel | UniqueOracle => "Unique"
   }
   let enc_name = match encounter {
     SingleJawWorm => "JawWorm"
@@ -560,6 +561,9 @@ pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
     Act2EliteBook => "BookOfStabbing"
     Act2EliteSentryTrio => "SentryTrio"
     BossAutomaton => "BronzeAutomaton"
+    UniqueDuelist => "CinderDuelist"
+    UniqueSentinel => "GildedSentinel"
+    UniqueOracle => "HollowOracle"
   }
   {
     encounter: enc_name,

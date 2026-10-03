@@ -31,13 +31,14 @@
     "battle": {
       "frames": 1,
       "expectedState": "battle",
-      "expectedFocus": null
+      "expectedFocus": null,
+      "initialState": "battle"
     },
     "card_reward": {
       "frames": 1,
       "initialState": "card_reward",
       "expectedState": "card_reward",
-      "expectedFocus": null
+      "expectedFocus": "reward_0"
     },
     "rest": {
       "frames": 1,
@@ -67,7 +68,7 @@
       "frames": 1,
       "initialState": "deck",
       "expectedState": "deck",
-      "expectedFocus": null
+      "expectedFocus": "deck_close"
     },
     "large_hand": {
       "frames": 1,
@@ -79,6 +80,18 @@
       "frames": 1,
       "initialState": "low_energy",
       "expectedState": "battle",
+      "expectedFocus": "end_turn_btn"
+    },
+    "energy_empty": {
+      "frames": 1,
+      "initialState": "energy_empty",
+      "expectedState": "battle",
+      "expectedFocus": "end_turn_btn"
+    },
+    "energy_selected": {
+      "frames": 1,
+      "initialState": "energy_selected",
+      "expectedState": "battle",
       "expectedFocus": null
     },
     "dragging": {
@@ -87,11 +100,29 @@
       "expectedState": "dragging",
       "expectedFocus": null
     },
+    "drag_attack": {
+      "frames": 1,
+      "initialState": "drag_attack",
+      "expectedState": "dragging",
+      "expectedFocus": null
+    },
+    "drop_enemy": {
+      "frames": 1,
+      "initialState": "drop_enemy",
+      "expectedState": "dragging",
+      "expectedFocus": null
+    },
+    "drop_outside": {
+      "frames": 1,
+      "initialState": "drop_outside",
+      "expectedState": "dragging",
+      "expectedFocus": null
+    },
     "complex_reward": {
       "frames": 1,
       "initialState": "complex_reward",
       "expectedState": "card_reward",
-      "expectedFocus": null
+      "expectedFocus": "reward_0"
     },
     "inspect_card": {
       "frames": 1,
@@ -133,6 +164,108 @@
       "frames": 16,
       "initialState": "battle_outcome",
       "expectedState": "battle_outcome",
+      "expectedFocus": null
+    },
+    "title": {
+      "frames": 1,
+      "initialState": "title",
+      "expectedState": "title",
+      "expectedFocus": "scene_choice_0"
+    },
+    "settings": {
+      "frames": 1,
+      "initialState": "settings",
+      "expectedState": "settings",
+      "expectedFocus": "scene_choice_0"
+    },
+    "character_select": {
+      "frames": 1,
+      "initialState": "character_select",
+      "expectedState": "character_select",
+      "expectedFocus": "scene_choice_0"
+    },
+    "stage_select": {
+      "frames": 1,
+      "initialState": "stage_select",
+      "expectedState": "stage_select",
+      "expectedFocus": "scene_choice_0"
+    },
+    "boss": {
+      "frames": 1,
+      "initialState": "boss",
+      "expectedState": "boss",
+      "expectedFocus": null
+    },
+    "draw_pile": {
+      "frames": 1,
+      "initialState": "draw_pile",
+      "expectedState": "draw_pile",
+      "expectedFocus": "pile_close"
+    },
+    "discard_pile": {
+      "frames": 1,
+      "initialState": "discard_pile",
+      "expectedState": "discard_pile",
+      "expectedFocus": "pile_close"
+    },
+    "controller_target": {
+      "frames": 1,
+      "initialState": "controller_target",
+      "expectedState": "battle",
+      "expectedFocus": "enemy_body_1"
+    },
+    "map": {
+      "frames": 1,
+      "initialState": "map",
+      "expectedState": "map",
+      "expectedFocus": "map_node_0"
+    },
+    "map_unique": {
+      "frames": 1,
+      "initialState": "map_unique",
+      "expectedState": "map",
+      "expectedFocus": "map_node_18"
+    },
+    "event": {
+      "frames": 1,
+      "initialState": "event",
+      "expectedState": "event",
+      "expectedFocus": "event_0"
+    },
+    "shop": {
+      "frames": 1,
+      "initialState": "shop",
+      "expectedState": "shop",
+      "expectedFocus": "shop_0"
+    },
+    "shop_sold": {
+      "frames": 1,
+      "initialState": "shop_sold",
+      "expectedState": "shop",
+      "expectedFocus": "shop_1"
+    },
+    "card_removal": {
+      "frames": 1,
+      "initialState": "card_removal",
+      "expectedState": "card_removal",
+      "expectedFocus": "remove_0"
+    },
+    "treasure": {
+      "frames": 1,
+      "initialState": "treasure",
+      "expectedState": "treasure",
+      "expectedFocus": "relic_0"
+    },
+    "unique_battle": {
+      "frames": 1,
+      "initialState": "unique_battle",
+      "expectedState": "unique_battle",
+      "expectedFocus": null
+    },
+    "unique_reward": {
+      "frames": 1,
+      "initialState": "unique_reward",
+      "expectedState": "unique_battle",
       "expectedFocus": null
     }
   }

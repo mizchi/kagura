@@ -30,8 +30,9 @@ test('gallery emits complete static HTML, images and styles under a project subp
     assert.match(html, /href="\.\.\/studio\/"/);
     const gamesSection = html.match(/<section class="collection" id="games"[\s\S]*?<\/section>/)?.[0] ?? '';
     const demosSection = html.match(/<section class="collection" id="demos"[\s\S]*?<\/section>/)?.[0] ?? '';
-    for (const id of ['emberwing', 'hacknslash_3d', 'iron_yard']) assert.ok(gamesSection.includes(`title-${id}`), id);
-    for (const id of ['arena3d', 'card_game', 'survivor', 'flappy_bird']) {
+    for (const id of ['emberwing', 'hacknslash_3d', 'iron_yard', 'card_game']) assert.ok(gamesSection.includes(`title-${id}`), id);
+    assert.match(gamesSection, /Play Ember Ascent/);
+    for (const id of ['arena3d', 'survivor', 'flappy_bird']) {
       assert.ok(demosSection.includes(`title-${id}`), id);
       assert.ok(!gamesSection.includes(`title-${id}`), id);
     }

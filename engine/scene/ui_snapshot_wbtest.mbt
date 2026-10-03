@@ -12,6 +12,42 @@ fn snapshot_node_by_id(
 }
 
 ///|
+test "scene controls publish logical focus and explicit focus order without changing geometry" {
+  let tree = fragment([
+    rect(
+      key="later",
+      w=100.0,
+      h=40.0,
+      role="button",
+      focusable=true,
+      focus_index=2,
+    ),
+    rect(
+      key="end",
+      x=120.0,
+      w=100.0,
+      h=40.0,
+      role="button",
+      focused=true,
+      focus_index=0,
+    ),
+    rect(key="decoration", y=50.0, w=100.0, h=40.0),
+  ])
+  let snapshot = ui_snapshot_from_scene(
+    tree,
+    screen_width=320.0,
+    screen_height=240.0,
+  )
+  let end = snapshot_node_by_id(snapshot, "end")
+  assert_eq(end.role, "button")
+  assert_true(end.focused && end.focusable)
+  assert_eq(end.left, 120.0)
+  assert_eq(end.width, 100.0)
+  assert_eq(snapshot.focus_order, ["end", "later"])
+  assert_false(snapshot_node_by_id(snapshot, "decoration").focusable)
+}
+
+///|
 test "scene snapshot omits unlabeled world rects and keeps labels" {
   let tree = fragment([
     rect(w=320.0, h=240.0, fill=0x112233),
@@ -149,4 +185,19 @@ test "scene snapshot publishes keyed rects with the drawn hit box" {
   assert_eq(button.height, 24.0)
   assert_eq(button.hit.unwrap().width, 80.0)
   assert_eq(snapshot_node_by_id(snapshot, "hp").path, "hud>hp")
+}
+///|
+test "UI identity overrides inspector identity and updates without duplicates" {
+  let tree = ui_key(
+    "controls",
+    group(key="debug-group", children=[
+      ui_key("button", ui_key("old-id", rect(key="debug-rect", w=20.0, h=12.0, focused=true))),
+      ui_key("caption", label(key="debug-label", content="PLAY")),
+    ]),
+  )
+  let snapshot = ui_snapshot_from_scene(tree, screen_width=100.0, screen_height=100.0)
+  assert_eq(snapshot.nodes.length(), 2)
+  assert_eq(snapshot.nodes[0].path, "controls>button")
+  assert_eq(snapshot.nodes[1].path, "controls>caption")
+  assert_eq(snapshot.focus_order, ["button"])
 }

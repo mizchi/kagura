@@ -178,6 +178,13 @@ pub fn simulate_detailed_run(
     }
     prev_act = cur_act
     match run.phase {
+      RouteMap | EventRoom | ShopRoom | CardRemoval | TreasureRoom => {
+        let choices = run_choices(run)
+        if choices.is_empty() {
+          break
+        }
+        apply_run_choice(run, choices[0].id) |> ignore
+      }
       Battle =>
         match run.battle {
           Some(state) => {

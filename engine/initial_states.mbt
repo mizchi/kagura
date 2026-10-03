@@ -34,7 +34,7 @@ pub fn[T] InitialStates::new(
   named? : Array[(String, (Int, Int) -> T)] = [],
 ) -> InitialStates[T] raise InitialStateError {
   let names : Array[String] = []
-  if named.length() > 32 {
+  if named.length() > 64 {
     raise InitialStateError("Too many initial states")
   }
   for (name, _) in named {

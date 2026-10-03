@@ -18,7 +18,7 @@ pub fn for_each(() -> Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, S
 
 pub fn fragment(Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
 
-pub fn group(key? : String, name? : String, x? : Double, y? : Double, children~ : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+pub fn group(key? : String, name? : String, x? : Double, y? : Double, ui_hidden? : Bool, children~ : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn label(key? : String, name? : String, x? : Double, y? : Double, content~ : String, color? : Int, scale? : Double) -> @ui.Node[Unit, SceneAttrValue]
 
@@ -26,7 +26,7 @@ pub fn line(key? : String, name? : String, x0~ : Double, y0~ : Double, x1~ : Dou
 
 pub fn match_case(when~ : () -> Bool, render~ : () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.MatchCase[Unit, SceneAttrValue]
 
-pub fn rect(key? : String, name? : String, x? : Double, y? : Double, w~ : Double, h~ : Double, fill? : Int, alpha? : Double, children? : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+pub fn rect(key? : String, name? : String, x? : Double, y? : Double, w~ : Double, h~ : Double, fill? : Int, alpha? : Double, role? : String, focusable? : Bool, focused? : Bool, focus_index? : Int, children? : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn rect_outline(key? : String, name? : String, x~ : Double, y~ : Double, w~ : Double, h~ : Double, line_width? : Double, color? : Int) -> @ui.Node[Unit, SceneAttrValue]
 
@@ -43,6 +43,8 @@ pub fn show(() -> Bool, () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, 
 pub fn subject(String, @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn switch_(cases~ : Array[@ui.MatchCase[Unit, SceneAttrValue]], fallback? : (() -> @ui.Node[Unit, SceneAttrValue])?) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn ui_key(String, @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn ui_snapshot_from_scene(@ui.Node[Unit, SceneAttrValue], screen_width~ : Double, screen_height~ : Double, frame? : Int, state? : String) -> @kagura_ui.UISnapshot
 

@@ -2,6 +2,8 @@ import {test, expect} from '@playwright/test';
 import {mkdirSync} from 'node:fs';
 import {join} from 'node:path';
 import {catalog} from '../scripts/example-catalog.mjs';
+import {startCardGameAdventure, clickCardGameNode, waitForCardGameState} from './helpers/card-game-pages';
+import {captureGameFrame} from '../scripts/capture-web.mjs';
 
 // Explicit maintenance task: never overwrite checked-in artwork in ordinary E2E runs.
 test.skip(process.env.KAGURA_UPDATE_THUMBNAILS !== '1', 'Run just pages-thumbnails to refresh gameplay captures');
@@ -17,7 +19,11 @@ for (const game of catalog.filter(item => item.gallery)) {
     expect((await page.goto(`./${path}${query}`))?.ok()).toBe(true);
     const canvas = page.locator('#app');
     await expect(canvas).toBeVisible();
-    if (game.id === 'iron_yard') {
+    if (game.id === 'card_game') {
+      await startCardGameAdventure(page);
+      await clickCardGameNode(page, 'map_node_0');
+      await waitForCardGameState(page, 'battle');
+    } else if (game.id === 'iron_yard') {
       await expect(page.getByRole('button', {name: '出撃する', exact: true})).toBeEnabled();
       await page.getByRole('button', {name: '出撃する', exact: true}).click();
       await expect(page.getByRole('dialog', {name: '出撃メニュー'})).not.toBeVisible();
@@ -45,7 +51,9 @@ for (const game of catalog.filter(item => item.gallery)) {
     const directory = 'assets/pages/thumbnails';
     mkdirSync(directory, {recursive: true});
     const destination = join(directory, `${game.id}.jpg`);
-    if (['emberwing', 'hacknslash_3d', 'iron_yard'].includes(game.id)) {
+    if (game.id === 'card_game') {
+      await captureGameFrame(page, {path: destination});
+    } else if (['emberwing', 'hacknslash_3d', 'iron_yard'].includes(game.id)) {
       await page.screenshot({path: destination, type: 'jpeg', quality: 85});
     } else {
       await canvas.screenshot({path: destination, type: 'jpeg', quality: 85});

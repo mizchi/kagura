@@ -966,11 +966,17 @@ fn execute_enemy_action(state : BattleState, index : Int) -> Unit {
   if enemy.fighter.is_dead() {
     return
   }
+  let guarding = is_unique_enemy(enemy.id) && enemy.intent is DefendIntent(_)
+  if is_unique_enemy(enemy.id) {
+    reset_block(enemy.fighter)
+  }
   for log in execute_enemy_intent(enemy, state.player) {
     state.logs.push(log)
   }
   tick_status_effects(enemy.fighter)
-  reset_block(enemy.fighter)
+  if !guarding {
+    reset_block(enemy.fighter)
+  }
   if state.player.is_dead() {
     state.phase = Defeat
     state.logs.push("You have been defeated...")

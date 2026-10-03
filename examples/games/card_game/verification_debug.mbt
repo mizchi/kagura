@@ -3,9 +3,13 @@ fn initial_states() -> @engine.InitialStates[@lib.Game] {
   let named : Array[(String, (Int, Int) -> @lib.Game)] = []
   for
     name in [
-      "card_reward", "complex_reward", "inspect_card", "rest", "victory", "defeat",
-      "battle_victory", "deck", "large_hand", "low_energy", "dragging", "card_impact",
-      "block_effect", "enemy_windup", "enemy_impact", "draw_hand", "battle_outcome",
+      "map", "map_unique", "event", "shop", "shop_sold", "card_removal", "treasure",
+      "unique_battle", "unique_reward", "battle", "title", "settings", "character_select",
+      "stage_select", "boss", "draw_pile", "discard_pile", "controller_target", "card_reward",
+      "complex_reward", "inspect_card", "rest", "victory", "defeat", "battle_victory",
+      "deck", "large_hand", "low_energy", "energy_empty", "energy_selected", "dragging",
+      "drag_attack", "drop_enemy", "drop_outside", "card_impact", "block_effect",
+      "enemy_windup", "enemy_impact", "draw_hand", "battle_outcome",
     ] {
     named.push(
       (name, (width, height) => @lib.Game::preview(name, width, height)),
@@ -17,7 +21,7 @@ fn initial_states() -> @engine.InitialStates[@lib.Game] {
       if name != "" {
         return @lib.Game::preview(name, width, height)
       }
-      let game = @lib.Game::new()
+      let game = @lib.Game::new_app()
       game.set_viewport(width, height)
       game
     },

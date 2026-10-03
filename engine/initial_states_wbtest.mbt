@@ -54,3 +54,21 @@ test "initial state names reject duplicates and unknown names before constructio
   assert_true(rejected)
   assert_eq(calls.val, 0)
 }
+
+///|
+test "initial state registry supports 64 scenarios and rejects the 65th" {
+  let named : Array[(String, (Int, Int) -> Int)] = []
+  for i in 0..<64 {
+    named.push(("state_\{i}", (w, h) => w + h))
+  }
+  let registry = InitialStates::new(default=(_w, _h) => 0, named~)
+  assert_eq(registry.names().length(), 64)
+  named.push(("state_64", (_w, _h) => 0))
+  let rejected = try {
+    InitialStates::new(default=(_w, _h) => 0, named~) |> ignore
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(rejected)
+}

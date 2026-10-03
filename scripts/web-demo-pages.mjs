@@ -18,13 +18,14 @@ const RAW_DEMO_PAGES = [
     name: "card_game",
     title: "Ember Ascent",
     group: "Games",
-    summary: "Build a deck, balance attacks and defense, and climb through increasingly difficult encounters.",
-    start: "Drag attacks onto enemies, and drop skills onto the battlefield. Win battles to build your deck and climb 30 floors.",
-    controls: ["Drag a card to play; release outside the battlefield to cancel", "Click a card, then an enemy to choose a target", "1–9: select a card; arrows: choose an enemy; Enter: play", "E: end turn; D: inspect your deck; Esc: cancel", "Choose one card after each victory; rest to recover HP"],
+    summary: "Build your deck across a branching adventure with events, gold, shops, relics and unique enemies.",
+    start: "Choose a character and stage, then follow the branching map through 30 floors or challenge the Guardian boss. Drag cards or use a controller to play.",
+    controls: ["Drag a card to play; release outside the battlefield to cancel", "Arrows / D-pad / left stick: choose a card; A / Enter: select, then confirm its target", "1–9: select a card; arrows: choose an enemy; Enter: play", "E / Y: end turn; D / X: deck; Q / LB: draw; R / RB: discard", "P / Start: settings; Esc / B: back; Tab: cycle popup controls", "Choose one card after each victory; rest to recover HP"],
     tags: ["2D", "Cards", "Roguelite"],
     sourcePath: "examples/games/card_game/main.mbt",
     width: 960,
     height: 640,
+    pixelArt: true,
   },
   {
     name: "emberwing",
@@ -582,7 +583,7 @@ export function renderDemoHtml({
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; }
     body { margin: 0; min-height: 100dvh; overflow: hidden; }
-    .stage-canvas { display: block; background: #000; touch-action: none; }
+    .stage-canvas { display: block; background: #000; touch-action: none; ${demo.pixelArt ? 'image-rendering: pixelated;' : ''} }
     .presentation-tools { position: fixed; inset: 0 0 auto; height: 48px; z-index: 10;
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       padding: 4px max(8px, env(safe-area-inset-right)) 4px max(8px, env(safe-area-inset-left));

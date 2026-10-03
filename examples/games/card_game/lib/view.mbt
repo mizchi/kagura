@@ -6,57 +6,80 @@ pub fn Game::view(self : Game) -> @scene.SceneNode {
     @scene.rect(w=l.w, h=l.h, fill=0x10151C),
     @scene.rect(y=52.0, w=l.w, h=l.h - 52.0, fill=0x151E2A),
   ]
-  if self.deck_open {
-    nodes.push(view_deck(run, l, self.deck_page))
-  } else {
-    match run.phase {
-      Battle =>
-        match run.battle {
-          Some(state) =>
-            if (state.phase == Victory || state.phase == Defeat) &&
-              !self.keep_battlefield() {
-              nodes.push(
-                view_result(
-                  l,
-                  if state.phase == Victory {
-                    "BATTLE WON"
-                  } else {
-                    "YOU HAVE FALLEN"
-                  },
-                  if state.phase == Victory {
-                    "CHOOSE A CARD AND CONTINUE"
-                  } else {
-                    "YOUR JOURNEY ENDS HERE"
-                  },
-                  "CONTINUE",
-                ),
-              )
+  if self.scene != Playing {
+    return @scene.fragment([self.view_app_scene(), self.view_screen_fade()])
+  }
+  match run.phase {
+    RouteMap | EventRoom | ShopRoom | CardRemoval | TreasureRoom =>
+      nodes.push(self.view_adventure())
+    Battle =>
+      match run.battle {
+        Some(state) =>
+          if (state.phase == Victory || state.phase == Defeat) &&
+            !self.keep_battlefield() {
+            nodes.push(
+              view_result(
+                l,
+                if state.phase == Victory {
+                  "BATTLE WON"
+                } else {
+                  "YOU HAVE FALLEN"
+                },
+                if state.phase == Victory {
+                  "CHOOSE A CARD AND CONTINUE"
+                } else {
+                  "YOUR JOURNEY ENDS HERE"
+                },
+                "CONTINUE",
+              ),
+            )
+          } else {
+            nodes.push(self.view_battle(state))
+          }
+        None => ()
+      }
+    CardReward =>
+      nodes.push(
+        view_reward(
+          run,
+          l,
+          focused=if self.combat_focus is Some(DeckButton) {
+            -1
+          } else {
+            self.scene_focus
+          },
+        ),
+      )
+    RestSite => nodes.push(view_rest(run, l))
+    RunVictory | RunDefeat =>
+      nodes.push(
+        view_result(
+          l,
+          if run.phase == RunVictory {
+            if run.stage == GuardianTrial {
+              "GUARDIAN DEFEATED"
             } else {
-              nodes.push(self.view_battle(state))
-            }
-          None => ()
-        }
-      CardReward => nodes.push(view_reward(run, l))
-      RestSite => nodes.push(view_rest(run, l))
-      RunVictory | RunDefeat =>
-        nodes.push(
-          view_result(
-            l,
-            if run.phase == RunVictory {
               "SUMMIT REACHED"
-            } else {
-              "RUN ENDED"
-            },
-            "FLOOR " +
-            run.floor.to_string() +
-            " / DECK " +
-            run.deck.length().to_string(),
-            "NEW RUN",
-          ),
-        )
-    }
+            }
+          } else {
+            "RUN ENDED"
+          },
+          "FLOOR " +
+          run.floor.to_string() +
+          " / DECK " +
+          run.deck.length().to_string(),
+          "NEW RUN",
+        ),
+      )
   }
   nodes.push(self.view_header(run, l))
+  if self.popup is Some(_) {
+    return @scene.fragment([
+      @scene.group(ui_hidden=true, children=nodes),
+      self.view_pile(),
+      self.view_screen_fade(),
+    ])
+  }
   nodes.push(self.view_screen_fade())
   @scene.fragment(nodes)
 }
@@ -93,15 +116,25 @@ fn Game::view_header(
     fit_text(
       "run_hp",
       (160.0 + l.w - 112.0) / 2.0,
-      26.0,
+      17.0,
       "HP " + hp.to_string() + "/" + run.player_max_hp.to_string(),
       l.w - 284.0,
       scale=0.75,
+    ),
+    fit_text(
+      "run_gold",
+      (160.0 + l.w - 112.0) / 2.0,
+      37.0,
+      "GOLD " + run.gold.to_string(),
+      l.w - 284.0,
+      scale=0.6,
+      color=gold,
     ),
     ui_button(
       "deck_btn",
       deck_button_rect(l),
       "DECK " + run.deck.length().to_string(),
+      focused=self.combat_focus is Some(DeckButton),
       accent=cyan,
     ),
   ])
@@ -122,11 +155,28 @@ fn view_route(run : RunState, l : GameLayout) -> @scene.SceneNode {
     } else {
       muted_ink
     }
-    let label = match floor_type(floor) {
-      Rest => "R"
-      Boss | Combat(Boss) => "B"
-      Combat(Elite) => "E"
-      _ => "+"
+    let label = if run.route is Some(route) {
+      let mut symbol = if floor % 15 == 0 {
+        "B"
+      } else if floor % 15 == 14 {
+        "R"
+      } else {
+        "?"
+      }
+      for node in route.nodes {
+        if node.floor == floor && route.visited.contains(node.id) {
+          symbol = room_symbol(node.kind)
+          break
+        }
+      }
+      symbol
+    } else {
+      match floor_type(floor) {
+        Rest => "R"
+        Boss | Combat(Boss) => "B"
+        Combat(Elite) => "E"
+        _ => "+"
+      }
     }
     nodes.push(
       @scene.rect(
@@ -155,28 +205,49 @@ fn view_route(run : RunState, l : GameLayout) -> @scene.SceneNode {
 fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
   let l = self.layout
   let selected = self.selected_card.get()
-  let dragging = self.drag.snapshot() is Some({ dragging: true, .. })
+  let drag = self.drag.snapshot()
+  let dragging = drag is Some({ dragging: true, .. })
+  let drop_targets = if drag is Some({ dragging: true, source, .. }) {
+    self.card_drop_targets(source)
+  } else if self.combat_focus is Some(Target(_)) && selected >= 0 {
+    self.card_drop_targets(@ui.UINodeId::new(selected))
+  } else {
+    []
+  }
+  let drop_target = match self.combat_focus {
+    Some(Target(index)) =>
+      Some(
+        @ui.UINodeId::new(
+          if index < 0 {
+            battlefield_drag_id
+          } else {
+            enemy_drag_id_base + index
+          },
+        ),
+      )
+    _ => drag.bind(d => d.target)
+  }
+  let accepting = drop_targets.any(t => Some(t.id) == drop_target)
+  let drag_color = if drop_targets.is_empty() {
+    0xFFB0A5
+  } else if accepting {
+    gold
+  } else {
+    cyan
+  }
   let busy = self.presentation is Some(_)
-  let hovered = if busy {
+  let end_focused = self.end_turn_focused() ||
+    (self.combat_focus is Some(EndTurn) && !busy)
+  let hovered = if busy || self.combat_focus is Some(Target(_)) {
     -1
+  } else if self.combat_focus is Some(Hand(index)) {
+    index
   } else {
     hit_card(l, state.hand.length(), self.cursor_x, self.cursor_y)
   }
   let nodes : Array[@scene.SceneNode] = [view_route(self.run.get(), l)]
   let area = l.play_area()
   nodes.push(@scene.rect(x=area.x, y=area.y, w=area.w, h=area.h, fill=0x1A2533))
-  if dragging && selected >= 0 && !card_needs_target(state.hand[selected]) {
-    nodes.push(
-      @scene.rect_outline(
-        x=area.x,
-        y=area.y,
-        w=area.w,
-        h=area.h,
-        line_width=2.0,
-        color=cyan,
-      ),
-    )
-  }
   let player = l.player_rect()
   let outcome = self.presentation is Some({ step: BattleOutcome(_), .. })
   let count = if outcome { 0 } else { state.hand.length() }
@@ -197,10 +268,66 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
             l.enemy_rect(i, state.enemies.length()),
             i,
             self.need_target && self.target_enemy.get() == i,
+            drop=drop_targets
+              .iter()
+              .find_first(t => t.id.value == enemy_drag_id_base + i)
+              .map(t => {
+                if Some(t.id) == drop_target {
+                  Active
+                } else {
+                  Available
+                }
+              }),
           ),
         )
       }
     }
+  }
+  for target in drop_targets {
+    nodes.push(
+      ui_drop_zone(
+        "drop_zone_" + target.id.value.to_string(),
+        target.rect,
+        if Some(target.id) == drop_target {
+          Active
+        } else {
+          Available
+        },
+      ),
+    )
+  }
+  if dragging && drag is Some(gesture) {
+    // Targets are below the tether; command controls remain above it.
+    nodes.push(
+      @scene.line(
+        key="target_tether",
+        x0=gesture.start_x,
+        y0=l.hand_y,
+        x1=self.cursor_x,
+        y1=self.cursor_y,
+        width=2.0,
+        color=drag_color,
+      ),
+    )
+  }
+  if self.combat_focus is Some(Target(index)) && selected >= 0 {
+    let source = l.card_rect(selected, state.hand.length())
+    let target = if index < 0 {
+      l.player_rect()
+    } else {
+      l.enemy_rect(index, state.enemies.length())
+    }
+    nodes.push(
+      @scene.line(
+        key="target_tether",
+        x0=source.x + source.w / 2.0,
+        y0=source.y,
+        x1=target.x + target.w / 2.0,
+        y1=target.y + target.h / 2.0,
+        width=2.0,
+        color=gold,
+      ),
+    )
   }
   let energy_text = "ENERGY " +
     state.player.energy.to_string() +
@@ -229,7 +356,7 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
           } else {
             65.0
           },
-          22.0,
+          15.0,
           energy_text,
           if l.w < 400.0 {
             92.0
@@ -242,31 +369,44 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
       ],
     ),
   )
-  let pile_x = if l.w < 400.0 { 178.0 } else { 212.0 }
   nodes.push(
-    ui_text(
-      "piles",
-      pile_x,
-      l.command_y + 13.0,
-      "DRAW " +
-      state.draw_pile.length().to_string() +
-      " / DISC " +
-      state.discard_pile.length().to_string(),
-      scale=if l.w < 400.0 { 0.45 } else { 0.55 },
-      color=muted_ink,
-    ),
-  )
-  nodes.push(
-    ui_text(
+    fit_text(
       "turn",
-      pile_x,
-      l.command_y + 31.0,
+      if l.w < 400.0 {
+        68.0
+      } else {
+        81.0
+      },
+      l.command_y + 33.0,
       "TURN " +
       state.turn.to_string() +
       " / EXH " +
       state.exhaust_pile.length().to_string(),
+      if l.w < 400.0 {
+        92.0
+      } else {
+        118.0
+      },
       scale=0.5,
       color=muted_ink,
+    ),
+  )
+  nodes.push(
+    ui_button(
+      "draw_pile_btn",
+      l.draw_pile_rect(),
+      "DRAW " + state.draw_pile.length().to_string(),
+      accent=cyan,
+      focused=self.combat_focus is Some(DrawPile),
+    ),
+  )
+  nodes.push(
+    ui_button(
+      "discard_pile_btn",
+      l.discard_pile_rect(),
+      "DISC " + state.discard_pile.length().to_string(),
+      accent=cyan,
+      focused=self.combat_focus is Some(DiscardPile),
     ),
   )
   nodes.push(
@@ -281,6 +421,7 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
         "END TURN"
       },
       accent=if busy { muted_ink } else { gold },
+      focused=end_focused,
     ),
   )
   if l.h >= 440.0 {
@@ -289,15 +430,34 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
     } else {
       ""
     }
+    let battlefield_drop = drop_targets.any(t => {
+      t.id.value == battlefield_drag_id
+    })
     nodes.push(
       fit_text(
-        "battle_log",
+        if battlefield_drop {
+          "drop_status"
+        } else {
+          "battle_log"
+        },
         l.w / 2.0,
         l.command_y - 16.0,
-        log,
+        if battlefield_drop {
+          if accepting {
+            if self.combat_focus is Some(Target(_)) {
+              "CONFIRM TO PLAY"
+            } else {
+              "RELEASE TO PLAY"
+            }
+          } else {
+            "DROP IN THE BATTLEFIELD"
+          }
+        } else {
+          log
+        },
         l.w - 40.0,
         scale=0.6,
-        color=muted_ink,
+        color=if battlefield_drop { drag_color } else { muted_ink },
       ),
     )
   }
@@ -318,8 +478,10 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
           state.hand[i],
           card_play_cost(state, state.hand[i]),
           can_play_card(state, i),
-          i == selected,
+          i == selected ||
+          (self.combat_focus is Some(Hand(index)) && index == i),
           spine=crowded,
+          focused=self.combat_focus is Some(Hand(index)) && index == i,
         ),
       )
     }
@@ -335,16 +497,6 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
       self.cursor_y,
     )
     nodes.push(
-      @scene.line(
-        x0=self.drag.snapshot().unwrap().start_x,
-        y0=l.hand_y,
-        x1=self.cursor_x,
-        y1=self.cursor_y,
-        width=2.0,
-        color=gold,
-      ),
-    )
-    nodes.push(
       ui_card(
         "drag_card",
         preview,
@@ -356,17 +508,26 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
     )
     nodes.push(
       @scene.rect_outline(
+        key=if accepting {
+          "drop_cursor_accepted"
+        } else {
+          "drop_cursor_pending"
+        },
         x=self.cursor_x - 5.0,
         y=self.cursor_y - 5.0,
         w=10.0,
         h=10.0,
         line_width=2.0,
-        color=gold,
+        color=drag_color,
       ),
     )
   }
   nodes.push(self.view_combat_effects(state))
-  let hint = if busy || selected >= 0 {
+  let hint = if dragging {
+    drag_feedback_hint(drop_targets, drop_target)
+  } else if end_focused {
+    "ENERGY 0 - ENTER / E TO END TURN"
+  } else if busy || selected >= 0 || self.combat_focus is Some(_) {
     self.hint
   } else if hovered >= 0 && !can_play_card(state, hovered) {
     "NOT ENOUGH ENERGY"
@@ -383,7 +544,7 @@ fn Game::view_battle(self : Game, state : BattleState) -> @scene.SceneNode {
       hint,
       l.w - 24.0,
       scale=0.55,
-      color=gold,
+      color=if dragging { drag_color } else { gold },
     ),
   )
   @scene.fragment(nodes)
@@ -398,9 +559,17 @@ fn Game::view_player(
   let p = state.player
   let compact = r.h < 110.0
   let pose = self.actor_pose(p, -1)
-  let hero_color = self.actor_color(p, -1, 0xC98A65)
+  let hero_color = self.actor_color(
+    p,
+    -1,
+    if self.run.get().character == Warden {
+      0x79CEC8
+    } else {
+      0xC98A65
+    },
+  )
   let nodes : Array[@scene.SceneNode] = [
-    ui_text("name", r.w / 2.0, 13.0, "IRONCLAD", scale=0.7, color=cyan),
+    fit_text("name", r.w / 2.0, 13.0, p.name, r.w - 12.0, scale=0.7, color=cyan),
     ui_meter(
       "hp_bar",
       10.0,
@@ -480,7 +649,18 @@ fn Game::view_player(
       color=muted_ink,
     ),
   )
-  ui_panel("player", r, 0x202E3E, 0x456277, nodes)
+  ui_panel(
+    "player",
+    r,
+    0x202E3E,
+    if self.combat_focus is Some(Target(-1)) {
+      gold
+    } else {
+      0x456277
+    },
+    nodes,
+    focused=self.combat_focus is Some(Target(-1)),
+  )
 }
 
 ///|
@@ -490,7 +670,14 @@ fn Game::view_enemy(
   r : UiRect,
   index : Int,
   targeted : Bool,
+  drop? : DropFeedback? = None,
 ) -> @scene.SceneNode {
+  let unique_accent = match enemy.id {
+    CinderDuelist => 0xFFA082
+    GildedSentinel => gold
+    HollowOracle => 0xCAB2FF
+    _ => 0xB2829B
+  }
   let intent = if enemy.fighter.is_dead() {
     "DEFEATED"
   } else {
@@ -512,7 +699,7 @@ fn Game::view_enemy(
       "name",
       r.w / 2.0,
       12.0,
-      enemy.fighter.name,
+      (if is_unique_enemy(enemy.id) { "U / " } else { "" }) + enemy.fighter.name,
       r.w - 12.0,
       scale=0.65,
     ),
@@ -550,7 +737,18 @@ fn Game::view_enemy(
     ),
   ]
   let pose = self.actor_pose(enemy.fighter, index)
-  let sprite_size = ui_min(48.0, ui_max(0.0, r.h - 72.0))
+  let show_drop_badge = drop is Some(_) && r.h >= 120.0
+  // Reserve badge space without replacing the enemy on a compact battlefield.
+  let body_space = if show_drop_badge {
+    if r.h >= 130.0 {
+      102.0
+    } else {
+      94.0
+    }
+  } else {
+    72.0
+  }
+  let sprite_size = ui_min(48.0, ui_max(0.0, r.h - body_space))
   if sprite_size > 0.0 {
     nodes.push(
       pixel_actor(
@@ -568,11 +766,24 @@ fn Game::view_enemy(
           if enemy.fighter.status.vulnerable > 0 {
             0xE1997E
           } else {
-            0xB2829B
+            unique_accent
           },
         ),
         true,
+        enemy=Some(enemy.id),
         alpha=self.actor_alpha(enemy.fighter),
+      ),
+    )
+  }
+  if show_drop_badge && drop is Some(feedback) {
+    let width = ui_min(r.w - 16.0, 86.0)
+    nodes.push(
+      ui_drop_badge(
+        "drop_badge_" + index.to_string(),
+        "drop_badge_text_" + index.to_string(),
+        { x: (r.w - width) / 2.0, y: r.h - 50.0, w: width, h: 14.0, },
+        feedback,
+        controller=self.combat_focus is Some(Target(_)),
       ),
     )
   }
@@ -580,12 +791,17 @@ fn Game::view_enemy(
     "enemy_body_" + index.to_string(),
     r,
     0x302A36,
-    if targeted {
+    if drop is Some(feedback) {
+      drop_feedback_color(feedback)
+    } else if targeted {
       gold
+    } else if is_unique_enemy(enemy.id) {
+      unique_accent
     } else {
       0x806776
     },
     nodes,
+    focused=self.combat_focus is Some(Target(target)) && target == index,
   )
 }
 
@@ -597,18 +813,37 @@ fn pixel_actor(
   size : Double,
   color : Int,
   monster : Bool,
+  enemy? : EnemyId? = None,
   alpha? : Double = 1.0,
 ) -> @scene.SceneNode {
-  let pattern = if monster {
-    [
-      "00100100", "01111110", "11011011", "11111111", "01111110", "00111100", "01100110",
-      "11000011",
-    ]
-  } else {
-    [
-      "00111100", "00111100", "00011000", "01111110", "10111101", "00111100", "00100100",
-      "01100110",
-    ]
+  let pattern = match enemy {
+    Some(CinderDuelist) =>
+      [
+        "00011001", "00111101", "00011010", "01111110", "10111000", "00111100", "00100100",
+        "01100110",
+      ]
+    Some(GildedSentinel) =>
+      [
+        "00111100", "01111110", "01011010", "11111111", "11111111", "01111110", "01100110",
+        "11100111",
+      ]
+    Some(HollowOracle) =>
+      [
+        "00011000", "00111100", "01100110", "00111100", "01111110", "11011011", "01111110",
+        "11111111",
+      ]
+    _ =>
+      if monster {
+        [
+          "00100100", "01111110", "11011011", "11111111", "01111110", "00111100",
+          "01100110", "11000011",
+        ]
+      } else {
+        [
+          "00111100", "00111100", "00011000", "01111110", "10111101", "00111100",
+          "00100100", "01100110",
+        ]
+      }
   }
   let p = size / 8.0
   let nodes : Array[@scene.SceneNode] = []
@@ -632,7 +867,11 @@ fn pixel_actor(
 }
 
 ///|
-fn view_reward(run : RunState, l : GameLayout) -> @scene.SceneNode {
+fn view_reward(
+  run : RunState,
+  l : GameLayout,
+  focused? : Int = -1,
+) -> @scene.SceneNode {
   let nodes : Array[@scene.SceneNode] = [
     fit_text(
       "reward_title",
@@ -647,12 +886,21 @@ fn view_reward(run : RunState, l : GameLayout) -> @scene.SceneNode {
       "reward_hint",
       l.w / 2.0,
       l.h * 0.27,
-      "ADD ONE TO YOUR DECK / 1 2 3",
+      "+" +
+      run.last_gold.to_string() +
+      " GOLD" +
+      run.last_relic.map(id => " / " + relic_def(id).name).unwrap_or(""),
       l.w - 32.0,
       scale=0.6,
       color=muted_ink,
     ),
-    ui_button("skip_reward", l.continue_rect(), "SKIP / S", accent=muted_ink),
+    ui_button(
+      "skip_reward",
+      l.continue_rect(),
+      "SKIP / S",
+      accent=muted_ink,
+      focused=focused == run.card_rewards.length(),
+    ),
   ]
   for i = 0; i < run.card_rewards.length(); i = i + 1 {
     let card = run.card_rewards[i]
@@ -663,8 +911,9 @@ fn view_reward(run : RunState, l : GameLayout) -> @scene.SceneNode {
         card,
         card_def(card).cost,
         true,
-        false,
+        focused == i,
         detailed=true,
+        focused=focused == i,
       ),
     )
   }
@@ -740,7 +989,12 @@ fn view_result(
 }
 
 ///|
-fn view_deck(run : RunState, l : GameLayout, page : Int) -> @scene.SceneNode {
+fn view_deck(
+  run : RunState,
+  l : GameLayout,
+  page : Int,
+  focused_id? : Int = -1,
+) -> @scene.SceneNode {
   let nodes : Array[@scene.SceneNode] = [
     fit_text(
       "deck_title",
@@ -765,8 +1019,22 @@ fn view_deck(run : RunState, l : GameLayout, page : Int) -> @scene.SceneNode {
       scale=0.5,
       color=cyan,
     ),
-    ui_button("deck_close", l.continue_rect(), "CLOSE / ESC", accent=cyan),
-    ui_button("deck_next", deck_next_rect(l), "NEXT PAGE >"),
+    ui_button(
+      "deck_close",
+      l.pile_close_rect(),
+      "CLOSE / ESC",
+      accent=cyan,
+      focused=focused_id == pile_close_id,
+      focusable=true,
+    ),
+    ui_button(
+      "deck_next",
+      deck_next_rect(l),
+      "NEXT PAGE >",
+      focused=focused_id == pile_next_id,
+      focusable=true,
+      focus_index=1,
+    ),
   ]
   let start = page * 8
   for i = 0

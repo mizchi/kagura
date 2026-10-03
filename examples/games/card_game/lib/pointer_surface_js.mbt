@@ -40,7 +40,10 @@ fn Game::surface_input(
   input : @core.InputSnapshot,
 ) -> @core.InputSnapshot {
   if surface_cancelled() {
-    return @core.new_input_snapshot_full(-1.0, -1.0, 0.0, 0.0, [27], [], [], [])
+    self.cancel_card()
+    self.combat_focus = None
+    self.hint = "CANCELLED"
+    return @core.new_input_snapshot_full(-1.0, -1.0, 0.0, 0.0, [], [], [], [])
   }
   // Headless inputs are already expressed in logical coordinates.
   scale_pointer_input(
@@ -64,6 +67,11 @@ extern "js" fn surface_cancelled() -> Bool =
   #|       if (document.hidden) cancel();
   #|     });
   #|     const canvas = globalThis.document?.querySelector('#app');
+  #|     canvas?.addEventListener('keydown', event => {
+  #|       // Canvas modal focus is logical; keep the browser focus on its surface.
+  #|       const modal = globalThis.__kaguraUISnapshot?.parsed?.nodes?.some(node => node.role === 'dialog');
+  #|       if (event.code === 'Tab' && modal) event.preventDefault();
+  #|     });
   #|     canvas?.addEventListener('pointercancel', cancel);
   #|     canvas?.addEventListener('touchcancel', cancel);
   #|   }

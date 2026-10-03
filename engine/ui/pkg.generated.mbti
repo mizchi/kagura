@@ -21,6 +21,8 @@ pub fn hit_test(Array[LayoutResult], Double, Double) -> UINodeId?
 
 pub fn hit_test_all(Array[LayoutResult], Double, Double) -> Array[UINodeId]
 
+pub fn navigation_input_from_glfw(@kagura_core.InputSnapshot) -> @kagura_core.InputSnapshot
+
 pub fn point_in_rect(LayoutRect, Double, Double) -> Bool
 
 pub fn ui_events_from_input_edge(@inputstate.KeyInputState, @inputstate.MouseButtonInputState, Double, Double) -> Array[UIEvent]
@@ -234,6 +236,64 @@ pub fn UIFocusManager::focus_prev(Self) -> Array[UIFocusEvent]
 pub fn UIFocusManager::handle_pointer_down(Self, Array[LayoutResult], Double, Double) -> Array[UIFocusEvent]
 pub fn UIFocusManager::new() -> Self
 pub fn UIFocusManager::set_focusable(Self, Array[UINodeId]) -> Unit
+
+pub(all) enum UIModalCloseReason {
+  Explicit
+  Cancel
+  Backdrop
+} derive(Eq, @debug.Debug)
+pub fn UIModalCloseReason::equal(Self, Self) -> Bool
+pub fn UIModalCloseReason::not_equal(Self, Self) -> Bool
+pub fn UIModalCloseReason::to_repr(Self) -> @debug.Repr
+
+pub struct UIModalClosed {
+  id : UINodeId
+  reason : UIModalCloseReason
+  restore_focus : UINodeId?
+}
+
+pub struct UIModalController {
+  // private fields
+}
+pub fn UIModalController::accepts(Self, UINodeId) -> Bool
+pub fn UIModalController::close(Self, UIModalCloseReason) -> UIModalClosed?
+pub fn UIModalController::current(Self) -> UIModalSnapshot?
+pub fn UIModalController::cycle(Self, Int) -> Unit
+pub fn UIModalController::focus(Self, UINodeId) -> Bool
+pub fn UIModalController::new() -> Self
+pub fn UIModalController::open(Self, UINodeId, opener? : UINodeId?, focusable? : Array[UINodeId]) -> Bool
+
+pub struct UIModalSnapshot {
+  id : UINodeId
+  focused : UINodeId
+  focusable : Array[UINodeId]
+}
+
+pub(all) enum UINavigationDirection {
+  Left
+  Right
+  Up
+  Down
+} derive(Eq, @debug.Debug)
+pub fn UINavigationDirection::equal(Self, Self) -> Bool
+pub fn UINavigationDirection::not_equal(Self, Self) -> Bool
+pub fn UINavigationDirection::to_repr(Self) -> @debug.Repr
+
+pub(all) enum UINavigationEvent {
+  Move(UINavigationDirection)
+  Confirm
+  Cancel
+  Auxiliary(Int)
+} derive(Eq, @debug.Debug)
+pub fn UINavigationEvent::equal(Self, Self) -> Bool
+pub fn UINavigationEvent::not_equal(Self, Self) -> Bool
+pub fn UINavigationEvent::to_repr(Self) -> @debug.Repr
+
+pub struct UINavigationInputAdapter {
+  // private fields
+}
+pub fn UINavigationInputAdapter::new() -> Self
+pub fn UINavigationInputAdapter::update(Self, @kagura_core.InputSnapshot, elapsed_ms? : Double) -> Array[UINavigationEvent]
 
 pub struct UINode {
   id : UINodeId

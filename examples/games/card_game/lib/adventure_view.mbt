@@ -456,7 +456,9 @@ fn Game::view_branch_map(self : Game) -> @scene.SceneNode {
       ui_panel(
         "map_node_\{node.id}",
         rect,
-        if focused {
+        if current {
+          0x1C2430
+        } else if focused {
           0x4C3825
         } else if enabled {
           0x253044
@@ -465,7 +467,9 @@ fn Game::view_branch_map(self : Game) -> @scene.SceneNode {
         } else {
           0xC8BB95
         },
-        if focused {
+        if current {
+          cyan
+        } else if focused {
           gold
         } else if enabled {
           cyan
@@ -476,25 +480,45 @@ fn Game::view_branch_map(self : Game) -> @scene.SceneNode {
           fit_text(
             "symbol",
             rect.w / 2.0,
-            13.0,
-            room_symbol(node.kind),
+            rect.h * 0.30,
+            (if current { "> " } else { "" }) + room_symbol(node.kind),
             rect.w - 12.0,
             scale=0.85,
-            color=if enabled { room_color(node.kind) } else { 0x30291D },
+            color=if current {
+              cyan
+            } else if enabled {
+              room_color(node.kind)
+            } else {
+              0x30291D
+            },
           ),
           fit_text(
             "name",
             rect.w / 2.0,
-            33.0,
-            if current && visited {
+            rect.h * 0.75,
+            if current {
+              "HERE \{node.floor}"
+            } else if visited {
               "DONE"
             } else {
               room_name(node.kind)
             },
             rect.w - 10.0,
             scale=0.42,
-            color=if enabled { ink } else { 0x30291D },
+            color=if current || enabled { ink } else { 0x30291D },
           ),
+          if current {
+            @scene.rect_outline(
+              x=3.0,
+              y=3.0,
+              w=rect.w - 6.0,
+              h=rect.h - 6.0,
+              color=cyan,
+              line_width=2.0,
+            )
+          } else {
+            @scene.fragment([])
+          },
         ],
         role=if enabled { "button" } else { "rect" },
         focusable=enabled,

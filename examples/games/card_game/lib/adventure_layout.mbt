@@ -18,15 +18,25 @@ fn GameLayout::map_panel(self : GameLayout) -> UiRect {
 
 ///|
 fn GameLayout::map_rows(self : GameLayout) -> Int {
-  ui_max(2, ui_min(7, (self.map_panel().h / 64.0).to_int()))
+  ui_max(3, ui_min(7, (self.map_panel().h / 64.0).to_int()))
+}
+
+///|
+/// Keep node positions stable within a page; do not recenter after every room.
+/// Adjacent pages overlap by one floor and keep the next choices in view.
+fn Game::map_base_floor(self : Game) -> Int {
+  let run = self.run.get()
+  let act = run.route.unwrap().act
+  let start = (act - 1) * 15 + 1
+  let stride = self.layout.map_rows() - 1
+  let base = start + ui_max(0, run.floor - start) / stride * stride
+  ui_min(start + 15 - self.layout.map_rows(), base)
 }
 
 ///|
 fn Game::map_first_floor(self : Game) -> Int {
-  let run = self.run.get()
-  let act = run.route.unwrap().act
-  let start = (act - 1) * 15 + 1
-  let base = ui_max(start, run.floor)
+  let start = (self.run.get().route.unwrap().act - 1) * 15 + 1
+  let base = self.map_base_floor()
   ui_min(start + 15 - self.layout.map_rows(), base + self.room_page)
 }
 
@@ -42,7 +52,7 @@ fn Game::map_node_rect(self : Game, node : RouteNode) -> UiRect {
     52.0 -
     (node.floor - self.map_first_floor()).to_double() * step,
     w: width,
-    h: 44.0,
+    h: ui_min(44.0, step - 8.0),
   }
 }
 

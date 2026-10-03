@@ -1,4 +1,80 @@
 ///|
+test "event entry moves the current marker and the same map point cannot repeat the event" {
+  for size in [(960, 640), (360, 640), (640, 440), (640, 360)] {
+    let game = Game::preview("map_event", size.0, size.1)
+    let run = game.run.get()
+    let route = run.route.unwrap()
+    let previous = game.map_node_rect(route.nodes[1])
+    let first = game.map_first_floor()
+    let event_rect = game.map_node_rect(route.nodes[4])
+    game.update(pointer_input(event_rect.cx(), event_rect.cy(), true))
+    settle_presentation(game)
+    assert_eq(run.phase, EventRoom)
+    assert_eq(route.current, Some(4))
+    assert_eq(run.floor, 2)
+    assert_eq(route.visited, [1, 4])
+    run.event = Some(HealingSpring)
+    run.player_hp = 40
+    let drink = game.layout.room_list_rect(0, 3)
+    game.update(pointer_input(drink.cx(), drink.cy(), true))
+    settle_presentation(game)
+    assert_eq(run.player_hp, 56)
+    assert_eq(game.map_first_floor(), first)
+    let current = game.map_node_rect(route.nodes[4])
+    assert_eq(current.x, event_rect.x)
+    assert_eq(current.y, event_rect.y)
+    assert_true(current.y < previous.y)
+    assert_true(
+      drop_snapshot(game).nodes.any(n => {
+        n.path.has_prefix("map_node_4>") && n.text == Some("HERE 2")
+      }),
+    )
+    assert_false(apply_run_choice(run, "node:4"))
+    game.update(pointer_input(event_rect.cx(), event_rect.cy(), true))
+    settle_presentation(game)
+    assert_eq(run.phase, RouteMap)
+    assert_eq(route.current, Some(4))
+    assert_eq(run.player_hp, 56)
+    assert_eq(route.visited, [1, 4])
+    for id in [7, 10] {
+      let next_rect = game.map_node_rect(route.nodes[id])
+      game.update(pointer_input(next_rect.cx(), next_rect.cy(), true))
+      settle_presentation(game)
+      assert_eq(run.phase, EventRoom)
+      assert_eq(route.current, Some(id))
+      run.event = Some(HealingSpring)
+      game.update(pointer_input(drink.cx(), drink.cy(), true))
+      settle_presentation(game)
+      let hp = run.player_hp
+      assert_false(apply_run_choice(run, "node:\{id}"))
+      game.update(pointer_input(next_rect.cx(), next_rect.cy(), true))
+      settle_presentation(game)
+      assert_eq(run.phase, RouteMap)
+      assert_eq(route.current, Some(id))
+      assert_eq(run.player_hp, hp)
+    }
+    assert_eq(run.floor, 4)
+    assert_eq(route.visited, [1, 4, 7, 10])
+  }
+}
+
+///|
+test "a missing or stale route position cannot reopen already reached floors" {
+  let run = RunState::adventure(Ironclad, Ascent)
+  let route = run.route.unwrap()
+  route.visited.push(1)
+  run.floor = 1
+  assert_true(available_rooms(run).is_empty())
+  assert_false(apply_run_choice(run, "node:1"))
+  route.current = Some(1)
+  run.floor = 2
+  assert_true(available_rooms(run).is_empty())
+  assert_false(apply_run_choice(run, "node:4"))
+  assert_eq(run.phase, RouteMap)
+  assert_eq(run.floor, 2)
+}
+
+///|
 test "event completion displays progress and pointer can enter the next connected floor" {
   for id in [HealingSpring, LostPurse, BloodAltar, ForgottenLibrary] {
     let game = Game::new()
@@ -26,7 +102,7 @@ test "event completion displays progress and pointer can enter the next connecte
     assert_eq(drop_text(game, "floor"), Some("ACT 1 / NEXT FLOOR 3"))
     assert_true(
       drop_snapshot(game).nodes.any(n => {
-        n.path.has_prefix("map_node_\{event_node}>") && n.text == Some("DONE")
+        n.path.has_prefix("map_node_\{event_node}>") && n.text == Some("HERE 2")
       }),
     )
     assert_true(available_rooms(run).all(n => n.floor == 3))

@@ -111,7 +111,11 @@ pub fn available_rooms(run : RunState) -> Array[RouteNode] {
   }
   guard run.route is Some(route) else { return [] }
   guard route.current is Some(current) else {
-    return route.nodes.filter(n => n.floor == (route.act - 1) * 15 + 1)
+    return route.nodes.filter(n => {
+      n.floor == (route.act - 1) * 15 + 1 &&
+      n.floor == run.floor + 1 &&
+      !route.visited.contains(n.id)
+    })
   }
   let mut ids : Array[Int] = []
   for node in route.nodes {
@@ -120,7 +124,11 @@ pub fn available_rooms(run : RunState) -> Array[RouteNode] {
       break
     }
   }
-  route.nodes.filter(n => ids.contains(n.id) && !route.visited.contains(n.id))
+  route.nodes.filter(n => {
+    ids.contains(n.id) &&
+    n.floor == run.floor + 1 &&
+    !route.visited.contains(n.id)
+  })
 }
 
 ///|

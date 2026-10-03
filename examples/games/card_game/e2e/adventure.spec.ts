@@ -75,7 +75,7 @@ test('event completion marks the visited room and allows the next connected floo
   expect((await node(page, 'run_hp')).text).toBe('HP 56/80');
   expect((await node(page, 'run_gold')).text).toBe('GOLD 20');
   expect((await node(page, 'floor')).text).toBe('ACT 1 / NEXT FLOOR 3');
-  expect((await node(page, 'name', 'map_node_4')).text).toBe('DONE');
+  expect((await node(page, 'name', 'map_node_4')).text).toBe('HERE 2');
   await page.locator('#app').screenshot({path: info.outputPath('event-complete.png')});
   const next = (await snapshot(page)).nodes.filter((n: Node) => n.id.startsWith('map_node_') && n.focusable);
   expect(next.map((n: Node) => n.id)).toEqual(['map_node_6', 'map_node_7', 'map_node_8']);
@@ -94,11 +94,42 @@ for (const viewport of [{width: 1280, height: 900}, {width: 375, height: 812}]) 
     await click(page, 'event_2');
     await state(page, 'map');
     expect((await node(page, 'floor')).text).toBe('ACT 1 / NEXT FLOOR 3');
-    expect((await node(page, 'name', 'map_node_4')).text).toBe('DONE');
+    expect((await node(page, 'name', 'map_node_4')).text).toBe('HERE 2');
     await page.locator('#app').screenshot({path: info.outputPath('event-map.png')});
     await click(page, 'map_node_6');
     await state(page, 'battle');
     expect((await node(page, 'floor')).text).toBe('ACT 1 / FLOOR 3');
+  });
+}
+
+for (const viewport of [{width: 1280, height: 900}, {width: 375, height: 812}]) {
+  test(`current position moves across three event nodes without replaying a clicked room at ${viewport.width}px`, async ({page}, info) => {
+    await page.setViewportSize(viewport);
+    await preview(page, 'map_event', 'map');
+    let previous = await node(page, 'map_node_1');
+    for (const [id, floor] of [[4, 2], [7, 3], [10, 4]]) {
+      const destination = await node(page, `map_node_${id}`);
+      await click(page, destination.id);
+      await state(page, 'event');
+      expect((await node(page, 'floor')).text).toBe(`ACT 1 / FLOOR ${floor}`);
+      await click(page, 'event_2');
+      await state(page, 'map');
+      const current = await node(page, destination.id);
+      expect(current.top).toBe(destination.top);
+      expect(current.top).toBeLessThan(previous.top);
+      expect(current.focusable).toBe(false);
+      expect((await node(page, 'name', current.path)).text).toBe(`HERE ${floor}`);
+      expect((await node(page, 'name', previous.path)).text).toBe('DONE');
+      const hp = (await node(page, 'run_hp')).text;
+      const gold = (await node(page, 'run_gold')).text;
+      await click(page, destination.id);
+      await state(page, 'map');
+      expect((await node(page, 'run_hp')).text).toBe(hp);
+      expect((await node(page, 'run_gold')).text).toBe(gold);
+      expect((await node(page, 'floor')).text).toBe(`ACT 1 / NEXT FLOOR ${floor + 1}`);
+      await page.locator('#app').screenshot({path: info.outputPath(`current-floor-${floor}.png`)});
+      previous = current;
+    }
   });
 }
 

@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 import {captureGameFrame} from '../scripts/capture-web.mjs';
-import {tapGameKey} from './helpers/frame-input';
+import {clickGamePoint, tapGameKey} from './helpers/frame-input';
 import {
   cardGameSnapshot, cardGameNode, cardGamePoint, clickCardGameNode,
   startCardGameAdventure, waitForCardGameState,
@@ -110,13 +110,23 @@ for (const viewport of [{width: 1280, height: 900}, {width: 390, height: 844}]) 
     const event = route.nodes.find(node => /^map_node_\d+$/.test(node.id) && node.focusable &&
       route.nodes.some(child => child.id === 'symbol' && child.path.startsWith(node.path + '>') && child.text === '?'));
     expect(event, 'a connected event on floor 2').toBeTruthy();
+    const eventPoint = await cardGamePoint(page, event!);
+    const resources = [(await cardGameNode(page, 'run_hp')).text, (await cardGameNode(page, 'run_gold')).text];
     await clickCardGameNode(page, event!.id);
     await waitForCardGameState(page, 'event');
     await capture('event');
     await clickCardGameNode(page, 'event_2');
     await waitForCardGameState(page, 'map');
     expect((await cardGameNode(page, 'floor')).text).toBe('ACT 1 / NEXT FLOOR 3');
-    expect((await cardGameNode(page, 'name', event!.path)).text).toBe('DONE');
+    expect((await cardGameNode(page, 'name', event!.path)).text).toBe('HERE 2');
+    const current = await cardGameNode(page, event!.id);
+    expect(current.focusable).toBe(false);
+    expect(current.left).toBe(event!.left);
+    expect(current.top).toBe(event!.top);
+    await clickGamePoint(page, eventPoint);
+    await waitForCardGameState(page, 'map');
+    expect((await cardGameNode(page, 'floor')).text).toBe('ACT 1 / NEXT FLOOR 3');
+    expect([(await cardGameNode(page, 'run_hp')).text, (await cardGameNode(page, 'run_gold')).text]).toEqual(resources);
     await capture('event-map');
     const next = (await cardGameSnapshot(page))!.nodes.find(node => /^map_node_\d+$/.test(node.id) && node.focusable)!;
     await clickCardGameNode(page, next.id);

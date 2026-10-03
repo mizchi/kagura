@@ -1,7 +1,7 @@
 ///|
 fn Game::browse_map(self : Game, forward : Bool) -> Unit {
   let start = (self.run.get().route.unwrap().act - 1) * 15 + 1
-  let base = ui_max(start, self.run.get().floor)
+  let base = self.map_base_floor()
   let maximum = ui_max(0, start + 15 - self.layout.map_rows() - base)
   self.room_page = ui_max(
     start - base,

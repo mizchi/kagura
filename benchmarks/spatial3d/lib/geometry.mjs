@@ -444,3 +444,70 @@ export function characteristicSize(shape) {
       return boundingRadius(shape);
   }
 }
+
+// ---------------------------------------------------------------- v3
+
+// Minimum Euclidean distance between two solids (0 when they intersect).
+// Unions: minimum over convex piece pairs. Torus: closed form, clamped.
+export function distance(a, b) {
+  if (a.type === "torus" || b.type === "torus") return Math.max(0, signedClearance(a, b));
+  let best = Infinity;
+  for (const pa of convexParts(a)) {
+    for (const pb of convexParts(b)) {
+      const r = convexIntersects(pa, pb);
+      best = Math.min(best, r.intersecting ? 0 : r.distance);
+    }
+  }
+  return best;
+}
+
+const CURVED = new Set(["sphere", "capsule", "cylinder", "cone", "torus"]);
+
+function polytopeVertices(s) {
+  switch (s.type) {
+    case "point":
+      return [s.position];
+    case "segment":
+      return [s.a, s.b];
+    case "triangle":
+    case "tetrahedron":
+      return s.vertices;
+    case "aabb":
+    case "obb": {
+      if (s.type === "obb") {
+        const ax = obbAxes(s);
+        return [-1, 1].flatMap((i) => [-1, 1].flatMap((j) => [-1, 1].map((k) => add(add(add(s.center, scale(ax[0], i * s.half_extents[0])), scale(ax[1], j * s.half_extents[1])), scale(ax[2], k * s.half_extents[2])))));
+      }
+      return [0, 1, 2, 3, 4, 5, 6, 7].map((m) => [0, 1, 2].map((k) => (m & (1 << k) ? s.max[k] : s.min[k])));
+    }
+    default:
+      return null;
+  }
+}
+
+// Dimension of the face of a polytope that supports it in direction n:
+// how many of its vertices lie on the supporting plane.
+function supportFeature(s, n) {
+  const vs = polytopeVertices(s);
+  const top = Math.max(...vs.map((v) => dot(v, n)));
+  const scaleLen = Math.max(1, ...vs.map((v) => norm(v)));
+  const k = vs.filter((v) => dot(v, n) >= top - 1e-6 * scaleLen).length;
+  return k === 1 ? "vertex" : k === 2 ? "edge" : "face";
+}
+
+// Which features realise the minimum distance, e.g. "edge-face". Pairs that
+// involve a curved surface are "curved"; intersecting pairs "overlap".
+export function closestFeatures(a, b) {
+  if (a.type === "torus" || b.type === "torus") return "curved";
+  let best = null;
+  for (const pa of convexParts(a)) {
+    for (const pb of convexParts(b)) {
+      const r = convexIntersects(pa, pb);
+      if (r.intersecting) return "overlap";
+      if (!best || r.distance < best.r.distance) best = { pa, pb, r };
+    }
+  }
+  if (CURVED.has(best.pa.type) || CURVED.has(best.pb.type)) return "curved";
+  const n = normalize(sub(best.r.witnessB, best.r.witnessA));
+  return [supportFeature(best.pa, n), supportFeature(best.pb, scale(n, -1))].sort().join("-");
+}

@@ -1,0 +1,68 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.
+
+For EACH problem below, list every pair of objects that intersect. Problems are independent.
+
+### scene-021
+{"id":"A","type":"aabb","min":[0.973,0.752,-1.878],"max":[3.969,2.329,0.155]}
+{"id":"B","type":"capsule","a":[0.931,-0.357,-1.698],"b":[0.81,-1.434,-1.268],"radius":0.346}
+{"id":"C","type":"tetrahedron","vertices":[[1.635,2.42,1.57],[0.806,1.686,1.912],[2.191,1.396,-0.017],[1.041,2.738,-0.185]]}
+{"id":"D","type":"point","position":[1.45,-1.849,1.483]}
+{"id":"E","type":"triangle","vertices":[[-1.168,-0.73,2.454],[-1.242,-2.343,1.406],[-2.382,-0.008,0.923]]}
+{"id":"F","type":"tetrahedron","vertices":[[-0.367,-1.497,-2.187],[0.523,-0.113,-1.235],[1.511,-0.769,-0.565],[1.146,-1.369,-2.909]]}
+{"id":"G","type":"sphere","center":[0.08,1.022,-1.284],"radius":1.246}
+{"id":"H","type":"capsule","a":[-1.483,-2.814,-0.181],"b":[-1.727,-0.495,1.706],"radius":0.276}
+{"id":"I","type":"obb","center":[0.051,0.997,-2.467],"half_extents":[0.391,0.805,1.12],"rotation":[0.3432,-0.9114,-0.1113,-0.1979]}
+
+### scene-022
+{"id":"A","type":"capsule","a":[-2.997,-1.18,0.273],"b":[-1.26,0.648,1.802],"radius":0.663}
+{"id":"B","type":"tetrahedron","vertices":[[-0.31,-0.418,-1.013],[-2.527,-0.058,0.952],[-2.602,-2.042,0.614],[-0.621,-0.185,0.815]]}
+{"id":"C","type":"triangle","vertices":[[1.912,3.151,-0.963],[2.767,2.348,-1.554],[0.51,1.339,-3.305]]}
+{"id":"D","type":"cone","apex":[-1.532,0.773,-2.23],"base_center":[0.187,1.242,-2.597],"radius":0.793}
+{"id":"E","type":"segment","a":[-0.841,2.047,1.692],"b":[-0.208,1.368,2.68]}
+{"id":"F","type":"cylinder","a":[1.487,-0.511,-0.789],"b":[0.736,-1.032,-0.226],"radius":0.707}
+{"id":"G","type":"capsule","a":[-2.719,0.037,1.114],"b":[-2.411,-0.468,2.122],"radius":0.746}
+{"id":"H","type":"frame","center":[1.604,-1.444,-1.988],"rotation":[0.6351,-0.2398,-0.4394,0.5883],"outer_half_extents":[0.985,1.289],"inner_half_extents":[0.743,0.803],"half_thickness":0.327}
+{"id":"I","type":"tetrahedron","vertices":[[1.645,0.38,1.708],[1.124,0.663,-0.117],[-0.271,-0.146,1.774],[0.671,1.79,2.194]]}
+{"id":"J","type":"cylinder","a":[-2.452,2.268,-1.881],"b":[-1.435,1.488,-1.218],"radius":0.636}
+
+### scene-023
+{"id":"A","type":"obb","center":[-0.106,1.766,-1.357],"half_extents":[1.133,1.375,1.457],"rotation":[0.1141,-0.6555,-0.7054,0.2441]}
+{"id":"B","type":"tetrahedron","vertices":[[0.477,-2.331,2.656],[3.072,-3.278,3],[2.896,-0.973,2.032],[1.473,-3.374,2.206]]}
+{"id":"C","type":"capsule","a":[-2.2,2.71,1.22],"b":[-2.441,2.475,2.02],"radius":0.516}
+{"id":"D","type":"sphere","center":[-2.442,0.76,-0.115],"radius":0.613}
+{"id":"E","type":"compound","parts":[{"type":"obb","center":[-0.196,-0.838,2.016],"half_extents":[1.243,0.208,0.543],"rotation":[0.2388,0.2961,-0.613,0.6925]},{"type":"obb","center":[0.15,-0.88,0.89],"half_extents":[0.208,0.77,0.543],"rotation":[0.2388,0.2961,-0.613,0.6925]},{"type":"obb","center":[-1.322,-0.947,2.345],"half_extents":[0.208,0.77,0.543],"rotation":[0.2388,0.2961,-0.613,0.6925]}]}
+{"id":"F","type":"segment","a":[-0.17,1.258,-1.778],"b":[0.001,-1.1,1.147]}
+{"id":"G","type":"capsule","a":[2.867,2.717,0.208],"b":[1.916,1.729,-2.168],"radius":0.701}
+{"id":"H","type":"sphere","center":[1.269,-0.561,-1.245],"radius":0.508}
+{"id":"I","type":"frame","center":[-1.401,-0.795,2.26],"rotation":[0.718,0.4757,0.0244,0.5075],"outer_half_extents":[0.888,0.925],"inner_half_extents":[0.423,0.385],"half_thickness":0.133}
+
+### scene-024
+{"id":"A","type":"capsule","a":[-0.798,0.892,0.988],"b":[-0.681,0.048,3.386],"radius":0.543}
+{"id":"B","type":"cylinder","a":[0.2,2.466,1.276],"b":[0.285,2.272,-0.165],"radius":0.909}
+{"id":"C","type":"triangle","vertices":[[1.143,-2.712,2.957],[0.688,-1.854,1.74],[-0.685,-1.882,0.723]]}
+{"id":"D","type":"frame","center":[0.102,-1.587,-1.306],"rotation":[0.5758,-0.4048,0.6128,0.3593],"outer_half_extents":[1.218,1.519],"inner_half_extents":[0.679,1.039],"half_thickness":0.263}
+{"id":"E","type":"obb","center":[-2.582,-2.07,-2.525],"half_extents":[0.717,1.203,1.069],"rotation":[0.3946,0.5392,0.3296,-0.6671]}
+{"id":"F","type":"tetrahedron","vertices":[[0.104,-2.238,-1.584],[-0.416,-1.403,-0.135],[-0.242,-1.665,-2.442],[-1.875,-2.681,-0.572]]}
+{"id":"G","type":"compound","parts":[{"type":"obb","center":[0.865,1.101,0.13],"half_extents":[1.19,0.163,0.395],"rotation":[0.8306,-0.0738,-0.5421,0.1033]},{"type":"obb","center":[0.4,1.52,-0.945],"half_extents":[0.163,0.863,0.395],"rotation":[0.8306,-0.0738,-0.5421,0.1033]},{"type":"obb","center":[1.203,2.038,0.875],"half_extents":[0.163,0.863,0.395],"rotation":[0.8306,-0.0738,-0.5421,0.1033]}]}
+{"id":"H","type":"segment","a":[-1.429,-4.236,-1.078],"b":[-1.41,-0.385,-0.962]}
+{"id":"I","type":"cylinder","a":[2.598,0.101,1.19],"b":[2.531,-1.066,0.074],"radius":0.416}
+{"id":"J","type":"obb","center":[-0.973,-1.932,-0.14],"half_extents":[0.449,1.175,0.753],"rotation":[0.4917,0.0066,0.0552,-0.869]}
+
+End your reply with one line per problem, in order: `<id>: A-C, B-D` or `<id>: NONE`.

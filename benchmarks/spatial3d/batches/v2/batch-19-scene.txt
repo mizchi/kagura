@@ -1,0 +1,67 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.
+
+For EACH problem below, list every pair of objects that intersect. Problems are independent.
+
+### scene-005
+{"id":"A","type":"tetrahedron","vertices":[[0.387,-3.357,-2.94],[-0.139,-3.153,-1.273],[1.752,-1.253,-0.37],[-0.543,-1.235,-2.408]]}
+{"id":"B","type":"obb","center":[0.043,0.199,-2.397],"half_extents":[1.294,0.61,0.669],"rotation":[0.3325,-0.0886,0.5981,-0.7238]}
+{"id":"C","type":"aabb","min":[1.361,0.451,-3.337],"max":[3.689,2.015,-1.761]}
+{"id":"D","type":"aabb","min":[-2.353,0.9,-2.372],"max":[0.409,2.118,-0.699]}
+{"id":"E","type":"obb","center":[0.267,-1.521,-1.547],"half_extents":[1.071,0.95,0.577],"rotation":[0.6835,0.2458,0.1246,0.6759]}
+{"id":"F","type":"tetrahedron","vertices":[[-1.215,-0.619,-0.482],[0.984,0.602,1.727],[-1.329,1.673,-0.016],[0.539,1.338,-0.389]]}
+{"id":"G","type":"compound","parts":[{"type":"obb","center":[2.697,-0.296,-0.492],"half_extents":[1.21,0.213,0.51],"rotation":[0.4637,0.6024,-0.2845,0.5841]},{"type":"obb","center":[2.158,-0.672,-1.359],"half_extents":[0.213,0.647,0.51],"rotation":[0.4637,0.6024,-0.2845,0.5841]},{"type":"obb","center":[2.468,-0.275,0.57],"half_extents":[0.213,0.647,0.51],"rotation":[0.4637,0.6024,-0.2845,0.5841]}]}
+{"id":"H","type":"cylinder","a":[-0.605,0.139,2.317],"b":[-1.19,1.142,2.568],"radius":1.106}
+{"id":"I","type":"cone","apex":[-1.516,-0.726,-0.398],"base_center":[-1.884,-0.389,-1.738],"radius":0.9}
+
+### scene-006
+{"id":"A","type":"segment","a":[-1.115,-2.701,-2.218],"b":[-0.037,-2.329,-1.215]}
+{"id":"B","type":"frame","center":[-1.013,2.36,2.436],"rotation":[0.3181,0.9466,0.0502,0.0147],"outer_half_extents":[1.1,1.173],"inner_half_extents":[0.65,0.946],"half_thickness":0.102}
+{"id":"C","type":"capsule","a":[-1.462,-0.397,0.773],"b":[-2.125,-0.231,1.151],"radius":0.727}
+{"id":"D","type":"cylinder","a":[1.27,-2.124,0.99],"b":[1.904,-1.29,1.158],"radius":0.913}
+{"id":"E","type":"sphere","center":[2.142,-1.494,-0.325],"radius":0.652}
+{"id":"F","type":"tetrahedron","vertices":[[-1.061,-1.215,-2.069],[-3.18,-2.948,-1.426],[-1.801,-0.577,-1.241],[-1.408,-0.346,-2.664]]}
+{"id":"G","type":"obb","center":[-1.333,0.977,-0.128],"half_extents":[0.87,1.249,1.274],"rotation":[0.2149,-0.8037,0.1556,-0.5326]}
+{"id":"H","type":"cylinder","a":[0.395,3.296,0.176],"b":[0.397,1.385,0.508],"radius":0.58}
+{"id":"I","type":"compound","parts":[{"type":"obb","center":[-1.699,-1.299,-1.957],"half_extents":[1.138,0.139,0.417],"rotation":[0.2434,0.4717,-0.6853,-0.4986]},{"type":"obb","center":[-1.536,-0.371,-1.201],"half_extents":[0.139,0.816,0.417],"rotation":[0.2434,0.4717,-0.6853,-0.4986]},{"type":"obb","center":[-2.409,-2.149,-1.475],"half_extents":[0.139,0.816,0.417],"rotation":[0.2434,0.4717,-0.6853,-0.4986]}]}
+{"id":"J","type":"obb","center":[-0.406,0.725,1.139],"half_extents":[1.373,1.202,1.314],"rotation":[0.4934,-0.133,0.7674,-0.3873]}
+
+### scene-007
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-2.335,1.899,-1.531],"half_extents":[0.918,0.135,0.455],"rotation":[0.486,-0.5096,-0.6741,0.2228]},{"type":"obb","center":[-1.843,1.585,-2.688],"half_extents":[0.135,1.167,0.455],"rotation":[0.486,-0.5096,-0.6741,0.2228]}]}
+{"id":"B","type":"cone","apex":[-1.002,0.632,2.353],"base_center":[-1.961,1.549,0.728],"radius":0.554}
+{"id":"C","type":"cylinder","a":[2.283,2.296,-1.459],"b":[1.86,1.823,-1.422],"radius":0.93}
+{"id":"D","type":"aabb","min":[1.354,1.728,1.564],"max":[3.665,3.037,2.561]}
+{"id":"E","type":"obb","center":[-0.992,1.429,1.584],"half_extents":[1.309,0.52,0.503],"rotation":[0.2725,-0.8271,0.3913,-0.2975]}
+{"id":"F","type":"cone","apex":[-0.094,-2.63,-1.499],"base_center":[0.568,-1.794,-2.721],"radius":0.626}
+{"id":"G","type":"compound","parts":[{"type":"obb","center":[1.358,1.872,-0.669],"half_extents":[1.277,0.179,0.625],"rotation":[0.109,0.4389,-0.8906,0.0485]},{"type":"obb","center":[1.65,2.994,-0.925],"half_extents":[0.179,0.629,0.625],"rotation":[0.109,0.4389,-0.8906,0.0485]}]}
+{"id":"H","type":"sphere","center":[-2.004,1.608,1.003],"radius":0.942}
+
+### scene-008
+{"id":"A","type":"capsule","a":[-0.892,-1.361,0.485],"b":[-0.934,0.5,0.517],"radius":0.34}
+{"id":"B","type":"capsule","a":[1.915,-0.324,2.233],"b":[1.876,1.653,1.857],"radius":0.555}
+{"id":"C","type":"capsule","a":[0.843,1.594,2.993],"b":[0.516,2.206,1.481],"radius":0.463}
+{"id":"D","type":"cylinder","a":[2.394,-2.663,0.824],"b":[0.937,-1.347,0.06],"radius":1.09}
+{"id":"E","type":"aabb","min":[0.895,-1.52,1.489],"max":[2.644,0.896,2.45]}
+{"id":"F","type":"segment","a":[-1.663,-3.022,-1.356],"b":[-0.869,0.504,-0.312]}
+{"id":"G","type":"cone","apex":[-1.009,0.865,-0.776],"base_center":[-0.168,0.889,-1.47],"radius":0.35}
+{"id":"H","type":"aabb","min":[0.11,-0.88,0.835],"max":[2.763,-0.168,3.352]}
+{"id":"I","type":"triangle","vertices":[[2.932,1.806,1.908],[1.38,2.214,2.454],[2.673,0.271,1.133]]}
+{"id":"J","type":"point","position":[0.914,2.323,-0.371]}
+
+End your reply with one line per problem, in order: `<id>: A-C, B-D` or `<id>: NONE`.

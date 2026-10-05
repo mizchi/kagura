@@ -1,0 +1,32 @@
+{
+  "dataset_version": "spatial3d-v1",
+  "prompt_version": "spatial3d-prompt-v1",
+  "seed": 20261005,
+  "counts": {
+    "pair": 240,
+    "torus": 36,
+    "scene": 24
+  },
+  "lite_count": 78,
+  "buckets": [
+    {
+      "name": "hard",
+      "lo": 0.02,
+      "hi": 0.1
+    },
+    {
+      "name": "medium",
+      "lo": 0.1,
+      "hi": 0.3
+    },
+    {
+      "name": "easy",
+      "lo": 0.3,
+      "hi": 1
+    }
+  ],
+  "sha256": {
+    "problems.jsonl": "b6d2ab230bee3756e3c8db6221de60dc305db2ed97a57434f8192b6607b1e9eb",
+    "answers.jsonl": "c04364190ad5ddfde52a17b13b3ce64b110413e3f80808019e83717dbbc931ff"
+  }
+}

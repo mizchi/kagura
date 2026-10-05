@@ -433,6 +433,14 @@ bench-landscape:
     moon -C benchmarks test landscape --target {{target}}
     moon -C benchmarks bench landscape --target {{target}}
 
+# LLM 3D 交差判定ベンチ（benchmarks/spatial3d）。正解生成器の検証
+spatial3d-test:
+    node --test benchmarks/spatial3d/*.test.mjs
+
+# 回答ファイルを採点する: just spatial3d-score "benchmarks/spatial3d/results/*.responses.jsonl"
+spatial3d-score files="benchmarks/spatial3d/results/*.responses.jsonl":
+    node benchmarks/spatial3d/score.mjs {{files}}
+
 bench-gate extra="":
     node scripts/bench-gate.mjs {{target}} {{extra}}
 

@@ -1,5 +1,5 @@
 // Cross-checks the GJK ground truth against closed-form tests and brute-force
-// sampling. Run: node --test benchmarks/spatial3d/
+// sampling. Run: node --test benchmarks/spatial3d/*.test.mjs
 import assert from "node:assert/strict";
 import test from "node:test";
 

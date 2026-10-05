@@ -437,8 +437,8 @@ bench-landscape:
 spatial3d-test:
     node --test benchmarks/spatial3d/*.test.mjs
 
-# 回答ファイルを採点する: just spatial3d-score "benchmarks/spatial3d/results/*.responses.jsonl"
-spatial3d-score files="benchmarks/spatial3d/results/*.responses.jsonl":
+# 回答ファイルを採点する: just spatial3d-score "benchmarks/spatial3d/results/v1/*.responses.jsonl"
+spatial3d-score files="benchmarks/spatial3d/results/v2/*.responses.jsonl":
     node benchmarks/spatial3d/score.mjs {{files}}
 
 bench-gate extra="":

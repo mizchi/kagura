@@ -1,0 +1,94 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+The distance between two shapes is the smallest Euclidean distance between a point of one and a point of the other. It is 0 when they intersect (share at least one point).
+
+For EACH problem below, compute the distance between objects A and B. Problems are independent. An answer counts as correct when it is within 0.001 of the exact distance, so give at least 4 decimal places.
+
+### frame-033
+{"id":"A","type":"cone","apex":[0.985,0.526,0.18],"base_center":[-0.055,0.344,-0.024],"radius":0.455}
+{"id":"B","type":"frame","center":[0.835,0.594,0.622],"rotation":[0.2417,-0.6853,-0.5655,0.39],"outer_half_extents":[1.006,0.954],"inner_half_extents":[0.5,0.409],"half_thickness":0.135}
+
+### frame-034
+{"id":"A","type":"segment","a":[0.201,-0.254,-1.628],"b":[-0.467,-1.854,-1.519]}
+{"id":"B","type":"frame","center":[-0.528,-0.231,-0.832],"rotation":[0.2608,0.4651,-0.776,0.337],"outer_half_extents":[1.122,0.843],"inner_half_extents":[0.8,0.621],"half_thickness":0.345}
+
+### frame-035
+{"id":"A","type":"frame","center":[-0.295,0.756,-0.582],"rotation":[0.356,0.3627,-0.813,-0.2842],"outer_half_extents":[0.777,1.063],"inner_half_extents":[0.408,0.754],"half_thickness":0.213}
+{"id":"B","type":"cone","apex":[-2.248,3.406,-1.902],"base_center":[-1.331,1.238,-2.197],"radius":0.673}
+
+### frame-036
+{"id":"A","type":"cylinder","a":[-1.153,2.194,0.575],"b":[-3.293,1.696,2.089],"radius":0.914}
+{"id":"B","type":"frame","center":[0.115,0.183,-0.181],"rotation":[0.3224,-0.7146,0.6001,-0.1592],"outer_half_extents":[1.028,1.164],"inner_half_extents":[0.547,0.807],"half_thickness":0.2}
+
+### frame-037
+{"id":"A","type":"frame","center":[0.513,0.415,-0.061],"rotation":[0.6525,-0.4347,0.5899,-0.1931],"outer_half_extents":[0.906,1.539],"inner_half_extents":[0.373,1.077],"half_thickness":0.291}
+{"id":"B","type":"tetrahedron","vertices":[[1.204,1.246,-3.857],[1.172,0.762,-3.947],[0.144,0.242,-1.723],[-0.284,1.834,-3.538]]}
+
+### frame-038
+{"id":"A","type":"obb","center":[-0.663,3.209,-1.26],"half_extents":[0.451,1.5,1.448],"rotation":[0.6213,0.4874,-0.2149,0.5747]}
+{"id":"B","type":"frame","center":[-0.468,0.294,-0.261],"rotation":[0.4562,0.6609,-0.2779,-0.5271],"outer_half_extents":[0.894,1.043],"inner_half_extents":[0.438,0.619],"half_thickness":0.203}
+
+### frame-039
+{"id":"A","type":"tetrahedron","vertices":[[1.872,4.084,0.735],[-0.094,3.039,0.638],[0.643,2.725,-0.663],[1.776,1.815,0.579]]}
+{"id":"B","type":"frame","center":[0.856,0.817,0.178],"rotation":[0.6036,-0.4378,0.4738,0.4685],"outer_half_extents":[1.077,1.07],"inner_half_extents":[0.796,0.522],"half_thickness":0.198}
+
+### frame-040
+{"id":"A","type":"capsule","a":[0.013,0.441,-1.459],"b":[0.687,-0.012,0.703],"radius":0.415}
+{"id":"B","type":"frame","center":[-0.61,0.493,-0.543],"rotation":[0.3768,0.7256,0.1408,0.5583],"outer_half_extents":[1.076,1.2],"inner_half_extents":[0.785,0.798],"half_thickness":0.129}
+
+### frame-041
+{"id":"A","type":"frame","center":[0.875,-0.566,-0.978],"rotation":[0.3781,-0.718,0.0897,0.5774],"outer_half_extents":[1.427,1.288],"inner_half_extents":[0.828,1.015],"half_thickness":0.204}
+{"id":"B","type":"capsule","a":[2.3,-1.741,-0.275],"b":[1.158,-1.098,-0.644],"radius":0.605}
+
+### frame-042
+{"id":"A","type":"capsule","a":[-3.56,0.651,-0.377],"b":[-3.784,1.616,0.694],"radius":0.521}
+{"id":"B","type":"frame","center":[-0.992,0.786,-0.12],"rotation":[0.0293,-0.118,0.9877,-0.0982],"outer_half_extents":[1.487,1.082],"inner_half_extents":[0.901,0.64],"half_thickness":0.222}
+
+### frame-043
+{"id":"A","type":"obb","center":[2.318,0.782,0.223],"half_extents":[1.342,0.631,1.32],"rotation":[0.5701,0.5659,-0.1119,0.585]}
+{"id":"B","type":"frame","center":[0.71,-0.445,-0.32],"rotation":[0.348,0.9031,-0.0625,-0.2437],"outer_half_extents":[1.226,0.9],"inner_half_extents":[0.732,0.414],"half_thickness":0.341}
+
+### frame-044
+{"id":"A","type":"capsule","a":[-3.218,1.206,-0.313],"b":[-1.901,1.211,-1.212],"radius":0.311}
+{"id":"B","type":"frame","center":[0.235,-0.607,-0.84],"rotation":[0.6438,0.0498,0.5566,0.5227],"outer_half_extents":[1.267,1.3],"inner_half_extents":[0.892,0.835],"half_thickness":0.102}
+
+### frame-045
+{"id":"A","type":"frame","center":[-0.569,0.587,-0.03],"rotation":[0.2247,-0.0913,0.6866,0.6853],"outer_half_extents":[0.89,1.309],"inner_half_extents":[0.548,1.012],"half_thickness":0.334}
+{"id":"B","type":"tetrahedron","vertices":[[-0.97,-1.789,0.386],[-0.209,-1.586,-1.559],[-2.015,-1.56,0.906],[-2.158,-0.361,0.804]]}
+
+### frame-046
+{"id":"A","type":"frame","center":[0.837,0.406,-0.679],"rotation":[0.4774,0.2886,-0.8281,-0.0553],"outer_half_extents":[1.231,1.553],"inner_half_extents":[0.883,0.99],"half_thickness":0.176}
+{"id":"B","type":"obb","center":[2.671,0.465,-0.379],"half_extents":[0.715,0.916,1.358],"rotation":[0.6996,-0.0246,0.5644,0.4374]}
+
+### frame-047
+{"id":"A","type":"cone","apex":[-0.991,-0.371,-0.958],"base_center":[-0.286,-0.05,-0.699],"radius":0.343}
+{"id":"B","type":"frame","center":[-0.543,0.015,-0.531],"rotation":[0.6941,-0.282,0.1677,0.6408],"outer_half_extents":[0.996,0.963],"inner_half_extents":[0.549,0.517],"half_thickness":0.238}
+
+### frame-048
+{"id":"A","type":"frame","center":[0.705,-0.121,0.388],"rotation":[0.5293,0.6237,-0.4083,0.4051],"outer_half_extents":[1.082,0.669],"inner_half_extents":[0.674,0.426],"half_thickness":0.177}
+{"id":"B","type":"segment","a":[1.339,-0.299,0.708],"b":[-0.714,-2.579,0.402]}
+
+### torus-001
+{"id":"A","type":"sphere","center":[0.189,-0.078,-0.711],"radius":0.979}
+{"id":"B","type":"torus","center":[0.622,0.317,-0.515],"axis":[0.6805,0.5323,0.5036],"major_radius":1.369,"minor_radius":0.429}
+
+### torus-002
+{"id":"A","type":"torus","center":[0.694,-0.964,0.122],"axis":[-0.8073,0.5882,0.049],"major_radius":2.37,"minor_radius":0.598}
+{"id":"B","type":"sphere","center":[2.068,-1.372,-1.79],"radius":0.912}
+
+End your reply with one line per problem, in order: `<id>: <distance>`.

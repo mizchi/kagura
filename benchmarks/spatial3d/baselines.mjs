@@ -47,11 +47,28 @@ const heuristics = {
   "always-no": () => false,
 };
 
+// v3 asks for a distance; the same bounding volumes give gap estimates.
+const gaps = {
+  bsphere: (a, b) => {
+    const x = sphereOf(a);
+    const y = sphereOf(b);
+    return Math.max(0, norm(sub(x.c, y.c)) - x.r - y.r);
+  },
+  aabb: (a, b) => {
+    const x = boxOf(a);
+    const y = boxOf(b);
+    return Math.hypot(...[0, 1, 2].map((k) => Math.max(0, x.min[k] - y.max[k], y.min[k] - x.max[k])));
+  },
+  "always-no": () => 0,
+};
+
 mkdirSync(resultsDir, { recursive: true });
 for (const [name, test] of Object.entries(heuristics)) {
   const rows = problems.map((p) => {
     let answer;
-    if (p.task === "pair") {
+    if (p.task === "distance") {
+      answer = gaps[name](p.objects[0], p.objects[1]).toFixed(4);
+    } else if (p.task === "pair") {
       answer = test(p.objects[0], p.objects[1]) ? "YES" : "NO";
     } else {
       const hits = [];

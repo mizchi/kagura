@@ -1,0 +1,40 @@
+{
+  "dataset_version": "spatial3d-v3",
+  "prompt_version": "spatial3d-prompt-v3",
+  "seed": 20261007,
+  "tolerance": 0.001,
+  "counts": {
+    "pair": 136,
+    "compound": 48,
+    "frame": 48,
+    "torus": 48
+  },
+  "lite_count": 76,
+  "buckets": [
+    {
+      "name": "zero",
+      "lo": 0,
+      "hi": 0
+    },
+    {
+      "name": "near",
+      "lo": 0.005,
+      "hi": 0.1
+    },
+    {
+      "name": "mid",
+      "lo": 0.1,
+      "hi": 0.5
+    },
+    {
+      "name": "far",
+      "lo": 0.5,
+      "hi": 1.5
+    }
+  ],
+  "min_overlap_depth": 0.002,
+  "sha256": {
+    "problems.jsonl": "5fbe3385078ae550b8017d858b3b821e9225bdf0ea747a809a9a097f7b15f26d",
+    "answers.jsonl": "83cc602b508123e9389afd588f7a0023dc26227a0448102964ce886911302270"
+  }
+}

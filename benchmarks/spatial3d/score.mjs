@@ -17,6 +17,8 @@ import { parseArgs } from "node:util";
 
 import { DATASETS, parseAnswer } from "./lib/prompt.mjs";
 
+const TOLERANCE = 0.001;
+
 const here = dirname(fileURLToPath(import.meta.url));
 const { values: opt, positionals } = parseArgs({
   allowPositionals: true,
@@ -63,8 +65,10 @@ function bump(map, key, ok) {
 
 export function score(rows) {
   const byId = new Map(rows.map((r) => [r.id, r]));
-  const groups = { overall: {}, category: {}, difficulty: {}, label: {}, shape: {}, tag: {} };
+  const groups = { overall: {}, category: {}, difficulty: {}, label: {}, feature: {}, shape: {}, tag: {} };
   const scene = { exact: tally(), pairs: tally(), tp: 0, fp: 0, fn: 0, byDifficulty: {} };
+  // v3: absolute errors of numeric answers (Infinity when missing).
+  const dist = { errors: [], signed: [], within01: tally(), within1pct: tally(), zero: tally() };
   let answered = 0;
   let unparsed = 0;
   for (const a of answers) {
@@ -72,7 +76,29 @@ export function score(rows) {
     const parsed = row ? (typeof row.response === "string" ? parseAnswer(a.task, row.response) : row.parsed ?? null) : null;
     if (row) answered++;
     if (row && parsed === null) unparsed++;
-    if (a.task === "pair") {
+    if (a.task === "distance") {
+      const has = typeof parsed === "number" && Number.isFinite(parsed);
+      const err = has ? Math.abs(parsed - a.answer) : Infinity;
+      const ok = err <= TOLERANCE + 1e-12;
+      bump(groups.overall, `distance within ${TOLERANCE}`, ok);
+      bump(groups.category, a.category, ok);
+      bump(groups.difficulty, `${a.category}/${a.difficulty}`, ok);
+      bump(groups.difficulty, `all/${a.difficulty}`, ok);
+      bump(groups.feature, a.feature, ok);
+      for (const t of new Set(a.types)) bump(groups.shape, t, ok);
+      for (const t of a.tags) bump(groups.tag, t, ok);
+      dist.errors.push(err);
+      if (has) dist.signed.push(parsed - a.answer);
+      dist.within01.n++;
+      if (err <= 0.01) dist.within01.k++;
+      if (a.answer > 0) {
+        dist.within1pct.n++;
+        if (err <= 0.01 * a.answer) dist.within1pct.k++;
+      } else {
+        dist.zero.n++;
+        if (ok) dist.zero.k++;
+      }
+    } else if (a.task === "pair") {
       const ok = parsed === a.answer;
       bump(groups.overall, "pair tasks", ok);
       bump(groups.category, a.category, ok);
@@ -98,7 +124,7 @@ export function score(rows) {
     }
   }
   const f1 = (2 * scene.tp) / (2 * scene.tp + scene.fp + scene.fn || 1);
-  return { answered, total: answers.length, unparsed, groups, scene: { ...scene, f1 } };
+  return { answered, total: answers.length, unparsed, groups, scene: { ...scene, f1 }, dist };
 }
 
 const pct = (t) => (t.n ? `${((100 * t.k) / t.n).toFixed(1)}%` : "-");
@@ -117,6 +143,18 @@ function report(name, meta, s) {
   out.push("|---|---|---|---|---|");
   for (const [g, map] of Object.entries(s.groups)) {
     for (const k of Object.keys(map).sort()) out.push(`| ${g} | ${k} | ${map[k].k}/${map[k].n} | ${pct(map[k])} | ${ci(map[k])} |`);
+  }
+  if (s.dist.errors.length) {
+    const e = [...s.dist.errors].sort((x, y) => x - y);
+    const q = (p) => e[Math.min(e.length - 1, Math.floor(p * e.length))];
+    const fmt = (x) => (Number.isFinite(x) ? x.toFixed(4) : "missing");
+    const bias = s.dist.signed.length ? s.dist.signed.reduce((x, y) => x + y, 0) / s.dist.signed.length : NaN;
+    out.push(`| distance | within 0.01 | ${s.dist.within01.k}/${s.dist.within01.n} | ${pct(s.dist.within01)} | ${ci(s.dist.within01)} |`);
+    out.push(`| distance | within 1% (nonzero answers) | ${s.dist.within1pct.k}/${s.dist.within1pct.n} | ${pct(s.dist.within1pct)} | ${ci(s.dist.within1pct)} |`);
+    out.push(`| distance | zero answers within ${TOLERANCE} | ${s.dist.zero.k}/${s.dist.zero.n} | ${pct(s.dist.zero)} | ${ci(s.dist.zero)} |`);
+    out.push(`| distance | abs error p50 / p90 / max | | ${fmt(q(0.5))} / ${fmt(q(0.9))} / ${fmt(e[e.length - 1])} | |`);
+    out.push(`| distance | mean signed error | | ${Number.isFinite(bias) ? bias.toFixed(4) : "-"} | |`);
+    return out.join("\n");
   }
   out.push(`| scene | exact set | ${s.scene.exact.k}/${s.scene.exact.n} | ${pct(s.scene.exact)} | ${ci(s.scene.exact)} |`);
   for (const k of Object.keys(s.scene.byDifficulty).sort()) {

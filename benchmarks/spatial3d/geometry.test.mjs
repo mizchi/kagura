@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { bounds, convexParts, gjk, intersects, norm, quatToAxes, rotate, scale, signedClearance, sub, translate } from "./lib/geometry.mjs";
+import { bounds, convexParts, distance, gjk, intersects, norm, quatToAxes, rotate, scale, signedClearance, sub, translate } from "./lib/geometry.mjs";
 import { CONVEX_TYPES, Rng, makeShape, makeShapeV2, roundShape } from "./lib/shapes.mjs";
 import { certify, certifyAll, contains } from "./lib/verify.mjs";
 
@@ -141,7 +141,7 @@ test("an object through a frame's hole does not touch it", () => {
 test("committed datasets match their manifests and answer keys", async () => {
   const { createHash } = await import("node:crypto");
   const { readFileSync } = await import("node:fs");
-  for (const v of ["v1", "v2"]) {
+  for (const v of ["v1", "v2", "v3"]) {
     const dir = new URL(`./data/${v}/`, import.meta.url);
     const manifest = JSON.parse(readFileSync(new URL("manifest.json", dir), "utf8"));
     for (const [name, sha] of Object.entries(manifest.sha256)) {
@@ -152,7 +152,8 @@ test("committed datasets match their manifests and answer keys", async () => {
     // Re-derive every pair answer from the shapes shown to the model.
     for (const p of problems) {
       const a = answers.get(p.id);
-      if (p.task === "pair") assert.equal(intersects(p.objects[0], p.objects[1]), a.answer, p.id);
+      if (p.task === "distance") assert.ok(Math.abs(distance(p.objects[0], p.objects[1]) - a.answer) < 1e-6, p.id);
+      else if (p.task === "pair") assert.equal(intersects(p.objects[0], p.objects[1]), a.answer, p.id);
       else {
         const hits = [];
         for (let i = 0; i < p.objects.length; i++)
@@ -160,5 +161,21 @@ test("committed datasets match their manifests and answer keys", async () => {
         assert.deepEqual(hits, a.answer, p.id);
       }
     }
+  }
+});
+
+test("distance agrees with the closed forms and is 0 exactly when intersecting", () => {
+  const rng = new Rng(13);
+  for (let i = 0; i < 300; i++) {
+    const a = { type: "sphere", center: rng.vec(-2, 2), radius: rng.range(0.2, 1) };
+    const b = { type: "sphere", center: rng.vec(-2, 2), radius: rng.range(0.2, 1) };
+    const exact = Math.max(0, norm(sub(a.center, b.center)) - a.radius - b.radius);
+    assert.ok(Math.abs(distance(a, b) - exact) < 1e-7);
+  }
+  const types = [...CONVEX_TYPES, "compound", "frame"];
+  for (let i = 0; i < 300; i++) {
+    const a = roundShape(translate(makeShapeV2(rng.pick(types), rng, rotate).shape, rng.vec(-1.5, 1.5)), { pos: 3, axis: 4 });
+    const b = roundShape(translate(makeShapeV2(rng.pick(types), rng, rotate).shape, rng.vec(-1.5, 1.5)), { pos: 3, axis: 4 });
+    assert.equal(distance(a, b) === 0, intersects(a, b));
   }
 });

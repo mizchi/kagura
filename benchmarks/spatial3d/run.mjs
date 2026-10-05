@@ -73,7 +73,7 @@ if (opt["export-batches"]) {
   const dir = opt["export-batches"];
   mkdirSync(dir, { recursive: true });
   let n = 0;
-  for (const task of ["pair", "scene"]) {
+  for (const task of ["pair", "scene", "distance"]) {
     const items = selected.filter((p) => p.task === task);
     const size = task === "scene" ? Math.max(1, Math.round(Number(opt["batch-size"]) / 5)) : Number(opt["batch-size"]);
     for (let i = 0; i < items.length; i += size) {

@@ -34,10 +34,15 @@ Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize befo
 - compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
 Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.`;
 
+export const SHAPE_DEFINITIONS_V3 =
+  SHAPE_DEFINITIONS_V2.slice(0, SHAPE_DEFINITIONS_V2.indexOf("Two shapes intersect")) +
+  "The distance between two shapes is the smallest Euclidean distance between a point of one and a point of the other. It is 0 when they intersect (share at least one point).";
+
 // Per dataset: the prompt version and the shape definitions shown.
 export const DATASETS = {
   v1: { promptVersion: "spatial3d-prompt-v1", definitions: SHAPE_DEFINITIONS },
   v2: { promptVersion: "spatial3d-prompt-v2", definitions: SHAPE_DEFINITIONS_V2 },
+  v3: { promptVersion: "spatial3d-prompt-v3", definitions: SHAPE_DEFINITIONS_V3 },
 };
 
 export function datasetSpec(name) {
@@ -55,8 +60,15 @@ ANSWER: NO`;
 const SCENE_INSTRUCTIONS = `List every pair of objects that intersect.
 End your reply with exactly one line, pairs separated by commas, each pair written as two ids joined by "-" (e.g. "ANSWER: A-C, B-D"), or "ANSWER: NONE" if no pair intersects.`;
 
+const DISTANCE_INSTRUCTIONS = `Compute the distance between objects A and B.
+An answer counts as correct when it is within 0.001 of the exact distance, so give at least 4 decimal places.
+End your reply with exactly one line:
+ANSWER: <distance>`;
+
+const INSTRUCTIONS = { pair: PAIR_INSTRUCTIONS, scene: SCENE_INSTRUCTIONS, distance: DISTANCE_INSTRUCTIONS };
+
 export function buildPrompt(problem, dataset = "v1") {
-  const task = problem.task === "scene" ? SCENE_INSTRUCTIONS : PAIR_INSTRUCTIONS;
+  const task = INSTRUCTIONS[problem.task];
   return [
     "You are given 3D objects as exact coordinates. Reason about them geometrically.",
     "Do not use code execution or any other tools.",
@@ -74,14 +86,17 @@ export function buildPrompt(problem, dataset = "v1") {
 // agent harnesses without an API. Replies are read back by import.mjs.
 // Batching is a different condition from one-prompt-per-problem: record it.
 export function buildBatchPrompt(task, problems, dataset = "v1") {
-  const ask =
-    task === "scene"
-      ? "For EACH problem below, list every pair of objects that intersect. Problems are independent."
-      : "For EACH problem below, decide whether objects A and B intersect. Problems are independent.";
-  const format =
-    task === "scene"
-      ? "End your reply with one line per problem, in order: `<id>: A-C, B-D` or `<id>: NONE`."
-      : "End your reply with one line per problem, in order: `<id>: YES` or `<id>: NO`.";
+  const ask = {
+    scene: "For EACH problem below, list every pair of objects that intersect. Problems are independent.",
+    pair: "For EACH problem below, decide whether objects A and B intersect. Problems are independent.",
+    distance:
+      "For EACH problem below, compute the distance between objects A and B. Problems are independent. An answer counts as correct when it is within 0.001 of the exact distance, so give at least 4 decimal places.",
+  }[task];
+  const format = {
+    scene: "End your reply with one line per problem, in order: `<id>: A-C, B-D` or `<id>: NONE`.",
+    pair: "End your reply with one line per problem, in order: `<id>: YES` or `<id>: NO`.",
+    distance: "End your reply with one line per problem, in order: `<id>: <distance>`.",
+  }[task];
   return [
     "You are given 3D objects as exact coordinates. Reason about them geometrically.",
     "",
@@ -104,6 +119,10 @@ export function parseAnswer(task, text) {
     .replace(/^.*ANSWER\s*:/i, "")
     .replace(/[*`_]/g, "")
     .trim();
+  if (task === "distance") {
+    const m = body.match(/^[~≈]?\s*(-?\d+(?:\.\d+)?(?:e-?\d+)?)/i);
+    return m ? Number(m[1]) : null;
+  }
   if (task === "pair") {
     if (/^YES\b/i.test(body)) return true;
     if (/^NO\b/i.test(body)) return false;

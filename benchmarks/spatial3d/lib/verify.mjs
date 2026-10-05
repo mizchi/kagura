@@ -1,8 +1,22 @@
 // Independent verification of GJK verdicts (no shared code with support()).
 
-import { dot, gjk, norm, scale, sub, support } from "./geometry.mjs";
+import { convexParts, dot, gjk, norm, scale, sub, support } from "./geometry.mjs";
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+// Quaternion to axes via q * v * q^-1, independent of geometry.quatToAxes.
+function quatToAxesIndependent(q) {
+  const n = Math.hypot(...q);
+  const [w, x, y, z] = q.map((c) => c / n);
+  const mul = (a, b) => [
+    a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3],
+    a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
+    a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1],
+    a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0],
+  ];
+  const conj = [w, -x, -y, -z];
+  return [[1, 0, 0], [0, 1, 0], [0, 0, 1]].map((v) => mul(mul([w, x, y, z], [0, ...v]), conj).slice(1));
+}
 
 // Membership written independently of the support functions.
 export function contains(shape, p, eps = 1e-7) {
@@ -21,13 +35,27 @@ export function contains(shape, p, eps = 1e-7) {
     case "obb": {
       // Solve center + sum(s_i * axes_i) = p; rounded axes are only nearly
       // orthonormal, so projection would not match the stated definition.
-      const ax = shape.axes;
+      const ax = shape.axes ?? quatToAxesIndependent(shape.rotation);
       const m = [0, 1, 2].map((row) => [0, 1, 2].map((col) => ax[col][row]));
       const q = sub(p, shape.center);
       const d = det3(m);
       const coeff = [0, 1, 2].map((k) => det3(m.map((row, i) => row.map((x, j) => (j === k ? q[i] : x)))) / d);
       return coeff.every((c, k) => Math.abs(c) <= shape.half_extents[k] + eps);
     }
+    case "frame": {
+      // Plate |x|<=ox, |y|<=oy, |z|<=t in the frame's local coordinates,
+      // minus the open hole |x|<ix, |y|<iy. Written directly, not from parts.
+      const ax = quatToAxesIndependent(shape.rotation);
+      const q = sub(p, shape.center);
+      const [x, y, z] = ax.map((a) => dot(q, a));
+      const [ox, oy] = shape.outer_half_extents;
+      const [ix, iy] = shape.inner_half_extents;
+      const inPlate = Math.abs(x) <= ox + eps && Math.abs(y) <= oy + eps && Math.abs(z) <= shape.half_thickness + eps;
+      const inHole = Math.abs(x) < ix - eps && Math.abs(y) < iy - eps;
+      return inPlate && !inHole;
+    }
+    case "compound":
+      return shape.parts.some((part) => contains(part, p, eps));
     case "segment":
       return segDist(shape.a, shape.b) <= eps;
     case "capsule":
@@ -88,4 +116,12 @@ export function certify(a, b, eps = 1e-6) {
   const lower = dot(support(a, scale(d, -1)), d) - dot(support(b, d), d);
   if (r.distance - lower > eps) throw new Error("separation not certified");
   return r;
+}
+
+// Certifies every convex piece pair of two (possibly non-convex) shapes and
+// returns whether any piece pair intersects.
+export function certifyAll(a, b, eps = 1e-6) {
+  let any = false;
+  for (const pa of convexParts(a)) for (const pb of convexParts(b)) if (certify(pa, pb, eps).intersecting) any = true;
+  return any;
 }

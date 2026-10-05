@@ -2,17 +2,21 @@
 // Writes reference replies from simple non-reasoning heuristics, so a model's
 // score can be read against "what a bounding volume test already gets".
 //
-//   node baselines.mjs   ->  results/baseline-{bsphere,aabb,always-no}.responses.jsonl
+//   node baselines.mjs [--dataset v2]  ->  results/<dataset>/baseline-{bsphere,aabb,always-no}.responses.jsonl
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { parseArgs } from "node:util";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { boundingRadius, interiorPoint, norm, normalize, sub, support } from "./lib/geometry.mjs";
-import { PROMPT_VERSION } from "./lib/prompt.mjs";
+import { boundingRadius, bounds, interiorPoint, norm, scale, add, sub } from "./lib/geometry.mjs";
+import { datasetSpec } from "./lib/prompt.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const problems = readFileSync(join(here, "data", "problems.jsonl"), "utf8")
+const { values: opt } = parseArgs({ options: { dataset: { type: "string", default: "v2" } } });
+const PROMPT_VERSION = datasetSpec(opt.dataset).promptVersion;
+const resultsDir = join(here, "results", opt.dataset);
+const problems = readFileSync(join(here, "data", opt.dataset, "problems.jsonl"), "utf8")
   .split("\n")
   .filter(Boolean)
   .map((l) => JSON.parse(l));
@@ -20,21 +24,14 @@ const problems = readFileSync(join(here, "data", "problems.jsonl"), "utf8")
 function sphereOf(s) {
   if (s.type === "torus") return { c: s.center, r: s.major_radius + s.minor_radius };
   if (s.type === "point") return { c: s.position, r: 0 };
+  if (s.type === "compound" || s.type === "frame") {
+    const b = bounds(s);
+    return { c: scale(add(b.min, b.max), 0.5), r: norm(sub(b.max, b.min)) / 2 };
+  }
   return { c: interiorPoint(s), r: boundingRadius(s) / 1.05 };
 }
 
-function boxOf(s) {
-  if (s.type === "torus") {
-    const n = normalize(s.axis);
-    const e = n.map((x) => s.major_radius * Math.sqrt(Math.max(0, 1 - x * x)) + s.minor_radius);
-    return { min: s.center.map((c, k) => c - e[k]), max: s.center.map((c, k) => c + e[k]) };
-  }
-  const axis = (k, sign) => [0, 1, 2].map((i) => (i === k ? sign : 0));
-  return {
-    min: [0, 1, 2].map((k) => support(s, axis(k, -1))[k]),
-    max: [0, 1, 2].map((k) => support(s, axis(k, 1))[k]),
-  };
-}
+const boxOf = bounds;
 
 const heuristics = {
   bsphere: (a, b) => {
@@ -50,7 +47,7 @@ const heuristics = {
   "always-no": () => false,
 };
 
-mkdirSync(join(here, "results"), { recursive: true });
+mkdirSync(resultsDir, { recursive: true });
 for (const [name, test] of Object.entries(heuristics)) {
   const rows = problems.map((p) => {
     let answer;
@@ -67,6 +64,6 @@ for (const [name, test] of Object.entries(heuristics)) {
     }
     return JSON.stringify({ id: p.id, model: `baseline-${name}`, provider: "heuristic", prompt_version: PROMPT_VERSION, response: `ANSWER: ${answer}` });
   });
-  writeFileSync(join(here, "results", `baseline-${name}.responses.jsonl`), rows.join("\n") + "\n");
+  writeFileSync(join(resultsDir, `baseline-${name}.responses.jsonl`), rows.join("\n") + "\n");
 }
-console.log("wrote", Object.keys(heuristics).map((n) => `results/baseline-${n}.responses.jsonl`).join(", "));
+console.log("wrote", Object.keys(heuristics).map((n) => join(resultsDir, `baseline-${n}.responses.jsonl`)).join(", "));

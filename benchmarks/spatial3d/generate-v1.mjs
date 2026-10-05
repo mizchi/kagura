@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Generates the spatial3d dataset.
 //
-//   node benchmarks/spatial3d/generate.mjs [--seed 20261005] [--out benchmarks/spatial3d/data]
+//   node benchmarks/spatial3d/generate-v1.mjs [--seed 20261005] [--out benchmarks/spatial3d/data/v1]
 //
 // The committed data/ is the canonical dataset; regenerating on another
 // machine is expected to reproduce it but the scorer only trusts the files.
@@ -219,7 +219,7 @@ function shuffle(rng, list) {
 
 function main() {
   const here = dirname(fileURLToPath(import.meta.url));
-  const { values } = parseArgs({ options: { seed: { type: "string", default: "20261005" }, out: { type: "string", default: join(here, "data") } } });
+  const { values } = parseArgs({ options: { seed: { type: "string", default: "20261005" }, out: { type: "string", default: join(here, "data", "v1") } } });
   const seed = Number(values.seed);
   const rng = new Rng(seed);
   const pairs = shuffle(rng, generatePairs(rng));

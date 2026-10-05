@@ -7,8 +7,8 @@
 //   node run.mjs --export-prompts prompts.jsonl
 //   node run.mjs --export-batches dir/ [--batch-size 28]   (then import.mjs)
 //
-// Common options: --split lite|full|all (default all), --concurrency 4,
-//   --out results/<label>.responses.jsonl, --limit N.
+// Common options: --dataset v1|v2 (default v2), --split lite|full|all (default all), --concurrency 4,
+//   --out results/<dataset>/<label>.responses.jsonl, --limit N.
 // Output is resumable: ids already present in --out are skipped.
 //
 // Providers:
@@ -26,7 +26,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-import { PROMPT_VERSION, buildBatchPrompt, buildPrompt, parseAnswer } from "./lib/prompt.mjs";
+import { buildBatchPrompt, buildPrompt, datasetSpec, parseAnswer } from "./lib/prompt.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -41,7 +41,7 @@ const { values: opt } = parseArgs({
     split: { type: "string", default: "all" },
     limit: { type: "string" },
     concurrency: { type: "string", default: "4" },
-    data: { type: "string", default: join(here, "data") },
+    dataset: { type: "string", default: "v2" },
     out: { type: "string" },
     "export-prompts": { type: "string" },
     "export-batches": { type: "string" },
@@ -55,13 +55,15 @@ const readJsonl = (p) =>
     .filter(Boolean)
     .map((l) => JSON.parse(l));
 
-const problems = readJsonl(join(opt.data, "problems.jsonl"));
-const splitOf = new Map(readJsonl(join(opt.data, "answers.jsonl")).map((a) => [a.id, a.split]));
+const PROMPT_VERSION = datasetSpec(opt.dataset).promptVersion;
+const dataDir = join(here, "data", opt.dataset);
+const problems = readJsonl(join(dataDir, "problems.jsonl"));
+const splitOf = new Map(readJsonl(join(dataDir, "answers.jsonl")).map((a) => [a.id, a.split]));
 let selected = problems.filter((p) => opt.split === "all" || splitOf.get(p.id) === opt.split);
 if (opt.limit) selected = selected.slice(0, Number(opt.limit));
 
 if (opt["export-prompts"]) {
-  const rows = selected.map((p) => JSON.stringify({ id: p.id, task: p.task, prompt_version: PROMPT_VERSION, prompt: buildPrompt(p) }));
+  const rows = selected.map((p) => JSON.stringify({ id: p.id, task: p.task, prompt_version: PROMPT_VERSION, prompt: buildPrompt(p, opt.dataset) }));
   writeFileSync(opt["export-prompts"], rows.join("\n") + "\n");
   console.log(`wrote ${rows.length} prompts to ${opt["export-prompts"]}`);
   process.exit(0);
@@ -75,7 +77,7 @@ if (opt["export-batches"]) {
     const items = selected.filter((p) => p.task === task);
     const size = task === "scene" ? Math.max(1, Math.round(Number(opt["batch-size"]) / 5)) : Number(opt["batch-size"]);
     for (let i = 0; i < items.length; i += size) {
-      writeFileSync(join(dir, `batch-${String(n++).padStart(2, "0")}-${task}.txt`), buildBatchPrompt(task, items.slice(i, i + size)) + "\n");
+      writeFileSync(join(dir, `batch-${String(n++).padStart(2, "0")}-${task}.txt`), buildBatchPrompt(task, items.slice(i, i + size), opt.dataset) + "\n");
     }
   }
   console.log(`wrote ${n} batch prompts to ${dir}`);
@@ -88,7 +90,7 @@ if (!opt.provider || !opt.model) {
 }
 
 const label = opt.model.replace(/[^A-Za-z0-9._-]+/g, "_");
-const outPath = resolve(opt.out ?? join(here, "results", `${label}.responses.jsonl`));
+const outPath = resolve(opt.out ?? join(here, "results", opt.dataset, `${label}.responses.jsonl`));
 mkdirSync(dirname(outPath), { recursive: true });
 const done = new Set(existsSync(outPath) ? readJsonl(outPath).map((r) => r.id) : []);
 const todo = selected.filter((p) => !done.has(p.id));
@@ -159,7 +161,7 @@ async function worker() {
     const p = todo[next++];
     const started = Date.now();
     try {
-      const r = await call(buildPrompt(p));
+      const r = await call(buildPrompt(p, opt.dataset));
       const row = {
         id: p.id,
         model: opt.model,

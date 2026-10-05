@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // Scores spatial3d replies against the answer key.
 //
-//   node score.mjs results/<model>.responses.jsonl [more.jsonl ...] [--split lite] [--json]
+//   node score.mjs results/v2/<model>.responses.jsonl [more.jsonl ...] [--split lite] [--json] [--dataset v2]
+//
+// The dataset is taken from the rows' prompt_version unless --dataset is
+// given; files from different datasets cannot be scored together.
 //
 // A response row needs {id, response} (raw text) or {id, parsed}. The
 // answer is re-parsed from `response` when present, so rows written by any
@@ -12,12 +15,12 @@ import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-import { parseAnswer } from "./lib/prompt.mjs";
+import { DATASETS, parseAnswer } from "./lib/prompt.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const { values: opt, positionals } = parseArgs({
   allowPositionals: true,
-  options: { split: { type: "string", default: "all" }, json: { type: "boolean", default: false }, data: { type: "string", default: join(here, "data") } },
+  options: { split: { type: "string", default: "all" }, json: { type: "boolean", default: false }, dataset: { type: "string" } },
 });
 
 const readJsonl = (p) =>
@@ -26,7 +29,17 @@ const readJsonl = (p) =>
     .filter(Boolean)
     .map((l) => JSON.parse(l));
 
-const answers = readJsonl(join(opt.data, "answers.jsonl")).filter((a) => opt.split === "all" || a.split === opt.split);
+function datasetOfRows(rows) {
+  const pv = rows.find((r) => r.prompt_version)?.prompt_version ?? "";
+  return Object.entries(DATASETS).find(([, spec]) => pv === spec.promptVersion || pv.startsWith(`${spec.promptVersion}+`))?.[0];
+}
+let answers = null;
+let datasetName = opt.dataset;
+function loadAnswers(name) {
+  if (datasetName && datasetName !== name) throw new Error(`cannot mix datasets ${datasetName} and ${name}`);
+  datasetName = name;
+  answers ??= readJsonl(join(here, "data", name, "answers.jsonl")).filter((a) => opt.split === "all" || a.split === opt.split);
+}
 
 // Wilson score interval, 95%.
 function wilson(k, n) {
@@ -61,7 +74,7 @@ export function score(rows) {
     if (row && parsed === null) unparsed++;
     if (a.task === "pair") {
       const ok = parsed === a.answer;
-      bump(groups.overall, "pair+torus", ok);
+      bump(groups.overall, "pair tasks", ok);
       bump(groups.category, a.category, ok);
       bump(groups.difficulty, `${a.category}/${a.difficulty}`, ok);
       bump(groups.label, `${a.category}/${a.answer ? "intersecting" : "separated"}`, ok);
@@ -96,7 +109,7 @@ const ci = (t) => {
 
 function report(name, meta, s) {
   const out = [];
-  out.push(`## ${name}`);
+  out.push(`## ${name} (dataset ${datasetName}${opt.split === "all" ? "" : `, split ${opt.split}`})`);
   if (meta) out.push(`model: ${meta.model ?? "?"} / provider: ${meta.provider ?? "?"} / prompt: ${meta.prompt_version ?? "?"} / settings: ${JSON.stringify(meta.settings ?? {})}`);
   out.push(`answered ${s.answered}/${s.total}, unparsable ${s.unparsed} (missing and unparsable count as wrong)`);
   out.push("");
@@ -121,6 +134,9 @@ if (positionals.length === 0) {
 }
 const results = positionals.map((p) => {
   const rows = readJsonl(p);
+  const name = opt.dataset ?? datasetOfRows(rows);
+  if (!name) throw new Error(`${p}: no prompt_version; pass --dataset`);
+  loadAnswers(name);
   return { file: p, meta: rows[0], score: score(rows) };
 });
 if (opt.json) {

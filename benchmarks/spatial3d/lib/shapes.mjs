@@ -56,22 +56,27 @@ const roundTo = (x, d) => {
   const r = Number(x.toFixed(d));
   return Object.is(r, -0) ? 0 : r;
 };
-const rv = (v, d = POSITION_DECIMALS) => v.map((x) => roundTo(x, d));
 
 // Round every number the model will see. Ground truth is always computed
 // on the rounded shape, so rounding never changes the answer key.
-export function roundShape(s) {
+// v1 uses the defaults; v2 passes { pos: 3, axis: 4 }.
+export function roundShape(s, { pos = POSITION_DECIMALS, axis = AXIS_DECIMALS } = {}) {
+  const rv = (v, d = pos) => v.map((x) => roundTo(x, d));
   const o = { ...s };
   for (const key of ["position", "center", "min", "max", "a", "b", "apex", "base_center"]) {
     if (o[key]) o[key] = rv(o[key]);
   }
-  for (const key of ["radius", "major_radius", "minor_radius"]) {
-    if (o[key] !== undefined) o[key] = roundTo(o[key], POSITION_DECIMALS);
+  for (const key of ["radius", "major_radius", "minor_radius", "half_thickness"]) {
+    if (o[key] !== undefined) o[key] = roundTo(o[key], pos);
   }
-  if (o.half_extents) o.half_extents = rv(o.half_extents);
+  for (const key of ["half_extents", "outer_half_extents", "inner_half_extents"]) {
+    if (o[key]) o[key] = rv(o[key]);
+  }
   if (o.vertices) o.vertices = o.vertices.map((v) => rv(v));
-  if (o.axes) o.axes = o.axes.map((v) => rv(v, AXIS_DECIMALS));
-  if (o.axis) o.axis = rv(o.axis, AXIS_DECIMALS);
+  if (o.axes) o.axes = o.axes.map((v) => rv(v, axis));
+  if (o.axis) o.axis = rv(o.axis, axis);
+  if (o.rotation) o.rotation = rv(o.rotation, axis);
+  if (o.parts) o.parts = o.parts.map((p) => roundShape(p, { pos, axis }));
   return o;
 }
 
@@ -164,6 +169,69 @@ export function makeShape(type, rng) {
     }
     default:
       throw new Error(`unknown shape type ${type}`);
+  }
+}
+
+// ---------------------------------------------------------------- v2
+
+// Uniform random unit quaternion [w, x, y, z] with w >= 0 (Shoemake).
+export function randomQuat(rng) {
+  const u1 = rng.next();
+  const u2 = rng.next() * 2 * Math.PI;
+  const u3 = rng.next() * 2 * Math.PI;
+  const a = Math.sqrt(1 - u1);
+  const b = Math.sqrt(u1);
+  const q = [b * Math.cos(u3), a * Math.sin(u2), a * Math.cos(u2), b * Math.sin(u3)];
+  return q[0] < 0 ? q.map((c) => -c) : q;
+}
+
+export const V2_CONVEX_TYPES = CONVEX_TYPES;
+
+// v2 shapes: boxes are rotated by quaternion; compound (L/U of boxes) and
+// frame (plate with a rectangular through-hole) are non-convex. The returned
+// `meta.concavity` is a local point inside the notch/hole, used only by the
+// generator to aim objects into it; it is never shown to the model.
+export function makeShapeV2(type, rng, rotateFn) {
+  switch (type) {
+    case "obb":
+      return { shape: { type, center: [0, 0, 0], half_extents: rng.vec(0.3, 1.5), rotation: randomQuat(rng) } };
+    case "compound": {
+      const q = randomQuat(rng);
+      const w = rng.range(0.25, 0.5);
+      const d = rng.range(0.25, 0.7);
+      const l1 = rng.range(1.4, 2.6);
+      const l2 = rng.range(1.2, 2.4);
+      const box = (c, h) => ({ type: "obb", center: rotateFn(q, c), half_extents: h, rotation: q });
+      const parts = [box([l1 / 2, w / 2, 0], [l1 / 2, w / 2, d]), box([w / 2, l2 / 2, 0], [w / 2, l2 / 2, d])];
+      const u = rng.next() < 0.5;
+      if (u) parts.push(box([l1 - w / 2, l2 / 2, 0], [w / 2, l2 / 2, d]));
+      // Centre the shape roughly on the origin.
+      const shift = rotateFn(q, [-l1 / 2, -l2 / 2, 0]);
+      const moved = parts.map((p) => ({ ...p, center: p.center.map((x, k) => x + shift[k]) }));
+      return { shape: { type, parts: moved }, meta: { concavity: rotateFn(q, [l1 / 2, l2 / 2, 0]).map((x, k) => x + shift[k]), kind: u ? "U" : "L", normal: rotateFn(q, [0, 0, 1]) } };
+    }
+    case "frame": {
+      const ix = rng.range(0.35, 1.1);
+      const iy = rng.range(0.35, 1.1);
+      const q = randomQuat(rng);
+      return {
+        shape: {
+          type,
+          center: [0, 0, 0],
+          rotation: q,
+          outer_half_extents: [ix + rng.range(0.2, 0.6), iy + rng.range(0.2, 0.6)],
+          inner_half_extents: [ix, iy],
+          half_thickness: rng.range(0.1, 0.35),
+        },
+        meta: { concavity: [0, 0, 0], normal: rotateFn(q, [0, 0, 1]) },
+      };
+    }
+    case "torus": {
+      const s = makeShape("torus", rng);
+      return { shape: s, meta: { concavity: [0, 0, 0], normal: s.axis } };
+    }
+    default:
+      return { shape: makeShape(type, rng) };
   }
 }
 

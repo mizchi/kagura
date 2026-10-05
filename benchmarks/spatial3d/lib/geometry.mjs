@@ -19,6 +19,72 @@ export const normalize = (a) => {
   return n === 0 ? [0, 0, 0] : scale(a, 1 / n);
 };
 
+// Unit quaternion [w, x, y, z] (Hamilton, normalized here) to the images
+// of the local x, y, z axes, i.e. the columns of the rotation matrix.
+export function quatToAxes(q) {
+  const n = Math.hypot(...q);
+  const [w, x, y, z] = q.map((c) => c / n);
+  return [
+    [1 - 2 * (y * y + z * z), 2 * (x * y + w * z), 2 * (x * z - w * y)],
+    [2 * (x * y - w * z), 1 - 2 * (x * x + z * z), 2 * (y * z + w * x)],
+    [2 * (x * z + w * y), 2 * (y * z - w * x), 1 - 2 * (x * x + y * y)],
+  ];
+}
+
+export function rotate(q, v) {
+  const [ax, ay, az] = quatToAxes(q);
+  return add(add(scale(ax, v[0]), scale(ay, v[1])), scale(az, v[2]));
+}
+
+// v1 boxes carry explicit axes, v2 boxes a quaternion.
+export const obbAxes = (s) => s.axes ?? quatToAxes(s.rotation);
+
+// Convex pieces whose union is the shape. Non-convex v2 shapes (frame,
+// compound) are decomposed here; everything else is its own single piece.
+export function convexParts(shape) {
+  switch (shape.type) {
+    case "compound":
+      return shape.parts.flatMap(convexParts);
+    case "frame": {
+      const [ox, oy] = shape.outer_half_extents;
+      const [ix, iy] = shape.inner_half_extents;
+      const t = shape.half_thickness;
+      const bar = (local, half) => ({ type: "obb", center: add(shape.center, rotate(shape.rotation, local)), half_extents: half, rotation: shape.rotation });
+      return [
+        bar([0, (oy + iy) / 2, 0], [ox, (oy - iy) / 2, t]),
+        bar([0, -(oy + iy) / 2, 0], [ox, (oy - iy) / 2, t]),
+        bar([(ox + ix) / 2, 0, 0], [(ox - ix) / 2, iy, t]),
+        bar([-(ox + ix) / 2, 0, 0], [(ox - ix) / 2, iy, t]),
+      ];
+    }
+    case "torus":
+      throw new Error("torus has no convex decomposition");
+    default:
+      return [shape];
+  }
+}
+
+// World-space axis-aligned bounds.
+export function bounds(shape) {
+  if (shape.type === "torus") {
+    const n = normalize(shape.axis);
+    const e = n.map((x) => shape.major_radius * Math.sqrt(Math.max(0, 1 - x * x)) + shape.minor_radius);
+    return { min: sub(shape.center, e), max: add(shape.center, e) };
+  }
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
+  for (const part of convexParts(shape)) {
+    for (let k = 0; k < 3; k++) {
+      const d = [0, 0, 0];
+      d[k] = 1;
+      max[k] = Math.max(max[k], support(part, d)[k]);
+      d[k] = -1;
+      min[k] = Math.min(min[k], support(part, d)[k]);
+    }
+  }
+  return { min, max };
+}
+
 function maxVertex(vertices, d) {
   let best = vertices[0];
   let bestDot = dot(best, d);
@@ -52,8 +118,9 @@ export function support(shape, d) {
       return [0, 1, 2].map((i) => (d[i] >= 0 ? shape.max[i] : shape.min[i]));
     case "obb": {
       let p = shape.center;
+      const axes = obbAxes(shape);
       for (let i = 0; i < 3; i++) {
-        const axis = shape.axes[i];
+        const axis = axes[i];
         const s = dot(d, axis) >= 0 ? 1 : -1;
         p = add(p, scale(axis, s * shape.half_extents[i]));
       }
@@ -104,6 +171,9 @@ export function interiorPoint(shape) {
     }
     case "cone":
       return add(scale(shape.base_center, 0.75), scale(shape.apex, 0.25));
+    case "compound":
+    case "frame":
+      return interiorPoint(convexParts(shape)[0]);
     default:
       throw new Error(`no interior point for ${shape.type}`);
   }
@@ -129,7 +199,11 @@ export function translate(shape, t) {
     case "sphere":
     case "obb":
     case "torus":
+    case "frame":
       s.center = mv(s.center);
+      break;
+    case "compound":
+      s.parts = s.parts.map((p) => translate(p, t));
       break;
     case "aabb":
       s.min = mv(s.min);
@@ -303,16 +377,11 @@ function convexIntersects(a, b) {
   return r;
 }
 
-// Positive: separation distance. Negative: how far the second shape must be
-// moved (minimum over many directions) until it no longer overlaps.
-// The negative side is an upper bound on penetration depth.
-export function signedClearance(a, b) {
-  if (a.type === "torus") return torusClearance(a, b);
-  if (b.type === "torus") return torusClearance(b, a);
-  const r = convexIntersects(a, b);
-  if (!r.intersecting) return r.distance;
+// How far b must be moved (minimum over many directions) until it no
+// longer overlaps a; an upper bound on penetration depth. Convex only.
+function convexDepth(a, b, nDirs = 96) {
   const reach = boundingRadius(a) + boundingRadius(b) + norm(sub(interiorPoint(a), interiorPoint(b)));
-  const dirs = fibonacciDirections(96);
+  const dirs = fibonacciDirections(nDirs);
   const centre = normalize(sub(interiorPoint(b), interiorPoint(a)));
   if (norm(centre) > 0) dirs.push(centre);
   let best = Infinity;
@@ -327,12 +396,37 @@ export function signedClearance(a, b) {
     }
     best = Math.min(best, hi);
   }
-  return -best;
+  return best;
+}
+
+const isConvex = (s) => s.type !== "torus" && s.type !== "compound" && s.type !== "frame";
+
+// Positive: separation distance (exact). Negative: penetration measure.
+// Convex pairs: convexDepth of the pair. Unions: the deepest convexDepth
+// among the overlapping piece pairs (how deep the deepest contact is; moving
+// that far may still leave another piece touching). Torus: closed form.
+export function signedClearance(a, b) {
+  if (a.type === "torus") return torusClearance(a, b);
+  if (b.type === "torus") return torusClearance(b, a);
+  if (isConvex(a) && isConvex(b)) {
+    const r = convexIntersects(a, b);
+    return r.intersecting ? -convexDepth(a, b) : r.distance;
+  }
+  let minDist = Infinity;
+  let maxDepth = 0;
+  for (const pa of convexParts(a)) {
+    for (const pb of convexParts(b)) {
+      const r = convexIntersects(pa, pb);
+      if (r.intersecting) maxDepth = Math.max(maxDepth, convexDepth(pa, pb));
+      else minDist = Math.min(minDist, r.distance);
+    }
+  }
+  return maxDepth > 0 ? -maxDepth : minDist;
 }
 
 export function intersects(a, b) {
   if (a.type === "torus" || b.type === "torus") return signedClearance(a, b) < 0;
-  return convexIntersects(a, b).intersecting;
+  return convexParts(a).some((pa) => convexParts(b).some((pb) => convexIntersects(pa, pb).intersecting));
 }
 
 export function characteristicSize(shape) {
@@ -343,6 +437,9 @@ export function characteristicSize(shape) {
       return shape.minor_radius;
     case "segment":
       return norm(sub(shape.a, shape.b)) / 2;
+    case "compound":
+    case "frame":
+      return Math.min(...convexParts(shape).map(characteristicSize));
     default:
       return boundingRadius(shape);
   }

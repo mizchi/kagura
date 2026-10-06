@@ -39,7 +39,9 @@ for (const file of positionals) {
       if (c.type === "text") texts.push(c.text);
       if (c.type === "tool_use") {
         tools.push(c.name);
-        if (c.name === "SubagentHandback") texts.push(JSON.stringify(c.input).replace(/\\n/g, "\n"));
+        // The hand-back's report is a string field; take string values as-is
+        // so an answer on its first line is not glued to JSON syntax.
+        if (c.name === "SubagentHandback") texts.push(...Object.values(c.input ?? {}).filter((v) => typeof v === "string"));
       }
     }
   }

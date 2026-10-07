@@ -1,0 +1,46 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+The distance between two shapes is the smallest Euclidean distance between a point of one and a point of the other. It is 0 when they intersect (share at least one point).
+
+For EACH problem below, compute the distance between objects A and B. Problems are independent. An answer counts as correct when it is within 0.001 of the exact distance, so give at least 4 decimal places.
+
+### compound-021
+{"id":"A","type":"aabb","min":[-0.158,-2.634,1.338],"max":[1.646,-0.772,3.981]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-0.566,0.218,-0.274],"half_extents":[0.823,0.175,0.357],"rotation":[0.3114,0.3337,0.5704,0.6829]},{"type":"obb","center":[-0.233,-0.459,0.643],"half_extents":[0.175,1.171,0.357],"rotation":[0.3114,0.3337,0.5704,0.6829]}]}
+
+### compound-022
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.182,-0.586,-0.214],"half_extents":[0.901,0.234,0.526],"rotation":[0.5185,0.8221,-0.2194,-0.0853]},{"type":"obb","center":[-0.542,-0.461,0.153],"half_extents":[0.234,0.712,0.526],"rotation":[0.5185,0.8221,-0.2194,-0.0853]},{"type":"obb","center":[0.645,-1.061,0.269],"half_extents":[0.234,0.712,0.526],"rotation":[0.5185,0.8221,-0.2194,-0.0853]}]}
+{"id":"B","type":"obb","center":[0.893,1.384,-0.251],"half_extents":[0.754,1.35,1.364],"rotation":[0.0452,0.8985,-0.197,-0.3897]}
+
+### compound-023
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[1.071,0.503,0.377],"half_extents":[0.924,0.22,0.698],"rotation":[0.4348,-0.64,0.396,0.4945]},{"type":"obb","center":[0.042,0.264,0.909],"half_extents":[0.22,1.17,0.698],"rotation":[0.4348,-0.64,0.396,0.4945]},{"type":"obb","center":[0.32,0.156,-0.467],"half_extents":[0.22,1.17,0.698],"rotation":[0.4348,-0.64,0.396,0.4945]}]}
+{"id":"B","type":"aabb","min":[1.993,0.643,-2.485],"max":[2.956,2.298,-1.543]}
+
+### compound-024
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.268,0.406,0.033],"half_extents":[0.866,0.138,0.376],"rotation":[0.8966,0.3818,0.0919,-0.2045]},{"type":"obb","center":[-0.07,1.076,0.737],"half_extents":[0.138,0.864,0.376],"rotation":[0.8966,0.3818,0.0919,-0.2045]},{"type":"obb","center":[1.24,0.643,0.269],"half_extents":[0.138,0.864,0.376],"rotation":[0.8966,0.3818,0.0919,-0.2045]}]}
+{"id":"B","type":"cone","apex":[0.993,2.274,0.256],"base_center":[-0.701,2.03,0.202],"radius":1.16}
+
+### compound-025
+{"id":"A","type":"triangle","vertices":[[0.86,-2.14,1.41],[0.619,-3.438,1.731],[-0.199,-2.205,1.25]]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[0.555,-1.217,0.137],"half_extents":[1.142,0.186,0.34],"rotation":[0.929,-0.2815,0.1254,-0.2051]},{"type":"obb","center":[-0.101,-0.324,-0.101],"half_extents":[0.186,0.795,0.34],"rotation":[0.929,-0.2815,0.1254,-0.2051]},{"type":"obb","center":[1.589,-1.187,-0.326],"half_extents":[0.186,0.795,0.34],"rotation":[0.929,-0.2815,0.1254,-0.2051]}]}
+
+### compound-026
+{"id":"A","type":"capsule","a":[0.391,0.761,0],"b":[-0.057,1.639,-2.555],"radius":0.281}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[1.26,0.08,-0.586],"half_extents":[0.809,0.212,0.28],"rotation":[0.5394,0.7359,-0.3664,-0.1823]},{"type":"obb","center":[0.546,0.381,0.198],"half_extents":[0.212,1.139,0.28],"rotation":[0.5394,0.7359,-0.3664,-0.1823]}]}
+
+End your reply with one line per problem, in order: `<id>: <distance>`.

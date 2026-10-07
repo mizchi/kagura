@@ -1,0 +1,46 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+The distance between two shapes is the smallest Euclidean distance between a point of one and a point of the other. It is 0 when they intersect (share at least one point).
+
+For EACH problem below, compute the distance between objects A and B. Problems are independent. An answer counts as correct when it is within 0.001 of the exact distance, so give at least 4 decimal places.
+
+### pair-103
+{"id":"A","type":"cone","apex":[0.199,0.081,-2.095],"base_center":[-1.187,0.122,-1.249],"radius":0.739}
+{"id":"B","type":"cylinder","a":[-0.331,-0.852,0.662],"b":[0.229,0.308,-0.544],"radius":0.932}
+
+### pair-104
+{"id":"A","type":"aabb","min":[-1.796,0.927,-0.141],"max":[0.424,2.537,2.741]}
+{"id":"B","type":"point","position":[-0.628,0.783,0.237]}
+
+### pair-105
+{"id":"A","type":"cone","apex":[-0.615,1.945,0.771],"base_center":[-0.778,0.51,0.317],"radius":0.769}
+{"id":"B","type":"triangle","vertices":[[0.326,1.228,0.681],[-0.708,2.452,1.679],[-2.246,-0.356,1.485]]}
+
+### pair-106
+{"id":"A","type":"point","position":[-0.666,-0.965,0.391]}
+{"id":"B","type":"aabb","min":[-1.634,-3.22,-0.046],"max":[0.413,-1.286,0.635]}
+
+### pair-107
+{"id":"A","type":"obb","center":[0.087,0.212,-0.81],"half_extents":[0.808,0.942,0.529],"rotation":[0.1041,-0.9616,0.1796,0.1795]}
+{"id":"B","type":"tetrahedron","vertices":[[-1.829,-0.881,-3.09],[-2.096,0.412,-1.718],[-0.745,0.954,-1.271],[-0.301,1.38,-3.907]]}
+
+### pair-108
+{"id":"A","type":"cone","apex":[-0.067,-0.789,-1.923],"base_center":[-0.753,-1.005,0.004],"radius":0.589}
+{"id":"B","type":"cone","apex":[1.163,0.546,-0.629],"base_center":[0.267,0.283,-2.448],"radius":0.56}
+
+End your reply with one line per problem, in order: `<id>: <distance>`.

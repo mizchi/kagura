@@ -19,7 +19,7 @@ if (!opt.out || positionals.length === 0) {
   process.exit(2);
 }
 mkdirSync(opt.out, { recursive: true });
-const ANSWER = /^\s*\**`?((?:pair|compound|frame|torus|scene|dist)-\d{3})`?\**\s*:\s*`?([^`\n]+?)`?\s*$/gm;
+const ANSWER = /^\s*\**`?((?:pair|compound|frame|torus|scene|dist|track|solve)-\d{3})`?\**\s*:\s*`?([^`\n]+?)`?\s*$/gm;
 let bad = 0;
 for (const file of positionals) {
   const texts = [];

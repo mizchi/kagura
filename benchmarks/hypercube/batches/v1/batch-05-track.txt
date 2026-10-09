@@ -1,0 +1,77 @@
+# Hypercube benchmark (hypercube-prompt-v1)
+
+## The puzzle
+
+An n-dimensional 3x3x...x3 twisty puzzle. n = 3 is the ordinary Rubik's cube;
+n = 4 is the 3^4 hypercube (as in Magic Cube 4D); n = 5 goes one step further.
+Axes are named x, y, z, w, v; an n-dimensional problem uses the first n.
+
+- Pieces sit at integer positions p in {-1,0,1}^n, written (x,y,z,...).
+- A piece has one sticker for each nonzero coordinate: if p_a = +1 it has a
+  sticker facing +a, if p_a = -1 one facing -a. A sticker's location is
+  (position, facing).
+- Colours are named after directions (+x, -w, ...). On the solved puzzle every
+  sticker's colour equals the direction it faces.
+
+## Moves
+
+A move is written S:i>j, where S is a signed axis (for example +w) and i, j
+are two different axes, both different from S's axis.
+
+- It acts on the layer of pieces whose S-axis coordinate equals the sign of S
+  (+w:... acts on every piece with w = +1).
+- Those pieces rotate 90 degrees in the i-j plane so that the +i direction
+  turns into +j: new_j = old_i, new_i = -old_j, all other coordinates unchanged.
+- Each sticker's facing turns the same way: +i -> +j, +j -> -i, -i -> -j,
+  -j -> +i; facings along other axes are unchanged.
+- S:j>i is the inverse of S:i>j. Pieces outside the layer do not move.
+
+Example (n = 3): +z:x>y moves the piece at (1,0,1) to (0,1,1); its sticker
+facing +x now faces +y, and its sticker facing +z still faces +z.
+
+## Problems
+
+### track-040
+n = 4. Moves, applied in order: -y:w>z
+Start: the sticker at (-1,-1,-1,-1) facing -z.
+Question: after all moves, at which position and facing is that sticker?
+
+### track-041
+n = 5. Moves, applied in order: -v:x>w, +w:x>z, -x:y>w
+Start: the sticker at (1,0,1,1,-1) facing +w.
+Question: after all moves, at which position and facing is that sticker?
+
+### track-042
+n = 3. Moves, applied in order: -z:y>x, +x:y>z, +y:z>x
+Start: the sticker at (-1,0,-1) facing -x.
+Question: after all moves, at which position and facing is that sticker?
+
+### track-043
+n = 5. Moves, applied in order: -x:v>y
+Start: the sticker at (-1,0,1,-1,1) facing -x.
+Question: after all moves, at which position and facing is that sticker?
+
+### track-044
+n = 4. Moves, applied in order: +w:y>x, -y:z>x, +w:x>z
+Start: the sticker at (1,0,0,1) facing +x.
+Question: after all moves, at which position and facing is that sticker?
+
+### track-045
+n = 5. Moves, applied in order: +w:v>z, -y:z>x, +x:y>w, -y:z>w, -z:w>v, +w:x>v, -z:v>x, -x:v>y, +z:v>x, -v:y>w
+Start: the sticker at (0,-1,1,1,-1) facing -v.
+Question: after all moves, at which position and facing is that sticker?
+
+### track-046
+n = 5. Moves, applied in order: +y:w>v, -w:v>z, -y:w>x, -w:v>z, +v:x>y, -x:v>w, +w:v>x, +v:z>y, +x:y>v, +w:v>z
+Start: the sticker at (0,1,-1,-1,1) facing +v.
+Question: after all moves, at which position and facing is that sticker?
+
+### track-047
+n = 5. Moves, applied in order: +y:v>x, +z:w>x, -v:x>w
+Start: the sticker at (0,1,1,-1,1) facing +v.
+Question: after all moves, at which position and facing is that sticker?
+
+## Answer format
+
+Work everything out yourself. End your reply with exactly one line per problem, in order:
+<id>: (<coordinates>) <facing>        e.g.  track-000: (1,0,-1,1) +z

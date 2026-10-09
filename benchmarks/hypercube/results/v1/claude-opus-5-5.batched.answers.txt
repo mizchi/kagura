@@ -1,0 +1,72 @@
+track-000: (0,1,0,0,1) +y
+track-001: (1,1,-1,1,1) +v
+track-002: (-1,1,-1) +y
+track-003: (1,1,-1) +x
+track-004: (1,1,-1,-1) -z
+track-005: (1,-1,-1,-1) -z
+track-006: (1,1,1,-1) +z
+track-007: (-1,0,0) -x
+track-008: (0,-1,-1) -z
+track-009: (-1,-1,-1) -y
+track-010: (1,-1,1) -y
+track-011: (0,1,-1,1) +y
+track-012: (-1,1,0,1) +y
+track-013: (0,-1,-1) -z
+track-014: (1,0,1,-1) +x
+track-015: (1,0,-1,1) +x
+track-016: (-1,1,-1) +y
+track-017: (-1,1,-1) +y
+track-018: (1,-1,1,1) +z
+track-019: (1,0,-1,-1,-1) -v
+track-020: (-1,1,-1,-1) -z
+track-021: (1,1,1,0,0) +y
+track-022: (0,-1,1,1,-1) -y
+track-023: (0,1,0,0,1) +v
+track-024: (-1,0,-1) -x
+track-025: (-1,0,-1,0,1) -x
+track-026: (1,-1,0) -y
+track-027: (-1,-1,0) -x
+track-028: (1,-1,0) -y
+track-029: (1,-1,-1,0) +x
+track-030: (0,1,1,-1,-1) -w
+track-031: (1,-1,1,-1) -w
+track-032: (1,1,0) +y
+track-033: (0,1,1,-1,0) -w
+track-034: (1,0,1) +z
+track-035: (0,1,-1,-1) -z
+track-036: (1,-1,0,0,0) -y
+track-037: (1,0,0,1) +w
+track-038: (-1,0,0,1,0) +w
+track-039: (-1,-1,0,-1) -x
+track-040: (-1,-1,-1,1) +w
+track-041: (-1,-1,-1,0,-1) -z
+track-042: (-1,1,0) +y
+track-043: (-1,1,1,-1,0) -x
+track-044: (0,-1,0,1) -y
+track-045: (-1,0,-1,1,1) -x
+track-046: (1,-1,1,1,0) +x
+track-047: (-1,1,1,-1,0) -w
+solve-000: +v:w>x
+solve-001: +z:y>x, -z:y>x
+solve-002: -z:x>y
+solve-003: +y:w>z, -x:z>y
+solve-004: +y:v>x
+solve-005: -z:y>x
+solve-006: +w:y>z, +x:z>y, -w:x>y
+solve-007: -x:y>z
+solve-008: -y:x>z
+solve-009: +z:x>y, +x:y>z, -y:x>z
+solve-010: -w:y>z
+solve-011: -y:x>z, +y:z>x
+solve-012: -w:v>x, +x:z>v
+solve-013: -y:x>z, +x:z>y, -y:z>x
+solve-014: +z:x>y, +y:x>z
+solve-015: -x:w>z, +x:z>y
+solve-016: +w:x>y, +y:z>x, -y:w>x
+solve-017: +v:y>x, +z:y>v
+solve-018: +w:z>x
+solve-019: +x:z>y, -z:x>w
+solve-020: +z:x>y, -x:y>z, -z:x>y
+solve-021: +y:x>z, +x:z>w
+solve-022: -w:y>x
+solve-023: +z:y>x, -y:x>w, +z:w>y

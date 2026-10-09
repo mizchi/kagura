@@ -441,6 +441,14 @@ spatial3d-test:
 spatial3d-score files="benchmarks/spatial3d/results/v2/*.responses.jsonl":
     node benchmarks/spatial3d/score.mjs {{files}}
 
+# LLM n 次元ルービックキューブベンチ（benchmarks/hypercube）。ルールと正解データの検証
+hypercube-test:
+    node --test benchmarks/hypercube/*.test.mjs
+
+# 回答ファイルを採点する
+hypercube-score files="benchmarks/hypercube/results/v1/*.answers.txt":
+    node benchmarks/hypercube/score.mjs {{files}}
+
 bench-gate extra="":
     node scripts/bench-gate.mjs {{target}} {{extra}}
 

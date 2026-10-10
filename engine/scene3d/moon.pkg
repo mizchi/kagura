@@ -11,8 +11,16 @@ import {
   "mizchi/kagura_engine/draw3d",
   "mizchi/anim3d/skeleton3d",
   "mizchi/anim3d/animation3d",
+  "mizchi/kagura_core/collision3d/convex",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/double",
+  "moonbitlang/core/json",
 }
 
 options(
-  targets: { "inspection_release_wbtest.mbt": [ "release" ] },
+  targets: {
+    "inspection_release_wbtest.mbt": [ "release" ],
+    "snapshot_publish_js.mbt": [ "js" ],
+    "snapshot_publish_native.mbt": [ "not", "js" ],
+  },
 )

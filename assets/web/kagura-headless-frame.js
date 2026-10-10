@@ -200,6 +200,7 @@ export async function renderHeadlessFrame(bundlePath, options = {}) {
   globalThis.__kaguraHeadlessFrame = undefined;
   globalThis.__kaguraHeadlessError = undefined;
   globalThis.__kaguraUISnapshot = undefined;
+  globalThis.__kaguraScene3DSnapshot = undefined;
   // Source images the runtime hooks mirror out while the game loads its
   // assets. Cleared per render so one example's atlas cannot leak into the
   // next one's frame in a matrix run.
@@ -231,6 +232,8 @@ export async function renderHeadlessFrame(bundlePath, options = {}) {
   }
   if ((frame.initial_state ?? null) !== (options.initialState ?? null)) throw Error('Requested initial state was not applied');
   const snapshot = globalThis.__kaguraUISnapshot;
+  // Published by @scene3d.publish_scene3d_snapshot_lazy; reading builds it.
+  const scene3d = globalThis.__kaguraScene3DSnapshot;
   const textureCount = globalThis.__kaguraSourceImages?.length ?? 0;
   return {
     textureCount,
@@ -246,5 +249,6 @@ export async function renderHeadlessFrame(bundlePath, options = {}) {
     drawCommands: frame.draw_commands ?? 0,
     uiSnapshotJson: snapshot?.json ?? null,
     uiSnapshot: snapshot?.parsed ?? null,
+    scene3dSnapshotJson: scene3d?.json ?? null,
   };
 }

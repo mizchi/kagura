@@ -191,6 +191,7 @@ export function artifactPaths(outDir, exampleName, stateName) {
     png: join(outDir, `${stem}.png`),
     snapshot: join(outDir, `${stem}.snapshot.json`),
     elements: join(outDir, `${stem}.elements.json`),
+    scene3d: join(outDir, `${stem}.scene3d.json`),
     meta: join(outDir, `${stem}.frame.json`),
   };
 }

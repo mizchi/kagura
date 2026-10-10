@@ -185,6 +185,7 @@ shard の imbalance は実測 29%（native 7m41s 対 4m46s、js 3m34s 対 2m12s�
 just render ui_demo "--frames 3"           # フレームを直接描く（browser も GPU も不要）
 just capture pbr_demo output/capture "--backend gpu"  # native wgpu で 3D フレームを書く
 just ui-check output/ui-snapshot.json      # 文字あふれ/クリップ/画面外/重なり/hit box ずれ
+just scene3d-check output/frames/arena3d/arena3d.scene3d.json  # 3D: NaN/非単位回転/scale 0/視野外/subject 同士の重なり
 just ui-check output/ui-snapshot.json "--image frame.png"  # 上記 + WCAG コントラスト
 just ui-i18n-stress output/ui-snapshot.json  # DE 風に文字列膨張 → overflow / missing glyph
 just ui-elements output/ui-snapshot.json   # vlmkit diff png --elements-json 用に変換
@@ -199,6 +200,14 @@ just vlm-ui-daemon-start ui_demo
 ```
 
 手順とルールの詳細は `docs/tools/ui-verification-runbook.md`。
+
+**3D はピクセルより scene3d snapshot を読む。** `SceneRoot` を使う example は
+`@scene3d.publish_scene3d_snapshot_lazy` で公開し、`just render` が
+`<example>.scene3d.json`（ワールド座標の位置・回転・向き付きの箱、カメラ）を書く。
+CPU ラスタライザは 3D を描かないので、3D の配置はこれで確かめる。
+`kagura scene3d check|distance|overlaps|raycast <file>` が判定と問い合わせで、
+同じ処理は `Scene3DSnapshot::check` / `distance` / `raycast` としてゲームのテストからも呼べる。
+形式と規則は `docs/architecture/coordinates.md`。
 
 ### フレームを直接レンダリングする
 

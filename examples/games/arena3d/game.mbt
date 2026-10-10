@@ -486,6 +486,11 @@ fn GameState::draw(
     error => abort(error.to_string())
   }
   let graph = self.scene_root.graph()
+  // Built only when tooling reads it (`just render` writes it as
+  // <example>.scene3d.json); `kagura scene3d check` reads that file.
+  let scene_root = self.scene_root
+  let camera = scene.camera
+  @scene3d.publish_scene3d_snapshot_lazy(fn() { scene_root.snapshot(camera~) })
   let commands = @renderer3d.render_scene3d_graph_to_dst(
     graph,
     scene.camera,

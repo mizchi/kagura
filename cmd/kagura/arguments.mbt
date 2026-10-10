@@ -9,6 +9,7 @@ pub enum Command {
   NewWeb(String)
   Capture(BrowserOptions)
   Profile(BrowserOptions)
+  Scene3D(Scene3DOptions)
 } derive(Eq, Debug)
 
 ///|
@@ -18,7 +19,8 @@ fn known_command(name : String) -> Bool {
   name == "studio" ||
   name == "new" ||
   name == "capture" ||
-  name == "profile"
+  name == "profile" ||
+  name == "scene3d"
 }
 
 ///|
@@ -58,6 +60,9 @@ pub fn parse_args(args : Array[String]) -> Result[Command, String] {
   }
   if command == "capture" || command == "profile" {
     return parse_browser_args(args)
+  }
+  if command == "scene3d" {
+    return parse_scene3d_args(args)
   }
   let mut project : String? = None
   let mut port : Int? = None
@@ -190,6 +195,7 @@ pub fn parse_cli(args : Array[String]) -> String {
       { "ok": true, "command": "new", "directory": directory.to_json() }
     Ok(Capture(options)) => browser_request("capture", options)
     Ok(Profile(options)) => browser_request("profile", options)
+    Ok(Scene3D(options)) => scene3d_request(options)
   }
   reply.stringify()
 }
@@ -206,7 +212,11 @@ pub fn help_text() -> String {
     #|  kagura studio [--port 5190] [--host 127.0.0.1]
     #|  kagura capture [url] [--output game.png] [--width 1600] [--height 900] [--headed]
     #|  kagura profile [url] [--out-dir directory] [--samples 240] [--profile-ms 4000]
-    #|  kagura help [new|dev|build|studio|capture|profile]
+    #|  kagura scene3d check <snapshot.json> [--allow kind[@path]]... [--json]
+    #|  kagura scene3d distance <snapshot.json> <path-a> <path-b> [--json]
+    #|  kagura scene3d overlaps <snapshot.json> [--json]
+    #|  kagura scene3d raycast <snapshot.json> --from x,y,z --direction x,y,z [--json]
+    #|  kagura help [new|dev|build|studio|capture|profile|scene3d]
     #|
     #|project: example name or MoonBit project directory; defaults to the current project.
     #|new --web: generate a Web game in an empty directory (default: current directory).
@@ -218,6 +228,12 @@ pub fn help_text() -> String {
     #|capture: save only the rendered game surface, including its HUD. Default output: output/game.png.
     #|profile: save summary.json, samples.json and profile.cpuprofile; frame timings precede CPU sampling.
     #|         --width/--height default to 1280/900; --warmup-ms defaults to 1000 (0 allowed).
+    #|scene3d: read a 3D scene snapshot (just render writes <example>.scene3d.json) as data.
+    #|         check: NaN, non-unit rotations, zero scale, meshes outside the view, overlapping
+    #|         subjects; exits 1 unless every finding is allowed (kinds: non_finite,
+    #|         unnormalized_rotation, zero_scale, outside_view, overlap). distance: gap between
+    #|         two nodes, each with every mesh below it. overlaps: intersecting mesh pairs.
+    #|         raycast: meshes hit along a ray, nearest first.
     #|Browser tools accept --url (default http://localhost:8080/), --timeout 30000 and --headed.
     #|Install browser tools in the calling project: pnpm add -D @playwright/test; pnpm exec playwright install chromium.
     #|PORT supplies the server port when --port is omitted. Ctrl+C stops the server and watchers.

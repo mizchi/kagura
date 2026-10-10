@@ -14,13 +14,13 @@ cli-build:
     node cmd/kagura/build.mjs
 
 cli-check:
-    moon check cmd/kagura cmd/diagnostics --target js --deny-warn
-    moon check cmd/kagura cmd/diagnostics --target native --deny-warn
+    moon check cmd/kagura cmd/diagnostics cmd/inspect3d --target js --deny-warn
+    moon check cmd/kagura cmd/diagnostics cmd/inspect3d --target native --deny-warn
     node cmd/kagura/build.mjs --check
 
 cli-test: cli-build
-    moon test cmd/kagura cmd/diagnostics --target js
-    node --test scripts/kagura-cli.test.mjs scripts/kagura-scaffold.test.mjs scripts/kagura-diagnostics.test.mjs scripts/profile-web.test.mjs scripts/web-demo-package.test.mjs
+    moon test cmd/kagura cmd/diagnostics cmd/inspect3d --target js
+    node --test scripts/kagura-cli.test.mjs scripts/kagura-scaffold.test.mjs scripts/kagura-scene3d.test.mjs scripts/kagura-diagnostics.test.mjs scripts/profile-web.test.mjs scripts/web-demo-package.test.mjs
 
 cli-install: cli-build
     moon install ./cmd/kagura
@@ -483,6 +483,11 @@ e2e-vrt-update:
 #   just ui-check output/ui-snapshot.json "--image output/frames/ui_demo/ui_demo.png"
 ui-check snapshot extra="":
     node scripts/ui-integrity-gate.mjs {{snapshot}} {{extra}}
+
+# 3D scene snapshot gate (`just render <example>` writes <example>.scene3d.json):
+#   just scene3d-check output/frames/arena3d/arena3d.scene3d.json "--allow outside_view@arena/physics"
+scene3d-check snapshot extra="":
+    node cmd/kagura/main.mjs scene3d check {{snapshot}} {{extra}}
 
 # Expand snapshot strings (vlmkit stress i18n for canvas UI) and re-run integrity.
 # Default profile is German-style +35% word inflation. Pass

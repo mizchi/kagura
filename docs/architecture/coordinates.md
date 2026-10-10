@@ -77,6 +77,40 @@ let d = @convex.distance(
   （上界と下界が一致すること）。`benchmarks/spatial3d/convex_check` は spatial3d ベンチの
   証明付き正解と照合する（v3 の距離 232 問、v2 の交差判定 276 問）
 
+## 3D シーンの snapshot（`kagura.scene3d-snapshot`）
+
+`SceneRoot::snapshot(camera~)` は、最後に描いたシーンをワールド座標のデータにする。
+画像ではなくこれを読めば、親子の変換を自分で合成せずに配置を確かめられる。
+
+- ノードごとに `path`、`kind`（`mesh` / `group`）、`subject`、ワールドの `position` /
+  `rotation`（`[x, y, z, w]`）/ `scale`、メッシュなら `box`（ローカルの境界を
+  ワールドへ移した向き付きの箱。`center` / `half_extents` / `rotation`）。数値は小数 5 桁
+- 親の回転の下に不均一な scale があるとワールド行列が歪むので、`rotation` / `scale` は
+  近似になる。スキニングするメッシュの `box` はバインドポーズの境界
+- `just render <example>` が `<example>.scene3d.json` を書く（example が
+  `@scene3d.publish_scene3d_snapshot_lazy` で公開している場合。今は arena3d）
+
+```bash
+kagura scene3d check <file> [--allow kind[@path]]...       # 決定的な検査。残れば exit 1
+kagura scene3d distance <file> world/player world/enemy     # 2 ノード間の最短距離（下のメッシュ全部を含む）
+kagura scene3d overlaps <file>                              # 交わるメッシュの組
+kagura scene3d raycast <file> --from 0,10,0 --direction 0,-1,0  # 当たるメッシュを近い順に
+```
+
+`check` が見るのは次の 5 種類。重なりは `subject` を持つノード（ゲームの物体）どうしだけを見る。
+床と壁のような背景どうしの重なりは普通なので数えない。
+
+| kind | 条件 |
+|---|---|
+| `non_finite` | 変換か箱に NaN / 無限大がある |
+| `unnormalized_rotation` | 回転の長さが 1 から 1e-3 以上ずれている |
+| `zero_scale` | scale の成分が 1e-6 未満 |
+| `outside_view` | メッシュの箱全体がカメラの視錐台の外（同じ面の外側に 8 頂点すべてがある） |
+| `overlap` | 異なる subject を持つメッシュの箱が交わる（祖先と子孫の組は除く） |
+
+意図した例外は `--allow kind` か `--allow kind@path`（path 以下を含む）で外す。
+**何にも当たらなかった allow も失敗にする**。古い除外が残ると、本物の不具合を黙って隠すため。
+
 ## 規約を足すとき
 
 数値例を 1 つ決め、`conventions_wbtest.mbt` にテストを足してから、この表と

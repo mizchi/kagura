@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/kagura_engine/scene3d",
+}
+
+options(
+  link: {
+    "js": { "format": "esm", "exports": [ "analyze_scene3d:analyzeScene3d" ] },
+  },
+)

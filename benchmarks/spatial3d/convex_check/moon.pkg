@@ -1,0 +1,6 @@
+import {
+  "mizchi/geom/math3d",
+  "mizchi/kagura_core/collision3d/convex",
+}
+
+warnings = "-6-29-53-68"

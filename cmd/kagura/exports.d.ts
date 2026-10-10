@@ -22,4 +22,7 @@ export type ParseReply =
   | {ok: true; command: 'dev'; project: string | null; port: number | null; host: string}
   | {ok: true; command: 'build'; project: string | null; outDir: string | null}
   | {ok: true; command: 'studio'; port: number | null; host: string}
-  | ({ok: true; command: 'capture' | 'profile'} & BrowserOptions);
+  | ({ok: true; command: 'capture' | 'profile'} & BrowserOptions)
+  | {ok: true; command: 'scene3d'; operation: 'check' | 'distance' | 'overlaps' | 'raycast';
+     snapshot: string; paths: string[]; from: [number, number, number] | null;
+     direction: [number, number, number] | null; allow: string[]; json: boolean};

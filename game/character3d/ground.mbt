@@ -6,10 +6,13 @@ pub fn sphere_ground_contact(
   bodies : Array[@physics3d.RigidBody],
   config : MotorConfig,
 ) -> GroundContact? {
-  guard body.collider is SphereShape(offset, radius) else { return None }
+  guard body.collider is SphereShape(offset~, radius~) else { return None }
   let probe = {
     ..body,
-    collider: @physics3d.SphereShape(offset, radius + config.probe_distance),
+    collider: @physics3d.SphereShape(
+      offset~,
+      radius=radius + config.probe_distance,
+    ),
   }
   let bounds = probe.world_aabb()
   let mut best : GroundContact? = None

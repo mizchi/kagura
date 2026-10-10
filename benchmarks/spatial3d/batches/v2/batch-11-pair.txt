@@ -1,0 +1,94 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.
+
+For EACH problem below, decide whether objects A and B intersect. Problems are independent.
+
+### compound-019
+{"id":"A","type":"aabb","min":[-1.381,-3.327,-0.33],"max":[0.305,-1.121,0.403]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[0.307,-0.854,0.153],"half_extents":[0.824,0.159,0.252],"rotation":[0.0262,-0.2036,-0.9534,0.2212]},{"type":"obb","center":[1.301,-0.282,-0.262],"half_extents":[0.159,1.181,0.252],"rotation":[0.0262,-0.2036,-0.9534,0.2212]}]}
+
+### compound-020
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.762,-0.211,1.34],"half_extents":[1.113,0.232,0.287],"rotation":[0.3409,-0.0863,0.7687,-0.5343]},{"type":"obb","center":[-0.007,0.39,1.374],"half_extents":[0.232,0.626,0.287],"rotation":[0.3409,-0.0863,0.7687,-0.5343]}]}
+{"id":"B","type":"capsule","a":[-0.288,-0.264,0.611],"b":[-0.835,-0.515,0.637],"radius":0.232}
+
+### compound-021
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-1.042,-0.246,0.19],"half_extents":[0.994,0.15,0.425],"rotation":[0.6634,-0.4985,-0.4884,-0.2699]},{"type":"obb","center":[-0.695,-0.073,-0.897],"half_extents":[0.15,0.938,0.425],"rotation":[0.6634,-0.4985,-0.4884,-0.2699]}]}
+{"id":"B","type":"aabb","min":[-3.246,0.195,-0.003],"max":[-1.102,1.337,2.45]}
+
+### compound-022
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.189,0.296,0.745],"half_extents":[1.232,0.14,0.428],"rotation":[0.0541,0.69,0.7021,-0.1673]},{"type":"obb","center":[0.828,-0.747,0.984],"half_extents":[0.14,0.742,0.428],"rotation":[0.0541,0.69,0.7021,-0.1673]}]}
+{"id":"B","type":"sphere","center":[0.582,2.932,0.868],"radius":1.388}
+
+### compound-023
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.351,-1.718,-0.401],"half_extents":[0.719,0.235,0.449],"rotation":[0.973,-0.165,0.1446,0.0716]},{"type":"obb","center":[-0.966,-0.985,-0.503],"half_extents":[0.235,1.066,0.449],"rotation":[0.973,-0.165,0.1446,0.0716]}]}
+{"id":"B","type":"obb","center":[-0.727,0.961,-1.424],"half_extents":[0.398,0.855,1.442],"rotation":[0.0763,-0.3893,-0.9166,0.0507]}
+
+### compound-024
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-1.719,-1.366,0.323],"half_extents":[1.294,0.16,0.469],"rotation":[0.7554,-0.1528,-0.3895,-0.5043]},{"type":"obb","center":[-1.08,-0.207,-0.362],"half_extents":[0.16,1.127,0.469],"rotation":[0.7554,-0.1528,-0.3895,-0.5043]}]}
+{"id":"B","type":"triangle","vertices":[[-1.967,-0.409,-0.024],[-0.222,0.055,2.196],[-0.986,1.93,1.44]]}
+
+### compound-025
+{"id":"A","type":"cylinder","a":[2.266,-1.668,-1.275],"b":[2.932,-1.373,0.009],"radius":0.636}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[1.352,-0.739,-0.332],"half_extents":[1.003,0.217,0.64],"rotation":[0.0321,0.7899,-0.5506,0.268]},{"type":"obb","center":[0.754,-0.246,-0.802],"half_extents":[0.217,0.67,0.64],"rotation":[0.0321,0.7899,-0.5506,0.268]},{"type":"obb","center":[1.147,-1.585,-0.082],"half_extents":[0.217,0.67,0.64],"rotation":[0.0321,0.7899,-0.5506,0.268]}]}
+
+### compound-026
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.009,0.165,-0.376],"half_extents":[1.243,0.201,0.434],"rotation":[0.3704,0.5876,-0.5307,0.4857]},{"type":"obb","center":[-0.393,0.371,-1.415],"half_extents":[0.201,0.629,0.434],"rotation":[0.3704,0.5876,-0.5307,0.4857]}]}
+{"id":"B","type":"segment","a":[0.189,-0.982,-1.083],"b":[0.384,1.053,0.513]}
+
+### compound-027
+{"id":"A","type":"triangle","vertices":[[-1.39,-1.781,-0.383],[-0.709,-3.848,-0.96],[0.845,-2.923,-2.423]]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-0.498,-1.615,-1.22],"half_extents":[0.959,0.208,0.578],"rotation":[0.8951,0.2438,-0.3684,-0.0601]},{"type":"obb","center":[-1.105,-0.598,-1.253],"half_extents":[0.208,1.124,0.578],"rotation":[0.8951,0.2438,-0.3684,-0.0601]}]}
+
+### compound-028
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.106,0.237,-0.318],"half_extents":[0.933,0.197,0.262],"rotation":[0.0287,-0.2023,-0.7421,-0.6384]},{"type":"obb","center":[0.866,0.134,0.287],"half_extents":[0.197,1.08,0.262],"rotation":[0.0287,-0.2023,-0.7421,-0.6384]}]}
+{"id":"B","type":"triangle","vertices":[[1.358,-0.869,0.545],[-0.195,-0.793,-1.071],[-0.318,1.234,1.409]]}
+
+### compound-029
+{"id":"A","type":"triangle","vertices":[[0.401,-1.035,-0.54],[0.718,-0.562,1.492],[-1.303,-0.349,-0.074]]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[0.36,0.009,0.552],"half_extents":[0.905,0.145,0.4],"rotation":[0.2749,-0.8145,0.1688,0.4822]},{"type":"obb","center":[-0.456,-0.648,0.98],"half_extents":[0.145,0.983,0.4],"rotation":[0.2749,-0.8145,0.1688,0.4822]}]}
+
+### compound-030
+{"id":"A","type":"sphere","center":[2.035,0.163,-0.011],"radius":0.739}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[0.707,0.001,-0.199],"half_extents":[0.812,0.136,0.406],"rotation":[0.0273,-0.89,0.2812,-0.3579]},{"type":"obb","center":[0,-0.189,-0.781],"half_extents":[0.136,0.781,0.406],"rotation":[0.0273,-0.89,0.2812,-0.3579]},{"type":"obb","center":[0.792,-0.893,0.061],"half_extents":[0.136,0.781,0.406],"rotation":[0.0273,-0.89,0.2812,-0.3579]}]}
+
+### compound-031
+{"id":"A","type":"capsule","a":[-1.57,-0.531,2.595],"b":[-1.494,-0.148,5.129],"radius":0.509}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-0.6,-0.161,0.596],"half_extents":[1.246,0.138,0.583],"rotation":[0.1988,0.5565,0.1444,0.7937]},{"type":"obb","center":[-0.352,-1.174,-0.069],"half_extents":[0.138,0.691,0.583],"rotation":[0.1988,0.5565,0.1444,0.7937]},{"type":"obb","center":[-1.02,-0.119,1.76],"half_extents":[0.138,0.691,0.583],"rotation":[0.1988,0.5565,0.1444,0.7937]}]}
+
+### compound-032
+{"id":"A","type":"obb","center":[-1.206,-2.255,1.814],"half_extents":[0.949,0.339,0.854],"rotation":[0.215,0.8695,-0.051,-0.4418]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-0.464,-1.454,0.989],"half_extents":[1.173,0.218,0.65],"rotation":[0.5117,-0.3665,0.7547,0.1852]},{"type":"obb","center":[-0.78,-0.648,1.79],"half_extents":[0.218,0.91,0.65],"rotation":[0.5117,-0.3665,0.7547,0.1852]},{"type":"obb","center":[-1.176,-1.343,0.055],"half_extents":[0.218,0.91,0.65],"rotation":[0.5117,-0.3665,0.7547,0.1852]}]}
+
+### compound-033
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.526,0.347,-0.681],"half_extents":[0.712,0.127,0.268],"rotation":[0.2951,0.4033,-0.2276,0.8358]},{"type":"obb","center":[0.267,-0.424,-1.27],"half_extents":[0.127,0.942,0.268],"rotation":[0.2951,0.4033,-0.2276,0.8358]}]}
+{"id":"B","type":"sphere","center":[-0.665,-0.052,-0.34],"radius":0.951}
+
+### compound-034
+{"id":"A","type":"cylinder","a":[-0.126,0.709,-0.153],"b":[-2.711,0.473,-1.344],"radius":0.701}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[0.217,0.513,0.773],"half_extents":[1.135,0.216,0.295],"rotation":[0.4931,0.4871,0.6297,-0.3509]},{"type":"obb","center":[0.698,0.396,1.675],"half_extents":[0.216,0.679,0.295],"rotation":[0.4931,0.4871,0.6297,-0.3509]},{"type":"obb","center":[0.626,0.888,-0.094],"half_extents":[0.216,0.679,0.295],"rotation":[0.4931,0.4871,0.6297,-0.3509]}]}
+
+### compound-035
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-1.336,-0.672,-0.997],"half_extents":[0.751,0.223,0.465],"rotation":[0.5555,0.1942,-0.4313,-0.6839]},{"type":"obb","center":[-0.732,-0.19,-0.51],"half_extents":[0.223,0.969,0.465],"rotation":[0.5555,0.1942,-0.4313,-0.6839]},{"type":"obb","center":[-1.056,-1.169,-0.284],"half_extents":[0.223,0.969,0.465],"rotation":[0.5555,0.1942,-0.4313,-0.6839]}]}
+{"id":"B","type":"sphere","center":[0.289,-1.832,-0.017],"radius":0.619}
+
+### compound-036
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.41,1.389,-0.632],"half_extents":[0.948,0.229,0.537],"rotation":[0.412,0.2788,-0.2346,-0.8351]},{"type":"obb","center":[0.366,1.57,0.024],"half_extents":[0.229,0.969,0.537],"rotation":[0.412,0.2788,-0.2346,-0.8351]},{"type":"obb","center":[-0.36,0.393,-0.368],"half_extents":[0.229,0.969,0.537],"rotation":[0.412,0.2788,-0.2346,-0.8351]}]}
+{"id":"B","type":"segment","a":[0.115,1.93,0.43],"b":[-1.211,1.435,-0.249]}
+
+End your reply with one line per problem, in order: `<id>: YES` or `<id>: NO`.

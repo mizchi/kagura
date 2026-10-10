@@ -162,8 +162,9 @@ pub fn ccd_sweep_body3d(
   )
   let speed = displacement.length()
   let bullet_radius = match bullet.collider {
-    SphereShape(_, r) => r
-    AABBShape(he, _) | BoxShape(he, _) => he.length()
+    SphereShape(radius=r, ..) => r
+    AABBShape(half_extents=he, ..) | BoxShape(half_extents=he, ..) =>
+      he.length()
   }
   if speed < bullet_radius * 0.5 {
     return None
@@ -180,7 +181,10 @@ pub fn ccd_sweep_body3d(
         vel.vz[i] * dt,
       )
       let toi : Double? = match (bullet.collider, other.collider) {
-        (SphereShape(off_a, r_a), SphereShape(off_b, r_b)) =>
+        (
+          SphereShape(offset=off_a, radius=r_a),
+          SphereShape(offset=off_b, radius=r_b),
+        ) =>
           sweep_sphere_sphere(
             bullet.position.add(off_a),
             displacement,
@@ -189,7 +193,10 @@ pub fn ccd_sweep_body3d(
             other_vel,
             r_b,
           )
-        (SphereShape(off_a, r_a), AABBShape(he, off_b)) => {
+        (
+          SphereShape(offset=off_a, radius=r_a),
+          AABBShape(half_extents=he, offset=off_b),
+        ) => {
           let center = other.position.add(off_b)
           sweep_sphere_aabb(
             bullet.position.add(off_a),
@@ -223,7 +230,7 @@ fn sweep_static_boxes(
   displacement : @math3d.Vec3,
 ) -> (Double, @math3d.Vec3, Double)? {
   let (center, half, rotation, sphere) = match body.collider {
-    SphereShape(offset, radius) =>
+    SphereShape(offset~, radius~) =>
       (
         body.position.add(offset),
         @math3d.Vec3::new(radius, radius, radius),
@@ -243,7 +250,7 @@ fn sweep_static_boxes(
   let mut result = None
   let mut earliest = 1.0
   for other in bodies {
-    if !(other.body_type is Static) || other.collider is SphereShape(_, _) {
+    if !(other.body_type is Static) || other.collider is SphereShape(..) {
       continue
     }
     let (target, target_half, target_rotation) = box_frame(other)

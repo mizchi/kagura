@@ -4,13 +4,13 @@ test "sphere-sphere overlapping" {
     0,
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 1.0),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
   )
   let b = RigidBody::new_dynamic(
     1,
     @math3d.Vec3::new(1.5, 0.0, 0.0),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 1.0),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
   )
   guard generate_contact(a, b) is Some(c) else {
     fail("expected a contact for sphere-sphere overlapping")
@@ -25,13 +25,13 @@ test "sphere-sphere separated" {
     0,
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 1.0),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
   )
   let b = RigidBody::new_dynamic(
     1,
     @math3d.Vec3::new(3.0, 0.0, 0.0),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 1.0),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
   )
   assert_true(generate_contact(a, b) is None)
 }
@@ -42,13 +42,13 @@ test "aabb-aabb overlapping" {
     0,
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     1.0,
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   let b = RigidBody::new_dynamic(
     1,
     @math3d.Vec3::new(1.5, 0.0, 0.0),
     1.0,
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   guard generate_contact(a, b) is Some(c) else {
     fail("expected a contact for aabb-aabb overlapping")
@@ -63,13 +63,13 @@ test "aabb-aabb separated" {
     0,
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     1.0,
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   let b = RigidBody::new_dynamic(
     1,
     @math3d.Vec3::new(3.0, 0.0, 0.0),
     1.0,
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   assert_true(generate_contact(a, b) is None)
 }
@@ -80,13 +80,13 @@ test "sphere-aabb overlapping" {
     0,
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 1.0),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
   )
   let b = RigidBody::new_dynamic(
     1,
     @math3d.Vec3::new(1.5, 0.0, 0.0),
     1.0,
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   guard generate_contact(a, b) is Some(c) else {
     fail("expected a contact for sphere-aabb overlapping")
@@ -100,13 +100,13 @@ test "sphere-aabb separated" {
     0,
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 1.0),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
   )
   let b = RigidBody::new_dynamic(
     1,
     @math3d.Vec3::new(5.0, 0.0, 0.0),
     1.0,
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   assert_true(generate_contact(a, b) is None)
 }

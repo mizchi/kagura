@@ -1,0 +1,94 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.
+
+For EACH problem below, decide whether objects A and B intersect. Problems are independent.
+
+### pair-055
+{"id":"A","type":"sphere","center":[0.424,-0.87,0.731],"radius":1.394}
+{"id":"B","type":"aabb","min":[-2.292,-1.421,0.607],"max":[-0.936,0.8,3.323]}
+
+### pair-056
+{"id":"A","type":"aabb","min":[-0.945,-1.178,0.039],"max":[-0.209,1.655,1.278]}
+{"id":"B","type":"triangle","vertices":[[-0.244,2.682,0.491],[-1.601,1.564,0.014],[-0.476,1.67,1.283]]}
+
+### pair-057
+{"id":"A","type":"point","position":[0.418,0.645,0.817]}
+{"id":"B","type":"capsule","a":[0.177,0.945,1.202],"b":[-0.629,0.537,1.55],"radius":0.634}
+
+### pair-058
+{"id":"A","type":"capsule","a":[0.057,0.314,-0.095],"b":[-0.622,0.563,-1.017],"radius":0.316}
+{"id":"B","type":"tetrahedron","vertices":[[-0.214,-0.701,-1.706],[0.434,-0.016,0.168],[-0.202,0.732,-1.479],[-0.484,-1.573,-0.81]]}
+
+### pair-059
+{"id":"A","type":"triangle","vertices":[[0.636,-0.35,-0.459],[0.103,-0.365,-1.997],[2.028,-0.563,-3.356]]}
+{"id":"B","type":"cylinder","a":[0.691,-0.333,1.962],"b":[0.814,-0.844,-0.36],"radius":0.599}
+
+### pair-060
+{"id":"A","type":"tetrahedron","vertices":[[-1.664,-1.322,0.738],[-0.753,-0.444,-0.256],[0.074,-1.616,1.2],[-2.25,-1.669,-0.179]]}
+{"id":"B","type":"aabb","min":[-1.99,-0.434,-1.574],"max":[0.783,0.905,1.358]}
+
+### pair-061
+{"id":"A","type":"capsule","a":[1.274,-0.082,-0.97],"b":[0.533,0.914,1.045],"radius":0.665}
+{"id":"B","type":"cylinder","a":[-1.428,-0.004,-0.347],"b":[-0.806,0.938,-0.036],"radius":1.196}
+
+### pair-062
+{"id":"A","type":"obb","center":[-0.916,-0.971,-0.17],"half_extents":[1.147,1.055,0.741],"rotation":[0.6902,0.0448,0.4668,0.5511]}
+{"id":"B","type":"triangle","vertices":[[0.388,-1.271,0.828],[0.039,1.083,-0.661],[0.327,-1.358,-1.1]]}
+
+### pair-063
+{"id":"A","type":"point","position":[-0.287,-0.202,-0.698]}
+{"id":"B","type":"cone","apex":[-0.325,-0.554,-0.097],"base_center":[-0.683,0.275,-1.049],"radius":0.568}
+
+### pair-064
+{"id":"A","type":"sphere","center":[0.164,-0.821,-0.429],"radius":0.62}
+{"id":"B","type":"tetrahedron","vertices":[[-0.926,-1.494,0.542],[-0.721,-0.366,-0.743],[-0.852,-2.801,-0.177],[0.031,-2.117,-0.343]]}
+
+### pair-065
+{"id":"A","type":"obb","center":[0.688,-0.58,0.162],"half_extents":[1.079,1.392,0.327],"rotation":[0.5602,-0.5321,-0.1593,-0.6146]}
+{"id":"B","type":"tetrahedron","vertices":[[1.29,1.183,1.012],[0.258,1.913,-0.803],[0.068,0.854,1.107],[0.872,-0.236,0.103]]}
+
+### pair-066
+{"id":"A","type":"aabb","min":[-1.358,-0.95,-0.619],"max":[1.399,-0.346,0.795]}
+{"id":"B","type":"point","position":[-0.177,-0.47,0.727]}
+
+### pair-067
+{"id":"A","type":"tetrahedron","vertices":[[2.164,-1.179,0.498],[2.031,-1.86,0.506],[0.424,-1.839,-0.797],[0.963,-2.202,1.453]]}
+{"id":"B","type":"sphere","center":[0.871,-0.428,0.237],"radius":1.185}
+
+### pair-068
+{"id":"A","type":"cone","apex":[-0.41,-1.29,-1.962],"base_center":[-0.034,-0.581,0.306],"radius":0.951}
+{"id":"B","type":"cone","apex":[-0.632,-0.723,0.907],"base_center":[-0.866,-2.409,1.114],"radius":1.2}
+
+### pair-069
+{"id":"A","type":"obb","center":[1.345,-1.652,0.769],"half_extents":[0.95,0.435,1.348],"rotation":[0.4546,-0.1206,0.8052,-0.3612]}
+{"id":"B","type":"sphere","center":[0.209,0.264,0.991],"radius":0.813}
+
+### pair-070
+{"id":"A","type":"aabb","min":[-0.658,-1.212,-0.957],"max":[1.824,0.848,0.149]}
+{"id":"B","type":"aabb","min":[0.168,0.883,-2.8],"max":[1.993,1.913,0.141]}
+
+### pair-071
+{"id":"A","type":"segment","a":[1.854,-0.738,-0.595],"b":[-0.605,-0.867,-0.735]}
+{"id":"B","type":"capsule","a":[1.852,-0.234,-1.135],"b":[3.161,-2.401,-1.452],"radius":0.649}
+
+### pair-072
+{"id":"A","type":"sphere","center":[0.852,0.042,-0.287],"radius":0.671}
+{"id":"B","type":"segment","a":[0.278,-1.834,0.781],"b":[0.835,1.601,0.028]}
+
+End your reply with one line per problem, in order: `<id>: YES` or `<id>: NO`.

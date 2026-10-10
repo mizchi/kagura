@@ -1,0 +1,46 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+The distance between two shapes is the smallest Euclidean distance between a point of one and a point of the other. It is 0 when they intersect (share at least one point).
+
+For EACH problem below, compute the distance between objects A and B. Problems are independent. An answer counts as correct when it is within 0.001 of the exact distance, so give at least 4 decimal places.
+
+### frame-021
+{"id":"A","type":"frame","center":[-0.145,0.772,0.569],"rotation":[0.2596,-0.0176,-0.8471,-0.4634],"outer_half_extents":[1.387,0.683],"inner_half_extents":[1.062,0.437],"half_thickness":0.127}
+{"id":"B","type":"capsule","a":[-0.319,0.555,1.976],"b":[0.781,-0.053,-0.164],"radius":0.568}
+
+### frame-022
+{"id":"A","type":"frame","center":[-0.988,0.682,0.301],"rotation":[0.3239,-0.2188,-0.4669,0.7932],"outer_half_extents":[1.581,1.127],"inner_half_extents":[1.08,0.583],"half_thickness":0.203}
+{"id":"B","type":"tetrahedron","vertices":[[0.709,0.149,-0.097],[0.586,0.167,-1.869],[0.955,1.95,-0.393],[2.075,0.731,-2.42]]}
+
+### frame-023
+{"id":"A","type":"frame","center":[0.335,-0.021,-0.153],"rotation":[0.3282,-0.5646,0.2044,0.7292],"outer_half_extents":[1.005,1.266],"inner_half_extents":[0.65,1.036],"half_thickness":0.342}
+{"id":"B","type":"cone","apex":[-1.374,1.677,-0.975],"base_center":[-0.395,0.638,-0.443],"radius":0.85}
+
+### frame-024
+{"id":"A","type":"frame","center":[-0.381,-0.828,0.197],"rotation":[0.0847,0.3525,0.9279,0.0876],"outer_half_extents":[1.068,1.185],"inner_half_extents":[0.536,0.681],"half_thickness":0.159}
+{"id":"B","type":"capsule","a":[-0.775,-1.431,0.768],"b":[-0.806,-0.72,1.293],"radius":0.357}
+
+### frame-025
+{"id":"A","type":"capsule","a":[0.569,0.159,0.979],"b":[2.387,0.816,-0.566],"radius":0.225}
+{"id":"B","type":"frame","center":[0.31,0.245,0.792],"rotation":[0.426,-0.383,0.8161,0.0762],"outer_half_extents":[1.142,1.11],"inner_half_extents":[0.934,0.898],"half_thickness":0.293}
+
+### frame-026
+{"id":"A","type":"segment","a":[2.149,0.663,0.01],"b":[0.104,1.432,-2.946]}
+{"id":"B","type":"frame","center":[0.118,0.349,-0.82],"rotation":[0.1867,0.4661,0.7234,0.4739],"outer_half_extents":[1.241,1.039],"inner_half_extents":[1.006,0.567],"half_thickness":0.326}
+
+End your reply with one line per problem, in order: `<id>: <distance>`.

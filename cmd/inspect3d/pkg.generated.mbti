@@ -1,0 +1,13 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/cmd/inspect3d"
+
+// Values
+pub fn analyze_scene3d(String, String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

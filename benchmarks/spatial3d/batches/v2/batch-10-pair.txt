@@ -1,0 +1,94 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.
+
+For EACH problem below, decide whether objects A and B intersect. Problems are independent.
+
+### compound-001
+{"id":"A","type":"triangle","vertices":[[0.087,-1.66,-0.154],[-2.535,-0.567,0.577],[-1.358,-1.752,-1.201]]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-1.118,-0.551,-0.429],"half_extents":[0.715,0.188,0.352],"rotation":[0.5943,0.3784,0.6781,-0.2094]},{"type":"obb","center":[-0.356,-0.068,0.244],"half_extents":[0.188,1.182,0.352],"rotation":[0.5943,0.3784,0.6781,-0.2094]}]}
+
+### compound-002
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.359,0.109,-0.95],"half_extents":[0.933,0.178,0.345],"rotation":[0.2823,0.2351,-0.022,0.9298]},{"type":"obb","center":[-0.249,-0.971,-1.213],"half_extents":[0.178,1.002,0.345],"rotation":[0.2823,0.2351,-0.022,0.9298]},{"type":"obb","center":[-1.351,-0.194,-0.535],"half_extents":[0.178,1.002,0.345],"rotation":[0.2823,0.2351,-0.022,0.9298]}]}
+{"id":"B","type":"cylinder","a":[-1.325,0.591,-2.391],"b":[-0.671,0.138,-1.233],"radius":0.469}
+
+### compound-003
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.495,0.615,0.771],"half_extents":[1.293,0.161,0.379],"rotation":[0.0537,0.4674,-0.8697,-0.1492]},{"type":"obb","center":[-0.29,1.829,0.988],"half_extents":[0.161,0.695,0.379],"rotation":[0.0537,0.4674,-0.8697,-0.1492]},{"type":"obb","center":[-1.551,-0.047,0.884],"half_extents":[0.161,0.695,0.379],"rotation":[0.0537,0.4674,-0.8697,-0.1492]}]}
+{"id":"B","type":"capsule","a":[-0.268,0.021,0.431],"b":[-0.766,1.165,-0.46],"radius":0.265}
+
+### compound-004
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.003,-0.345,-0.522],"half_extents":[1.008,0.241,0.488],"rotation":[0.4178,0.8511,-0.2733,0.1627]},{"type":"obb","center":[-1.163,-0.55,-0.342],"half_extents":[0.241,1.153,0.488],"rotation":[0.4178,0.8511,-0.2733,0.1627]},{"type":"obb","center":[0.061,-1.055,0.433],"half_extents":[0.241,1.153,0.488],"rotation":[0.4178,0.8511,-0.2733,0.1627]}]}
+{"id":"B","type":"aabb","min":[-1.228,-3.237,-1.711],"max":[1.424,-1.151,-0.373]}
+
+### compound-005
+{"id":"A","type":"obb","center":[1.371,-0.673,-0.769],"half_extents":[1.445,0.878,1.315],"rotation":[0.652,0.3939,0.173,-0.6244]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-0.639,-0.618,0.021],"half_extents":[0.783,0.222,0.342],"rotation":[0.5273,-0.1911,0.8258,-0.0582]},{"type":"obb","center":[-0.637,0.34,0.255],"half_extents":[0.222,1.033,0.342],"rotation":[0.5273,-0.1911,0.8258,-0.0582]},{"type":"obb","center":[-1.053,-0.083,-0.697],"half_extents":[0.222,1.033,0.342],"rotation":[0.5273,-0.1911,0.8258,-0.0582]}]}
+
+### compound-006
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.71,0.462,0.188],"half_extents":[0.995,0.242,0.379],"rotation":[0.4616,-0.8602,-0.2158,0.0195]},{"type":"obb","center":[-1.094,-0.237,-0.615],"half_extents":[0.242,1.087,0.379],"rotation":[0.4616,-0.8602,-0.2158,0.0195]},{"type":"obb","center":[0.271,0.349,-0.366],"half_extents":[0.242,1.087,0.379],"rotation":[0.4616,-0.8602,-0.2158,0.0195]}]}
+{"id":"B","type":"aabb","min":[-2.104,-2.814,-0.767],"max":[-0.748,-0.798,0.166]}
+
+### compound-007
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-1.034,0.048,0.911],"half_extents":[1.168,0.233,0.671],"rotation":[0.5769,0.0744,0.418,-0.6978]},{"type":"obb","center":[-0.234,0.751,1.172],"half_extents":[0.233,0.807,0.671],"rotation":[0.5769,0.0744,0.418,-0.6978]},{"type":"obb","center":[-0.838,-0.637,0.078],"half_extents":[0.233,0.807,0.671],"rotation":[0.5769,0.0744,0.418,-0.6978]}]}
+{"id":"B","type":"capsule","a":[-1,-1.097,1.728],"b":[0.936,0.355,2.129],"radius":0.732}
+
+### compound-008
+{"id":"A","type":"capsule","a":[1.835,-2.057,-0.674],"b":[0.173,-0.872,0.067],"radius":0.435}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-0.164,-0.189,0.484],"half_extents":[0.896,0.209,0.378],"rotation":[0.5245,0.2174,0.7757,-0.2755]},{"type":"obb","center":[0.687,0.507,0.932],"half_extents":[0.209,1.177,0.378],"rotation":[0.5245,0.2174,0.7757,-0.2755]},{"type":"obb","center":[0.199,0.574,-0.35],"half_extents":[0.209,1.177,0.378],"rotation":[0.5245,0.2174,0.7757,-0.2755]}]}
+
+### compound-009
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.853,0.145,-0.867],"half_extents":[0.911,0.242,0.339],"rotation":[0.3527,0.7636,-0.5398,-0.0331]},{"type":"obb","center":[-0.034,0.584,-0.651],"half_extents":[0.242,1.003,0.339],"rotation":[0.3527,0.7636,-0.5398,-0.0331]}]}
+{"id":"B","type":"sphere","center":[-0.298,-0.263,-0.785],"radius":0.427}
+
+### compound-010
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.297,0.307,-0.668],"half_extents":[0.996,0.226,0.574],"rotation":[0.12,-0.184,-0.0936,-0.9711]},{"type":"obb","center":[0.655,-0.458,-0.828],"half_extents":[0.226,1.188,0.574],"rotation":[0.12,-0.184,-0.0936,-0.9711]},{"type":"obb","center":[-0.736,-0.763,-0.243],"half_extents":[0.226,1.188,0.574],"rotation":[0.12,-0.184,-0.0936,-0.9711]}]}
+{"id":"B","type":"capsule","a":[-0.687,-1.973,-2.196],"b":[0.044,-0.505,-1.76],"radius":0.588}
+
+### compound-011
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[1.075,-0.632,1.004],"half_extents":[0.714,0.163,0.582],"rotation":[0.707,-0.3281,0.1818,0.5996]},{"type":"obb","center":[0.376,-0.994,1.216],"half_extents":[0.163,0.763,0.582],"rotation":[0.707,-0.3281,0.1818,0.5996]},{"type":"obb","center":[0.613,-0.191,0.498],"half_extents":[0.163,0.763,0.582],"rotation":[0.707,-0.3281,0.1818,0.5996]}]}
+{"id":"B","type":"sphere","center":[0.257,0.496,-0.96],"radius":1.232}
+
+### compound-012
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[-0.022,-0.18,0.427],"half_extents":[0.893,0.241,0.635],"rotation":[0.5187,0.5581,-0.1682,0.6255]},{"type":"obb","center":[-0.597,-0.708,0.065],"half_extents":[0.241,0.803,0.635],"rotation":[0.5187,0.5581,-0.1682,0.6255]},{"type":"obb","center":[-0.387,-0.107,1.203],"half_extents":[0.241,0.803,0.635],"rotation":[0.5187,0.5581,-0.1682,0.6255]}]}
+{"id":"B","type":"cone","apex":[-1.093,0.578,0.411],"base_center":[-1.965,0.403,0.083],"radius":1.161}
+
+### compound-013
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.179,1.309,-0.157],"half_extents":[1.289,0.228,0.347],"rotation":[0.0435,0.8676,-0.3406,-0.3597]},{"type":"obb","center":[-0.683,1.529,0.658],"half_extents":[0.228,0.804,0.347],"rotation":[0.0435,0.8676,-0.3406,-0.3597]}]}
+{"id":"B","type":"point","position":[-0.238,1.98,0.034]}
+
+### compound-014
+{"id":"A","type":"tetrahedron","vertices":[[2.252,0.72,0.884],[0.062,1.219,1.156],[1.95,0.814,-0.272],[2.125,1.83,-0.158]]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-0.179,1.27,-0.023],"half_extents":[1.272,0.132,0.58],"rotation":[0.4506,-0.0904,0.1198,-0.88]},{"type":"obb","center":[0.913,1.882,-0.245],"half_extents":[0.132,0.693,0.58],"rotation":[0.4506,-0.0904,0.1198,-0.88]},{"type":"obb","center":[-0.405,0.024,-0.129],"half_extents":[0.132,0.693,0.58],"rotation":[0.4506,-0.0904,0.1198,-0.88]}]}
+
+### compound-015
+{"id":"A","type":"segment","a":[-1.075,0.507,-0.069],"b":[-0.723,1.641,-0.698]}
+{"id":"B","type":"compound","parts":[{"type":"obb","center":[-1.107,1.169,-0.19],"half_extents":[1.023,0.151,0.295],"rotation":[0.3325,0.4265,0.1822,-0.8212]},{"type":"obb","center":[-0.419,1.179,0.519],"half_extents":[0.151,0.616,0.295],"rotation":[0.3325,0.4265,0.1822,-0.8212]},{"type":"obb","center":[-1.143,0.498,-0.913],"half_extents":[0.151,0.616,0.295],"rotation":[0.3325,0.4265,0.1822,-0.8212]}]}
+
+### compound-016
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.757,0.222,-0.207],"half_extents":[0.882,0.249,0.5],"rotation":[0.4679,0.0721,0.7914,0.3867]},{"type":"obb","center":[0.982,0.269,0.57],"half_extents":[0.249,0.754,0.5],"rotation":[0.4679,0.0721,0.7914,0.3867]}]}
+{"id":"B","type":"cylinder","a":[2.307,-0.532,1.006],"b":[2.59,-1.715,-0.189],"radius":1.136}
+
+### compound-017
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.283,-0.539,1.015],"half_extents":[0.741,0.204,0.675],"rotation":[0.4892,-0.3335,0.5523,-0.5869]},{"type":"obb","center":[0.604,0.037,0.334],"half_extents":[0.204,0.985,0.675],"rotation":[0.4892,-0.3335,0.5523,-0.5869]}]}
+{"id":"B","type":"capsule","a":[1.234,1.833,0.307],"b":[2.046,-0.101,-0.945],"radius":0.456}
+
+### compound-018
+{"id":"A","type":"compound","parts":[{"type":"obb","center":[0.28,0.738,1.206],"half_extents":[0.927,0.171,0.689],"rotation":[0.0912,-0.5892,0.1734,-0.7838]},{"type":"obb","center":[0.462,0.459,0.308],"half_extents":[0.171,0.758,0.689],"rotation":[0.0912,-0.5892,0.1734,-0.7838]}]}
+{"id":"B","type":"triangle","vertices":[[-0.413,-0.321,0.21],[-0.593,0.566,1.648],[-0.823,0.669,-0.041]]}
+
+End your reply with one line per problem, in order: `<id>: YES` or `<id>: NO`.

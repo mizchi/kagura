@@ -1,5 +1,6 @@
 // Edit scene literals here or in Kagura Studio. Keep behavior outside the managed region.
 // kagura-scene:begin
+///|
 pub fn second() -> @scene_document.Document {
   {
     version: 1,
@@ -7,7 +8,8 @@ pub fn second() -> @scene_document.Document {
     units: "meters",
     up: "Y",
     forward: "+Z",
-    nodes: [{
+    nodes: [
+      {
         id: "floor",
         name: "floor",
         asset: "primitive.box",
@@ -16,7 +18,8 @@ pub fn second() -> @scene_document.Document {
         rotation: [0, 0, 0],
         scale: [18, 0.25, 18],
         color: 8415056,
-      }, {
+      },
+      {
         id: "wall",
         name: "wall",
         asset: "primitive.box",
@@ -25,7 +28,8 @@ pub fn second() -> @scene_document.Document {
         rotation: [0, 0, 0],
         scale: [1, 2, 5],
         color: 5464690,
-      }, {
+      },
+      {
         id: "spawn",
         name: "spawn",
         asset: "primitive.sphere",
@@ -34,7 +38,8 @@ pub fn second() -> @scene_document.Document {
         rotation: [0, 0, 0],
         scale: [1, 1, 1],
         color: 4508774,
-      }, {
+      },
+      {
         id: "item",
         name: "item",
         asset: "primitive.sphere",
@@ -43,7 +48,8 @@ pub fn second() -> @scene_document.Document {
         rotation: [0, 0, 0],
         scale: [1, 1, 1],
         color: 16763955,
-      }, {
+      },
+      {
         id: "enemy",
         name: "enemy",
         asset: "primitive.box",
@@ -52,44 +58,51 @@ pub fn second() -> @scene_document.Document {
         rotation: [0, 0, 0],
         scale: [1, 1, 1],
         color: 15615027,
-      }],
-    resources: [{
+      },
+    ],
+    resources: [
+      {
         id: "kagura.example",
         kind: "kagura.example",
         version: 1,
-        data: {
-          "example": "arena3d",
-          "query": Json::empty_object(),
-        },
-      }, {
+        data: { "example": "arena3d", "query": Json::empty_object() },
+      },
+      {
         id: "kagura.scene",
         kind: "kagura.scene",
         version: 1,
         data: {
           "game": "arena3d",
-          "bindings": [{
+          "bindings": [
+            {
               "node": "floor",
               "component": "floor",
               "properties": Json::empty_object(),
-            }, {
+            },
+            {
               "node": "wall",
               "component": "wall",
               "properties": Json::empty_object(),
-            }, {
+            },
+            {
               "node": "spawn",
               "component": "spawn",
               "properties": Json::empty_object(),
-            }, {
+            },
+            {
               "node": "item",
               "component": "item",
               "properties": Json::empty_object(),
-            }, {
+            },
+            {
               "node": "enemy",
               "component": "enemy",
               "properties": Json::empty_object(),
-            }],
+            },
+          ],
         },
-      }],
+      },
+    ],
     action: {
       target: "",
       duration: 1,

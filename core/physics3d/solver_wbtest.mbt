@@ -5,7 +5,7 @@ test "symmetric bounce - equal mass" {
       0,
       @math3d.Vec3::new(-0.5, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 1.0),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
     ),
     velocity: @math3d.Vec3::new(1.0, 0.0, 0.0),
     restitution: 1.0,
@@ -15,7 +15,7 @@ test "symmetric bounce - equal mass" {
       1,
       @math3d.Vec3::new(0.5, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 1.0),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
     ),
     velocity: @math3d.Vec3::new(-1.0, 0.0, 0.0),
     restitution: 1.0,
@@ -39,7 +39,7 @@ test "static floor bounce" {
       0,
       @math3d.Vec3::new(0.0, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 1.0),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
     ),
     velocity: @math3d.Vec3::new(0.0, -5.0, 0.0),
     restitution: 1.0,
@@ -47,7 +47,10 @@ test "static floor bounce" {
   let floor = RigidBody::new_static(
     1,
     @math3d.Vec3::new(0.0, -1.5, 0.0),
-    AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+    AABBShape(
+      half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+      offset=@math3d.Vec3::zero(),
+    ),
   )
   let contact : Contact = {
     body_a_id: 0,
@@ -65,12 +68,12 @@ test "both static - no change" {
   let a = RigidBody::new_static(
     0,
     @math3d.Vec3::zero(),
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   let b = RigidBody::new_static(
     1,
     @math3d.Vec3::new(1.0, 0.0, 0.0),
-    AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+    AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
   )
   let contact : Contact = {
     body_a_id: 0,
@@ -91,7 +94,7 @@ test "friction reduces tangential velocity" {
       0,
       @math3d.Vec3::new(0.0, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 1.0),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
     ),
     velocity: @math3d.Vec3::new(3.0, -1.0, 0.0),
     restitution: 0.0,
@@ -101,7 +104,10 @@ test "friction reduces tangential velocity" {
     ..RigidBody::new_static(
       1,
       @math3d.Vec3::new(0.0, -1.5, 0.0),
-      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
     friction: 0.5,
   }

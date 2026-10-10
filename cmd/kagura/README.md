@@ -44,6 +44,7 @@ WASD / 矢印キーで四角を動かす小さなゲームを起点に開発で�
 | `kagura studio` | チェックアウトの Studio を起動。既定ポート 5190 |
 | `kagura capture [url]` | HUD を含むプレイ画面だけを PNG に保存 |
 | `kagura profile [url]` | CPU/GPU の指標と Chrome CPU プロファイルを保存 |
+| `kagura scene3d <check\|distance\|overlaps\|raycast> <snapshot.json>` | 3D シーンの snapshot を検査・問い合わせ（ブラウザ不要） |
 
 `dev` / `build` は省略時に現在地から親のプロジェクトを探します。
 `dev` / `studio` は `--port` と `--host` に対応します。ポートの優先順位は
@@ -75,6 +76,21 @@ kagura studio
 リポジトリのルートではゲームを指定してください。実行パッケージは module のルートまたは `src` に置きます。
 サンプル用ビルドは HTML・JS・素材・共通ランタイムを揃えて出力し、前回の出力を成功後に置き換えます。
 無関係なファイルがある出力先は拒否します。
+
+## 3D シーンの検査
+
+`just render <example>` が書く `<example>.scene3d.json` を読み、配置を数値で確かめます。
+計算は MoonBit（`cmd/inspect3d` から `@scene3d.query_scene3d_snapshot`）で、Node はファイルを読むだけです。
+
+```sh
+kagura scene3d check output/frames/arena3d/arena3d.scene3d.json --allow outside_view@arena/physics
+kagura scene3d distance scene.scene3d.json world/player world/enemy
+kagura scene3d overlaps scene.scene3d.json --json
+kagura scene3d raycast scene.scene3d.json --from 0,10,0 --direction 0,-1,0
+```
+
+`check` は所見が 1 件でも許可されずに残ると、また使われなかった `--allow` があると終了コード 1 を返します。
+検査の種類と snapshot の形式は `docs/architecture/coordinates.md` にあります。
 
 ## 画面キャプチャと負荷計測
 

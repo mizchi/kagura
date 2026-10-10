@@ -45,7 +45,7 @@ fn GameState::reset_physics(self : GameState) -> Unit {
         @physics3d.RigidBody::new_static(
           id,
           position,
-          AABBShape(half_extents, @math3d.Vec3::zero()),
+          AABBShape(half_extents~, offset=@math3d.Vec3::zero()),
         ),
       )
     }
@@ -60,7 +60,10 @@ fn GameState::reset_physics(self : GameState) -> Unit {
             @physics3d.RigidBody::new_static(
               i,
               position,
-              AABBShape(scale.scale(0.5), @math3d.Vec3::zero()),
+              AABBShape(
+                half_extents=scale.scale(0.5),
+                offset=@math3d.Vec3::zero(),
+              ),
             ),
           )
         "slide" => self.add_slide(-100 - i * 10, entity.id, position, scale)
@@ -89,7 +92,10 @@ fn GameState::reset_physics(self : GameState) -> Unit {
       @physics3d.RigidBody::new_static(
         0,
         @math3d.Vec3::new(0.0, -0.25, 0.0),
-        AABBShape(@math3d.Vec3::new(9.0, 0.25, 9.0), @math3d.Vec3::zero()),
+        AABBShape(
+          half_extents=@math3d.Vec3::new(9.0, 0.25, 9.0),
+          offset=@math3d.Vec3::zero(),
+        ),
       ),
     )
     for row in 0..<3 {
@@ -135,9 +141,12 @@ fn GameState::add_physics_prop(
   color : @math3d.Vec4,
 ) -> Unit {
   let shape = if sphere {
-    @physics3d.SphereShape(@math3d.Vec3::zero(), scale.x * 0.5)
+    @physics3d.SphereShape(offset=@math3d.Vec3::zero(), radius=scale.x * 0.5)
   } else {
-    @physics3d.AABBShape(scale.scale(0.5), @math3d.Vec3::zero())
+    @physics3d.AABBShape(
+      half_extents=scale.scale(0.5),
+      offset=@math3d.Vec3::zero(),
+    )
   }
   self.physics.add_body(
     @physics3d.RigidBody::new_dynamic(id, position, 1.0, shape)

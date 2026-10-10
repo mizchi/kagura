@@ -27,7 +27,7 @@ fn strike_player(game : GameState) -> Unit {
       30000,
       @math3d.Vec3::new(-1.6, 0.5, 5.0),
       2.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     )
     .with_restitution(0.0)
     .with_friction(0.0),
@@ -74,7 +74,10 @@ test "walking pushes a crate through rigid body contact" {
       30000,
       @math3d.Vec3::new(1.3, 0.5, 5.0),
       1.0,
-      AABBShape(@math3d.Vec3::new(0.5, 0.5, 0.5), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(0.5, 0.5, 0.5),
+        offset=@math3d.Vec3::zero(),
+      ),
     ).with_restitution(0.0),
   )
   for _ in 0..<50 {
@@ -140,7 +143,7 @@ test "a ball near the player's head does not collapse the third person camera" {
       30000,
       game.eye().add(@math3d.Vec3::new(0.0, 0.0, 0.2)),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     ),
   )
   assert_true(game.view_camera().position.sub(game.eye()).length() > 1.0)

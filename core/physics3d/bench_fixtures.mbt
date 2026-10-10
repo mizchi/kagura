@@ -93,8 +93,8 @@ fn bench_pile_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
       bench_static_id_base3d,
       @math3d.Vec3::new(0.0, -0.5, 0.0),
       AABBShape(
-        @math3d.Vec3::new(span * 0.5 + 2.0, 0.5, span * 0.5 + 2.0),
-        @math3d.Vec3::zero(),
+        half_extents=@math3d.Vec3::new(span * 0.5 + 2.0, 0.5, span * 0.5 + 2.0),
+        offset=@math3d.Vec3::zero(),
       ),
     ),
   )
@@ -106,28 +106,28 @@ fn bench_pile_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
     RigidBody::new_static(
       bench_static_id_base3d + 1,
       @math3d.Vec3::new(-wall_offset, wall_half_height, 0.0),
-      AABBShape(wall_extents_x, @math3d.Vec3::zero()),
+      AABBShape(half_extents=wall_extents_x, offset=@math3d.Vec3::zero()),
     ),
   )
   world.add_body(
     RigidBody::new_static(
       bench_static_id_base3d + 2,
       @math3d.Vec3::new(wall_offset, wall_half_height, 0.0),
-      AABBShape(wall_extents_x, @math3d.Vec3::zero()),
+      AABBShape(half_extents=wall_extents_x, offset=@math3d.Vec3::zero()),
     ),
   )
   world.add_body(
     RigidBody::new_static(
       bench_static_id_base3d + 3,
       @math3d.Vec3::new(0.0, wall_half_height, -wall_offset),
-      AABBShape(wall_extents_z, @math3d.Vec3::zero()),
+      AABBShape(half_extents=wall_extents_z, offset=@math3d.Vec3::zero()),
     ),
   )
   world.add_body(
     RigidBody::new_static(
       bench_static_id_base3d + 4,
       @math3d.Vec3::new(0.0, wall_half_height, wall_offset),
-      AABBShape(wall_extents_z, @math3d.Vec3::zero()),
+      AABBShape(half_extents=wall_extents_z, offset=@math3d.Vec3::zero()),
     ),
   )
   let rng = BenchRng3D::new(0x5EED_3D01)
@@ -149,7 +149,7 @@ fn bench_pile_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
         i,
         @math3d.Vec3::new(x, y, z),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), bench_pile_radius3d),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=bench_pile_radius3d),
       ).with_friction(0.4),
     )
   }
@@ -181,7 +181,7 @@ fn bench_scatter_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
           rng.next_signed() * bench_pile_jitter3d,
         ),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), bench_pile_radius3d),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=bench_pile_radius3d),
       ),
     )
   }
@@ -204,8 +204,8 @@ fn bench_resting_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
       bench_static_id_base3d,
       @math3d.Vec3::new(0.0, -0.5, 0.0),
       AABBShape(
-        @math3d.Vec3::new(span * 0.5 + 2.0, 0.5, span * 0.5 + 2.0),
-        @math3d.Vec3::zero(),
+        half_extents=@math3d.Vec3::new(span * 0.5 + 2.0, 0.5, span * 0.5 + 2.0),
+        offset=@math3d.Vec3::zero(),
       ),
     ),
   )
@@ -223,7 +223,7 @@ fn bench_resting_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
           bench_resting_spacing3d,
         ),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), bench_pile_radius3d),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=bench_pile_radius3d),
       ).with_friction(0.4),
     )
   }
@@ -287,7 +287,7 @@ fn bench_build_chain_bodies3d(world : PhysicsWorld, count : Int) -> Unit {
     RigidBody::new_static(
       0,
       @math3d.Vec3::zero(),
-      SphereShape(@math3d.Vec3::zero(), bench_pile_radius3d),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=bench_pile_radius3d),
     ),
   )
   for i = 1; i < count; i = i + 1 {
@@ -296,7 +296,7 @@ fn bench_build_chain_bodies3d(world : PhysicsWorld, count : Int) -> Unit {
         i,
         @math3d.Vec3::new(i.to_double() * bench_chain_link3d, 0.0, 0.0),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), bench_pile_radius3d),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=bench_pile_radius3d),
       ),
     )
   }

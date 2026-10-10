@@ -4,4 +4,6 @@ import {
   "mizchi/kagura_game/scene_data",
 }
 
-options(link: { "js": { "exports": [ "document_json" ], "format": "esm" } })
+options(
+  link: { "js": { "exports": [ "document_json" ], "format": "esm" } },
+)

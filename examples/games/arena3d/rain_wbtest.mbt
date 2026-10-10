@@ -36,7 +36,7 @@ test "the training yard has four high walls and a physical slide" {
     assert_true(rail.scale[1] >= 3.0)
   }
   assert_eq(entities.filter(entity => entity.kind == "slide").length(), 1)
-  assert_true(game.physics.bodies.any(body => body.collider is BoxShape(_, _)))
+  assert_true(game.physics.bodies.any(body => body.collider is BoxShape(..)))
   game.transition_scene("second")
   for _ in 0..<(rain_interval * 2) {
     game.update_physics()

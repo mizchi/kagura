@@ -3,7 +3,10 @@ fn test_slide_body() -> RigidBody {
   let box = RigidBody::new_static(
     0,
     @math3d.Vec3::new(0.0, 2.0, 0.0),
-    BoxShape(@math3d.Vec3::new(1.2, 0.12, 4.0), @math3d.Vec3::zero()),
+    BoxShape(
+      half_extents=@math3d.Vec3::new(1.2, 0.12, 4.0),
+      offset=@math3d.Vec3::zero(),
+    ),
   )
   {
     ..box,
@@ -21,7 +24,7 @@ test "rotated boxes use their inclined face for sphere contacts and raycasts" {
     1,
     ramp.position.add(normal.scale(0.5)),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 0.5),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
   )
   let contact = generate_contact(ramp, ball).unwrap()
   assert_true(contact.normal.sub(normal).length() < 0.0001)
@@ -52,7 +55,7 @@ test "a ball falls onto a finite slope and travels downhill under gravity" {
       1,
       @math3d.Vec3::new(0.0, 4.0, -2.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.4),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.4),
     )
     .with_restitution(0.05)
     .with_friction(0.25),
@@ -73,7 +76,10 @@ test "oriented box SAT rejects empty corners of the broadphase bounds" {
     1,
     @math3d.Vec3::new(0.0, 3.4, 3.0),
     1.0,
-    AABBShape(@math3d.Vec3::new(0.2, 0.2, 0.2), @math3d.Vec3::zero()),
+    AABBShape(
+      half_extents=@math3d.Vec3::new(0.2, 0.2, 0.2),
+      offset=@math3d.Vec3::zero(),
+    ),
   )
   assert_true(ramp.world_aabb().intersects_aabb(empty.world_aabb()))
   assert_true(generate_contact(ramp, empty) is None)

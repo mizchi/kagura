@@ -1,0 +1,46 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+The distance between two shapes is the smallest Euclidean distance between a point of one and a point of the other. It is 0 when they intersect (share at least one point).
+
+For EACH problem below, compute the distance between objects A and B. Problems are independent. An answer counts as correct when it is within 0.001 of the exact distance, so give at least 4 decimal places.
+
+### frame-027
+{"id":"A","type":"frame","center":[-0.866,0.072,-0.442],"rotation":[0.9668,0.19,0.0248,-0.169],"outer_half_extents":[1.171,0.738],"inner_half_extents":[0.714,0.386],"half_thickness":0.301}
+{"id":"B","type":"capsule","a":[-1.924,1.992,-0.725],"b":[-0.797,0.437,-1.666],"radius":0.734}
+
+### frame-028
+{"id":"A","type":"frame","center":[-0.059,-0.344,-0.777],"rotation":[0.3977,0.5453,0.7357,0.0562],"outer_half_extents":[1.572,1.377],"inner_half_extents":[1.048,1.011],"half_thickness":0.256}
+{"id":"B","type":"cone","apex":[-0.388,0.551,0.523],"base_center":[-1.357,1.543,0.702],"radius":0.369}
+
+### frame-029
+{"id":"A","type":"cone","apex":[-0.952,-0.11,0.141],"base_center":[-1.308,-1.181,0.308],"radius":0.605}
+{"id":"B","type":"frame","center":[-0.082,0.728,0.601],"rotation":[0.0538,-0.9276,0.3442,0.135],"outer_half_extents":[1.13,1.317],"inner_half_extents":[0.909,0.939],"half_thickness":0.181}
+
+### frame-030
+{"id":"A","type":"frame","center":[-0.517,-0.056,-0.358],"rotation":[0.4967,-0.3361,-0.6608,-0.4514],"outer_half_extents":[1.189,0.958],"inner_half_extents":[0.79,0.383],"half_thickness":0.307}
+{"id":"B","type":"capsule","a":[-1.346,0.903,-1.47],"b":[-0.944,1.483,0.75],"radius":0.602}
+
+### frame-031
+{"id":"A","type":"frame","center":[0.002,-0.314,0.241],"rotation":[0.1263,-0.9156,-0.3423,0.1688],"outer_half_extents":[1.188,1.226],"inner_half_extents":[0.862,0.677],"half_thickness":0.17}
+{"id":"B","type":"cone","apex":[-2.498,0.369,2.222],"base_center":[-0.638,1.458,0.76],"radius":0.653}
+
+### frame-032
+{"id":"A","type":"capsule","a":[2.468,-1.974,-3.462],"b":[1.179,-0.727,-1.708],"radius":0.787}
+{"id":"B","type":"frame","center":[0.478,0.107,0.007],"rotation":[0.0308,0.6919,0.1543,0.7046],"outer_half_extents":[1.339,1.478],"inner_half_extents":[1.016,1.028],"half_thickness":0.192}
+
+End your reply with one line per problem, in order: `<id>: <distance>`.

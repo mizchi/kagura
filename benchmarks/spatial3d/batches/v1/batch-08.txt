@@ -1,0 +1,124 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, axes}. axes[i] is the (unit) direction of the box's local axis i in world space; the box is every center + s0*axes[0] + s1*axes[1] + s2*axes[2] with |si| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin.
+
+For EACH problem below, decide whether objects A and B intersect. Problems are independent.
+### pair-009
+{"id":"A","type":"tetrahedron","vertices":[[1.04,-1.68,-0.3],[0.42,0.31,0.69],[0.49,-1.68,0.64],[2.33,-1.72,-0.8]]}
+{"id":"B","type":"sphere","center":[0.51,-0.59,-0.62],"radius":0.87}
+
+### pair-019
+{"id":"A","type":"cylinder","a":[-0.58,0.13,-1.41],"b":[1.62,-1.24,-1.17],"radius":0.59}
+{"id":"B","type":"segment","a":[1.4,0.01,-1.87],"b":[0.99,-0.6,-0.54]}
+
+### pair-029
+{"id":"A","type":"segment","a":[1.13,0.05,0.99],"b":[-0.11,-1.47,0.86]}
+{"id":"B","type":"cylinder","a":[2.14,-0.69,-0.12],"b":[2.29,0.43,1.83],"radius":1.18}
+
+### pair-039
+{"id":"A","type":"sphere","center":[1.45,0.86,1.07],"radius":1.29}
+{"id":"B","type":"cone","apex":[2.46,0.23,2.61],"base_center":[1.35,-1.38,1.32],"radius":0.47}
+
+### pair-049
+{"id":"A","type":"obb","center":[-0.89,-0.37,-0.44],"half_extents":[0.77,0.84,0.31],"axes":[[-0.662,-0.211,0.719],[-0.592,-0.442,-0.674],[0.46,-0.872,0.168]]}
+{"id":"B","type":"tetrahedron","vertices":[[-1.36,-3.26,-3.1],[-1.46,-1.63,-1.44],[-0.44,-1.96,-3.13],[-2.21,-1.81,-1.69]]}
+
+### pair-059
+{"id":"A","type":"capsule","a":[-0.38,2.15,-1.18],"b":[0.44,0.55,1.21],"radius":0.61}
+{"id":"B","type":"triangle","vertices":[[-0.43,2.13,1.04],[1.6,1.33,-0.28],[-1.08,0.59,-0.72]]}
+
+### pair-069
+{"id":"A","type":"triangle","vertices":[[-1.36,-1.22,1.82],[-0.18,-0.58,-0.72],[0.73,-0.47,0.52]]}
+{"id":"B","type":"cylinder","a":[-2.33,-0.53,-1.57],"b":[0.5,-0.18,-1.17],"radius":0.75}
+
+### pair-079
+{"id":"A","type":"aabb","min":[0.23,-2.21,-0.39],"max":[2.56,-0.66,0.76]}
+{"id":"B","type":"aabb","min":[0.83,-2.58,-1.05],"max":[2.78,0.39,-0.35]}
+
+### pair-089
+{"id":"A","type":"aabb","min":[0.32,-0.9,-0.7],"max":[1.76,0.3,0.7]}
+{"id":"B","type":"segment","a":[-0.2,0.66,0.05],"b":[0.16,-0.44,0.58]}
+
+### pair-099
+{"id":"A","type":"capsule","a":[0.61,1.24,-1.77],"b":[-0.27,1.38,-0.9],"radius":0.35}
+{"id":"B","type":"aabb","min":[-0.26,-0.19,-3.91],"max":[1.09,1.62,-1]}
+
+### pair-109
+{"id":"A","type":"obb","center":[-0.36,1.05,0.23],"half_extents":[1.2,0.89,0.83],"axes":[[0.862,-0.477,-0.172],[-0.379,-0.379,-0.844],[0.338,0.793,-0.507]]}
+{"id":"B","type":"aabb","min":[-1.34,0.6,-1.85],"max":[-0.39,1.73,0.55]}
+
+### pair-119
+{"id":"A","type":"tetrahedron","vertices":[[0.92,-1.05,2.51],[-1.49,-0.46,1.54],[-0.05,-1.38,0.46],[0.36,0.75,0.04]]}
+{"id":"B","type":"point","position":[-0.06,-0.54,1.14]}
+
+### pair-129
+{"id":"A","type":"point","position":[-0.81,-1.47,-0.81]}
+{"id":"B","type":"sphere","center":[-1.2,-1.5,-0.29],"radius":0.55}
+
+### pair-139
+{"id":"A","type":"capsule","a":[-1.32,0.59,0.74],"b":[-0.94,-1.03,0.9],"radius":0.68}
+{"id":"B","type":"cylinder","a":[0.78,-1.23,1.35],"b":[-0.93,0.22,2.32],"radius":0.49}
+
+### pair-149
+{"id":"A","type":"cylinder","a":[-0.73,2.45,0.88],"b":[-0.27,-0.36,1.22],"radius":0.77}
+{"id":"B","type":"point","position":[-0.58,0.62,0.98]}
+
+### pair-159
+{"id":"A","type":"obb","center":[-1.16,0.66,0.56],"half_extents":[1.35,0.75,0.7],"axes":[[0.713,-0.207,0.67],[-0.542,0.443,0.714],[-0.444,-0.872,0.203]]}
+{"id":"B","type":"sphere","center":[-0.89,-0.49,-0.15],"radius":0.43}
+
+### pair-169
+{"id":"A","type":"triangle","vertices":[[-0.37,2.14,1],[0.83,1.01,0.99],[-0.41,1.29,1.44]]}
+{"id":"B","type":"segment","a":[-0.98,2.04,2.08],"b":[1.25,1.22,0.22]}
+
+### pair-179
+{"id":"A","type":"obb","center":[0.15,0.63,-0.88],"half_extents":[0.86,0.4,1.09],"axes":[[-0.746,-0.636,-0.195],[-0.196,0.49,-0.849],[0.636,-0.595,-0.49]]}
+{"id":"B","type":"capsule","a":[1.05,0.16,-0.32],"b":[0.68,0.43,-1.59],"radius":0.45}
+
+### pair-189
+{"id":"A","type":"obb","center":[0.22,1.17,0.54],"half_extents":[1.1,0.56,1.26],"axes":[[0.426,-0.212,-0.879],[0,0.972,-0.235],[0.905,0.1,0.414]]}
+{"id":"B","type":"segment","a":[1.91,2.27,-0.97],"b":[0.58,-0.78,0.05]}
+
+### pair-199
+{"id":"A","type":"cylinder","a":[1.84,-1.63,1.59],"b":[0.73,-0.94,0],"radius":0.76}
+{"id":"B","type":"obb","center":[2.52,-3.66,2.42],"half_extents":[1.45,1.34,0.31],"axes":[[0.847,0.317,0.426],[0.515,-0.687,-0.513],[0.13,0.654,-0.745]]}
+
+### pair-209
+{"id":"A","type":"triangle","vertices":[[2.91,-1.07,-0.37],[0.13,-1.23,-0.86],[0.47,-1.63,1.37]]}
+{"id":"B","type":"cylinder","a":[2.11,-1.32,0.12],"b":[0.23,-1.3,-0.03],"radius":1.12}
+
+### pair-219
+{"id":"A","type":"cylinder","a":[-1.31,0.16,0.68],"b":[-0.29,0.96,0.73],"radius":0.31}
+{"id":"B","type":"triangle","vertices":[[-2.13,0.52,1.01],[-0.31,1.59,-0.15],[-0.51,0.91,0.68]]}
+
+### pair-229
+{"id":"A","type":"capsule","a":[-2,1.64,-1.27],"b":[-0.31,1.27,-1.13],"radius":0.43}
+{"id":"B","type":"cone","apex":[-0.19,0.9,-3.57],"base_center":[0.7,1.17,-2.17],"radius":0.74}
+
+### pair-239
+{"id":"A","type":"capsule","a":[1.51,1.01,-0.48],"b":[0.41,0.98,-0.93],"radius":0.41}
+{"id":"B","type":"segment","a":[0.45,1.97,-0.99],"b":[1.5,0.73,-0.84]}
+
+### torus-009
+{"id":"A","type":"torus","center":[0.69,-0.63,-0.38],"axis":[0.12,0.991,0.06],"major_radius":1.22,"minor_radius":0.33}
+{"id":"B","type":"sphere","center":[0.02,-0.78,-0.29],"radius":0.57}
+
+### torus-019
+{"id":"A","type":"sphere","center":[1.24,2.05,-3.05],"radius":0.55}
+{"id":"B","type":"torus","center":[0.27,-0.11,-0.69],"axis":[-0.513,0.855,0.079],"major_radius":2.07,"minor_radius":0.89}
+
+### torus-029
+{"id":"A","type":"point","position":[-2.08,1.97,1.28]}
+{"id":"B","type":"torus","center":[0.46,0.9,0.63],"axis":[0.455,0.89,0.021],"major_radius":2.37,"minor_radius":0.7}

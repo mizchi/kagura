@@ -1,0 +1,94 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.
+
+For EACH problem below, decide whether objects A and B intersect. Problems are independent.
+
+### pair-019
+{"id":"A","type":"tetrahedron","vertices":[[-0.026,-0.58,-2.982],[0.334,-0.843,-1.962],[0.543,0.693,-0.988],[-1.403,0.613,-1.64]]}
+{"id":"B","type":"capsule","a":[1.117,0.093,-1.166],"b":[-0.452,-0.83,-0.528],"radius":0.563}
+
+### pair-020
+{"id":"A","type":"segment","a":[0.405,1.365,-0.103],"b":[-0.442,2.52,-1.362]}
+{"id":"B","type":"sphere","center":[0.183,0.718,0.276],"radius":0.798}
+
+### pair-021
+{"id":"A","type":"triangle","vertices":[[1.397,0.571,-0.203],[2.363,1.341,2.288],[0.194,0.272,0.383]]}
+{"id":"B","type":"capsule","a":[-0.709,0.419,0.717],"b":[1.201,-0.754,-1.041],"radius":0.484}
+
+### pair-022
+{"id":"A","type":"aabb","min":[-0.698,-2.159,-1.387],"max":[0.704,0.202,0.365]}
+{"id":"B","type":"triangle","vertices":[[0.181,-2,-1.519],[2.344,-3.355,-0.434],[0.982,-2.72,-2.215]]}
+
+### pair-023
+{"id":"A","type":"aabb","min":[-1.178,-0.768,0.601],"max":[1.217,-0.088,1.309]}
+{"id":"B","type":"obb","center":[2.298,-0.228,0.901],"half_extents":[0.77,0.562,0.806],"rotation":[0.5147,-0.1946,0.0585,-0.8329]}
+
+### pair-024
+{"id":"A","type":"point","position":[0.199,-0.073,0.251]}
+{"id":"B","type":"tetrahedron","vertices":[[0.302,0.799,-0.366],[-0.656,-1.329,1.824],[1.196,-0.265,-0.432],[-0.324,-0.722,-0.068]]}
+
+### pair-025
+{"id":"A","type":"cylinder","a":[0.369,-1.043,-1.208],"b":[-0.467,-0.738,-0.704],"radius":0.497}
+{"id":"B","type":"cone","apex":[0.183,0.213,-0.251],"base_center":[0.783,-0.371,-0.698],"radius":0.502}
+
+### pair-026
+{"id":"A","type":"tetrahedron","vertices":[[-0.51,-1.163,1.81],[-0.359,-0.549,-0.833],[-1.288,-0.637,-0.434],[-1.406,-2.873,-0.298]]}
+{"id":"B","type":"tetrahedron","vertices":[[0.526,0.678,1.069],[-0.223,-0.97,-1.419],[-0.386,-1.946,-0.607],[-0.262,0.761,0.968]]}
+
+### pair-027
+{"id":"A","type":"capsule","a":[-0.079,-1.318,0.991],"b":[-0.581,-0.307,0.895],"radius":0.641}
+{"id":"B","type":"cylinder","a":[0.369,-3.476,0.527],"b":[-0.888,-1.925,1.613],"radius":0.547}
+
+### pair-028
+{"id":"A","type":"tetrahedron","vertices":[[-1.227,-0.948,-0.648],[0.89,-0.389,1.694],[0.821,-0.186,-0.953],[-0.751,-1.676,1.495]]}
+{"id":"B","type":"segment","a":[-0.401,1.229,-1.287],"b":[0.742,-2.484,-0.407]}
+
+### pair-029
+{"id":"A","type":"segment","a":[-1.84,1.29,0.056],"b":[0.752,3.17,1.67]}
+{"id":"B","type":"obb","center":[0.347,0.835,0.463],"half_extents":[1.07,0.862,1.406],"rotation":[0.4989,-0.829,-0.0419,0.2491]}
+
+### pair-030
+{"id":"A","type":"point","position":[-0.064,0.719,0.015]}
+{"id":"B","type":"cylinder","a":[0.612,0.646,0.435],"b":[-0.379,0.29,0.445],"radius":0.515}
+
+### pair-031
+{"id":"A","type":"cone","apex":[1.218,-0.981,0.03],"base_center":[-0.005,-0.774,-0.16],"radius":0.487}
+{"id":"B","type":"cone","apex":[0.26,-0.671,-1.634],"base_center":[0.35,-1.619,-0.136],"radius":0.385}
+
+### pair-032
+{"id":"A","type":"tetrahedron","vertices":[[0.376,-0.949,-0.711],[-1.363,-1.207,-1.416],[-1.379,0.561,-0.564],[0.223,-1.243,0.202]]}
+{"id":"B","type":"cone","apex":[0.826,-0.545,-0.013],"base_center":[0.261,-0.327,-1.192],"radius":0.654}
+
+### pair-033
+{"id":"A","type":"tetrahedron","vertices":[[-1.782,0.47,-0.017],[0.685,0.325,0.348],[-0.105,-0.79,0.085],[-0.861,0.605,-0.828]]}
+{"id":"B","type":"segment","a":[-1.176,0.348,-0.355],"b":[0.33,-0.644,-0.318]}
+
+### pair-034
+{"id":"A","type":"triangle","vertices":[[1.492,1.302,-0.14],[-0.601,0.688,0.464],[0.219,1.705,0.004]]}
+{"id":"B","type":"cone","apex":[0.57,1.659,-0.603],"base_center":[0.309,0.238,-0.314],"radius":1.121}
+
+### pair-035
+{"id":"A","type":"cone","apex":[0.827,1.832,1.48],"base_center":[0.875,1.033,-0.153],"radius":0.614}
+{"id":"B","type":"cone","apex":[0.624,-0.255,-0.375],"base_center":[0.753,0.32,0.237],"radius":0.769}
+
+### pair-036
+{"id":"A","type":"tetrahedron","vertices":[[2.457,-0.416,1.331],[0.236,-0.62,-0.948],[0.921,-2.086,-1.042],[1.42,-2.065,0.714]]}
+{"id":"B","type":"sphere","center":[0.228,-0.894,-0.247],"radius":0.447}
+
+End your reply with one line per problem, in order: `<id>: YES` or `<id>: NO`.

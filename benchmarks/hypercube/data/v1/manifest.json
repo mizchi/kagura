@@ -1,0 +1,13 @@
+{
+  "dataset_version": "hypercube-v1",
+  "prompt_version": "hypercube-prompt-v1",
+  "seed": 20261009,
+  "counts": {
+    "track": 48,
+    "solve": 24
+  },
+  "sha256": {
+    "problems.jsonl": "23101d311bc2f704a4dfba0752cf0595b7222356acd6549b25576cd0086f9ef3",
+    "answers.jsonl": "906ccecccb77dec7f23e880ba8b714c2cf784908e50b65abc21223927b2f8ead"
+  }
+}

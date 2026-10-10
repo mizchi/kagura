@@ -76,7 +76,7 @@ fn setup_physics_sync_world(n : Int) -> (World, @physics3d.PhysicsWorld) {
         i,
         @math3d.Vec3::new(i.to_double() * 0.5, 1.0, 0.0),
         1.0,
-        @physics3d.SphereShape(@math3d.Vec3::zero(), 0.5),
+        @physics3d.SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
       ),
     )
     world.set_physics_body_id({ value: i, }, i)

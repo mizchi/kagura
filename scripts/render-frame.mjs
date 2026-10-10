@@ -101,6 +101,11 @@ export async function renderExampleState({
     writeFileSync(paths.elements, `${JSON.stringify(elements, null, 2)}\n`);
     written.elements = paths.elements;
   }
+  if (frame.scene3dSnapshotJson != null) {
+    // The 3D scene as data; read it with `kagura scene3d check|distance|...`.
+    writeFileSync(paths.scene3d, `${frame.scene3dSnapshotJson.trimEnd()}\n`);
+    written.scene3d = paths.scene3d;
+  }
   const meta = {
     example: exampleName,
     state: state.name,

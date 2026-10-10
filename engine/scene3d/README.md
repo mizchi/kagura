@@ -27,3 +27,19 @@ let matrices = poses.matrices(index)
 
 敵の警戒状態、立ち上がりの時間、骨格固有の座り・伏せの角度はゲームやアセット側が所有する。
 ASHEN REALMSでは二足・ゾンビ・狼の待機姿勢をこのAPIで生成している。
+
+## シーンをデータとして確かめる
+
+`SceneRoot::snapshot(camera~)` はワールド座標の位置・回転・向き付きの箱を持つ
+`Scene3DSnapshot` を返す。`check()` が NaN・非単位回転・scale 0・視野外・
+subject 同士の重なりを返し、`distance(a, b)` / `overlaps()` / `raycast(origin, dir)` が
+配置を問い合わせる。ゲームのテストで直接使える。
+
+```moonbit
+let snap = root.snapshot(camera~)
+assert_eq(snap.check().length(), 0)
+assert_true(snap.distance("world/player", "world/door").distance > 0.5)
+```
+
+描画のたびに `publish_scene3d_snapshot_lazy(fn() { root.snapshot(camera~) })` を呼ぶと、
+`just render` と `kagura scene3d` がファイルとして読める（JS のみ。読まれたときだけ作る）。

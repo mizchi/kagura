@@ -1,0 +1,94 @@
+You are given 3D objects as exact coordinates. Reason about them geometrically.
+
+All shapes are SOLID (filled), in a right-handed 3D coordinate system, same units on every axis.
+Rotations are unit quaternions [w, x, y, z] (Hamilton convention, normalize before use). A rotation maps an object's local coordinates to world coordinates: world = center + R(q) * local.
+- point: {position}. A single point.
+- sphere: {center, radius}.
+- aabb: axis-aligned box, {min, max} corners.
+- obb: oriented box, {center, half_extents, rotation}. Every point whose local coordinates satisfy |local_i| <= half_extents[i].
+- segment: line segment {a, b}.
+- capsule: every point within radius of segment {a, b}.
+- cylinder: {a, b, radius}. a and b are the centers of the two flat circular caps.
+- cone: {apex, base_center, radius}. A right circular cone; the flat circular base of the given radius is centered at base_center and perpendicular to the apex-base axis.
+- triangle: flat triangle {vertices: [v0, v1, v2]} (zero thickness, interior included).
+- tetrahedron: {vertices: [v0, v1, v2, v3]}, the solid convex hull of the four points.
+- torus: {center, axis, major_radius, minor_radius}. Every point within minor_radius of the circle of radius major_radius around center that lies in the plane perpendicular to axis. The hole is empty.
+- frame: a flat rectangular plate with a rectangular hole through it, {center, rotation, outer_half_extents: [ox, oy], inner_half_extents: [ix, iy], half_thickness: t}. In local coordinates it is every point with |x| <= ox, |y| <= oy, |z| <= t, except those with |x| < ix and |y| < iy (the hole, open along local z).
+- compound: {parts: [...]}, the union of its parts (each part is one of the shapes above, in world coordinates). Compounds are not convex in general.
+Two shapes intersect when they share at least one point (overlap or containment both count). No pair merely touches: every answer is decided by a nonzero margin, but margins can be small (down to about 0.002), so approximate reasoning is not enough.
+
+For EACH problem below, decide whether objects A and B intersect. Problems are independent.
+
+### torus-013
+{"id":"A","type":"sphere","center":[-0.751,-0.174,-1.391],"radius":0.88}
+{"id":"B","type":"torus","center":[-0.408,0.514,-0.871],"axis":[0.4152,0.6799,0.6045],"major_radius":1.128,"minor_radius":0.498}
+
+### torus-014
+{"id":"A","type":"torus","center":[0.305,-0.161,0.722],"axis":[-0.2489,0.3471,0.9042],"major_radius":1.763,"minor_radius":0.779}
+{"id":"B","type":"sphere","center":[-2.322,-1.985,0.828],"radius":0.62}
+
+### torus-015
+{"id":"A","type":"point","position":[-1.612,-0.44,-0.924]}
+{"id":"B","type":"torus","center":[-0.645,-0.498,-0.6],"axis":[-0.0744,0.0679,-0.9949],"major_radius":1.128,"minor_radius":0.437}
+
+### torus-016
+{"id":"A","type":"point","position":[-0.389,0.969,-2.76]}
+{"id":"B","type":"torus","center":[-0.989,0.914,-0.606],"axis":[0.6335,0.5857,0.5055],"major_radius":2.121,"minor_radius":0.664}
+
+### torus-017
+{"id":"A","type":"torus","center":[0.258,0.619,0.078],"axis":[-0.0242,0.8989,0.4375],"major_radius":1.919,"minor_radius":0.811}
+{"id":"B","type":"sphere","center":[0.257,-0.319,-0.359],"radius":1.338}
+
+### torus-018
+{"id":"A","type":"sphere","center":[-0.017,-1.188,0.445],"radius":1.499}
+{"id":"B","type":"torus","center":[0.55,-0.691,0.496],"axis":[-0.7626,-0.6467,-0.0115],"major_radius":1.742,"minor_radius":0.361}
+
+### torus-019
+{"id":"A","type":"sphere","center":[0.295,-0.136,-1.332],"radius":0.915}
+{"id":"B","type":"torus","center":[0.565,-0.561,-0.734],"axis":[0.0136,0.3057,-0.952],"major_radius":1.36,"minor_radius":0.31}
+
+### torus-020
+{"id":"A","type":"torus","center":[0.308,0.201,0.549],"axis":[0.5003,-0.7826,-0.3705],"major_radius":2.322,"minor_radius":0.87}
+{"id":"B","type":"sphere","center":[-2.2,0.526,0.549],"radius":0.665}
+
+### torus-021
+{"id":"A","type":"torus","center":[0.334,0.859,-0.251],"axis":[-0.3178,-0.8681,0.3812],"major_radius":1.627,"minor_radius":0.608}
+{"id":"B","type":"sphere","center":[0.362,0.973,-0.217],"radius":0.937}
+
+### torus-022
+{"id":"A","type":"sphere","center":[1.483,0.151,2.287],"radius":1.319}
+{"id":"B","type":"torus","center":[0.883,0.251,0.663],"axis":[-0.6312,-0.0477,-0.7742],"major_radius":1.487,"minor_radius":0.553}
+
+### torus-023
+{"id":"A","type":"sphere","center":[1.979,0.158,0.005],"radius":1.073}
+{"id":"B","type":"torus","center":[-0.403,-0.033,0.501],"axis":[0.4599,0.2707,-0.8457],"major_radius":1.398,"minor_radius":0.527}
+
+### torus-024
+{"id":"A","type":"torus","center":[-0.352,0.15,-0.499],"axis":[0.4423,-0.3476,-0.8268],"major_radius":2.242,"minor_radius":0.587}
+{"id":"B","type":"sphere","center":[1.516,-1.387,2.468],"radius":1.206}
+
+### torus-025
+{"id":"A","type":"torus","center":[0.324,0.54,-0.174],"axis":[0.8933,-0.4211,0.1571],"major_radius":1.893,"minor_radius":0.822}
+{"id":"B","type":"sphere","center":[0.967,1.107,-4.076],"radius":1.305}
+
+### torus-026
+{"id":"A","type":"torus","center":[-0.084,0.87,-0.152],"axis":[-0.0895,0.1739,-0.9807],"major_radius":1.195,"minor_radius":0.266}
+{"id":"B","type":"sphere","center":[0.394,0.536,0.987],"radius":1.195}
+
+### torus-027
+{"id":"A","type":"sphere","center":[-0.444,-0.816,0.835],"radius":1.459}
+{"id":"B","type":"torus","center":[0.792,-0.274,-0.281],"axis":[-0.5251,-0.5934,0.6101],"major_radius":1.66,"minor_radius":0.504}
+
+### torus-028
+{"id":"A","type":"sphere","center":[-0.791,-0.465,1.44],"radius":0.832}
+{"id":"B","type":"torus","center":[-0.388,-0.801,0.649],"axis":[-0.4165,-0.4016,-0.8156],"major_radius":2.198,"minor_radius":0.76}
+
+### torus-029
+{"id":"A","type":"sphere","center":[-1.259,-0.605,0.806],"radius":0.439}
+{"id":"B","type":"torus","center":[-0.952,0.183,0.603],"axis":[0.7735,-0.529,0.349],"major_radius":1.872,"minor_radius":0.639}
+
+### torus-030
+{"id":"A","type":"sphere","center":[-0.414,-0.59,-0.183],"radius":1.107}
+{"id":"B","type":"torus","center":[0.163,0.234,-0.309],"axis":[0.6931,0.7026,-0.1613],"major_radius":1.572,"minor_radius":0.627}
+
+End your reply with one line per problem, in order: `<id>: YES` or `<id>: NO`.

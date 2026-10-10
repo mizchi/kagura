@@ -41,6 +41,17 @@ pub enum Command {
   NewWeb(String)
   Capture(BrowserOptions)
   Profile(BrowserOptions)
+  Scene3D(Scene3DOptions)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Scene3DOptions {
+  operation : String
+  snapshot : String
+  paths : Array[String]
+  from : Array[Double]?
+  direction : Array[Double]?
+  allow : Array[String]
+  json : Bool
 } derive(Eq, @debug.Debug)
 
 // Type aliases

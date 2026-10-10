@@ -71,7 +71,7 @@ fn GameState::add_stage_part(
     ..@physics3d.RigidBody::new_static(
       id,
       position,
-      BoxShape(scale.scale(0.5), @math3d.Vec3::zero()),
+      BoxShape(half_extents=scale.scale(0.5), offset=@math3d.Vec3::zero()),
     )
     .with_restitution(0.15)
     .with_friction(0.3),
@@ -159,7 +159,7 @@ fn GameState::drop_ball(self : GameState) -> Unit {
         id,
         position,
         1.0,
-        SphereShape(@math3d.Vec3::zero(), 0.4),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=0.4),
       )
       .with_restitution(0.42)
       .with_friction(0.55)

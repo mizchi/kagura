@@ -5,7 +5,7 @@ test "explicit nonzero impulses and forces wake sleeping dynamic bodies" {
     1,
     @math3d.Vec3::zero(),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 0.5),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
   )
   world.add_body({ ..body, is_sleeping: true, sleep_timer: 1.0, })
   world.apply_impulse(1, @math3d.Vec3::new(4.0, 0.0, 0.0))
@@ -25,7 +25,7 @@ test "zero input keeps settled bodies asleep" {
     1,
     @math3d.Vec3::zero(),
     1.0,
-    SphereShape(@math3d.Vec3::zero(), 0.5),
+    SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
   )
   let sleeping = { ..body, is_sleeping: true, sleep_timer: 1.0, }
   assert_true(sleeping.apply_impulse(@math3d.Vec3::zero()).is_sleeping)

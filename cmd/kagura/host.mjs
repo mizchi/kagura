@@ -4,6 +4,7 @@ import {basename, dirname, isAbsolute, join, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {runProcess} from './process.mjs';
 import {captureWeb, profileWeb} from './browser.mjs';
+import {analyzeScene3d} from '../inspect3d/inspect3d.generated.js';
 
 export function createWebProject(destination, files, runtime) {
   const output = resolve(destination);
@@ -80,6 +81,13 @@ export async function executeRequest(request, {files = {}, runtime = {}, checkou
     const output = createWebProject(request.directory, files, runtime);
     console.log(`Created ${output}\n\nNext: cd ${JSON.stringify(output)}\n      pnpm install\n      kagura dev`);
     return 0;
+  }
+  if (request.command === 'scene3d') {
+    // The analysis is MoonBit (cmd/inspect3d); the host only reads the file.
+    const reply = JSON.parse(analyzeScene3d(JSON.stringify(request), readFileSync(resolve(request.snapshot), 'utf8')));
+    if (!reply.ok) throw new Error(`${request.snapshot}: ${reply.error}`);
+    console.log(request.json ? JSON.stringify(reply.value, null, 2) : reply.text);
+    return reply.exitCode;
   }
   if (request.command === 'capture' || request.command === 'profile') {
     const options = {...request};

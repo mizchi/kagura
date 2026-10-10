@@ -9,7 +9,10 @@ test "offset muzzle aims at the reticle without spawning through a side wall" {
         @physics3d.RigidBody::new_static(
           -3,
           state.eye().add(@math3d.Vec3::new(0.3, 0.0, 0.0)),
-          AABBShape(@math3d.Vec3::new(0.03, 2.0, 2.0), @math3d.Vec3::zero()),
+          AABBShape(
+            half_extents=@math3d.Vec3::new(0.03, 2.0, 2.0),
+            offset=@math3d.Vec3::zero(),
+          ),
         ),
       )
     }
@@ -70,7 +73,10 @@ test "shots sweep thin walls and test moving targets at arrival" {
     @physics3d.RigidBody::new_static(
       -42,
       @math3d.Vec3::new(0.0, 1.0, 4.9),
-      AABBShape(@math3d.Vec3::new(1.0, 1.0, 0.01), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(1.0, 1.0, 0.01),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   state.fire_shot(
@@ -120,7 +126,7 @@ test "enemy score waits for arrival and a closer crate shields the enemy" {
           1,
           @math3d.Vec3::new(0.0, 1.0, 2.0),
           1.0,
-          SphereShape(@math3d.Vec3::zero(), 0.5),
+          SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
         ),
       )
     }

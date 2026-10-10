@@ -212,9 +212,9 @@ pub fn help_text() -> String {
     #|  kagura studio [--port 5190] [--host 127.0.0.1]
     #|  kagura capture [url] [--output game.png] [--width 1600] [--height 900] [--headed]
     #|  kagura profile [url] [--out-dir directory] [--samples 240] [--profile-ms 4000]
-    #|  kagura scene3d check <snapshot.json> [--allow kind[@path]]... [--json]
+    #|  kagura scene3d check <snapshot.json> [--allow kind[@path]]... [--tolerance 0.01] [--json]
     #|  kagura scene3d distance <snapshot.json> <path-a> <path-b> [--json]
-    #|  kagura scene3d overlaps <snapshot.json> [--json]
+    #|  kagura scene3d overlaps <snapshot.json> [--tolerance 0.01] [--json]
     #|  kagura scene3d raycast <snapshot.json> --from x,y,z --direction x,y,z [--json]
     #|  kagura help [new|dev|build|studio|capture|profile|scene3d]
     #|
@@ -233,6 +233,7 @@ pub fn help_text() -> String {
     #|         subjects; exits 1 unless every finding is allowed (kinds: non_finite,
     #|         unnormalized_rotation, zero_scale, outside_view, overlap). distance: gap between
     #|         two nodes, each with every mesh below it. overlaps: intersecting mesh pairs.
+    #|         --tolerance: overlap depth that still counts as resting contact (default 0.01).
     #|         raycast: meshes hit along a ray, nearest first.
     #|Browser tools accept --url (default http://localhost:8080/), --timeout 30000 and --headed.
     #|Install browser tools in the calling project: pnpm add -D @playwright/test; pnpm exec playwright install chromium.

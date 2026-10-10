@@ -84,14 +84,18 @@ let d = @convex.distance(
 
 - ノードごとに `path`、`kind`（`mesh` / `group`）、`subject`、ワールドの `position` /
   `rotation`（`[x, y, z, w]`）/ `scale`、メッシュなら `box`（ローカルの境界を
-  ワールドへ移した向き付きの箱。`center` / `half_extents` / `rotation`）。数値は小数 5 桁
+  ワールドへ移した向き付きの箱。`center` / `half_extents` / `rotation`）と `sphere`
+  （箱の中心から全頂点を含む球。`center` / `radius`）。数値は小数 5 桁
+- 箱も球もメッシュを必ず含む。判定はその両方で行い、重なり・距離・レイは
+  **両方が当たったときだけ**当たりとする（平たいメッシュは箱、丸いメッシュは球が効く）。
+  球を持たない古い snapshot は箱だけで判定する
 - 親の回転の下に不均一な scale があるとワールド行列が歪むので、`rotation` / `scale` は
   近似になる。スキニングするメッシュの `box` はバインドポーズの境界
 - `just render <example>` が `<example>.scene3d.json` を書く（example が
   `@scene3d.publish_scene3d_snapshot_lazy` で公開している場合。今は arena3d）
 
 ```bash
-kagura scene3d check <file> [--allow kind[@path]]...       # 決定的な検査。残れば exit 1
+kagura scene3d check <file> [--allow kind[@path]]... [--tolerance 0.01]  # 決定的な検査。残れば exit 1
 kagura scene3d distance <file> world/player world/enemy     # 2 ノード間の最短距離（下のメッシュ全部を含む）
 kagura scene3d overlaps <file>                              # 交わるメッシュの組
 kagura scene3d raycast <file> --from 0,10,0 --direction 0,-1,0  # 当たるメッシュを近い順に
@@ -106,7 +110,11 @@ kagura scene3d raycast <file> --from 0,10,0 --direction 0,-1,0  # 当たるメ�
 | `unnormalized_rotation` | 回転の長さが 1 から 1e-3 以上ずれている |
 | `zero_scale` | scale の成分が 1e-6 未満 |
 | `outside_view` | メッシュの箱全体がカメラの視錐台の外（同じ面の外側に 8 頂点すべてがある） |
-| `overlap` | 異なる subject を持つメッシュの箱が交わる（祖先と子孫の組は除く） |
+| `overlap` | 異なる subject を持つメッシュが `--tolerance`（既定 0.01）より深く重なる（祖先と子孫の組は除く） |
+
+重なりに許容値があるのは、物理で積んだ箱や接している球が数 mm 沈み込んで止まるため。
+arena3d の 240 フレーム後では、積んだ木箱が 0.006、接した球が 0.005 沈んでいた。
+`--tolerance 0` にすると、こうした接触もすべて報告する。
 
 意図した例外は `--allow kind` か `--allow kind@path`（path 以下を含む）で外す。
 **何にも当たらなかった allow も失敗にする**。古い除外が残ると、本物の不具合を黙って隠すため。

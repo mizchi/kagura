@@ -226,3 +226,104 @@ test "query entry point: check with allow rules, distance, overlaps, raycast" {
   guard hits is Object({ "hits": Array(list), .. }) else { fail("no hits") }
   assert_eq(list.length(), 2)
 }
+
+///|
+test "resting contact is not an overlap; deeper penetration is" {
+  let cube = @mesh3d.Mesh3D::cube(1.0)
+  let pair = (gap : Double) => {
+    let root = SceneRoot::new()
+    root.render(
+      group(key="w", children=[
+        subject("a", mesh(key="a", mesh=cube)),
+        subject(
+          "b",
+          mesh(
+            key="b",
+            mesh=cube,
+            position=@math3d.Vec3::new(0.0, 1.0 - gap, 0.0),
+          ),
+        ),
+      ]),
+    )
+    root.snapshot().check().map(f => f.kind)
+  }
+  // A physics stack settles a few millimetres into its support.
+  assert_eq(pair(0.006), [])
+  assert_eq(pair(0.03), ["overlap"])
+  // The tolerance is the caller's to choose.
+  let root = SceneRoot::new()
+  root.render(
+    group(key="w", children=[
+      subject("a", mesh(key="a", mesh=cube)),
+      subject(
+        "b",
+        mesh(key="b", mesh=cube, position=@math3d.Vec3::new(0.0, 0.97, 0.0)),
+      ),
+    ]),
+  )
+  assert_eq(root.snapshot().check(contact_tolerance=0.05).length(), 0)
+}
+
+///|
+test "balls are judged by their bounding ball, not their box" {
+  let ball = @mesh3d.Mesh3D::sphere(0.5, 24, 16)
+  let root = SceneRoot::new()
+  // Diagonal neighbours 1.004 apart: the balls miss, their boxes overlap.
+  root.render(
+    group(key="w", children=[
+      subject("a", mesh(key="a", mesh=ball)),
+      subject(
+        "b",
+        mesh(key="b", mesh=ball, position=@math3d.Vec3::new(0.71, 0.0, 0.71)),
+      ),
+    ]),
+  )
+  let snap = root.snapshot()
+  let sphere = snap.nodes[1].sphere.unwrap()
+  assert_true((sphere.radius - 0.5).abs() < 1.0e-6)
+  assert_eq(snap.check().length(), 0)
+  let d = snap.distance("w/a", "w/b")
+  assert_true((d.distance - (0.71 * 2.0.sqrt() - 1.0)).abs() < 1.0e-6)
+  // A ray past the box corner but outside the ball misses.
+  let corner = snap.raycast(
+    @math3d.Vec3::new(-5.0, 0.45, 0.45),
+    @math3d.Vec3::unit_x(),
+  )
+  assert_false(corner.iter().any(h => h.0 == "w/a"))
+  let centre = snap.raycast(
+    @math3d.Vec3::new(-5.0, 0.0, 0.0),
+    @math3d.Vec3::unit_x(),
+  )
+  assert_eq(centre[0].0, "w/a")
+  assert_true((centre[0].1 - 4.5).abs() < 1.0e-9)
+}
+
+///|
+test "snapshots without bounding balls still read" {
+  let doc : Json = {
+    "schema": scene3d_snapshot_schema.to_json(),
+    "version": 1,
+    "camera": Json::null(),
+    "nodes": [
+      {
+        "path": "a",
+        "position": [0, 0, 0],
+        "rotation": [0, 0, 0, 1],
+        "scale": [1, 1, 1],
+        "box": {
+          "center": [0, 0, 0],
+          "half_extents": [1, 1, 1],
+          "rotation": [0, 0, 0, 1],
+        },
+      },
+    ],
+  }
+  let snap = Scene3DSnapshot::from_json(doc)
+  assert_true(snap.nodes[0].sphere is None)
+  assert_eq(
+    snap
+    .raycast(@math3d.Vec3::new(-5.0, 0.9, 0.9), @math3d.Vec3::unit_x())
+    .length(),
+    1,
+  )
+}

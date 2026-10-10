@@ -33,6 +33,8 @@ fn allow_matches(rule : String, finding : Scene3DFinding) -> Bool raise {
 /// JSON entry point for tools (the `kagura scene3d` CLI): runs one operation
 /// on a snapshot document.
 ///
+/// `tolerance` (default 0.01) is how deep an overlap must be to count, for
+/// `check` and `overlaps`.
 /// - `{"operation": "check", "allow": ["overlap@world/door", ...]}` ->
 ///   `{"findings": [{kind, paths, message, allowed}], "unused_allow": [...], "failed": bool}`.
 ///   `failed` is true when a finding is not allowed or an allow rule matched
@@ -47,6 +49,11 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
     raise Scene3DSnapshotError("request: expected an object")
   }
   let snap = Scene3DSnapshot::from_json(snapshot)
+  let tolerance = match r.get("tolerance") {
+    Some(Number(t, ..)) if t >= 0.0 => t
+    None | Some(Null) => 0.01
+    _ => raise Scene3DSnapshotError("tolerance: expected a non-negative number")
+  }
   match r.get("operation") {
     Some(String("check")) => {
       let rules = match r.get("allow") {
@@ -63,7 +70,7 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
       let used = rules.map(_ => false)
       let findings = []
       let mut failed = false
-      for f in snap.check() {
+      for f in snap.check(contact_tolerance=tolerance) {
         let mut allowed = false
         for i, rule in rules {
           if allow_matches(rule, f) {
@@ -118,7 +125,9 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
     Some(String("overlaps")) =>
       {
         "pairs": Json::array(
-          snap.overlaps().map(p => ([p.0.to_json(), p.1.to_json()] : Json)),
+          snap
+          .overlaps(contact_tolerance=tolerance)
+          .map(p => ([p.0.to_json(), p.1.to_json()] : Json)),
         ),
       }
     Some(String("raycast")) => {

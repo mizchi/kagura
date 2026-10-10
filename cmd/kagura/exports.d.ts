@@ -25,4 +25,4 @@ export type ParseReply =
   | ({ok: true; command: 'capture' | 'profile'} & BrowserOptions)
   | {ok: true; command: 'scene3d'; operation: 'check' | 'distance' | 'overlaps' | 'raycast';
      snapshot: string; paths: string[]; from: [number, number, number] | null;
-     direction: [number, number, number] | null; allow: string[]; json: boolean};
+     direction: [number, number, number] | null; allow: string[]; tolerance: number | null; json: boolean};

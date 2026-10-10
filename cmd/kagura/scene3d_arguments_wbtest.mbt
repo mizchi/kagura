@@ -12,6 +12,7 @@ test "scene3d operations parse into a request for the analysis" {
         from: None,
         direction: None,
         allow: ["overlap@world/door"],
+        tolerance: None,
         json: true,
       }),
     ),
@@ -26,6 +27,7 @@ test "scene3d operations parse into a request for the analysis" {
         from: None,
         direction: None,
         allow: [],
+        tolerance: None,
         json: false,
       }),
     ),
@@ -42,9 +44,14 @@ test "scene3d operations parse into a request for the analysis" {
         from: Some([0.0, 1.5, -2.0]),
         direction: Some([0.0, 0.0, -1.0]),
         allow: [],
+        tolerance: None,
         json: false,
       }),
     ),
+  )
+  assert_true(
+    parse_args(["scene3d", "overlaps", "s.json", "--tolerance", "0.05"])
+    is Ok(Scene3D({ tolerance: Some(0.05), .. })),
   )
   assert_eq(parse_args(["scene3d", "--help"]), Ok(Help(Some("scene3d"))))
 }
@@ -67,6 +74,9 @@ test "scene3d rejects incomplete or mismatched arguments" {
       ["scene3d", "distance", "s.json", "a", "b", "--allow", "overlap"],
       ["scene3d", "check", "s.json", "--allow"],
       ["scene3d", "check", "s.json", "--verbose"],
+      ["scene3d", "check", "s.json", "--tolerance", "-1"],
+      ["scene3d", "check", "s.json", "--tolerance", "deep"],
+      ["scene3d", "raycast", "s.json", "--tolerance", "0.1"],
     ] {
     assert_true(parse_args(args) is Err(_), msg=args.join(" "))
   }

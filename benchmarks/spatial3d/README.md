@@ -197,6 +197,21 @@ node score.mjs results/v2/*.responses.jsonl
 v2 の非交差問題は、ほぼすべて外接体どうしが重なっている。だから、
 外接体で判定できる問題はほとんど残っていない。
 
+## kagura の GJK の検証に使う
+
+`export-convex-fixture.mjs` が、トーラスを除く v3 の 232 問（距離）と v2 の 276 問（交差判定）を
+MoonBit のテストデータ `convex_check/fixture_wbtest.mbt` に書き出す。`convex_check` は
+`@convex.distance_between_unions`（`core/collision3d/convex`）の結果を、このベンチの証明付き正解と
+照合する。最大誤差は 4.98e-7 で、正解を小数 6 桁に丸めた分（5e-7）に収まる。
+
+```bash
+node benchmarks/spatial3d/export-convex-fixture.mjs && moon fmt   # データを作り直したとき
+moon test -p mizchi/kagura_benchmarks/spatial3d/convex_check
+```
+
+ベンチの四元数は `[w, x, y, z]` で小数 4 桁に丸めてある。kagura の `Quaternion` は
+`(x, y, z, w)` で単位長を前提にするので、`convex_check` の `wxyz` が並べ替えて正規化する。
+
 ## 実測結果
 
 ### v3: claude-opus-5-5（2026-10-05, batched）

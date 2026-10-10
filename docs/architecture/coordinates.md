@@ -52,6 +52,31 @@ let q = turn_z.then(turn_x) // == turn_x.multiply(turn_z)
 `half_extents` は辺の長さの**半分**。1 辺 1 m の立方体は `Vec3::new(0.5, 0.5, 0.5)`。
 `@collision3d.AABB::new(min, max)` は最小・最大の角で指定する別の型なので、混同しないこと。
 
+## 距離・交差のクエリ（`@convex`）
+
+凸形状どうしの最短距離と最近接点は `mizchi/kagura_core/collision3d/convex` で求める。
+手計算や、サンプル点での近似はしない。
+
+```moonbit
+let d = @convex.distance(
+  Sphere(center=Vec3::zero(), radius=1.0),
+  @convex.Shape::aabb(min=Vec3::new(2.0, -1.0, -1.0), max=Vec3::new(3.0, 1.0, 1.0)),
+)
+// d.distance == 1.0、d.point_a == (1, 0, 0)、d.point_b == (2, 0, 0)
+```
+
+- 形状は `Point` / `Sphere` / `Box`（中心・半辺長・回転）/ `Segment` / `Capsule` /
+  `Cylinder` / `Cone` / `Hull`（頂点の凸包。三角形や四面体もこれ）。どれも中身の詰まった立体
+- 重なっているときは `distance == 0`、`intersecting == true`。めり込み深さは返さない
+- L 字や穴あき枠のような非凸形状は、凸形状の配列にして `distance_between_unions` に渡す
+- 距離の精度は相対 1e-12。曲面（球・カプセル・円柱・円錐）では、最近接点は約 1e-6 の
+  ずれを含む
+- `Box` の `rotation` は単位四元数を渡す。外部データの四元数が丸められているなら
+  `normalize()` してから渡す
+- 正しさは 2 段で確かめている。パッケージ内のテストは閉じた式と、分離平面による証明
+  （上界と下界が一致すること）。`benchmarks/spatial3d/convex_check` は spatial3d ベンチの
+  証明付き正解と照合する（v3 の距離 232 問、v2 の交差判定 276 問）
+
 ## 規約を足すとき
 
 数値例を 1 つ決め、`conventions_wbtest.mbt` にテストを足してから、この表と

@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_core/collision3d/convex"
+
+import {
+  "mizchi/geom/math3d",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn distance(Shape, Shape, max_iterations? : Int) -> Distance
+
+pub fn distance_between_unions(Array[Shape], Array[Shape], max_iterations? : Int) -> Distance
+
+// Errors
+
+// Types and methods
+pub(all) struct Distance {
+  distance : Double
+  intersecting : Bool
+  point_a : @math3d.Vec3
+  point_b : @math3d.Vec3
+  converged : Bool
+} derive(@debug.Debug)
+pub fn Distance::output(Self, &Logger) -> Unit
+pub fn Distance::to_repr(Self) -> @debug.Repr
+pub fn Distance::to_string(Self) -> String
+pub impl Show for Distance
+
+pub(all) enum Shape {
+  Point(at~ : @math3d.Vec3)
+  Sphere(center~ : @math3d.Vec3, radius~ : Double)
+  Box(center~ : @math3d.Vec3, half_extents~ : @math3d.Vec3, rotation~ : @math3d.Quaternion)
+  Segment(start~ : @math3d.Vec3, end~ : @math3d.Vec3)
+  Capsule(start~ : @math3d.Vec3, end~ : @math3d.Vec3, radius~ : Double)
+  Cylinder(start~ : @math3d.Vec3, end~ : @math3d.Vec3, radius~ : Double)
+  Cone(base_center~ : @math3d.Vec3, apex~ : @math3d.Vec3, radius~ : Double)
+  Hull(vertices~ : Array[@math3d.Vec3])
+} derive(@debug.Debug)
+pub fn Shape::aabb(min~ : @math3d.Vec3, max~ : @math3d.Vec3) -> Self
+pub fn Shape::interior_point(Self) -> @math3d.Vec3
+pub fn Shape::output(Self, &Logger) -> Unit
+pub fn Shape::support(Self, @math3d.Vec3) -> @math3d.Vec3
+pub fn Shape::to_repr(Self) -> @debug.Repr
+pub fn Shape::to_string(Self) -> String
+pub impl Show for Shape
+
+// Type aliases
+
+// Traits

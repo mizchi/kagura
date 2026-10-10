@@ -103,8 +103,8 @@ fn body_is_solver_active3d(body : RigidBody) -> Bool {
 /// Distance from the centre of mass to the collider's outermost point.
 fn body_max_extent3d(body : RigidBody) -> Double {
   match body.collider {
-    SphereShape(offset, radius) => offset.length() + radius
-    AABBShape(half_extents, offset) | BoxShape(half_extents, offset) =>
+    SphereShape(offset~, radius~) => offset.length() + radius
+    AABBShape(half_extents~, offset~) | BoxShape(half_extents~, offset~) =>
       offset.length() + half_extents.length()
   }
 }

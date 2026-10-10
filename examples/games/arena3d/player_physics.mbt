@@ -10,7 +10,7 @@ fn new_player_body(position : @math3d.Vec3) -> @physics3d.RigidBody {
       player_body_id,
       position,
       2.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     )
     .with_restitution(0.0)
     .with_friction(0.0)

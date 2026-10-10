@@ -12,11 +12,11 @@ fn box_frame(
   body : RigidBody,
 ) -> (@math3d.Vec3, @math3d.Vec3, @math3d.Quaternion) {
   match body.collider {
-    AABBShape(he, offset) =>
+    AABBShape(half_extents=he, offset~) =>
       (body.position.add(offset), he, @math3d.Quaternion::identity())
-    BoxShape(he, offset) =>
+    BoxShape(half_extents=he, offset~) =>
       (body.position.add(body.rotation.rotate_vec3(offset)), he, body.rotation)
-    SphereShape(_, _) => abort("Expected box collider")
+    SphereShape(..) => abort("Expected box collider")
   }
 }
 
@@ -26,12 +26,12 @@ pub fn RigidBody::raycast(
   ray : @collision3d.Ray,
 ) -> @collision3d.HitResult {
   match self.collider {
-    SphereShape(offset, radius) =>
+    SphereShape(offset~, radius~) =>
       ray.intersects_sphere(
         @collision3d.Sphere::new(self.position.add(offset), radius),
       )
-    AABBShape(_, _) => ray.intersects_aabb(self.world_aabb())
-    BoxShape(_, _) => {
+    AABBShape(..) => ray.intersects_aabb(self.world_aabb())
+    BoxShape(..) => {
       let (center, he, rotation) = box_frame(self)
       let inverse = rotation.conjugate()
       let local_space = @collision3d.Ray::new(
@@ -52,12 +52,12 @@ pub fn RigidBody::intersects_sphere(
   sphere : @collision3d.Sphere,
 ) -> Bool {
   match self.collider {
-    SphereShape(offset, radius) =>
+    SphereShape(offset~, radius~) =>
       @collision3d.Sphere::new(self.position.add(offset), radius).intersects_sphere(
         sphere,
       )
-    AABBShape(_, _) => self.world_aabb().intersects_sphere(sphere)
-    BoxShape(_, _) => {
+    AABBShape(..) => self.world_aabb().intersects_sphere(sphere)
+    BoxShape(..) => {
       let (center, he, rotation) = box_frame(self)
       let point = rotation.conjugate().rotate_vec3(sphere.center.sub(center))
       @collision3d.AABB::new(he.negate(), he).intersects_sphere(

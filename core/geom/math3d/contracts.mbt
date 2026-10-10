@@ -3,6 +3,16 @@
 ///
 /// Provides Vec3, Vec4, Mat4, and Quaternion types for 3D game math.
 /// Mat4 uses column-major layout (GPU-compatible).
+///
+/// Conventions (all checked by `conventions_wbtest.mbt`; the full list is in
+/// `docs/architecture/coordinates.md`):
+/// - Right-handed. A positive angle turns counterclockwise when seen from the
+///   tip of the axis: about +Z, +X turns into +Y; about +Y, +X turns into -Z.
+/// - Column vectors: `m.mul_vec4(v)` is `M * v`, and `a.multiply(b)` applies
+///   `b` first. The same holds for quaternions. `then` reads in application
+///   order: `a.then(b)` applies `a` first.
+/// - `Quaternion` fields are `(x, y, z, w)` with `w` last (as in glTF), so
+///   `Quaternion::new(0, 0, 0, 1)` is the identity.
 
 // ============================================================
 // Vec3
@@ -330,6 +340,9 @@ fn Mat4::set(self : Mat4, row : Int, col : Int, value : Double) -> Unit {
 }
 
 ///|
+/// Matrix product `self * other`. With column vectors the result applies
+/// `other` first: `a.multiply(b).mul_vec4(v) == a.mul_vec4(b.mul_vec4(v))`.
+/// Use `then` to write the steps in the order they happen.
 pub fn Mat4::multiply(self : Mat4, other : Mat4) -> Mat4 {
   let result = Mat4::zero()
   for col in 0..<4 {
@@ -345,6 +358,15 @@ pub fn Mat4::multiply(self : Mat4, other : Mat4) -> Mat4 {
 }
 
 ///|
+/// Composition in application order: `self` first, then `next`.
+/// `translation(1, 0, 0).then(rotation_z(pi / 2))` moves the origin to
+/// (0, 1, 0). Same as `next.multiply(self)`.
+pub fn Mat4::then(self : Mat4, next : Mat4) -> Mat4 {
+  next.multiply(self)
+}
+
+///|
+/// `M * v` with `v` as a column vector.
 pub fn Mat4::mul_vec4(self : Mat4, v : Vec4) -> Vec4 {
   {
     x: self.at(0, 0) * v.x +
@@ -529,6 +551,9 @@ pub fn Mat4::rotation_z(angle_rad : Double) -> Mat4 {
 
 ///|
 /// Perspective projection matrix (WebGPU depth range [0, 1]).
+///
+/// Right-handed: the camera looks down -Z, so view-space z = -near maps to
+/// depth 0 and z = -far to depth 1.
 pub fn Mat4::perspective(
   fov_y_rad : Double,
   aspect : Double,
@@ -572,6 +597,9 @@ pub fn Mat4::orthographic(
 
 ///|
 /// View matrix from eye position, target point, and up direction.
+///
+/// Right-handed: in view space the camera sits at the origin looking down -Z
+/// with +Y up and +X to the right, so `target` lands on the -Z axis.
 pub fn Mat4::look_at(eye : Vec3, target : Vec3, up : Vec3) -> Mat4 {
   let f = target.sub(eye).normalize()
   let s = f.cross(up).normalize()
@@ -616,6 +644,9 @@ pub fn Mat4::approx_eq(self : Mat4, other : Mat4, epsilon : Double) -> Bool {
 // ============================================================
 
 ///|
+/// Unit quaternion for rotations. Fields are `(x, y, z, w)` with the scalar
+/// `w` **last**, matching glTF and `Quaternion::new(x, y, z, w)`; papers and
+/// some libraries write `(w, x, y, z)` instead, so convert when copying values.
 pub struct Quaternion {
   x : Double
   y : Double
@@ -644,6 +675,10 @@ pub fn Quaternion::new(
 }
 
 ///|
+/// Rotation by `angle_rad` about `axis` (normalised here), right-handed:
+/// counterclockwise when seen from the tip of `axis`.
+/// `from_axis_angle(Vec3::unit_y(), pi / 2)` turns +X into -Z, and
+/// `from_axis_angle(Vec3::unit_z(), pi / 2)` turns +X into +Y.
 pub fn Quaternion::from_axis_angle(
   axis : Vec3,
   angle_rad : Double,
@@ -655,11 +690,17 @@ pub fn Quaternion::from_axis_angle(
 }
 
 ///|
-/// Create quaternion from Euler angles (XYZ rotation order).
+/// Rotation from Euler angles in radians: `pitch` about X, `yaw` about Y,
+/// `roll` about Z.
+///
+/// The result is `qx * qy * qz`, so a vector is rotated by **roll first, then
+/// yaw, then pitch** about the fixed world axes (equivalently intrinsic X, Y',
+/// Z''). The arguments are labelled because three `Double`s in a row swap
+/// without a type error.
 pub fn Quaternion::from_euler(
-  pitch : Double,
-  yaw : Double,
-  roll : Double,
+  pitch~ : Double,
+  yaw~ : Double,
+  roll~ : Double,
 ) -> Quaternion {
   let cx = @math.cos(pitch / 2.0)
   let sx = @math.sin(pitch / 2.0)
@@ -708,6 +749,7 @@ pub fn Quaternion::to_mat4(self : Quaternion) -> Mat4 {
 }
 
 ///|
+/// Rotates `v` by this (unit) quaternion. Agrees with `to_mat4().mul_vec4`.
 pub fn Quaternion::rotate_vec3(self : Quaternion, v : Vec3) -> Vec3 {
   let qv = Vec3::new(self.x, self.y, self.z)
   let uv = qv.cross(v)
@@ -732,6 +774,10 @@ pub fn Quaternion::normalize(self : Quaternion) -> Quaternion {
 }
 
 ///|
+/// Hamilton product `self * other`. As a rotation it applies `other` first:
+/// `a.multiply(b).rotate_vec3(v) == a.rotate_vec3(b.rotate_vec3(v))`.
+/// Rotations do not commute, so use `then` to write them in the order they
+/// happen.
 pub fn Quaternion::multiply(
   self : Quaternion,
   other : Quaternion,
@@ -742,6 +788,13 @@ pub fn Quaternion::multiply(
     z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w,
     w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
   }
+}
+
+///|
+/// Composition in application order: rotate by `self` first, then by `next`.
+/// Same as `next.multiply(self)`.
+pub fn Quaternion::then(self : Quaternion, next : Quaternion) -> Quaternion {
+  next.multiply(self)
 }
 
 ///|

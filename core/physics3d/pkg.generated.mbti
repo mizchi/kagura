@@ -74,9 +74,9 @@ pub fn BodyType::to_string(Self) -> String
 pub impl Show for BodyType
 
 pub(all) enum ColliderShape {
-  SphereShape(@math3d.Vec3, Double)
-  AABBShape(@math3d.Vec3, @math3d.Vec3)
-  BoxShape(@math3d.Vec3, @math3d.Vec3)
+  SphereShape(offset~ : @math3d.Vec3, radius~ : Double)
+  AABBShape(half_extents~ : @math3d.Vec3, offset~ : @math3d.Vec3)
+  BoxShape(half_extents~ : @math3d.Vec3, offset~ : @math3d.Vec3)
 } derive(@debug.Debug)
 pub fn ColliderShape::output(Self, &Logger) -> Unit
 pub fn ColliderShape::to_repr(Self) -> @debug.Repr

@@ -51,7 +51,7 @@ test "jump lands and diagonal acceleration is normalized in both views" {
 test "physics sandbox falls, bounces and rests above the actual floor" {
   let state = GameState::new()
   let ball = state.physics.bodies.filter(body => {
-      body.is_dynamic() && body.collider is SphereShape(_, _)
+      body.is_dynamic() && body.collider is SphereShape(..)
     })[0]
   let start_y = ball.position.y
   let mut bounced = false
@@ -102,7 +102,10 @@ fn test_shooting_world(wall : Bool) -> @physics3d.PhysicsWorld {
         id,
         @math3d.Vec3::new(0.0, 1.0, 2.0 - id.to_double() * 2.0),
         1.0,
-        AABBShape(@math3d.Vec3::new(0.5, 0.5, 0.5), @math3d.Vec3::zero()),
+        AABBShape(
+          half_extents=@math3d.Vec3::new(0.5, 0.5, 0.5),
+          offset=@math3d.Vec3::zero(),
+        ),
       ),
     )
   }
@@ -111,7 +114,7 @@ fn test_shooting_world(wall : Bool) -> @physics3d.PhysicsWorld {
       @physics3d.RigidBody::new_static(
         3,
         @math3d.Vec3::new(0.0, 1.0, 3.0),
-        AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
+        AABBShape(half_extents=@math3d.Vec3::one(), offset=@math3d.Vec3::zero()),
       ),
     )
   }

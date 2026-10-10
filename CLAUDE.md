@@ -607,6 +607,8 @@ FFI で `FixedArray` を渡す方法自体は動く（`#unsafe_skip_stub_check` 
 
 ## 注意事項
 
+- 3D の位置・回転・当たりを扱う前に `docs/architecture/coordinates.md` を読む（右手系・+Y 上・-Z 前、`a.multiply(b)` は b が先で `a.then(b)` は a が先、`Quaternion` は w が最後、`ColliderShape` はラベル付き）。規約を足すときは数値例を `core/geom/math3d/conventions_wbtest.mbt` に先に書く
+
 - `cc-link-flags` は依存パッケージから伝播しない。native ビルドする example では個別に `-lglfw` 等を指定する必要がある
 - `extern "C"` を含む `.mbt` ファイルは `moon.pkg` の `targets` で native のみに制限する（`supported-targets` だけでは不十分）
 

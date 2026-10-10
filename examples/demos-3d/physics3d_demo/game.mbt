@@ -68,8 +68,8 @@ fn DemoState::new() -> DemoState {
     restitution: 0.5,
     friction: 0.6,
     collider: @physics3d.AABBShape(
-      @math3d.Vec3::new(10.0, 0.5, 10.0),
-      @math3d.Vec3::zero(),
+      half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+      offset=@math3d.Vec3::zero(),
     ),
     linear_damping: 0.0,
     angular_damping: 0.0,
@@ -97,11 +97,11 @@ fn DemoState::new() -> DemoState {
     let (x, y, z, is_sphere) = spawn_data[i]
     let id = i + 1
     let collider = if is_sphere {
-      @physics3d.SphereShape(@math3d.Vec3::zero(), 0.4)
+      @physics3d.SphereShape(offset=@math3d.Vec3::zero(), radius=0.4)
     } else {
       @physics3d.AABBShape(
-        @math3d.Vec3::new(0.4, 0.4, 0.4),
-        @math3d.Vec3::zero(),
+        half_extents=@math3d.Vec3::new(0.4, 0.4, 0.4),
+        offset=@math3d.Vec3::zero(),
       )
     }
     let mass = 1.0
@@ -209,8 +209,8 @@ fn DemoState::draw(
       self.ground_mesh
     } else {
       match body.collider {
-        @physics3d.SphereShape(_, _) => self.sphere_mesh
-        @physics3d.AABBShape(_, _) | @physics3d.BoxShape(_, _) => self.cube_mesh
+        @physics3d.SphereShape(..) => self.sphere_mesh
+        @physics3d.AABBShape(..) | @physics3d.BoxShape(..) => self.cube_mesh
       }
     }
     let transform = @transform3d.Transform3D::from_position_rotation(

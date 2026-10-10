@@ -1,19 +1,27 @@
 ///|
 pub fn generate_contact(a : RigidBody, b : RigidBody) -> Contact? {
   match (a.collider, b.collider) {
-    (SphereShape(off, radius), BoxShape(he, box_off)) =>
-      sphere_box(a, off, radius, b, he, box_off, false)
-    (BoxShape(he, box_off), SphereShape(off, radius)) =>
-      sphere_box(b, off, radius, a, he, box_off, true)
-    (BoxShape(_, _), _) | (_, BoxShape(_, _)) => box_box(a, b)
-    (SphereShape(off_a, r_a), SphereShape(off_b, r_b)) =>
-      sphere_sphere(a, off_a, r_a, b, off_b, r_b)
-    (AABBShape(he_a, off_a), AABBShape(he_b, off_b)) =>
-      aabb_aabb(a, he_a, off_a, b, he_b, off_b)
-    (SphereShape(off_a, r_a), AABBShape(he_b, off_b)) =>
-      sphere_aabb(a, off_a, r_a, b, he_b, off_b, false)
-    (AABBShape(he_a, off_a), SphereShape(off_b, r_b)) =>
-      sphere_aabb(b, off_b, r_b, a, he_a, off_a, true)
+    (SphereShape(offset=off, radius~), BoxShape(half_extents=he, offset=box_off)
+    ) => sphere_box(a, off, radius, b, he, box_off, false)
+    (BoxShape(half_extents=he, offset=box_off), SphereShape(offset=off, radius~)
+    ) => sphere_box(b, off, radius, a, he, box_off, true)
+    (BoxShape(..), _) | (_, BoxShape(..)) => box_box(a, b)
+    (
+      SphereShape(offset=off_a, radius=r_a),
+      SphereShape(offset=off_b, radius=r_b),
+    ) => sphere_sphere(a, off_a, r_a, b, off_b, r_b)
+    (
+      AABBShape(half_extents=he_a, offset=off_a),
+      AABBShape(half_extents=he_b, offset=off_b),
+    ) => aabb_aabb(a, he_a, off_a, b, he_b, off_b)
+    (
+      SphereShape(offset=off_a, radius=r_a),
+      AABBShape(half_extents=he_b, offset=off_b),
+    ) => sphere_aabb(a, off_a, r_a, b, he_b, off_b, false)
+    (
+      AABBShape(half_extents=he_a, offset=off_a),
+      SphereShape(offset=off_b, radius=r_b),
+    ) => sphere_aabb(b, off_b, r_b, a, he_a, off_a, true)
   }
 }
 

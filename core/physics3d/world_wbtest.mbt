@@ -6,7 +6,7 @@ test "gravity acceleration" {
       0,
       @math3d.Vec3::new(0.0, 10.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     ).with_damping(0.0),
   )
   world.step(1.0)
@@ -24,7 +24,7 @@ test "two body collision" {
         0,
         @math3d.Vec3::new(-0.5, 0.0, 0.0),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), 1.0),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
       ),
       velocity: @math3d.Vec3::new(1.0, 0.0, 0.0),
       restitution: 1.0,
@@ -36,7 +36,7 @@ test "two body collision" {
         1,
         @math3d.Vec3::new(0.5, 0.0, 0.0),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), 1.0),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
       ),
       velocity: @math3d.Vec3::new(-1.0, 0.0, 0.0),
       restitution: 1.0,
@@ -57,14 +57,17 @@ test "static floor stops falling body" {
       0,
       @math3d.Vec3::new(0.0, 1.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     ).with_damping(0.0),
   )
   world.add_body(
     RigidBody::new_static(
       1,
       @math3d.Vec3::new(0.0, -0.5, 0.0),
-      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   // Run multiple steps
@@ -83,7 +86,10 @@ test "sphere settles on floor without flying up" {
     RigidBody::new_static(
       0,
       @math3d.Vec3::new(0.0, -0.5, 0.0),
-      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   // Sphere dropping from low height
@@ -92,7 +98,7 @@ test "sphere settles on floor without flying up" {
       1,
       @math3d.Vec3::new(0.0, 2.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.4),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.4),
     ),
     restitution: 0.35,
     linear_damping: 0.02,
@@ -118,7 +124,10 @@ test "cube settles on floor without flying up" {
     RigidBody::new_static(
       0,
       @math3d.Vec3::new(0.0, -0.5, 0.0),
-      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   world.add_body({
@@ -126,7 +135,10 @@ test "cube settles on floor without flying up" {
       1,
       @math3d.Vec3::new(0.0, 2.0, 0.0),
       1.0,
-      AABBShape(@math3d.Vec3::new(0.4, 0.4, 0.4), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(0.4, 0.4, 0.4),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
     restitution: 0.35,
     linear_damping: 0.02,
@@ -148,7 +160,10 @@ test "sphere settles without energy gain" {
     RigidBody::new_static(
       0,
       @math3d.Vec3::new(0.0, -0.5, 0.0),
-      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   world.add_body(
@@ -156,7 +171,7 @@ test "sphere settles without energy gain" {
       1,
       @math3d.Vec3::new(0.0, 1.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     )
     .with_damping(0.05)
     .with_restitution(0.3),
@@ -188,7 +203,10 @@ test "body falls asleep after settling 3d" {
     RigidBody::new_static(
       0,
       @math3d.Vec3::new(0.0, -1.0, 0.0),
-      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   world.add_body(
@@ -196,7 +214,7 @@ test "body falls asleep after settling 3d" {
       1,
       @math3d.Vec3::new(0.0, 1.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     )
     .with_damping(0.1)
     .with_restitution(0.0),
@@ -216,7 +234,10 @@ test "sleeping body wakes on new contact 3d" {
     RigidBody::new_static(
       0,
       @math3d.Vec3::new(0.0, -1.0, 0.0),
-      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(10.0, 0.5, 10.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   world.add_body(
@@ -224,7 +245,7 @@ test "sleeping body wakes on new contact 3d" {
       1,
       @math3d.Vec3::new(0.0, 1.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.5),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
     )
     .with_damping(0.05)
     .with_restitution(0.0),
@@ -241,7 +262,7 @@ test "sleeping body wakes on new contact 3d" {
         2,
         @math3d.Vec3::new(0.0, 3.0, 0.0),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), 0.5),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=0.5),
       ),
       velocity: @math3d.Vec3::new(0.0, -5.0, 0.0),
     }
@@ -263,7 +284,7 @@ test "step populates contact cache for warm starting 3d" {
       0,
       @math3d.Vec3::new(-0.25, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.75),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.75),
     ).with_damping(0.0),
   )
   world.add_body(
@@ -271,7 +292,7 @@ test "step populates contact cache for warm starting 3d" {
       1,
       @math3d.Vec3::new(0.25, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.75),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.75),
     ).with_damping(0.0),
   )
   world.step(1.0 / 60.0)
@@ -288,7 +309,7 @@ test "step clears stale contact cache when contact ends 3d" {
       0,
       @math3d.Vec3::new(-0.25, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.75),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.75),
     ).with_damping(0.0),
   )
   world.add_body(
@@ -296,7 +317,7 @@ test "step clears stale contact cache when contact ends 3d" {
       1,
       @math3d.Vec3::new(0.25, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.75),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.75),
     ).with_damping(0.0),
   )
   world.step(1.0 / 60.0)
@@ -318,7 +339,7 @@ test "distance joint maintains length 3d" {
       0,
       @math3d.Vec3::new(-1.0, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.2),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.2),
     ).with_damping(0.0),
   )
   world.add_body(
@@ -326,7 +347,7 @@ test "distance joint maintains length 3d" {
       1,
       @math3d.Vec3::new(1.0, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.2),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.2),
     ).with_damping(0.0),
   )
   world.add_distance_joint({
@@ -358,7 +379,7 @@ test "ball joint keeps points together 3d" {
       0,
       @math3d.Vec3::new(0.0, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.2),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.2),
     ).with_damping(0.0),
   )
   world.add_body(
@@ -366,7 +387,7 @@ test "ball joint keeps points together 3d" {
       1,
       @math3d.Vec3::new(0.0, 0.0, 0.0),
       1.0,
-      SphereShape(@math3d.Vec3::zero(), 0.2),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=0.2),
     ).with_damping(0.0),
   )
   world.add_ball_joint({
@@ -397,7 +418,10 @@ test "bullet sphere does not tunnel through thin wall 3d" {
     RigidBody::new_static(
       0,
       @math3d.Vec3::new(2.0, 0.0, 0.0),
-      AABBShape(@math3d.Vec3::new(0.05, 5.0, 5.0), @math3d.Vec3::zero()),
+      AABBShape(
+        half_extents=@math3d.Vec3::new(0.05, 5.0, 5.0),
+        offset=@math3d.Vec3::zero(),
+      ),
     ),
   )
   world.add_body(
@@ -406,7 +430,7 @@ test "bullet sphere does not tunnel through thin wall 3d" {
         1,
         @math3d.Vec3::new(0.0, 0.0, 0.0),
         1.0,
-        SphereShape(@math3d.Vec3::zero(), 0.3),
+        SphereShape(offset=@math3d.Vec3::zero(), radius=0.3),
       ),
       velocity: @math3d.Vec3::new(1000.0, 0.0, 0.0),
     }
@@ -425,7 +449,7 @@ test "kinematic not affected by gravity" {
     RigidBody::new_kinematic(
       0,
       @math3d.Vec3::new(0.0, 5.0, 0.0),
-      SphereShape(@math3d.Vec3::zero(), 1.0),
+      SphereShape(offset=@math3d.Vec3::zero(), radius=1.0),
     ),
   )
   world.step(1.0)

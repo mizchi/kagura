@@ -11,12 +11,28 @@ pub impl Show for BodyType with fn output(self, logger) {
 }
 
 ///|
+/// Collision shape attached to a `RigidBody`, placed relative to
+/// `RigidBody.position`.
+///
+/// Arguments are labelled because the variants used to disagree on their
+/// order (`SphereShape` took the offset first, the boxes took it last), and
+/// both arguments of a box are `Vec3`, so a swap still type-checks.
+/// Construct and match with labels:
+///
+/// ```mbt nocheck
+/// SphereShape(offset=Vec3::zero(), radius=0.5)
+/// BoxShape(half_extents=Vec3::new(1.0, 0.1, 1.0), offset=Vec3::zero())
+/// match shape { SphereShape(radius~, ..) => radius; _ => 0.0 }
+/// ```
 pub(all) enum ColliderShape {
-  SphereShape(@math3d.Vec3, Double)
-  // Half extents and local offset; AABB keeps its world axes.
-  AABBShape(@math3d.Vec3, @math3d.Vec3)
-  // Half extents and local offset, transformed by RigidBody.rotation.
-  BoxShape(@math3d.Vec3, @math3d.Vec3)
+  /// Sphere of `radius` centred at `position + offset`.
+  SphereShape(offset~ : @math3d.Vec3, radius~ : Double)
+  /// Box of `half_extents` centred at `position + offset` that keeps the world
+  /// axes: `RigidBody.rotation` does not turn it.
+  AABBShape(half_extents~ : @math3d.Vec3, offset~ : @math3d.Vec3)
+  /// Box of `half_extents` centred at `position + offset`, turned by
+  /// `RigidBody.rotation`.
+  BoxShape(half_extents~ : @math3d.Vec3, offset~ : @math3d.Vec3)
 } derive(Debug)
 
 ///|

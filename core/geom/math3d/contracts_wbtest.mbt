@@ -419,7 +419,7 @@ test "Quaternion from_axis_angle" {
 ///|
 test "Quaternion from_euler" {
   // 90 degrees around X
-  let q = Quaternion::from_euler(pi / 2.0, 0.0, 0.0)
+  let q = Quaternion::from_euler(pitch=pi / 2.0, yaw=0.0, roll=0.0)
   let v = Vec3::new(0.0, 1.0, 0.0)
   let result = q.rotate_vec3(v)
   assert_true(approx(result.x, 0.0))

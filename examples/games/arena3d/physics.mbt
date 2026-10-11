@@ -163,17 +163,20 @@ fn GameState::physics_nodes(self : GameState) -> Array[@scene3d.View] {
   for prop in self.props {
     if self.physics.get_body(prop.id) is Some(body) {
       nodes.push(
-        @scene3d.mesh(
-          key=prop.key,
-          mesh=if prop.sphere { self.meshes.player } else { self.meshes.wall },
-          position=body.position,
-          rotation=if prop.sphere {
-            body.rotation
-          } else {
-            @math3d.Quaternion::identity()
-          },
-          scale=prop.scale,
-          color=prop.color,
+        @scene3d.subject(
+          "prop:\{prop.id}",
+          @scene3d.mesh(
+            key=prop.key,
+            mesh=if prop.sphere { self.meshes.player } else { self.meshes.wall },
+            position=body.position,
+            rotation=if prop.sphere {
+              body.rotation
+            } else {
+              @math3d.Quaternion::identity()
+            },
+            scale=prop.scale,
+            color=prop.color,
+          ),
         ),
       )
     }

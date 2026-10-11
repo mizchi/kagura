@@ -151,8 +151,19 @@ pub fn Scene3DSnapshot::from_json(json : Json) -> Scene3DSnapshot raise {
       Some(Null) | None => None
       _ => raise Scene3DSnapshotError("\{what}.box: expected an object or null")
     }
+    let sphere = match o.get("sphere") {
+      Some(Object(b)) =>
+        Some({
+          center: json_vec(b.get("center"), "\{what}.sphere.center"),
+          radius: json_field(b, "radius", "\{what}.sphere"),
+        })
+      Some(Null) | None => None
+      _ =>
+        raise Scene3DSnapshotError("\{what}.sphere: expected an object or null")
+    }
     nodes.push({
       path,
+      sphere,
       name: match o.get("name") {
         Some(String(s)) => s
         _ => path
@@ -213,6 +224,49 @@ fn box_shape(b : Scene3DSnapshotBox) -> @convex.Shape {
 }
 
 ///|
+/// The node's bounding volumes as convex shapes, each shrunk by `slack`.
+/// Every one contains the mesh, so two meshes can touch only where every
+/// pair of them does; the box fits flat meshes, the ball round ones.
+fn proxies(n : Scene3DSnapshotNode, slack : Double) -> Array[@convex.Shape] {
+  let out = []
+  let shrink = (x : Double) => @cmp.maximum(0.0, x - slack)
+  if n.box is Some(b) {
+    let h = b.half_extents
+    out.push(
+      box_shape({
+        ..b,
+        half_extents: @math3d.Vec3::new(shrink(h.x), shrink(h.y), shrink(h.z)),
+      }),
+    )
+  }
+  if n.sphere is Some(s) {
+    out.push(@convex.Shape::Sphere(center=s.center, radius=shrink(s.radius)))
+  }
+  out
+}
+
+///|
+/// Distance between two meshes: the largest gap any pair of their bounding
+/// volumes shows, which is still a lower bound on the true gap.
+fn mesh_distance(
+  a : Scene3DSnapshotNode,
+  b : Scene3DSnapshotNode,
+  slack : Double,
+) -> @convex.Distance? {
+  let mut best : @convex.Distance? = None
+  for pa in proxies(a, slack) {
+    for pb in proxies(b, slack) {
+      let d = @convex.distance(pa, pb)
+      match best {
+        Some(current) if current.distance >= d.distance => ()
+        _ => best = Some(d)
+      }
+    }
+  }
+  best
+}
+
+///|
 fn box_corners(b : Scene3DSnapshotBox) -> Array[@math3d.Vec3] {
   let r = b.rotation.normalize()
   let h = b.half_extents
@@ -263,9 +317,17 @@ fn related(a : String, b : String) -> Bool {
 /// - `unnormalized_rotation`: a rotation whose length is off by more than 1e-3
 /// - `zero_scale`: a scale component within 1e-6 of zero
 /// - `outside_view`: a mesh entirely outside the camera's view volume
-/// - `overlap`: two meshes bound to different subjects whose boxes intersect
-///   (subjects are game objects; scenery overlapping itself is not reported)
-pub fn Scene3DSnapshot::check(self : Scene3DSnapshot) -> Array[Scene3DFinding] {
+/// - `overlap`: two meshes bound to different subjects that overlap by more
+///   than `contact_tolerance` (subjects are game objects; scenery overlapping
+///   itself is not reported). The tolerance lets resting contact through: a
+///   physics stack settles with its boxes a few millimetres into each other.
+///
+/// Meshes are judged by their bounding box and ball, both of which contain
+/// the mesh, so an overlap is reported only where both volumes overlap.
+pub fn Scene3DSnapshot::check(
+  self : Scene3DSnapshot,
+  contact_tolerance? : Double = 0.01,
+) -> Array[Scene3DFinding] {
   let findings = []
   for n in self.nodes {
     let box_ok = match n.box {
@@ -325,11 +387,10 @@ pub fn Scene3DSnapshot::check(self : Scene3DSnapshot) -> Array[Scene3DFinding] {
       if a.subject == b.subject || related(a.path, b.path) {
         continue
       }
-      let d = @convex.distance(
-        box_shape(a.box.unwrap()),
-        box_shape(b.box.unwrap()),
-      )
-      if d.intersecting {
+      // Shrinking both by half the tolerance leaves intersecting only what
+      // overlaps by more than the tolerance.
+      if mesh_distance(a, b, contact_tolerance * 0.5) is Some(d) &&
+        d.intersecting {
         findings.push({
           kind: "overlap",
           paths: [a.path, b.path],
@@ -342,7 +403,8 @@ pub fn Scene3DSnapshot::check(self : Scene3DSnapshot) -> Array[Scene3DFinding] {
 }
 
 ///|
-/// Boxes of the node at `path` and of every mesh below it.
+/// Boxes of the node at `path` and of every mesh below it (the boxes only;
+/// `distance` also uses the bounding balls).
 pub fn Scene3DSnapshot::shapes_under(
   self : Scene3DSnapshot,
   path : String,
@@ -360,22 +422,38 @@ pub fn Scene3DSnapshot::distance(
   a : String,
   b : String,
 ) -> @convex.Distance raise {
-  let pieces_a = self.shapes_under(a)
-  let pieces_b = self.shapes_under(b)
-  guard !pieces_a.is_empty() else {
+  let under = (path : String) => {
+    self.nodes.filter(n => {
+      n.box is Some(_) && (n.path == path || n.path.has_prefix(path + "/"))
+    })
+  }
+  let meshes_a = under(a)
+  let meshes_b = under(b)
+  guard !meshes_a.is_empty() else {
     raise Scene3DSnapshotError("\{a}: no mesh at or below this path")
   }
-  guard !pieces_b.is_empty() else {
+  guard !meshes_b.is_empty() else {
     raise Scene3DSnapshotError("\{b}: no mesh at or below this path")
   }
-  @convex.distance_between_unions(pieces_a, pieces_b)
+  let mut best : @convex.Distance? = None
+  for ma in meshes_a {
+    for mb in meshes_b {
+      guard mesh_distance(ma, mb, 0.0) is Some(d) else { continue }
+      match best {
+        Some(current) if current.distance <= d.distance => ()
+        _ => best = Some(d)
+      }
+    }
+  }
+  best.unwrap()
 }
 
 ///|
-/// Every pair of meshes whose boxes intersect, leaving out a node and its
-/// own descendants.
+/// Every pair of meshes that overlap by more than `contact_tolerance`,
+/// leaving out a node and its own descendants.
 pub fn Scene3DSnapshot::overlaps(
   self : Scene3DSnapshot,
+  contact_tolerance? : Double = 0.01,
 ) -> Array[(String, String)] {
   let meshes = self.nodes.filter(n => n.box is Some(_))
   let pairs = []
@@ -386,11 +464,8 @@ pub fn Scene3DSnapshot::overlaps(
       if related(a.path, b.path) {
         continue
       }
-      let d = @convex.distance(
-        box_shape(a.box.unwrap()),
-        box_shape(b.box.unwrap()),
-      )
-      if d.intersecting {
+      if mesh_distance(a, b, contact_tolerance * 0.5) is Some(d) &&
+        d.intersecting {
         pairs.push((a.path, b.path))
       }
     }
@@ -432,6 +507,20 @@ pub fn Scene3DSnapshot::raycast(
         let t2 = (hc - oc) / dc
         enter = @cmp.maximum(enter, @cmp.minimum(t1, t2))
         leave = @cmp.minimum(leave, @cmp.maximum(t1, t2))
+      }
+    }
+    // The ray must also cross the bounding ball; it reaches the mesh no
+    // earlier than it enters both volumes.
+    if n.sphere is Some(s) && !missed {
+      let oc = origin.sub(s.center)
+      let along = oc.dot(dir)
+      let disc = along * along - (oc.dot(oc) - s.radius * s.radius)
+      if disc < 0.0 {
+        missed = true
+      } else {
+        let root = disc.sqrt()
+        enter = @cmp.maximum(enter, -along - root)
+        leave = @cmp.minimum(leave, -along + root)
       }
     }
     if !missed && enter <= leave {

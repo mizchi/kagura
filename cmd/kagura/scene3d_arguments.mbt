@@ -8,6 +8,8 @@ pub(all) struct Scene3DOptions {
   from : Array[Double]?
   direction : Array[Double]?
   allow : Array[String]
+  /// How deep an overlap must be to count (check, overlaps); None = 0.01.
+  tolerance : Double?
   json : Bool
 } derive(Eq, Debug)
 
@@ -44,6 +46,7 @@ fn parse_scene3d_args(args : Array[String]) -> Result[Command, String] {
   let mut from : Array[Double]? = None
   let mut direction : Array[Double]? = None
   let mut json = false
+  let mut tolerance : Double? = None
   let mut index = 2
   while index < args.length() {
     let arg = args[index]
@@ -53,6 +56,26 @@ fn parse_scene3d_args(args : Array[String]) -> Result[Command, String] {
     }
     if arg == "--json" {
       json = true
+      continue
+    }
+    if arg == "--tolerance" {
+      if operation != "check" && operation != "overlaps" {
+        return Err(
+          "--tolerance is only supported by scene3d check and overlaps",
+        )
+      }
+      if tolerance is Some(_) {
+        return Err("Duplicate option: --tolerance")
+      }
+      if index >= args.length() {
+        return Err("Missing value for --tolerance")
+      }
+      let value = @string.parse_double(args[index]) catch { _ => -1.0 }
+      index += 1
+      if value.is_nan() || value.is_inf() || value < 0.0 {
+        return Err("--tolerance must be a non-negative number")
+      }
+      tolerance = Some(value)
       continue
     }
     if arg == "--allow" || arg == "--from" || arg == "--direction" {
@@ -115,7 +138,18 @@ fn parse_scene3d_args(args : Array[String]) -> Result[Command, String] {
   if operation == "raycast" && (from is None || direction is None) {
     return Err("scene3d raycast needs --from x,y,z and --direction x,y,z")
   }
-  Ok(Scene3D({ operation, snapshot, paths, from, direction, allow, json, }))
+  Ok(
+    Scene3D({
+      operation,
+      snapshot,
+      paths,
+      from,
+      direction,
+      allow,
+      tolerance,
+      json,
+    }),
+  )
 }
 
 ///|
@@ -129,6 +163,7 @@ fn scene3d_request(options : Scene3DOptions) -> Json {
     "from": optional_json(options.from),
     "direction": optional_json(options.direction),
     "allow": options.allow.to_json(),
+    "tolerance": optional_json(options.tolerance),
     "json": options.json.to_json(),
   }
 }

@@ -90,6 +90,7 @@ kagura scene3d raycast scene.scene3d.json --from 0,10,0 --direction 0,-1,0
 ```
 
 `check` は所見が 1 件でも許可されずに残ると、また使われなかった `--allow` があると終了コード 1 を返します。
+重なりは `--tolerance`（既定 0.01）より深いものだけを数えます。物理で積んだ物体の接触を誤検出しないためです。
 検査の種類と snapshot の形式は `docs/architecture/coordinates.md` にあります。
 
 ## 画面キャプチャと負荷計測

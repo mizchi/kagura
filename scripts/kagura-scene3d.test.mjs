@@ -45,6 +45,16 @@ test('distance, overlaps and raycast answer from the snapshot', () => {
   assert.equal(ray.hits[0].distance, 9.5);
 });
 
+test('a shallow overlap passes as contact until the tolerance is tightened', () => {
+  const touching = {...snapshot, camera: null, nodes: [node('w/a', 'a', [0, 0, 0]), node('w/b', 'b', [0, 0.995, 0])]};
+  const contact = join(mkdtempSync(join(tmpdir(), 'kagura-scene3d-')), 'contact.scene3d.json');
+  writeFileSync(contact, JSON.stringify(touching));
+  assert.equal(kagura('scene3d', 'check', contact).status, 0);
+  const strict = kagura('scene3d', 'check', contact, '--tolerance', '0');
+  assert.equal(strict.status, 1);
+  assert.match(strict.stdout, /overlap: w\/a \(a\) overlaps w\/b \(b\)/);
+});
+
 test('bad input is reported without a stack trace', () => {
   const missing = kagura('scene3d', 'distance', file, 'world/player', 'world/none');
   assert.equal(missing.status, 1);

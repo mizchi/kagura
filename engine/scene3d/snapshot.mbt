@@ -26,6 +26,16 @@ pub(all) struct Scene3DSnapshotNode {
   /// The mesh's local bounds carried into world space as an oriented box.
   /// None for groups. Skinned meshes use their bind-pose bounds.
   box : Scene3DSnapshotBox?
+  /// A ball around the box centre holding every vertex. Like the box it never
+  /// cuts into the mesh; the two together fit round and boxy meshes tighter
+  /// than either alone. None for groups, and in snapshots written before it.
+  sphere : Scene3DSnapshotSphere?
+}
+
+///|
+pub(all) struct Scene3DSnapshotSphere {
+  center : @math3d.Vec3
+  radius : Double
 }
 
 ///|
@@ -75,6 +85,37 @@ fn world_box(world : @math3d.Mat4, mesh : @mesh3d.Mesh3D) -> Scene3DSnapshotBox 
 }
 
 ///|
+/// Bounding ball around the centre of the mesh's local bounds, carried into
+/// world space. The radius grows by the largest axis scale, so it stays a
+/// bound under non-uniform scale.
+fn world_sphere(
+  world : @math3d.Mat4,
+  mesh : @mesh3d.Mesh3D,
+) -> Scene3DSnapshotSphere {
+  let b = mesh.bounds
+  let cx = (b.min_x + b.max_x) * 0.5
+  let cy = (b.min_y + b.max_y) * 0.5
+  let cz = (b.min_z + b.max_z) * 0.5
+  let data = mesh.vertex_data
+  let stride = @mesh3d.vertex3d_stride
+  let mut r2 = 0.0
+  for i in 0..<mesh.vertex_count() {
+    let dx = data[i * stride] - cx
+    let dy = data[i * stride + 1] - cy
+    let dz = data[i * stride + 2] - cz
+    r2 = @cmp.maximum(r2, dx * dx + dy * dy + dz * dz)
+  }
+  let grow = @cmp.maximum(
+    column(world, 0).length(),
+    @cmp.maximum(column(world, 1).length(), column(world, 2).length()),
+  )
+  {
+    center: transform_point(world, @math3d.Vec3::new(cx, cy, cz)),
+    radius: r2.sqrt() * grow,
+  }
+}
+
+///|
 /// Snapshot of the scene this root last rendered. Pass the camera the frame
 /// is drawn with so `scene3d-check` can tell what is in view.
 pub fn SceneRoot::snapshot(
@@ -118,6 +159,7 @@ pub fn SceneRoot::snapshot(
       rotation: t.rotation.normalize(),
       scale: t.scale,
       box: node.mesh.map(m => world_box(world, m)),
+      sphere: node.mesh.map(m => world_sphere(world, m)),
     })
     for child in node.children {
       visit(child, world)
@@ -195,6 +237,10 @@ pub fn Scene3DSnapshot::to_json(self : Scene3DSnapshot) -> Json {
       "position": vec_json(n.position),
       "rotation": quat_json(n.rotation),
       "scale": vec_json(n.scale),
+      "sphere": match n.sphere {
+        Some(b) => { "center": vec_json(b.center), "radius": rounded(b.radius) }
+        None => Json::null()
+      },
       "box": match n.box {
         Some(b) =>
           {

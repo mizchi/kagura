@@ -141,10 +141,10 @@ pub(all) struct Scene3DSnapshot {
   camera : @camera3d.Camera3D?
   nodes : Array[Scene3DSnapshotNode]
 }
-pub fn Scene3DSnapshot::check(Self) -> Array[Scene3DFinding]
+pub fn Scene3DSnapshot::check(Self, contact_tolerance? : Double) -> Array[Scene3DFinding]
 pub fn Scene3DSnapshot::distance(Self, String, String) -> @convex.Distance raise
 pub fn Scene3DSnapshot::from_json(Json) -> Self raise
-pub fn Scene3DSnapshot::overlaps(Self) -> Array[(String, String)]
+pub fn Scene3DSnapshot::overlaps(Self, contact_tolerance? : Double) -> Array[(String, String)]
 pub fn Scene3DSnapshot::raycast(Self, @math3d.Vec3, @math3d.Vec3) -> Array[(String, Double)] raise
 pub fn Scene3DSnapshot::shapes_under(Self, String) -> Array[@convex.Shape]
 pub fn Scene3DSnapshot::to_json(Self) -> Json
@@ -164,6 +164,12 @@ pub(all) struct Scene3DSnapshotNode {
   rotation : @math3d.Quaternion
   scale : @math3d.Vec3
   box : Scene3DSnapshotBox?
+  sphere : Scene3DSnapshotSphere?
+}
+
+pub(all) struct Scene3DSnapshotSphere {
+  center : @math3d.Vec3
+  radius : Double
 }
 
 pub struct SceneGraph {

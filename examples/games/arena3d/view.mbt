@@ -67,11 +67,14 @@ fn GameState::scene_view(self : GameState) -> @scene3d.View {
         for i, item in self.items {
           if item.active {
             nodes.push(
-              @scene3d.mesh(
-                key="item-" + i.to_string(),
-                mesh=self.meshes.item,
-                position=item.position,
-                color=color_item,
+              @scene3d.subject(
+                "item:\{i}",
+                @scene3d.mesh(
+                  key="item-" + i.to_string(),
+                  mesh=self.meshes.item,
+                  position=item.position,
+                  color=color_item,
+                ),
               ),
             )
           }
@@ -81,16 +84,25 @@ fn GameState::scene_view(self : GameState) -> @scene3d.View {
     ]),
     @scene3d.group(key="enemies", children=[
       @scene3d.for_each(fn() {
-        self.enemies
-        .filter(enemy => enemy.active)
-        .mapi(fn(i, enemy) {
-          @scene3d.mesh(
-            key="enemy-" + i.to_string(),
-            mesh=self.meshes.enemy,
-            position=enemy.position,
-            color=color_enemy,
-          )
-        })
+        // Keys and subjects use the index in `self.enemies`, so an enemy keeps
+        // its identity when one before it is defeated.
+        let nodes = []
+        for i, enemy in self.enemies {
+          if enemy.active {
+            nodes.push(
+              @scene3d.subject(
+                "enemy:\{i}",
+                @scene3d.mesh(
+                  key="enemy-" + i.to_string(),
+                  mesh=self.meshes.enemy,
+                  position=enemy.position,
+                  color=color_enemy,
+                ),
+              ),
+            )
+          }
+        }
+        nodes
       }),
     ]),
     @scene3d.group(
@@ -99,11 +111,14 @@ fn GameState::scene_view(self : GameState) -> @scene3d.View {
         []
       } else {
         [
-          @scene3d.mesh(
-            key="body",
-            mesh=self.meshes.player,
-            position=self.player.position,
-            color=color_player,
+          @scene3d.subject(
+            "player",
+            @scene3d.mesh(
+              key="body",
+              mesh=self.meshes.player,
+              position=self.player.position,
+              color=color_player,
+            ),
           ),
         ]
       },

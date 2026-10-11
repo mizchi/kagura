@@ -51,6 +51,7 @@ pub(all) struct Scene3DOptions {
   from : Array[Double]?
   direction : Array[Double]?
   allow : Array[String]
+  tolerance : Double?
   json : Bool
 } derive(Eq, @debug.Debug)
 

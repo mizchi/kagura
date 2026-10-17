@@ -14,6 +14,11 @@ export function grade(problem, answer, reply) {
     const at = `(${m[1].split(",").map(Number).join(",")})`;
     return { ok: at === answer.at && m[2] === answer.facing, reason: at === answer.at ? (m[2] === answer.facing ? "ok" : "facing") : "position" };
   }
+  if (problem.task === "commute") {
+    const m = reply.trim().toUpperCase().match(/^(YES|NO)\b/);
+    if (!m) return { ok: false, reason: "unparsable" };
+    return { ok: (m[1] === "YES") === answer.commute, reason: (m[1] === "YES") === answer.commute ? "ok" : "wrong" };
+  }
   const moves = parseMoves(reply, problem.n);
   if (!moves) return { ok: false, reason: "unparsable" };
   if (moves.length > problem.max_moves) return { ok: false, reason: "too_long" };

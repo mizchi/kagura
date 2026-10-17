@@ -73,3 +73,56 @@ export function batchPrompt(task, problems) {
 }
 
 export const movesText = (moves) => moves.map(formatMove);
+
+// ---------------------------------------------------------------- v2
+// v1's text stays byte-identical; v2 adds a sixth axis, hides the scramble
+// length and asks whether two move sequences commute.
+
+export const PROMPT_VERSION_V2 = "hypercube-prompt-v2";
+
+export const RULES_V2 = RULES.replace(
+  "n = 4 is the 3^4 hypercube (as in Magic Cube 4D); n = 5 goes one step further.\nAxes are named x, y, z, w, v; an n-dimensional problem uses the first n.",
+  "n = 4 is the 3^4 hypercube (as in Magic Cube 4D); n = 5 and 6 go further.\nAxes are named x, y, z, w, v, u; an n-dimensional problem uses the first n.",
+);
+
+export function problemTextV2(p) {
+  if (p.task === "track") return problemText(p);
+  if (p.task === "commute") {
+    return [
+      `### ${p.id}`,
+      `n = ${p.n}. A = ${p.a.join(", ")}`,
+      `B = ${p.b.join(", ")}`,
+      `Question: starting from the solved puzzle, does applying A then B leave every sticker location`,
+      `showing the same colour as applying B then A? Answer YES or NO.`,
+    ].join("\n");
+  }
+  return [
+    `### ${p.id}`,
+    `n = ${p.n}. The puzzle was solved, then scrambled with at most ${p.scramble_limit} moves (the exact number is not given).`,
+    `Every sticker whose colour differs from its facing is listed as "position facing: colour"; all others show their own facing's colour.`,
+    ...p.state.map((s) => `${s.at} ${s.facing}: ${s.color}`),
+    `Question: give a move sequence (at most ${p.max_moves} moves) that returns the puzzle to solved.`,
+  ].join("\n");
+}
+
+const FORMAT_V2 = {
+  ...FORMAT,
+  commute: "<id>: YES or NO                         e.g.  commute-000: NO",
+};
+
+export function batchPromptV2(task, problems) {
+  return [
+    `# Hypercube benchmark (${PROMPT_VERSION_V2})`,
+    "",
+    RULES_V2,
+    "",
+    "## Problems",
+    "",
+    problems.map(problemTextV2).join("\n\n"),
+    "",
+    "## Answer format",
+    "",
+    "Work everything out yourself. End your reply with exactly one line per problem, in order:",
+    FORMAT_V2[task],
+  ].join("\n");
+}

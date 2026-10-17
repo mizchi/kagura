@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { grade, scrambleOf } from "./lib/check.mjs";
-import { Rng, allStickers, applyMoves, applyToSticker, facingName, formatPos, isSolved, parseMoves, randomMove, visibleDifferences } from "./lib/puzzle.mjs";
+import { Rng, allStickers, applyMoves, applyToSticker, facingName, formatPos, isSolved, parseMoves, randomMove, visibleDifferences, visibleState } from "./lib/puzzle.mjs";
 
 test("sticker counts are 2n * 3^(n-1)", () => {
   for (const n of [2, 3, 4, 5]) assert.equal(allStickers(n).length, 2 * n * 3 ** (n - 1));
@@ -64,4 +64,41 @@ test("committed data re-derives from the answer key", () => {
       assert.ok(!grade(p, a, [...a.reference, a.reference[0]].join(", ")).ok, p.id);
     }
   }
+});
+
+test("v2 data re-derives, and its commute answers match simulation", () => {
+  const dir = new URL("./data/v2/", import.meta.url);
+  const manifest = JSON.parse(readFileSync(new URL("manifest.json", dir), "utf8"));
+  for (const [name, sha] of Object.entries(manifest.sha256)) assert.equal(createHash("sha256").update(readFileSync(new URL(name, dir))).digest("hex"), sha, name);
+  const rows = (f) => readFileSync(new URL(f, dir), "utf8").trim().split("\n").map(JSON.parse);
+  const answers = new Map(rows("answers.jsonl").map((a) => [a.id, a]));
+  const yes = { true: 0, false: 0 };
+  for (const p of rows("problems.jsonl")) {
+    const a = answers.get(p.id);
+    if (p.task === "track") {
+      const start = allStickers(p.n).filter((s) => formatPos(s.p) === p.start.at && facingName(s.f) === p.start.facing);
+      const end = applyMoves(start, parseMoves(p.moves.join(","), p.n))[0];
+      assert.deepEqual([formatPos(end.p), facingName(end.f)], [a.at, a.facing], p.id);
+    } else if (p.task === "commute") {
+      const [ma, mb] = [parseMoves(p.a.join(","), p.n), parseMoves(p.b.join(","), p.n)];
+      const all = allStickers(p.n);
+      assert.equal(visibleState(applyMoves(all, [...ma, ...mb])) === visibleState(applyMoves(all, [...mb, ...ma])), a.commute, p.id);
+      assert.ok(grade(p, a, a.commute ? "YES" : "NO").ok && !grade(p, a, a.commute ? "NO" : "YES").ok, p.id);
+      yes[a.commute]++;
+    } else {
+      assert.ok(a.depth <= p.scramble_limit, p.id);
+      assert.deepEqual(visibleDifferences(applyMoves(allStickers(p.n), scrambleOf(a))), p.state, p.id);
+      assert.ok(grade(p, a, a.reference.join(", ")).ok, p.id);
+    }
+  }
+  // Balanced, so always answering one way scores half.
+  assert.deepEqual(yes, { true: 12, false: 12 });
+});
+
+test("same-plane turns of intersecting layers commute; crossed planes do not", () => {
+  const all = allStickers(4);
+  const same = (a, b) => visibleState(applyMoves(all, parseMoves(`${a},${b}`, 4))) === visibleState(applyMoves(all, parseMoves(`${b},${a}`, 4)));
+  // Layers x=+1 and w=+1 share pieces, but both turn the y-z plane.
+  assert.ok(same("+x:y>z", "+w:y>z"));
+  assert.ok(!same("+x:y>z", "+w:x>y"));
 });

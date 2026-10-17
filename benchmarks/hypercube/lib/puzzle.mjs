@@ -8,7 +8,7 @@
 // the same way. Centres (one nonzero coordinate) never move, so "solved"
 // means every sticker shows the colour of the direction it faces.
 
-export const AXES = "xyzwv";
+export const AXES = "xyzwvu";
 
 export function facingName(f) {
   const a = f.findIndex((c) => c !== 0);
@@ -101,4 +101,10 @@ export class Rng {
   int(k) {
     return Math.floor(this.next() * k);
   }
+}
+
+// Visible state: the colour at every sticker location. Two move sequences
+// that leave the same colours everywhere look identical on the puzzle.
+export function visibleState(stickers) {
+  return stickers.map((s) => `${formatPos(s.p)}${facingName(s.f)}=${s.color}`).sort().join(";");
 }

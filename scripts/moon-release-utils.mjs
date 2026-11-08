@@ -56,6 +56,7 @@ const ROOT_FACADE_EXCLUDES = [
   "playwright-report",
   "output",
   "package.json",
+  "skills-lock.json",
   "pnpm-lock.yaml",
   "justfile",
   "playwright.config.ts",

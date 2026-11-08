@@ -32,6 +32,12 @@ crater to `0.19.2` and differentiable_ecs to `0.2.2`; modern dependency packages
 and source files are left unchanged. Checks and their targets are executed from
 `scripts/moon-check-plan.mjs`, using one catalog for standalone and external modules.
 
+`just publish` migrates legacy manifests in Moon's fresh archive-validation
+cache through `scripts/publish-moon-module.mjs`. The normal archive compiler
+check still runs, and failures stop publication. Temporary tool adapters are
+removed after each module; local `skills-lock.json` configuration is excluded
+from both staging and archive validation.
+
 ## Development Flow
 
 1. Review the design and boundaries of your target area (`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`)

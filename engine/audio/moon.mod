@@ -1,6 +1,6 @@
 name = "mizchi/kagura_audio"
 
-version = "0.7.0"
+version = "0.7.1"
 
 description = "Backend-agnostic audio output contracts for Kagura (AudioOutputHooks injection point over mizchi/audio; extracted from kagura_engine)"
 

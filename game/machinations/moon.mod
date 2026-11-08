@@ -1,6 +1,6 @@
 name = "mizchi/machinations"
 
-version = "0.7.0"
+version = "0.7.1"
 
 description = "Machinations-style game-economy modeling and deterministic simulation engine (rendering-agnostic) for Kagura"
 

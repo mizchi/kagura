@@ -76,4 +76,5 @@ test("every published module stages independently with metadata, source and loca
     !staged.summary.modules.some((mod) => mod.name === "mizchi/kagura_cli"),
   );
   assert.equal(existsSync(join(outDir, "mizchi__kagura/cmd/moon.mod")), false);
+  assert.equal(existsSync(join(outDir, "mizchi__kagura/skills-lock.json")), false);
 });

@@ -1,6 +1,6 @@
 name = "mizchi/mesh3d"
 
-version = "0.7.0"
+version = "0.7.1"
 
 description = "Mesh / vertex-format primitives for 3D rendering (extracted from kagura)"
 

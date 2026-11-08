@@ -76,7 +76,7 @@ browser runtime and Vite setup and depends on the published Kagura packages,
 without local path dependencies.
 
 Starting with 0.6.0, the CLI shares the root `mizchi/kagura` module and release
-version. Install it with `moon install mizchi/kagura/cmd/kagura@0.6.0`.
+version. Install it with `moon install mizchi/kagura/cmd/kagura@0.7.1`.
 
 For examples and Studio in this checkout:
 
@@ -179,9 +179,9 @@ pnpm e2e:smoke
 ## Updating release versions
 
 ```bash
-just version 0.6.0 --dry-run  # Preview affected modules and manifests
-just version 0.6.0           # Update versions and regenerate Web runtime / CLI
-just version 0.6.0 --check   # Fail if any manifest version/reference differs
+just version 0.7.1 --dry-run  # Preview affected modules and manifests
+just version 0.7.1           # Update versions and regenerate Web runtime / CLI
+just version 0.7.1 --check   # Fail if any manifest version/reference differs
 just check-release
 just publish-status         # Inspect packaged modules without uploading
 ```

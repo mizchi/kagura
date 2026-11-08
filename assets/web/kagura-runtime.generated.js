@@ -1,5 +1,5 @@
 // Generated from platform_web/web_core/*.mbt by just web-runtime-build. DO NOT EDIT.
-// Source SHA-256: e47bf1739dbc1f12e2ed9f66da5991e61e3ddf74b9a5843ef72fc7fc404fd645
+// Source SHA-256: aadfd79267b7fc43abe704ec208919a7bc4c9683d1c4abbda1aaf6f2ac4b75e1
 function _M0TPC16string10StringView(param0, param1, param2) {
   this.str = param0;
   this.start = param1;

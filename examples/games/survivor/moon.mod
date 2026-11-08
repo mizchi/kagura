@@ -6,11 +6,11 @@ warnings = "-6-29-53-68"
 
 import {
   "mizchi/signals@0.6.6",
-  "mizchi/web_runtime_hooks@0.7.0",
-  "mizchi/kagura_game@0.7.0",
-  "mizchi/kagura_engine@0.7.0",
-  "mizchi/kagura_core@0.7.0",
-  "mizchi/geom@0.7.0",
+  "mizchi/web_runtime_hooks@0.7.1",
+  "mizchi/kagura_game@0.7.1",
+  "mizchi/kagura_engine@0.7.1",
+  "mizchi/kagura_core@0.7.1",
+  "mizchi/geom@0.7.1",
 }
 
 options(

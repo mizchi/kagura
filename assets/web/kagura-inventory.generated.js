@@ -1,5 +1,5 @@
 // Generated from game/inventory_web/*.mbt by just web-runtime-build. DO NOT EDIT.
-// Source SHA-256: deac21a94d26c1a7bc8bfaddfacdc06e602d0c16e4ab63428c9b234b531a3adc
+// Source SHA-256: 5bc5f423261788f0cabcbef1f1be085b91e9d9c39860ceabf73d7ec11678675a
 function $oob() {
   throw new Error("Index out of bounds");
 }

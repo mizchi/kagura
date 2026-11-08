@@ -14,7 +14,7 @@ moon install ./cmd/kagura
 MoonBit の bin ディレクトリ（通常 `~/.moon/bin`）を PATH に追加すると、別の場所からも使えます。
 
 0.6.0 から CLI はルートの `mizchi/kagura` モジュールに含まれます。
-`moon install mizchi/kagura/cmd/kagura@0.6.0` でインストールできます。
+`moon install mizchi/kagura/cmd/kagura@0.7.1` でインストールできます。
 
 ```sh
 kagura new my-game --web

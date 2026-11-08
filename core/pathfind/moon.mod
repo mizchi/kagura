@@ -1,6 +1,6 @@
 name = "mizchi/pathfind"
 
-version = "0.7.0"
+version = "0.7.1"
 
 description = "A* / grid pathfinding helpers on top of mizchi/terrain grids (extracted from kagura)"
 

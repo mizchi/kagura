@@ -1,11 +1,11 @@
 name = "mizchi/kagura"
 
-version = "0.7.0"
+version = "0.7.1"
 
 import {
-  "mizchi/kagura_core@0.7.0",
-  "mizchi/kagura_platform@0.7.0",
-  "mizchi/kagura_engine@0.7.0",
+  "mizchi/kagura_core@0.7.1",
+  "mizchi/kagura_platform@0.7.1",
+  "mizchi/kagura_engine@0.7.1",
   "mizchi/image@0.5.0",
   "mizchi/font@0.7.4",
   "mizchi/audio@0.1.1",

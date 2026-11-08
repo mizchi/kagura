@@ -11,7 +11,7 @@ license = "Apache-2.0"
 warnings = "-6-29-53-68"
 
 import {
-  "mizchi/kagura_core@0.7.0",
-  "mizchi/kagura_engine@0.7.0",
-  "mizchi/geom@0.7.0",
+  "mizchi/kagura_core@0.7.1",
+  "mizchi/kagura_engine@0.7.1",
+  "mizchi/geom@0.7.1",
 }

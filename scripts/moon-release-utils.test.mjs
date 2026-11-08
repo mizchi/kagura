@@ -260,6 +260,7 @@ test("flat root facade staging excludes shared assets, tooling and dependency ca
     delete manifest.source;
     writeJson(manifestPath, manifest);
     fs.renameSync(path.join(root, "src/lib.mbt"), path.join(root, "lib.mbt"));
+    fs.writeFileSync(path.join(root, "skills-lock.json"), '{"version":1,"skills":{}}\n');
     for (const dir of [
       "assets/web",
       "editor/studio",
@@ -279,7 +280,7 @@ test("flat root facade staging excludes shared assets, tooling and dependency ca
     assert.deepEqual(result.validation.errors, []);
     const staged = path.join(outDir, "example__root");
     assert.ok(fs.existsSync(path.join(staged, "lib.mbt")));
-    for (const dir of ["assets", "editor", "node_modules", ".mooncakes"])
+    for (const dir of ["assets", "editor", "node_modules", ".mooncakes", "skills-lock.json"])
       assert.ok(!fs.existsSync(path.join(staged, dir)), dir);
     assert.ok(
       fs.existsSync(

@@ -139,6 +139,7 @@ for m in "${MODULES[@]}"; do
 import json, sys, zipfile, subprocess, pathlib
 with zipfile.ZipFile(sys.argv[1]) as archive:
     files = archive.namelist()
+    assert 'skills-lock.json' not in files, 'local skill configuration must not be published'
     source = archive.read('moon.mod').decode('utf8')
     parser = (pathlib.Path.cwd() / 'scripts/moon-mod-manifest.mjs').as_uri()
     program = 'import {parseMoonMod} from ' + json.dumps(parser) + '; let source=""; for await (const chunk of process.stdin) source+=chunk; console.log(JSON.stringify(parseMoonMod(source)));'
@@ -210,13 +211,14 @@ for i in "${!names[@]}"; do
       ;;
   esac
   echo "=== publishing ${name}@${ver} (${m}) ==="
-  out=$( (cd "$m" && moon publish) 2>&1 )
+  out=$(node scripts/publish-moon-module.mjs "$m" 2>&1)
   status=$?
-  printf '%s\n' "$out" | tail -3
   if [ "$status" -eq 0 ]; then
+    printf '%s\n' "$out" | tail -3
     published+=("${name}@${ver}")
     moon update >/dev/null 2>&1 || true
   else
+    printf '%s\n' "$out"
     echo "  -> FAILED"
     failed+=("${name}@${ver}")
     break

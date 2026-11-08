@@ -39,6 +39,7 @@ CONTRIBUTING_ja.md
 TODO.md
 justfile
 package.json
+skills-lock.json
 pnpm-lock.yaml
 playwright.config.ts
 

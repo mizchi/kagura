@@ -2,34 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-
-### Added
-
-- Add `engine.start` / `start_game` and owned `RunSession` handles with typed
-  startup failures, readiness, cancellation and idempotent shutdown.
-- Share versioned Wasm wire definitions and host session adapters across the
-  preview and test harness, with MoonBit / Rust / Zig byte conformance fixtures.
-
-### Changed
-
-- `FrameHost` hooks and the services `request_frame` / `on_exit` functions now
-  return cancellation / unsubscribe functions. Custom hosts must return disposers.
-- Renderer vertex strides are limited to the supported 4 / 8 / 16 component
-  layouts; unsupported layouts fail before drawing. Semantic guests export
-  `kagura_guest_abi_version`; engine frame guests export `kagura_session_status`.
-- Execute module checks from a shared plan and stage current `moon.mod` manifests
-  for publication.
-- Update crater example dependencies to `0.19.2` and differentiable_ecs to `0.2.2`.
-  Remove all downloaded dependency source repair patches and their lock file;
-  retain only legacy manifest format migration.
+## [0.7.1] - 2026-11-09
 
 ### Fixed
 
-- Stop game callbacks, pending GPU submissions and acquired audio output when
-  sessions stop or fail, and reject concurrent starts on a shared graphics host.
+- Exclude the local `skills-lock.json` configuration from the root package.
+- Migrate legacy dependency manifests in Moon's isolated publication checks
+  while retaining archive validation and compiler failure propagation.
+- Align all public modules, examples, editors and CLI templates at `0.7.1`.
 
-## [0.7.0] - 2026-11-08
+## [0.7.0] - 2026-11-09
 
 ### Release highlights
 
@@ -53,6 +35,11 @@ downloaded dependencies automatically.
 
 ### Added
 
+- Add `engine.start` / `start_game` and owned `RunSession` handles with typed
+  startup failures, readiness, cancellation and idempotent shutdown.
+- Share versioned Wasm wire definitions and host session adapters across the
+  preview and test harness, with MoonBit / Rust / Zig byte conformance fixtures.
+
 - Add `kagura capture` and `kagura profile` for any running Kagura game URL,
   including external projects. Resolve optional Playwright from the caller.
 - Move frame statistics and Chrome performance analysis into MoonBit under
@@ -61,10 +48,26 @@ downloaded dependencies automatically.
 
 ### Changed
 
+- `FrameHost` hooks and the services `request_frame` / `on_exit` functions now
+  return cancellation / unsubscribe functions. Custom hosts must return disposers.
+- Renderer vertex strides are limited to the supported 4 / 8 / 16 component
+  layouts; unsupported layouts fail before drawing. Semantic guests export
+  `kagura_guest_abi_version`; engine frame guests export `kagura_session_status`.
+- Execute module checks from a shared plan and stage current `moon.mod` manifests
+  for publication.
+- Update crater example dependencies to `0.19.2` and differentiable_ecs to `0.2.2`.
+  Remove all downloaded dependency source repair patches and their lock file;
+  retain only legacy manifest format migration.
+
 - Integrate the CLI into the root `mizchi/kagura` module as `cmd/kagura`, sharing
-  its manifest and release version. The next release installs with
+  its manifest and release version. This release installs with
   `moon install mizchi/kagura/cmd/kagura`; the existing 0.5.0 CLI remains available
   as `mizchi/kagura_cli/kagura@0.5.0`.
+
+### Fixed
+
+- Stop game callbacks, pending GPU submissions and acquired audio output when
+  sessions stop or fail, and reject concurrent starts on a shared graphics host.
 
 ## [0.5.0] - 2026-09-15
 

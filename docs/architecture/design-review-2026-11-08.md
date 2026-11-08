@@ -119,5 +119,5 @@ atlas の 1,946 行の `contracts.mbt` は、型・trait と五つの実装フ�
 - `differentiable_ecs@0.2.2` を公開し、取得した全18ファイルが配布 archive と一致することを確認。
   kagura の公開版依存による JS / native check と balance_lib の26テストが成功した。
 
-Node テスト 455 件、リリース検査、生成物照合、対応 target の全 module 検査が成功した。
+Node テスト 458 件、リリース検査、生成物照合、対応 target の全 module 検査が成功した。
 配布予定20 module の staging からの compiler check と archive 検査も成功し、公開は行っていない。

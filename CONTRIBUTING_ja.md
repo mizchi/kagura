@@ -32,6 +32,11 @@ crater `0.19.2` と differentiable_ecs `0.2.2` への更新でソース補修パ
 検査対象と target は `scripts/moon-check-plan.mjs` の plan から実行し、
 独立 module・外部 example の一覧を一つの catalog で管理します。
 
+`just publish` は `scripts/publish-moon-module.mjs` を通じて、公開検査用の
+新しい cache にも旧 manifest の移行を適用します。通常の archive コンパイル検査を
+実行し、失敗したら公開を停止します。module ごとの一時 adapter は終了時に削除し、
+ローカル設定 `skills-lock.json` は staging と archive 検査の両方で配布対象から除外します。
+
 ## 開発フロー
 
 1. 変更対象の設計/境界を確認する（`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`）

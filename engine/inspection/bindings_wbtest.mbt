@@ -1,9 +1,10 @@
 ///|
+#derive(FromJson, ToJson, Eq, Debug)
 struct Fixture {
   y : Double
   title : String
   enabled : Bool
-} derive(FromJson, ToJson, Eq, Debug)
+}
 
 ///|
 pub extend Fixture with @moonbitlang/core/json.FromJson::{from_json}

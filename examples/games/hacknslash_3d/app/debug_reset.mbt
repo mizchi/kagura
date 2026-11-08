@@ -1,5 +1,5 @@
 ///|
-let key_r : Int = 82
+let key_r : Int32 = 82
 
 ///|
 fn debug_reset_button_rect(

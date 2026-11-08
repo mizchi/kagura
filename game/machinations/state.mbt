@@ -13,7 +13,7 @@
 
 ///|
 /// Sum of Modifier contributions to resource edge `ei`.
-fn modifier_bonus(diagram : Diagram, state : SimState, ei : Int) -> Int {
+fn modifier_bonus(diagram : Diagram, state : SimState, ei : Int32) -> Int32 {
   let mut bonus = 0
   for se in diagram.states {
     if se.kind == Modifier {
@@ -35,9 +35,9 @@ fn modifier_bonus(diagram : Diagram, state : SimState, ei : Int) -> Int {
 fn effective_rate(
   diagram : Diagram,
   state : SimState,
-  ei : Int,
-  base : Int,
-) -> Int {
+  ei : Int32,
+  base : Int32,
+) -> Int32 {
   let w = base + modifier_bonus(diagram, state, ei)
   if w < 0 {
     0
@@ -48,7 +48,7 @@ fn effective_rate(
 
 ///|
 /// True if any Activator targeting resource edge `ei` is unsatisfied.
-fn edge_blocked(diagram : Diagram, state : SimState, ei : Int) -> Bool {
+fn edge_blocked(diagram : Diagram, state : SimState, ei : Int32) -> Bool {
   for se in diagram.states {
     if se.kind == Activator {
       match se.to_edge {
@@ -65,7 +65,7 @@ fn edge_blocked(diagram : Diagram, state : SimState, ei : Int) -> Bool {
 
 ///|
 /// True if any Activator targeting node `idx` is unsatisfied.
-fn node_blocked(diagram : Diagram, state : SimState, idx : Int) -> Bool {
+fn node_blocked(diagram : Diagram, state : SimState, idx : Int32) -> Bool {
   for se in diagram.states {
     if se.kind == Activator {
       match se.to_node {

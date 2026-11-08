@@ -11,7 +11,7 @@ let web_hooks_installed : Ref[Bool] = Ref(false)
 let web_fullscreen_state : Ref[Bool] = Ref(false)
 
 ///|
-let web_cursor_mode_state : Ref[Int] = Ref(0)
+let web_cursor_mode_state : Ref[Int32] = Ref(0)
 
 ///|
 let web_device_scale_state : Ref[Double] = Ref(1.0)
@@ -23,20 +23,20 @@ let web_vsync_state : Ref[Bool] = Ref(true)
 let web_close_requested : Ref[Bool] = Ref(false)
 
 ///|
-let web_attention_requests : Ref[Int] = Ref(0)
+let web_attention_requests : Ref[Int32] = Ref(0)
 
 ///|
 priv struct SyncedSourceGeneration {
-  image_id : Int
-  generation : Int
+  image_id : Int32
+  generation : Int32
 }
 
 ///|
 priv struct SourceImageCacheEntry {
-  image_id : Int
-  width : Int
-  height : Int
-  pixels_rgba8 : Array[Int]
+  image_id : Int32
+  width : Int32
+  height : Int32
+  pixels_rgba8 : Array[Int32]
 }
 
 ///|
@@ -46,10 +46,10 @@ let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref([])
 let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref([])
 
 ///|
-let gpu_texture_dirty : Ref[Array[Int]] = Ref([])
+let gpu_texture_dirty : Ref[Array[Int32]] = Ref([])
 
 ///|
-fn mark_gpu_texture_dirty(image_id : Int) -> Unit {
+fn mark_gpu_texture_dirty(image_id : Int32) -> Unit {
   for id in gpu_texture_dirty.val {
     if id == image_id {
       return
@@ -64,7 +64,7 @@ fn clear_gpu_texture_dirty() -> Unit {
 }
 
 ///|
-fn normalized_size(value : Int) -> Int {
+fn normalized_size(value : Int32) -> Int32 {
   if value <= 0 {
     1
   } else {
@@ -73,7 +73,7 @@ fn normalized_size(value : Int) -> Int {
 }
 
 ///|
-fn normalized_source_generation(generation : Int) -> Int {
+fn normalized_source_generation(generation : Int32) -> Int32 {
   if generation <= 0 {
     1
   } else {
@@ -82,7 +82,7 @@ fn normalized_source_generation(generation : Int) -> Int {
 }
 
 ///|
-fn synced_source_generation_at(image_id : Int) -> Int {
+fn synced_source_generation_at(image_id : Int32) -> Int32 {
   let mut generation = 0
   for entry in synced_source_generations.val {
     if entry.image_id == image_id {
@@ -93,7 +93,7 @@ fn synced_source_generation_at(image_id : Int) -> Int {
 }
 
 ///|
-fn set_synced_source_generation(image_id : Int, generation : Int) -> Unit {
+fn set_synced_source_generation(image_id : Int32, generation : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   let mut replaced = false
   let safe_generation = normalized_source_generation(generation)
@@ -117,7 +117,7 @@ fn clear_synced_source_generations() -> Unit {
 }
 
 ///|
-fn drop_synced_source_generation(image_id : Int) -> Unit {
+fn drop_synced_source_generation(image_id : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   for entry in synced_source_generations.val {
     if entry.image_id != image_id {
@@ -128,22 +128,22 @@ fn drop_synced_source_generation(image_id : Int) -> Unit {
 }
 
 ///|
-fn expected_rgba8_channel_count(width : Int, height : Int) -> Int {
+fn expected_rgba8_channel_count(width : Int32, height : Int32) -> Int32 {
   normalized_size(width) * normalized_size(height) * 4
 }
 
 ///|
 fn has_valid_rgba8_payload(
-  rgba8_channels : Array[Int],
-  width : Int,
-  height : Int,
+  rgba8_channels : Array[Int32],
+  width : Int32,
+  height : Int32,
 ) -> Bool {
   let expected = expected_rgba8_channel_count(width, height)
   expected > 0 && rgba8_channels.length() >= expected
 }
 
 ///|
-fn clamp_u8_channel(value : Int) -> Int {
+fn clamp_u8_channel(value : Int32) -> Int32 {
   if value < 0 {
     0
   } else if value > 255 {
@@ -155,12 +155,12 @@ fn clamp_u8_channel(value : Int) -> Int {
 
 ///|
 fn normalized_rgba8_channels(
-  rgba8_channels : Array[Int],
-  width : Int,
-  height : Int,
-) -> Array[Int] {
+  rgba8_channels : Array[Int32],
+  width : Int32,
+  height : Int32,
+) -> Array[Int32] {
   let expected = expected_rgba8_channel_count(width, height)
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   if expected <= 0 || rgba8_channels.length() < expected {
     out
   } else {
@@ -172,7 +172,7 @@ fn normalized_rgba8_channels(
 }
 
 ///|
-fn source_image_cache_entry_at(image_id : Int) -> SourceImageCacheEntry? {
+fn source_image_cache_entry_at(image_id : Int32) -> SourceImageCacheEntry? {
   let mut out : SourceImageCacheEntry? = None
   for entry in source_image_cache.val {
     if entry.image_id == image_id {
@@ -206,7 +206,7 @@ fn clear_source_image_cache() -> Unit {
 }
 
 ///|
-fn bool_to_int(value : Bool) -> Int {
+fn bool_to_int(value : Bool) -> Int32 {
   if value {
     1
   } else {
@@ -215,12 +215,12 @@ fn bool_to_int(value : Bool) -> Int {
 }
 
 ///|
-fn int_to_bool(value : Int) -> Bool {
+fn int_to_bool(value : Int32) -> Bool {
   value != 0
 }
 
 ///|
-fn backend_kind_to_int(kind : @gfx.GraphicsBackendKind) -> Int {
+fn backend_kind_to_int(kind : @gfx.GraphicsBackendKind) -> Int32 {
   match kind {
     @gfx.GraphicsBackendKind::WgpuNative => 0
     @gfx.GraphicsBackendKind::WebGpu => 1
@@ -230,36 +230,36 @@ fn backend_kind_to_int(kind : @gfx.GraphicsBackendKind) -> Int {
 }
 
 ///|
-extern "wasm" fn host_prepare_surface(width : Int, height : Int) -> Int = "kagura_web" "prepare_surface"
+extern "wasm" fn host_prepare_surface(width : Int32, height : Int32) -> Int32 = "kagura_web" "prepare_surface"
 
 ///|
-extern "wasm" fn host_surface_kind() -> Int = "kagura_web" "surface_kind"
+extern "wasm" fn host_surface_kind() -> Int32 = "kagura_web" "surface_kind"
 
 ///|
-extern "wasm" fn host_surface_id() -> Int = "kagura_web" "surface_id"
+extern "wasm" fn host_surface_id() -> Int32 = "kagura_web" "surface_id"
 
 ///|
-extern "wasm" fn host_surface_width(fallback_width : Int) -> Int = "kagura_web" "surface_width"
+extern "wasm" fn host_surface_width(fallback_width : Int32) -> Int32 = "kagura_web" "surface_width"
 
 ///|
-extern "wasm" fn host_surface_height(fallback_height : Int) -> Int = "kagura_web" "surface_height"
+extern "wasm" fn host_surface_height(fallback_height : Int32) -> Int32 = "kagura_web" "surface_height"
 
 ///|
 extern "wasm" fn host_surface_dpr() -> Double = "kagura_web" "surface_dpr"
 
 ///|
-extern "wasm" fn host_should_close() -> Int = "kagura_web" "should_close"
+extern "wasm" fn host_should_close() -> Int32 = "kagura_web" "should_close"
 
 ///|
 extern "wasm" fn host_gfx_try_initialize(
-  kind : Int,
-  width : Int,
-  height : Int,
-) -> Int = "kagura_web" "gfx_try_initialize"
+  kind : Int32,
+  width : Int32,
+  height : Int32,
+) -> Int32 = "kagura_web" "gfx_try_initialize"
 
 ///|
 extern "wasm" fn host_gfx_begin(
-  kind : Int,
+  kind : Int32,
   clear_r : Double,
   clear_g : Double,
   clear_b : Double,
@@ -267,40 +267,40 @@ extern "wasm" fn host_gfx_begin(
 ) -> Unit = "kagura_web" "gfx_begin"
 
 ///|
-extern "wasm" fn host_gfx_end(kind : Int, present : Int) -> Unit = "kagura_web" "gfx_end"
+extern "wasm" fn host_gfx_end(kind : Int32, present : Int32) -> Unit = "kagura_web" "gfx_end"
 
 ///|
 extern "wasm" fn host_shutdown() -> Unit = "kagura_web" "shutdown"
 
 ///|
 extern "wasm" fn host_gfx_read_pixels_begin(
-  kind : Int,
-  x : Int,
-  y : Int,
-  w : Int,
-  h : Int,
-) -> Int = "kagura_web" "gfx_read_pixels_begin"
+  kind : Int32,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
+) -> Int32 = "kagura_web" "gfx_read_pixels_begin"
 
 ///|
-extern "wasm" fn host_gfx_read_pixels_channel(offset : Int) -> Int = "kagura_web" "gfx_read_pixels_channel"
+extern "wasm" fn host_gfx_read_pixels_channel(offset : Int32) -> Int32 = "kagura_web" "gfx_read_pixels_channel"
 
 ///|
 extern "wasm" fn host_gfx_read_pixels_end() -> Unit = "kagura_web" "gfx_read_pixels_end"
 
 ///|
 extern "wasm" fn host_gfx_draw_begin(
-  vertex_count : Int,
-  index_count : Int,
-  src_image_id : Int,
-  uniform_r : Int,
-  uniform_g : Int,
-  uniform_b : Int,
-  uniform_a : Int,
+  vertex_count : Int32,
+  index_count : Int32,
+  src_image_id : Int32,
+  uniform_r : Int32,
+  uniform_g : Int32,
+  uniform_b : Int32,
+  uniform_a : Int32,
 ) -> Unit = "kagura_web" "gfx_draw_begin"
 
 ///|
 extern "wasm" fn host_gfx_draw_vertex(
-  offset : Int,
+  offset : Int32,
   x : Double,
   y : Double,
   u : Double,
@@ -308,25 +308,25 @@ extern "wasm" fn host_gfx_draw_vertex(
 ) -> Unit = "kagura_web" "gfx_draw_vertex"
 
 ///|
-extern "wasm" fn host_gfx_draw_index(offset : Int, value : Int) -> Unit = "kagura_web" "gfx_draw_index"
+extern "wasm" fn host_gfx_draw_index(offset : Int32, value : Int32) -> Unit = "kagura_web" "gfx_draw_index"
 
 ///|
 extern "wasm" fn host_gfx_draw_end() -> Unit = "kagura_web" "gfx_draw_end"
 
 ///|
 extern "wasm" fn host_gfx_upload_texture_begin(
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit = "kagura_web" "gfx_upload_texture_begin"
 
 ///|
 extern "wasm" fn host_gfx_upload_texture_pixel(
-  offset : Int,
-  r : Int,
-  g : Int,
-  b : Int,
-  a : Int,
+  offset : Int32,
+  r : Int32,
+  g : Int32,
+  b : Int32,
+  a : Int32,
 ) -> Unit = "kagura_web" "gfx_upload_texture_pixel"
 
 ///|
@@ -353,7 +353,7 @@ fn bridge_web_should_close() -> Bool {
 }
 
 ///|
-fn bridge_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn bridge_web_outside_size(width : Int32, height : Int32) -> @core.OutsideSize {
   let _ = host_prepare_surface(width, height)
   @core.new_outside_size(width.to_double(), height.to_double())
 }
@@ -374,7 +374,10 @@ fn bridge_web_current_surface(
 }
 
 ///|
-fn bridge_web_capture_input(_active : Bool, _tick : Int) -> @core.InputSnapshot {
+fn bridge_web_capture_input(
+  _active : Bool,
+  _tick : Int32,
+) -> @core.InputSnapshot {
   @core.empty_input_snapshot()
 }
 
@@ -501,8 +504,8 @@ fn bridge_web_request_attention(
 ///|
 fn bridge_web_gfx_try_initialize(
   kind : @gfx.GraphicsBackendKind,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Bool {
   if !web_hooks_installed.val {
     false
@@ -626,8 +629,8 @@ fn bridge_web_gfx_on_draw(
 fn bridge_web_gfx_on_resize(
   active : Bool,
   kind : @gfx.GraphicsBackendKind,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   if active {
     let _ = kind
@@ -639,11 +642,11 @@ fn bridge_web_gfx_on_resize(
 fn bridge_web_gfx_on_read_pixels(
   active : Bool,
   kind : @gfx.GraphicsBackendKind,
-  x : Int,
-  y : Int,
-  width : Int,
-  height : Int,
-) -> Array[Int]? {
+  x : Int32,
+  y : Int32,
+  width : Int32,
+  height : Int32,
+) -> Array[Int32]? {
   if !active || !web_hooks_installed.val {
     return None
   }
@@ -659,7 +662,7 @@ fn bridge_web_gfx_on_read_pixels(
     return None
   }
   let channel_count = pixel_count * 4
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   for i in 0..<channel_count {
     result.push(host_gfx_read_pixels_channel(i))
   }
@@ -672,19 +675,22 @@ fn bridge_web_gfx_on_read_pixels(
 // ---------------------------------------------------------------------------
 
 ///|
-extern "wasm" fn host_load_font_name_len(len : Int) -> Unit = "kagura_web" "load_font_name_len"
+extern "wasm" fn host_load_font_name_len(len : Int32) -> Unit = "kagura_web" "load_font_name_len"
 
 ///|
-extern "wasm" fn host_load_font_name_byte(index : Int, byte_val : Int) -> Unit = "kagura_web" "load_font_name_byte"
+extern "wasm" fn host_load_font_name_byte(
+  index : Int32,
+  byte_val : Int32,
+) -> Unit = "kagura_web" "load_font_name_byte"
 
 ///|
-extern "wasm" fn host_load_font_data_begin() -> Int = "kagura_web" "load_font_data_begin"
+extern "wasm" fn host_load_font_data_begin() -> Int32 = "kagura_web" "load_font_data_begin"
 
 ///|
-extern "wasm" fn host_load_font_data_byte(offset : Int) -> Int = "kagura_web" "load_font_data_byte"
+extern "wasm" fn host_load_font_data_byte(offset : Int32) -> Int32 = "kagura_web" "load_font_data_byte"
 
 ///|
-fn bridge_load_font_data(name : String) -> Array[Int]? {
+fn bridge_load_font_data(name : String) -> Array[Int32]? {
   let bytes = @utf8.encode(name)
   let len = bytes.length()
   host_load_font_name_len(len)
@@ -695,7 +701,7 @@ fn bridge_load_font_data(name : String) -> Array[Int]? {
   if size <= 0 {
     return None
   }
-  let data : Array[Int] = Array::make(size, 0)
+  let data : Array[Int32] = Array::make(size, 0)
   for i in 0..<size {
     data[i] = host_load_font_data_byte(i)
   }
@@ -708,15 +714,18 @@ fn bridge_load_font_data(name : String) -> Array[Int]? {
 
 ///|
 extern "wasm" fn host_audio_try_initialize(
-  sample_rate : Int,
-  channels : Int,
-) -> Int = "kagura_web" "audio_try_initialize"
+  sample_rate : Int32,
+  channels : Int32,
+) -> Int32 = "kagura_web" "audio_try_initialize"
 
 ///|
-extern "wasm" fn host_audio_write_frame(channel : Int, value : Double) -> Unit = "kagura_web" "audio_write_frame"
+extern "wasm" fn host_audio_write_frame(
+  channel : Int32,
+  value : Double,
+) -> Unit = "kagura_web" "audio_write_frame"
 
 ///|
-extern "wasm" fn host_audio_write_end(frames : Int) -> Int = "kagura_web" "audio_write_end"
+extern "wasm" fn host_audio_write_end(frames : Int32) -> Int32 = "kagura_web" "audio_write_end"
 
 ///|
 extern "wasm" fn host_audio_suspend() -> Unit = "kagura_web" "audio_suspend"
@@ -736,7 +745,10 @@ fn bridge_audio_try_initialize(format : @audio.AudioFormat) -> Bool {
 }
 
 ///|
-fn bridge_audio_write_frames(output : FixedArray[Float], frames : Int) -> Int {
+fn bridge_audio_write_frames(
+  output : FixedArray[Float],
+  frames : Int32,
+) -> Int32 {
   let channels = 2
   for i in 0..<frames {
     for ch in 0..<channels {
@@ -845,7 +857,7 @@ pub fn shutdown() -> Unit {
 
 ///|
 pub fn register_source_image_palette(
-  source_image_id : Int,
+  source_image_id : Int32,
   _palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   if source_image_id < 0 {
@@ -853,7 +865,7 @@ pub fn register_source_image_palette(
   }
   let mut width = 1
   let mut height = 1
-  let mut pixels_rgba8 : Array[Int] = []
+  let mut pixels_rgba8 : Array[Int32] = []
   match source_image_cache_entry_at(source_image_id) {
     Some(entry) => {
       width = entry.width
@@ -873,7 +885,7 @@ pub fn register_source_image_palette(
 
 ///|
 pub fn register_source_image_solid_color(
-  source_image_id : Int,
+  source_image_id : Int32,
   color : @atlas.Rgba,
 ) -> Unit {
   register_source_image_palette(
@@ -884,10 +896,10 @@ pub fn register_source_image_solid_color(
 
 ///|
 pub fn register_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Unit {
   if source_image_id < 0 {
     return
@@ -912,14 +924,14 @@ pub fn register_source_image_rgba8(
 
 ///|
 pub fn patch_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  dirty_x : Int,
-  dirty_y : Int,
-  dirty_width : Int,
-  dirty_height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  dirty_x : Int32,
+  dirty_y : Int32,
+  dirty_width : Int32,
+  dirty_height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Bool {
   if source_image_id < 0 {
     return false
@@ -1003,7 +1015,7 @@ pub fn clear_source_image_palettes() -> Unit {
 ///|
 pub fn sync_source_image_palettes(
   bindings : Array[@atlas.ImagePaletteBinding],
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for binding in bindings {
     if binding.image_id >= 0 {
@@ -1017,12 +1029,12 @@ pub fn sync_source_image_palettes(
 ///|
 pub fn sync_source_image_palettes_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_image_palettes(@atlas.list_image_palette_bindings(repository))
 }
 
 ///|
-pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
+pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int32 {
   let mut count = 0
   for binding in bindings {
     if binding.image_id < 0 {
@@ -1080,14 +1092,14 @@ pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
 ///|
 pub fn sync_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_images(@atlas.list_source_image_bindings(repository))
 }
 
 ///|
 pub fn sync_dirty_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   let count = sync_source_images(
     @atlas.list_dirty_source_image_bindings(repository),
   )
@@ -1098,7 +1110,7 @@ pub fn sync_dirty_source_images_from_repository(
 ///|
 pub fn sync_dirty_atlas_pages_from_repository(
   repository : @atlas.SimpleAtlasImageRepository,
-) -> Int {
+) -> Int32 {
   let count = sync_source_images(
     @atlas.list_dirty_atlas_page_bindings(repository),
   )
@@ -1107,17 +1119,17 @@ pub fn sync_dirty_atlas_pages_from_repository(
 }
 
 ///|
-pub fn source_image_cache_count() -> Int {
+pub fn source_image_cache_count() -> Int32 {
   source_image_cache.val.length()
 }
 
 ///|
-pub fn source_image_generation(image_id : Int) -> Int {
+pub fn source_image_generation(image_id : Int32) -> Int32 {
   synced_source_generation_at(image_id)
 }
 
 ///|
-pub fn source_image_width(image_id : Int) -> Int {
+pub fn source_image_width(image_id : Int32) -> Int32 {
   match source_image_cache_entry_at(image_id) {
     Some(entry) => entry.width
     None => 0
@@ -1125,7 +1137,7 @@ pub fn source_image_width(image_id : Int) -> Int {
 }
 
 ///|
-pub fn source_image_height(image_id : Int) -> Int {
+pub fn source_image_height(image_id : Int32) -> Int32 {
   match source_image_cache_entry_at(image_id) {
     Some(entry) => entry.height
     None => 0
@@ -1134,11 +1146,11 @@ pub fn source_image_height(image_id : Int) -> Int {
 
 ///|
 pub fn source_image_pixel_channel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  channel_index : Int,
-) -> Int {
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  channel_index : Int32,
+) -> Int32 {
   if channel_index < 0 || channel_index > 3 {
     return -1
   }

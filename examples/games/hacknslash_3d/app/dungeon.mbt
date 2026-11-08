@@ -2,7 +2,7 @@
 // Logic (generate_dungeon, collision, height map) is now in @game
 
 ///|
-fn tile_color(tile : @terrain.Tile) -> Int {
+fn tile_color(tile : @terrain.Tile) -> Int32 {
   match tile {
     Floor | Start | Goal => 0x3A4A2A
     Wall => 0x5A5040
@@ -15,7 +15,7 @@ fn tile_color(tile : @terrain.Tile) -> Int {
 // Tile color with coordinate-based variation
 
 ///|
-fn tile_color_varied(tile : @terrain.Tile, col : Int, row : Int) -> Int {
+fn tile_color_varied(tile : @terrain.Tile, col : Int32, row : Int32) -> Int32 {
   match tile {
     Floor | Start | Goal => {
       let checker = (col + row) % 2

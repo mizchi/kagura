@@ -1,5 +1,6 @@
 ///|
 /// Renderer-independent inspection data; never a second authoring document.
+#derive(ToJson)
 pub(all) struct Node {
   id : String
   name : String
@@ -7,7 +8,7 @@ pub(all) struct Node {
   generated : Bool
   subject : String?
   children : Array[Node]
-} derive(ToJson)
+}
 
 ///|
 pub extend Node with ToJson::{to_json}

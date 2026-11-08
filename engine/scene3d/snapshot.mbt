@@ -46,7 +46,7 @@ pub(all) struct Scene3DSnapshotBox {
 }
 
 ///|
-fn column(m : @math3d.Mat4, index : Int) -> @math3d.Vec3 {
+fn column(m : @math3d.Mat4, index : Int32) -> @math3d.Vec3 {
   let e = m.elements
   @math3d.Vec3::new(e[index * 4], e[index * 4 + 1], e[index * 4 + 2])
 }
@@ -122,7 +122,7 @@ pub fn SceneRoot::snapshot(
   self : SceneRoot,
   camera? : @camera3d.Camera3D,
 ) -> Scene3DSnapshot {
-  let paths : Map[Int, String] = Map([])
+  let paths : Map[Int32, String] = Map([])
   for path, id in self.ids {
     paths[id] = path
   }
@@ -136,7 +136,7 @@ pub fn SceneRoot::snapshot(
   collect(self.outline)
   let graph = self.current
   let nodes = []
-  fn visit(id : Int, parent : @math3d.Mat4) -> Unit {
+  fn visit(id : Int32, parent : @math3d.Mat4) -> Unit {
     guard graph.nodes.get(id) is Some(node) else { return }
     let world = parent.multiply(node.transform.to_mat4())
     let path = paths.get(id).unwrap_or("#\{id}")
@@ -178,7 +178,7 @@ fn rounded(x : Double) -> Json {
   if x.is_nan() || x.is_inf() {
     Json::null()
   } else {
-    ((x * 100000.0).round() / 100000.0 + 0.0).to_json()
+    Json((x * 100000.0).round() / 100000.0 + 0.0)
   }
 }
 
@@ -227,11 +227,11 @@ pub let scene3d_snapshot_schema : String = "kagura.scene3d-snapshot"
 pub fn Scene3DSnapshot::to_json(self : Scene3DSnapshot) -> Json {
   let nodes = self.nodes.map(n => {
     let node : Map[String, Json] = {
-      "path": n.path.to_json(),
-      "name": n.name.to_json(),
-      "kind": n.kind.to_json(),
+      "path": Json(n.path),
+      "name": Json(n.name),
+      "kind": Json(n.kind),
       "subject": match n.subject {
-        Some(s) => s.to_json()
+        Some(s) => Json(s)
         None => Json::null()
       },
       "position": vec_json(n.position),
@@ -254,7 +254,7 @@ pub fn Scene3DSnapshot::to_json(self : Scene3DSnapshot) -> Json {
     Json::object(node)
   })
   {
-    "schema": scene3d_snapshot_schema.to_json(),
+    "schema": Json(scene3d_snapshot_schema),
     "version": 1,
     "conventions": {
       "handedness": "right",

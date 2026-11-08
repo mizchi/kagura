@@ -30,12 +30,12 @@ pub fn[T : SceneGame] run_game(
     Double,
   ) -> Unit,
   snapshot_state? : () -> String,
-  apply_viewport? : (Int, Int) -> Unit,
+  apply_viewport? : (Int32, Int32) -> Unit,
   audio_ctx? : @audio.MixerAudioContext,
-  width? : Int = 320,
-  height? : Int = 240,
-  title? : String = "kagura",
-  canvas? : String = "#app",
+  width~ : Int32 = 320,
+  height~ : Int32 = 240,
+  title~ : String = "kagura",
+  canvas~ : String = "#app",
 ) -> Unit {
   run(
     view=fn() { scene_game_view(game) },

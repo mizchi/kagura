@@ -2,9 +2,9 @@
 /// Ensure a buffer slot has sufficient capacity, creating a new buffer if needed.
 fn ensure_buffer_entry(
   slots : Array[BufferEntry?],
-  slot_index : Int,
-  min_size : Int,
-  usage : Int,
+  slot_index : Int32,
+  min_size : Int32,
+  usage : Int32,
   device : @core.Any,
 ) -> BufferEntry {
   let required_size = if min_size < 16 { 16 } else { min_size }
@@ -193,7 +193,7 @@ pub fn draw_default_command(
   device : @core.Any,
   pass : @core.Any,
   cmd : @core.Any,
-  draw_index : Int,
+  draw_index : Int32,
   cache : DrawResourceCache,
   pass_format : String,
 ) -> Unit {
@@ -248,7 +248,9 @@ pub fn draw_default_command(
   let uniform_b = cmd._get("uniformB")
   let uniform_a = cmd._get("uniformA")
   let uniform_data = @core.new(@core.global_this()._get("Float32Array"), [
-    @core.any([uniform_r, uniform_g, uniform_b, uniform_a]),
+    @core.any(
+      ([uniform_r, uniform_g, uniform_b, uniform_a] : FixedArray[@core.Any]),
+    ),
   ])
   queue._call("writeBuffer", [ub_entry.buffer, @core.any(0), uniform_data])
   |> ignore
@@ -688,7 +690,7 @@ pub fn render_gpu(
   let mut current_pass : @core.Any? = None
   let mut current_pass_target = -999
   let mut current_pass_has_depth = false
-  let pass_started : Map[Int, Bool] = Map([])
+  let pass_started : Map[Int32, Bool] = Map([])
   let mut default_draw_index = 0
   let last_cmd = commands._get_by_index(cmd_length - 1)
   let screen_target_id = last_cmd._get("dstImageId").cast_int()

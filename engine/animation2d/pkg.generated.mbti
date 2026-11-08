@@ -10,13 +10,13 @@ import {
 // Values
 pub fn draw_sprite_animation(Array[@gfx.DrawTrianglesCommand], @atlas.SimpleAtlasImageRepository, SpriteAnimationPlayer, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Double, Double, Double, Double) -> Bool
 
-pub fn extract_subimage_spec(@atlas.ImageSpec, Int, Int, Int, Int) -> @atlas.ImageSpec
+pub fn extract_subimage_spec(@atlas.ImageSpec, Int32, Int32, Int32, Int32) -> @atlas.ImageSpec
 
-pub fn register_sprite_sheet(@atlas.SimpleAtlasImageRepository, @atlas.ImageSpec, String, Int, Int, Int, Int) -> Array[@atlas.AssetKey]
+pub fn register_sprite_sheet(@atlas.SimpleAtlasImageRepository, @atlas.ImageSpec, String, Int32, Int32, Int32, Int32) -> Array[@atlas.AssetKey]
 
-pub fn split_sprite_sheet(@atlas.ImageSpec, String, Int, Int, Int, Int) -> Array[(@atlas.AssetKey, @atlas.ImageSpec)]
+pub fn split_sprite_sheet(@atlas.ImageSpec, String, Int32, Int32, Int32, Int32) -> Array[(@atlas.AssetKey, @atlas.ImageSpec)]
 
-pub fn sprite_sheet_keys(String, Int) -> Array[@atlas.AssetKey]
+pub fn sprite_sheet_keys(String, Int32) -> Array[@atlas.AssetKey]
 
 // Errors
 
@@ -33,7 +33,7 @@ pub struct SpriteAnimationPlayer {
   mut clip : SpriteAnimationClip
   timeline : @playback.Timeline
 }
-pub fn SpriteAnimationPlayer::current_frame_index(Self) -> Int
+pub fn SpriteAnimationPlayer::current_frame_index(Self) -> Int32
 pub fn SpriteAnimationPlayer::current_key(Self) -> @atlas.AssetKey
 pub fn SpriteAnimationPlayer::new(SpriteAnimationClip) -> Self
 pub fn SpriteAnimationPlayer::pause(Self) -> Unit

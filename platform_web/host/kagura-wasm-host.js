@@ -70,7 +70,7 @@ function readImportSignatures(bytes) {
   };
   const name = () => {
     const length = u32();
-    const text = Buffer.from(bytes.buffer, bytes.byteOffset + at, length).toString("utf8");
+    const text = DECODER.decode(bytes.subarray(at, at + length));
     at += length;
     return text;
   };

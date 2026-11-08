@@ -1,5 +1,6 @@
 // Edit scene literals here or in Kagura Studio. Keep behavior outside the managed region.
 // kagura-scene:begin
+
 ///|
 pub fn second() -> @scene_document.Document {
   {

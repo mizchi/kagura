@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 pub(all) struct AABB {
   min : @math3d.Vec3
   max : @math3d.Vec3
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AABB with fn output(self, logger) {

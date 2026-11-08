@@ -10,16 +10,16 @@
 /// Returns (width, height, pixels) where pixels is a flat RGBA8 array.
 pub fn render_svg_to_rgba(
   svg_source : String,
-  width : Int,
-  height : Int,
-) -> (Int, Int, Array[Int])? {
+  width : Int32,
+  height : Int32,
+) -> (Int32, Int32, Array[Int32])? {
   let image = @msvg.render_svg_to_image(svg_source, width, height)
   match image {
     None => None
     Some(img) => {
       let w = img.width
       let h = img.height
-      let pixels : Array[Int] = []
+      let pixels : Array[Int32] = []
       for i = 0; i < img.pixels.length(); i = i + 1 {
         let color = img.pixels[i]
         pixels.push(color.r)
@@ -195,7 +195,7 @@ pub fn svg_path_to_stroke_vertices(
   path_data : String,
   width : Double,
   tolerance : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let path = svg_path_to_vector_path(path_data)
   let points = path.flatten(tolerance)
   @vector.stroke_path(points, width)
@@ -206,7 +206,7 @@ pub fn svg_path_to_stroke_vertices(
 pub fn svg_path_to_fill_vertices(
   path_data : String,
   tolerance : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let path = svg_path_to_vector_path(path_data)
   let points = path.flatten(tolerance)
   @vector.fill_path(points)
@@ -215,11 +215,12 @@ pub fn svg_path_to_fill_vertices(
 ///|
 /// Create an ImageSpec-compatible RGBA8 pixel array from an SVG.
 /// Useful for uploading SVG renders as textures.
+#derive(Debug)
 pub struct SVGRenderResult {
-  width : Int
-  height : Int
-  pixels : Array[Int]
-} derive(Debug)
+  width : Int32
+  height : Int32
+  pixels : Array[Int32]
+}
 
 ///|
 pub impl Show for SVGRenderResult with fn output(self, logger) {
@@ -229,8 +230,8 @@ pub impl Show for SVGRenderResult with fn output(self, logger) {
 ///|
 pub fn render_svg(
   svg_source : String,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> SVGRenderResult? {
   match render_svg_to_rgba(svg_source, width, height) {
     Some((w, h, pixels)) => Some({ width: w, height: h, pixels, })

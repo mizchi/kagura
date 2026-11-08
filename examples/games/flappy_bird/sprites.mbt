@@ -28,14 +28,14 @@ fn pipe_view(
 fn bird_details(
   w : Double,
   h : Double,
-  color : Int,
-  frame : Int,
+  color : Int32,
+  frame : Int32,
   velocity : Double,
   dead : Bool,
 ) -> Array[@scene.SceneNode] {
   let wing_y = if dead { 7.0 } else if frame / 6 % 2 == 0 { 5.0 } else { 8.0 }
   let beak_y = if velocity > 2.0 { 7.0 } else { 5.0 }
-  let pixels : Array[(Double, Double, Double, Double, Int)] = [
+  let pixels : Array[(Double, Double, Double, Double, Int32)] = [
     (2.0, 0.0, 7.0, 1.0, 0x7B493D),
     (1.0, 1.0, 9.0, 1.0, 0x7B493D),
     (0.0, 3.0, 1.0, 6.0, 0x7B493D),

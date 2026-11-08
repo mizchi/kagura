@@ -35,8 +35,8 @@ fn clip_to_world(
 ///|
 pub fn camera_ray_from_cursor(
   camera : @camera3d.Camera3D,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cursor_x : Double,
   cursor_y : Double,
 ) -> WorldRay {
@@ -121,7 +121,7 @@ fn sculpt_mode_name_lower(mode : SculptMode) -> String {
 fn make_sculpt_stamp_id(
   layer_id : String,
   mode : SculptMode,
-  stamp_index : Int,
+  stamp_index : Int32,
   mirrored : Bool,
 ) -> String {
   let base = layer_id +
@@ -149,7 +149,7 @@ fn mirrored_stamp_center(center : @math3d.Vec3) -> @math3d.Vec3 {
 ///|
 pub fn append_sculpt_stamp_with_symmetry(
   doc : ModelDocument,
-  layer_index : Int,
+  layer_index : Int32,
   mode : SculptMode,
   center : @math3d.Vec3,
   radius : Double,
@@ -200,7 +200,7 @@ pub fn append_sculpt_stamp_with_symmetry(
 ///|
 pub fn append_sculpt_stamp(
   doc : ModelDocument,
-  layer_index : Int,
+  layer_index : Int32,
   mode : SculptMode,
   center : @math3d.Vec3,
   radius : Double,

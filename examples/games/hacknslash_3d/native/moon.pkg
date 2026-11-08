@@ -2,7 +2,7 @@
 // mizchi/native_runtime_hooks (and gfx_wgpu_native) are native-only;
 // importing them from the js+native game package would make JS check fail.
 import {
-  "mizchi/hacknslash_3d/app" @app,
+  "mizchi/hacknslash_3d/app",
   "mizchi/native_runtime_hooks" @native_hooks,
 }
 

@@ -66,7 +66,7 @@ fn apply_melee_reaction(
   enemy : Enemy,
   weapon : PlayerWeaponKind,
   angle : Double,
-  combo? : CleaverComboStep = Opening,
+  combo~ : CleaverComboStep = Opening,
 ) -> Unit {
   if !enemy.alive {
     return

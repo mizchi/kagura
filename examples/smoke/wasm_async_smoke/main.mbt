@@ -18,7 +18,7 @@ extern "wasm" fn host_now_ms() -> Double = "kagura_web" "now_ms"
 
 ///|
 /// Frames the host has driven so far. Zero when nothing is driving the guest.
-extern "wasm" fn host_frame_number() -> Int = "kagura_web" "frame_number"
+extern "wasm" fn host_frame_number() -> Int32 = "kagura_web" "frame_number"
 
 ///|
 /// Waits for the host to drive `target` frames, giving up after `budget_ms`.
@@ -27,7 +27,7 @@ extern "wasm" fn host_frame_number() -> Int = "kagura_web" "frame_number"
 /// host and nothing ever advances the counter, so this spends the budget in
 /// sleeps and reports 0; run under the worker driver and it returns as soon as
 /// the main thread has ticked enough times.
-async fn observe_frames(target : Int, budget_ms : Int) -> Int {
+async fn observe_frames(target : Int32, budget_ms : Int32) -> Int32 {
   let start = host_frame_number()
   let deadline = host_now_ms() + budget_ms.to_double()
   while host_now_ms() < deadline {

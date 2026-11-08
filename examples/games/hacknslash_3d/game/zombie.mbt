@@ -1,11 +1,11 @@
 ///|
-pub let zombie_pounce_anticipation : Int = 36
+pub let zombie_pounce_anticipation : Int32 = 36
 
 ///|
-pub let zombie_pounce_flight : Int = 14
+pub let zombie_pounce_flight : Int32 = 14
 
 ///|
-pub let zombie_pounce_recovery : Int = 40
+pub let zombie_pounce_recovery : Int32 = 40
 
 ///|
 pub let zombie_pounce_range : Double = 60.0

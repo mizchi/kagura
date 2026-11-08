@@ -11,7 +11,7 @@ pub(all) struct PbrEnvironment {
 }
 
 ///|
-fn environment_uniforms(e : PbrEnvironment) -> Array[Int] {
+fn environment_uniforms(e : PbrEnvironment) -> Array[Int32] {
   [
     f32(e.ground.x),
     f32(e.ground.y),

@@ -1,6 +1,6 @@
 ///|
 /// Fresh deterministic fixtures for visual review, excluded from release builds.
-pub fn Game::preview(name : String, width : Int, height : Int) -> Game {
+pub fn Game::preview(name : String, width : Int32, height : Int32) -> Game {
   let game = Game::new()
   game.set_viewport(width, height)
   let run = game.run.get()

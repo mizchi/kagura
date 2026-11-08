@@ -1,16 +1,16 @@
 ///|
-let runtime_smoke_atlas_page_id : Int = 801
+let runtime_smoke_atlas_page_id : Int32 = 801
 
 ///|
-let runtime_smoke_text_page_id : Int = 900
+let runtime_smoke_text_page_id : Int32 = 900
 
 ///|
 pub struct RuntimeSmokeDrawPlan {
   atlas_repository : @atlas.SimpleAtlasImageRepository
   text_atlas : @font.GlyphAtlas
   commands : Array[@gfx.DrawTrianglesCommand]
-  sprite_command_index : Int
-  text_command_index : Int
+  sprite_command_index : Int32
+  text_command_index : Int32
 }
 
 ///|

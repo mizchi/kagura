@@ -10,9 +10,9 @@ pub fn aabb_overlap(Double, Double, Double, Double, Double, Double, Double, Doub
 
 pub fn aabb_overlap_center(Double, Double, Double, Double, Double, Double, Double, Double) -> Bool
 
-pub fn fill_path(Array[Vec2]) -> (Array[Double], Array[Int])
+pub fn fill_path(Array[Vec2]) -> (Array[Double], Array[Int32])
 
-pub fn stroke_path(Array[Vec2], Double) -> (Array[Double], Array[Int])
+pub fn stroke_path(Array[Vec2], Double) -> (Array[Double], Array[Int32])
 
 // Errors
 
@@ -24,9 +24,9 @@ pub struct Path {
   mut start_x : Double
   mut start_y : Double
 }
-pub fn Path::arc_to(Self, Double, Double, Double, Double, Double, Int) -> Unit
+pub fn Path::arc_to(Self, Double, Double, Double, Double, Double, Int32) -> Unit
 pub fn Path::close(Self) -> Unit
-pub fn Path::command_count(Self) -> Int
+pub fn Path::command_count(Self) -> Int32
 pub fn Path::cubic_to(Self, Double, Double, Double, Double, Double, Double) -> Unit
 pub fn Path::flatten(Self, Double) -> Array[Vec2]
 pub fn Path::line_to(Self, Double, Double) -> Unit
@@ -42,10 +42,11 @@ pub(all) enum PathCommand {
   Close
 }
 
+#derive(@debug.Debug)
 pub struct Vec2 {
   x : Double
   y : Double
-} derive(@debug.Debug)
+}
 pub fn Vec2::add(Self, Self) -> Self
 pub fn Vec2::angle(Self) -> Double
 pub fn Vec2::angle_between(Self, Self) -> Double

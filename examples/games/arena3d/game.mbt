@@ -5,13 +5,13 @@
 // Game modes
 
 ///|
-let mode_title : Int = 0
+let mode_title : Int32 = 0
 
 ///|
-let mode_playing : Int = 1
+let mode_playing : Int32 = 1
 
 ///|
-let mode_gameover : Int = 2
+let mode_gameover : Int32 = 2
 
 // Arena dimensions
 
@@ -36,18 +36,18 @@ let item_collect_dist : Double = 0.8
 let enemy_hit_dist : Double = 1.0
 
 ///|
-let item_count : Int = 5
+let item_count : Int32 = 5
 
 ///|
-let enemy_count : Int = 3
+let enemy_count : Int32 = 3
 
 // Rendering
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 // ============================================================
 // Entity types
@@ -69,7 +69,7 @@ struct EnemyState {
   mut active : Bool
   mut position : @math3d.Vec3
   waypoints : Array[@math3d.Vec3]
-  mut waypoint_idx : Int
+  mut waypoint_idx : Int32
 }
 
 ///|
@@ -89,7 +89,7 @@ struct Meshes {
 fn generate_tone_clip(
   freq : Double,
   duration : Double,
-  sample_rate : Int,
+  sample_rate : Int32,
 ) -> @audio.AudioClip {
   let fmt = @audio.default_audio_format()
   let num_frames = (duration * sample_rate.to_double()).to_int()
@@ -119,16 +119,16 @@ fn generate_tone_clip(
 struct GameState {
   scene_root : @scene3d.SceneRoot
   mut authored : @scene_data.Session?
-  mut mode : Int
-  mut score : Int
-  mut frame_count : Int
+  mut mode : Int32
+  mut score : Int32
+  mut frame_count : Int32
   player : PlayerState
   items : Array[ItemState]
   enemies : Array[EnemyState]
   mut first_person : Bool
   mut on_ground : Bool
   motor : @character3d.MotorConfig
-  mut player_body_index : Int
+  mut player_body_index : Int32
   mut player_spawn : @math3d.Vec3
   mut looking : Bool
   mut prev_cursor_x : Double
@@ -137,11 +137,11 @@ struct GameState {
   props : Array[PhysicsProp]
   stage_nodes : Array[@scene3d.View]
   emitters : Array[@math3d.Vec3]
-  rain_slots : Array[Int]
-  mut rain_ticks : Int
-  mut rain_count : Int
+  rain_slots : Array[Int32]
+  mut rain_ticks : Int32
+  mut rain_count : Int32
   shots : Array[Shot]
-  mut shot_frames : Int
+  mut shot_frames : Int32
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
@@ -265,7 +265,7 @@ fn GameState::new() -> GameState {
 }
 
 ///|
-fn make_item(index : Int) -> ItemState {
+fn make_item(index : Int32) -> ItemState {
   let positions : Array[@math3d.Vec3] = [
     @math3d.Vec3::new(5.0, 0.3, 5.0),
     @math3d.Vec3::new(-5.0, 0.3, 3.0),
@@ -278,7 +278,7 @@ fn make_item(index : Int) -> ItemState {
 }
 
 ///|
-fn respawn_item(item : ItemState, frame : Int) -> Unit {
+fn respawn_item(item : ItemState, frame : Int32) -> Unit {
   let angle = (frame % 360).to_double() * @math.PI / 180.0
   let r = 3.0 + (frame % 5).to_double()
   item.position = @math3d.Vec3::new(

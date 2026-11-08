@@ -1,5 +1,5 @@
 ///|
-fn test_atlas_draw_source(page_image_id : Int) -> @atlas.AtlasDrawSource {
+fn test_atlas_draw_source(page_image_id : Int32) -> @atlas.AtlasDrawSource {
   let repo = @atlas.new_simple_atlas_image_repository(8, 8, page_image_id)
   let key_a = @atlas.new_asset_key("draw2d/source/a")
   let key_b = @atlas.new_asset_key("draw2d/source/b")

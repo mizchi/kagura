@@ -48,7 +48,7 @@ extern "js" fn js_download_file(
 
 ///|
 /// Sleep for the specified number of seconds.
-extern "js" fn js_sleep(seconds : Int) -> Unit =
+extern "js" fn js_sleep(seconds : Int32) -> Unit =
   #|(seconds) => {
   #|  const { spawnSync } = require('child_process');
   #|  spawnSync('sleep', [String(seconds)]);

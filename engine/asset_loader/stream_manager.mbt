@@ -1,10 +1,11 @@
 ///|
+#derive(Debug, Eq)
 pub enum AssetPriority {
   Critical
   High
   Normal
   Low
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for AssetPriority with fn output(self, logger) {
@@ -12,7 +13,7 @@ pub impl Show for AssetPriority with fn output(self, logger) {
 }
 
 ///|
-fn priority_to_int(p : AssetPriority) -> Int {
+fn priority_to_int(p : AssetPriority) -> Int32 {
   match p {
     Critical => 0
     High => 1
@@ -22,13 +23,14 @@ fn priority_to_int(p : AssetPriority) -> Int {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct StreamProgress {
-  total : Int
-  pending : Int
-  active : Int
-  completed : Int
-  failed : Int
-} derive(Debug)
+  total : Int32
+  pending : Int32
+  active : Int32
+  completed : Int32
+  failed : Int32
+}
 
 ///|
 pub impl Show for StreamProgress with fn output(self, logger) {
@@ -37,7 +39,7 @@ pub impl Show for StreamProgress with fn output(self, logger) {
 
 ///|
 struct StreamRequest {
-  id : Int
+  id : Int32
   url : String
   priority : AssetPriority
   on_complete : (Bytes?) -> Unit
@@ -48,18 +50,18 @@ struct StreamRequest {
 ///|
 pub struct AssetStreamManager {
   fetcher : &@fetch.BytesFetcher
-  max_concurrent : Int
-  mut next_id : Int
+  max_concurrent : Int32
+  mut next_id : Int32
   pending : Array[StreamRequest]
-  active : Map[Int, StreamRequest]
-  mut completed_count : Int
-  mut failed_count : Int
+  active : Map[Int32, StreamRequest]
+  mut completed_count : Int32
+  mut failed_count : Int32
 }
 
 ///|
 pub fn AssetStreamManager::new(
   fetcher : &@fetch.BytesFetcher,
-  max_concurrent? : Int = 4,
+  max_concurrent~ : Int32 = 4,
 ) -> AssetStreamManager {
   {
     fetcher,
@@ -78,7 +80,7 @@ pub fn AssetStreamManager::enqueue(
   url : String,
   priority : AssetPriority,
   on_complete : (Bytes?) -> Unit,
-) -> Int {
+) -> Int32 {
   let id = self.next_id
   self.next_id = self.next_id + 1
   let req : StreamRequest = {
@@ -106,7 +108,10 @@ pub fn AssetStreamManager::enqueue(
 }
 
 ///|
-pub fn AssetStreamManager::cancel(self : AssetStreamManager, id : Int) -> Unit {
+pub fn AssetStreamManager::cancel(
+  self : AssetStreamManager,
+  id : Int32,
+) -> Unit {
   // Remove from pending
   for i = self.pending.length() - 1; i >= 0; i = i - 1 {
     if self.pending[i].id == id {
@@ -132,7 +137,7 @@ pub fn AssetStreamManager::cancel(self : AssetStreamManager, id : Int) -> Unit {
 pub fn AssetStreamManager::update(self : AssetStreamManager) -> Unit {
   self.fetcher.poll()
   // Remove completed active requests
-  let done_ids : Array[Int] = []
+  let done_ids : Array[Int32] = []
   self.active.each(fn(id, req) { if req.done { done_ids.push(id) } })
   for id in done_ids {
     self.active.remove(id)
@@ -163,7 +168,7 @@ pub fn AssetStreamManager::update(self : AssetStreamManager) -> Unit {
 /// Creates an AsyncImageLoader-compatible fetch_image_fn from this stream manager.
 pub fn AssetStreamManager::image_fetch_fn(
   self : AssetStreamManager,
-  priority? : AssetPriority = Normal,
+  priority~ : AssetPriority = Normal,
 ) -> (String, (@atlas.ImageSpec?) -> Unit) -> Unit {
   fn(url, callback) {
     ignore(
@@ -183,7 +188,7 @@ pub fn AssetStreamManager::image_fetch_fn(
 ///|
 pub fn AssetStreamManager::reprioritize(
   self : AssetStreamManager,
-  id : Int,
+  id : Int32,
   new_priority : AssetPriority,
 ) -> Bool {
   for i in 0..<self.pending.length() {

@@ -12,7 +12,7 @@
 
 ///|
 /// How much work the pile fixture hands to each phase.
-fn bench_pile_work2d(count : Int) -> (Int, Int, Int) {
+fn bench_pile_work2d(count : Int32) -> (Int32, Int32, Int32) {
   let fixture = bench_pile_fixture2d(count, bench_warm_frames2d)
   let world = fixture.world
   let sub_dt = bench_dt2d / world.solver_config.substeps.to_double()

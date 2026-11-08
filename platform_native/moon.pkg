@@ -6,7 +6,6 @@ import {
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx",
   "mizchi/native_runtime_hooks/gfx_wgpu_native" @wgpu_native,
-  "mizchi/atlas",
   "mizchi/renderer2d",
   "mizchi/kagura_platform" @platform,
   "mizchi/text",

@@ -1,8 +1,8 @@
 ///|
 fn inventory_test_item(
   slot : EquipSlot,
-  icon? : Int = 0,
-  power? : Int = 1,
+  icon~ : Int32 = 0,
+  power~ : Int32 = 1,
 ) -> ItemData {
   {
     name: "Test",

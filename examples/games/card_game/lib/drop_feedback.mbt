@@ -48,7 +48,7 @@ fn Game::card_drop_targets(
 }
 
 ///|
-fn drop_feedback_color(feedback : DropFeedback) -> Int {
+fn drop_feedback_color(feedback : DropFeedback) -> Int32 {
   match feedback {
     Available => cyan
     Active => gold
@@ -117,7 +117,7 @@ fn ui_drop_badge(
   text_key : String,
   rect : UiRect,
   feedback : DropFeedback,
-  controller? : Bool = false,
+  controller~ : Bool = false,
 ) -> @scene.SceneNode {
   let accent = drop_feedback_color(feedback)
   ui_panel(key, rect, 0x10151C, accent, [

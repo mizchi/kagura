@@ -10,7 +10,7 @@ pub(all) struct CircularInteractable {
 pub(all) struct CircularInteractionFrame {
   actor_x : Double
   actor_y : Double
-  pickup_contact_index : Int?
+  pickup_contact_index : Int32?
 }
 
 ///|
@@ -66,7 +66,7 @@ pub fn find_first_circular_pickup_index(
   actor_x : Double,
   actor_y : Double,
   pickup_radius_sq : Double,
-) -> Int? {
+) -> Int32? {
   for i = 0; i < interactables.length(); i = i + 1 {
     let interactable = interactables[i]
     if interactable_role_is_pickup(interactable.role) &&

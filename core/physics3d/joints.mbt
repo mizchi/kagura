@@ -73,7 +73,7 @@ pub fn precompute_distance_joint3d(
 /// `velocity_state.mbt`.
 pub fn solve_distance_joint3d(
   constraints : Array[DistanceJointConstraint3D],
-  ci : Int,
+  ci : Int32,
   bodies : Array[RigidBody],
   joint : DistanceJoint3D,
   vel : VelocityState3D,
@@ -216,7 +216,7 @@ pub fn precompute_ball_joint3d(
 /// See `solve_distance_joint3d` for why velocities come from `vel`.
 pub fn solve_ball_joint3d(
   constraints : Array[BallJointConstraint3D],
-  ci : Int,
+  ci : Int32,
   bodies : Array[RigidBody],
   vel : VelocityState3D,
   use_bias : Bool,

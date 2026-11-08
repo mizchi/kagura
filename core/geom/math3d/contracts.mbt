@@ -19,11 +19,12 @@
 // ============================================================
 
 ///|
+#derive(Debug)
 pub struct Vec3 {
   x : Double
   y : Double
   z : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Vec3 with fn output(self, logger) {
@@ -183,12 +184,13 @@ pub fn Vec3::approx_eq(self : Vec3, other : Vec3, epsilon : Double) -> Bool {
 // ============================================================
 
 ///|
+#derive(Debug)
 pub struct Vec4 {
   x : Double
   y : Double
   z : Double
   w : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Vec4 with fn output(self, logger) {
@@ -273,9 +275,10 @@ pub fn Vec4::approx_eq(self : Vec4, other : Vec4, epsilon : Double) -> Bool {
 // ============================================================
 
 ///|
+#derive(Debug)
 pub struct Mat4 {
   elements : FixedArray[Double]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Mat4 with fn output(self, logger) {
@@ -329,13 +332,13 @@ pub fn Mat4::from_cols(c0 : Vec4, c1 : Vec4, c2 : Vec4, c3 : Vec4) -> Mat4 {
 
 ///|
 /// Access element at (row, col). Column-major: index = col * 4 + row.
-fn Mat4::at(self : Mat4, row : Int, col : Int) -> Double {
+fn Mat4::at(self : Mat4, row : Int32, col : Int32) -> Double {
   self.elements[col * 4 + row]
 }
 
 ///|
 /// Set element at (row, col).
-fn Mat4::set(self : Mat4, row : Int, col : Int, value : Double) -> Unit {
+fn Mat4::set(self : Mat4, row : Int32, col : Int32, value : Double) -> Unit {
   self.elements[col * 4 + row] = value
 }
 
@@ -647,12 +650,13 @@ pub fn Mat4::approx_eq(self : Mat4, other : Mat4, epsilon : Double) -> Bool {
 /// Unit quaternion for rotations. Fields are `(x, y, z, w)` with the scalar
 /// `w` **last**, matching glTF and `Quaternion::new(x, y, z, w)`; papers and
 /// some libraries write `(w, x, y, z)` instead, so convert when copying values.
+#derive(Debug)
 pub struct Quaternion {
   x : Double
   y : Double
   z : Double
   w : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Quaternion with fn output(self, logger) {

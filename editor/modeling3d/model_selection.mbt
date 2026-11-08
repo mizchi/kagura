@@ -45,7 +45,7 @@ pub fn selection_from_surface_hit(hit : SurfaceHit?) -> ModelSelection? {
 }
 
 ///|
-fn sculpt_layer_index_by_id(doc : ModelDocument, layer_id : String) -> Int? {
+fn sculpt_layer_index_by_id(doc : ModelDocument, layer_id : String) -> Int32? {
   for i in 0..<doc.sculpt_layers.length() {
     if doc.sculpt_layers[i].id == layer_id {
       return Some(i)
@@ -59,7 +59,7 @@ pub fn resolve_active_sculpt_layer_index(
   doc : ModelDocument,
   selection : ModelSelection?,
   hover_hit : SurfaceHit?,
-) -> Int? {
+) -> Int32? {
   match hover_hit {
     Some(hit) =>
       match hit.kind {
@@ -102,8 +102,8 @@ pub fn resolve_active_sculpt_layer_index(
 ///|
 pub fn recent_sculpt_history(
   doc : ModelDocument,
-  layer_index : Int,
-  limit : Int,
+  layer_index : Int32,
+  limit : Int32,
 ) -> Array[StampHistoryEntry] {
   if limit <= 0 {
     return []

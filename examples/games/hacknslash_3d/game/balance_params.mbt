@@ -2,11 +2,12 @@
 // All values are Double for smooth optimization; cast to Int at use site
 
 ///|
+#derive(Eq, Debug)
 pub enum BalancePreset {
   Default
   BuildDiverseHackSlash
   MechanicsRoguelike
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for BalancePreset with fn output(self, logger) {
@@ -63,11 +64,11 @@ pub(all) struct BalanceParams {
   enemy_hp_floor_scale : Double
   enemy_speed_floor_scale : Double
   enemy_damage_floor_scale : Double
-  affix_profile : Int // 0=Classic, 1=GlassCannon, 2=Tank, 3=Mobility, 4=Expanded
+  affix_profile : Int32 // 0=Classic, 1=GlassCannon, 2=Tank, 3=Mobility, 4=Expanded
 }
 
 ///|
-pub let balance_param_count : Int = 47
+pub let balance_param_count : Int32 = 47
 
 ///|
 pub fn balance_preset_from_name(name : String) -> BalancePreset {
@@ -451,52 +452,54 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
 ///|
 pub fn BalanceParams::spell_cooldown_frames(
   self : BalanceParams,
-  base : Int,
-) -> Int {
+  base : Int32,
+) -> Int32 {
   @cmp.maximum(1, (base.to_double() * self.spell_cooldown_mult).to_int())
 }
 
 ///|
 pub fn BalanceParams::scale_spell_damage(
   self : BalanceParams,
-  base_damage : Int,
-) -> Int {
+  base_damage : Int32,
+) -> Int32 {
   @cmp.maximum(1, (base_damage.to_double() * self.spell_damage_mult).to_int())
 }
 
 ///|
 pub fn BalanceParams::chain_lightning_cooldown_frames(
   self : BalanceParams,
-) -> Int {
+) -> Int32 {
   self.spell_cooldown_frames(chain_lightning_cooldown)
 }
 
 ///|
 pub fn BalanceParams::splitting_fireball_cooldown_frames(
   self : BalanceParams,
-) -> Int {
+) -> Int32 {
   self.spell_cooldown_frames(splitting_fireball_cooldown)
 }
 
 ///|
-pub fn BalanceParams::ice_nova_cooldown_frames(self : BalanceParams) -> Int {
+pub fn BalanceParams::ice_nova_cooldown_frames(self : BalanceParams) -> Int32 {
   self.spell_cooldown_frames(ice_nova_cooldown)
 }
 
 ///|
 pub fn BalanceParams::homing_missile_cooldown_frames(
   self : BalanceParams,
-) -> Int {
+) -> Int32 {
   self.spell_cooldown_frames(homing_missile_cooldown)
 }
 
 ///|
-pub fn BalanceParams::enemy_bolt_damage_int(self : BalanceParams) -> Int {
+pub fn BalanceParams::enemy_bolt_damage_int(self : BalanceParams) -> Int32 {
   @cmp.maximum(1, self.enemy_bolt_damage.to_int())
 }
 
 ///|
-pub fn BalanceParams::ranged_shot_cooldown_frames(self : BalanceParams) -> Int {
+pub fn BalanceParams::ranged_shot_cooldown_frames(
+  self : BalanceParams,
+) -> Int32 {
   @cmp.maximum(1, self.ranged_shot_cooldown.to_int())
 }
 
@@ -534,9 +537,9 @@ pub fn BalanceParams::drop_table_config(
 ///|
 pub fn BalanceParams::scale_enemy_hp_for_floor(
   self : BalanceParams,
-  base_hp : Int,
-  floor : Int,
-) -> Int {
+  base_hp : Int32,
+  floor : Int32,
+) -> Int32 {
   let scale = 1.0 +
     @cmp.maximum(0, floor - 1).to_double() * self.enemy_hp_floor_scale
   @cmp.maximum(1, (base_hp.to_double() * scale).to_int())
@@ -546,7 +549,7 @@ pub fn BalanceParams::scale_enemy_hp_for_floor(
 pub fn BalanceParams::scale_enemy_speed_for_floor(
   self : BalanceParams,
   base_speed : Double,
-  floor : Int,
+  floor : Int32,
 ) -> Double {
   base_speed *
   (1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_speed_floor_scale)
@@ -555,9 +558,9 @@ pub fn BalanceParams::scale_enemy_speed_for_floor(
 ///|
 pub fn BalanceParams::scale_enemy_damage_for_floor(
   self : BalanceParams,
-  base_damage : Int,
-  floor : Int,
-) -> Int {
+  base_damage : Int32,
+  floor : Int32,
+) -> Int32 {
   let scale = 1.0 +
     @cmp.maximum(0, floor - 1).to_double() * self.enemy_damage_floor_scale
   @cmp.maximum(1, (base_damage.to_double() * scale).to_int())

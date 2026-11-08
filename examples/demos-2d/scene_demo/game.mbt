@@ -1,8 +1,8 @@
 ///|
-let screen_w : Int = 320
+let screen_w : Int32 = 320
 
 ///|
-let screen_h : Int = 240
+let screen_h : Int32 = 240
 
 ///|
 let player_speed : Double = 2.0
@@ -12,10 +12,10 @@ let player_size : Double = 16.0
 
 ///|
 struct Game {
-  score : @signals.Signal[Int]
+  score : @signals.Signal[Int32]
   player_x : @signals.Signal[Double]
   player_y : @signals.Signal[Double]
-  frame : @signals.Signal[Int]
+  frame : @signals.Signal[Int32]
   input : @inpututil.InputHelper
 }
 

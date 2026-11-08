@@ -1,6 +1,6 @@
 ///|
 fn hex_bytes(s : String) -> Bytes {
-  let digit = fn(c : Char) -> Int {
+  let digit = fn(c : Char) -> Int32 {
     let v = c.to_int()
     if v >= 'a'.to_int() {
       v - 'a'.to_int() + 10

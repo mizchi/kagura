@@ -24,30 +24,30 @@
 /// unbound slot (`assets/web/kagura-gfx.js`), so untextured geometry comes out as
 /// the flat uniform color on both backends.
 pub(all) struct RasterTexture {
-  id : Int
-  width : Int
-  height : Int
+  id : Int32
+  width : Int32
+  height : Int32
   /// RGBA8, `width * height * 4` entries, each 0-255.
-  pixels : Array[Int]
+  pixels : Array[Int32]
 }
 
 ///|
 /// An RGBA8 framebuffer plus the textures bound to it.
 pub struct RasterTarget {
-  mut width : Int
-  mut height : Int
-  mut pixels : Array[Int]
+  mut width : Int32
+  mut height : Int32
+  mut pixels : Array[Int32]
   textures : Array[RasterTexture]
   /// Commands the backend refused to draw rather than draw incorrectly.
-  mut skipped_commands : Int
+  mut skipped_commands : Int32
   /// Triangles actually rasterized, across every command since the last clear.
-  mut drawn_triangles : Int
-  mut next_image_id : Int
-  mut next_shader_id : Int
+  mut drawn_triangles : Int32
+  mut next_image_id : Int32
+  mut next_shader_id : Int32
 }
 
 ///|
-pub fn RasterTarget::new(width : Int, height : Int) -> RasterTarget {
+pub fn RasterTarget::new(width : Int32, height : Int32) -> RasterTarget {
   let w = if width > 0 { width } else { 1 }
   let h = if height > 0 { height } else { 1 }
   {
@@ -86,8 +86,8 @@ pub fn RasterTarget::clear(self : RasterTarget, color : @gfx.Color) -> Unit {
 /// render pass.
 pub fn RasterTarget::resize_target(
   self : RasterTarget,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   let w = if width > 0 { width } else { 1 }
   let h = if height > 0 { height } else { 1 }
@@ -104,10 +104,10 @@ pub fn RasterTarget::resize_target(
 /// the entry, so an atlas page can be re-uploaded between frames.
 pub fn RasterTarget::register_texture(
   self : RasterTarget,
-  id : Int,
-  width : Int,
-  height : Int,
-  pixels : Array[Int],
+  id : Int32,
+  width : Int32,
+  height : Int32,
+  pixels : Array[Int32],
 ) -> Unit {
   let texture = { id, width, height, pixels, }
   for i in 0..<self.textures.length() {
@@ -120,7 +120,10 @@ pub fn RasterTarget::register_texture(
 }
 
 ///|
-fn RasterTarget::find_texture(self : RasterTarget, id : Int) -> RasterTexture? {
+fn RasterTarget::find_texture(
+  self : RasterTarget,
+  id : Int32,
+) -> RasterTexture? {
   for texture in self.textures {
     if texture.id == id {
       return Some(texture)
@@ -135,11 +138,11 @@ fn RasterTarget::find_texture(self : RasterTarget, id : Int) -> RasterTexture? {
 /// larger than the target still gets a correctly sized buffer.
 pub fn RasterTarget::read_rect(
   self : RasterTarget,
-  x : Int,
-  y : Int,
-  width : Int,
-  height : Int,
-) -> Array[Int] {
+  x : Int32,
+  y : Int32,
+  width : Int32,
+  height : Int32,
+) -> Array[Int32] {
   let out = Array::make(width * height * 4, 0)
   for row in 0..<height {
     let sy = y + row
@@ -166,19 +169,19 @@ pub fn RasterTarget::read_rect(
 ///|
 /// Scissor rectangle in pixels, already clipped to the framebuffer.
 priv struct Scissor {
-  x0 : Int
-  y0 : Int
-  x1 : Int
-  y1 : Int
+  x0 : Int32
+  y0 : Int32
+  x1 : Int32
+  y1 : Int32
 }
 
 ///|
 fn RasterTarget::clip_scissor(
   self : RasterTarget,
-  x : Int,
-  y : Int,
-  width : Int,
-  height : Int,
+  x : Int32,
+  y : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Scissor {
   let x0 = max_int(0, x)
   let y0 = max_int(0, y)
@@ -198,7 +201,7 @@ fn RasterTarget::clip_scissor(
 pub fn RasterTarget::draw_command(
   self : RasterTarget,
   cmd : @gfx.DrawTrianglesCommand,
-) -> Int {
+) -> Int32 {
   let stride = resolve_vertex_stride(cmd)
   if stride != 4 {
     self.skipped_commands = self.skipped_commands + 1
@@ -258,13 +261,13 @@ pub fn RasterTarget::draw_command(
 fn RasterTarget::draw_index_range(
   self : RasterTarget,
   cmd : @gfx.DrawTrianglesCommand,
-  start : Int,
-  count : Int,
+  start : Int32,
+  count : Int32,
   scissor : Scissor,
   color : @gfx.Color,
   texture : RasterTexture?,
   equation : @gfx.BlendEquation,
-) -> Int {
+) -> Int32 {
   if count <= 0 || scissor.x0 >= scissor.x1 || scissor.y0 >= scissor.y1 {
     return 0
   }
@@ -309,9 +312,9 @@ fn RasterTarget::draw_index_range(
 fn RasterTarget::draw_triangle(
   self : RasterTarget,
   vertex_data : Array[Double],
-  i0 : Int,
-  i1 : Int,
-  i2 : Int,
+  i0 : Int32,
+  i1 : Int32,
+  i2 : Int32,
   scissor : Scissor,
   color : @gfx.Color,
   texture : RasterTexture?,
@@ -398,8 +401,8 @@ fn RasterTarget::draw_triangle(
 ///|
 fn RasterTarget::blend_pixel(
   self : RasterTarget,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   sr : Double,
   sg : Double,
   sb : Double,
@@ -528,7 +531,7 @@ pub impl @gfx.GraphicsDriver for RasterTarget with fn read_pixels(
 let epsilon : Double = 1.0e-9
 
 ///|
-fn resolve_vertex_stride(cmd : @gfx.DrawTrianglesCommand) -> Int {
+fn resolve_vertex_stride(cmd : @gfx.DrawTrianglesCommand) -> Int32 {
   if cmd.vertex_stride_hint > 0 {
     cmd.vertex_stride_hint
   } else {
@@ -541,7 +544,7 @@ fn resolve_vertex_stride(cmd : @gfx.DrawTrianglesCommand) -> Int {
 /// `color_to_uniform_dwords`. Anything else -- a different uniform layout, a
 /// short array -- falls back to opaque white, matching
 /// `@renderer2d.decode_triangle_payload`.
-fn decode_uniform_color(uniform_dwords : Array[Int]) -> @gfx.Color {
+fn decode_uniform_color(uniform_dwords : Array[Int32]) -> @gfx.Color {
   @gfx.new_color(
     uniform_channel(uniform_dwords, 0),
     uniform_channel(uniform_dwords, 1),
@@ -551,7 +554,7 @@ fn decode_uniform_color(uniform_dwords : Array[Int]) -> @gfx.Color {
 }
 
 ///|
-fn uniform_channel(uniform_dwords : Array[Int], index : Int) -> Double {
+fn uniform_channel(uniform_dwords : Array[Int32], index : Int32) -> Double {
   if index < uniform_dwords.length() {
     let value = uniform_dwords[index]
     if value >= 0 && value <= 255 {
@@ -682,7 +685,7 @@ fn ndc_to_pixel_y(y : Double, height : Double) -> Double {
 }
 
 ///|
-fn unit_to_byte(value : Double) -> Int {
+fn unit_to_byte(value : Double) -> Int32 {
   let scaled = value * 255.0 + 0.5
   if scaled <= 0.0 {
     0
@@ -694,7 +697,7 @@ fn unit_to_byte(value : Double) -> Int {
 }
 
 ///|
-fn floor_to_int(value : Double) -> Int {
+fn floor_to_int(value : Double) -> Int32 {
   let truncated = value.to_int()
   if value < 0.0 && truncated.to_double() != value {
     truncated - 1
@@ -704,7 +707,7 @@ fn floor_to_int(value : Double) -> Int {
 }
 
 ///|
-fn ceil_to_int(value : Double) -> Int {
+fn ceil_to_int(value : Double) -> Int32 {
   let truncated = value.to_int()
   if value > 0.0 && truncated.to_double() != value {
     truncated + 1
@@ -714,7 +717,7 @@ fn ceil_to_int(value : Double) -> Int {
 }
 
 ///|
-fn clamp_int(value : Int, low : Int, high : Int) -> Int {
+fn clamp_int(value : Int32, low : Int32, high : Int32) -> Int32 {
   if value < low {
     low
   } else if value > high {
@@ -725,7 +728,7 @@ fn clamp_int(value : Int, low : Int, high : Int) -> Int {
 }
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
+fn min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -734,7 +737,7 @@ fn min_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn max_int(a : Int, b : Int) -> Int {
+fn max_int(a : Int32, b : Int32) -> Int32 {
   if a > b {
     a
   } else {

@@ -4,7 +4,7 @@
 let character_source_parts : Array[CharacterPart] = build_hunter_parts()
 
 ///|
-let character_slot_assets : Map[Int, Array[CharacterPart]] = Map::new()
+let character_slot_assets : Map[Int32, Array[CharacterPart]] = Map::new()
 
 ///|
 let character_heads : Array[Array[CharacterPart]] = [
@@ -55,13 +55,15 @@ fn build_character_head(species : CharacterSpecies) -> Array[CharacterPart] {
       }
       let mesh = data.build_mesh()
       let skin = data.build_skin()
-      parts.push(right_handed_hunter_part({
-        name: "head_" + part.name,
-        mesh,
-        skin,
-        packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
-        color: part.color,
-      }))
+      parts.push(
+        right_handed_hunter_part({
+          name: "head_" + part.name,
+          mesh,
+          skin,
+          packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
+          color: part.color,
+        }),
+      )
     }
   }
   parts
@@ -159,7 +161,7 @@ fn character_outfit_parts(
 }
 
 ///|
-fn gear_palette(style : GearStyle) -> (Int, Int, Int) {
+fn gear_palette(style : GearStyle) -> (Int32, Int32, Int32) {
   match style {
     Worn => (0x35414A, 0xB29462, 0x91BDC5)
     Leather => (0x674437, 0xC19C65, 0xD19B58)

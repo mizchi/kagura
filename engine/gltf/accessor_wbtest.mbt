@@ -1,5 +1,5 @@
 ///|
-fn push_i16_le(bytes : Array[Byte], v : Int) -> Unit {
+fn push_i16_le(bytes : Array[Byte], v : Int32) -> Unit {
   bytes.push((v & 0xFF).to_byte())
   bytes.push(((v >> 8) & 0xFF).to_byte())
 }

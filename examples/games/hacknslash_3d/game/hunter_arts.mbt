@@ -1,6 +1,7 @@
 // Simulation owns contact frames, guard direction and damage footprints.
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum HunterArtKind {
   LightningArt
   FlameArt
@@ -8,27 +9,34 @@ pub(all) enum HunterArtKind {
   DashArt
   RaiseZombieArt
   FlamingSkullArt
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend HunterArtKind with Eq::{not_equal, equal}
+
 ///|
 pub extend HunterArtKind with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
+#derive(Eq, Debug)
 pub(all) enum CombatImpactKind {
   FlameBlast
   AstralBlast
   DashCut
   WhirlwindCut
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend CombatImpactKind with Eq::{not_equal, equal}
+
 ///|
 pub extend CombatImpactKind with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 pub(all) struct HunterArt {
   kind : HunterArtKind
   angle : Double
-  mut frame : Int
+  mut frame : Int32
 }
 
 ///|
@@ -36,20 +44,20 @@ pub(all) struct GroundStrike {
   x : Double
   y : Double
   radius : Double
-  mut frame : Int
+  mut frame : Int32
 }
 
 ///|
 pub(all) struct HunterArts {
   whirlwind : WhirlwindChannel
   mut guarding : Bool
-  mut guard_frame : Int
+  mut guard_frame : Int32
   mut guard_energy : Double
-  mut guard_recovery : Int
+  mut guard_recovery : Int32
   mut action : HunterArt?
   mut strike : GroundStrike?
-  mut ground_cooldown : Int
-  mut dash_cooldown : Int
+  mut ground_cooldown : Int32
+  mut dash_cooldown : Int32
 }
 
 ///|
@@ -74,13 +82,13 @@ pub let ground_strike_radius : Double = 40.0
 pub let ground_strike_range : Double = 176.0
 
 ///|
-pub let ground_strike_delay : Int = 30
+pub let ground_strike_delay : Int32 = 30
 
 ///|
-pub let ground_strike_cooldown : Int = 240
+pub let ground_strike_cooldown : Int32 = 240
 
 ///|
-pub let dash_strike_cooldown : Int = 150
+pub let dash_strike_cooldown : Int32 = 150
 
 ///|
 pub fn GameWorld::hunter_action_locked(self : GameWorld) -> Bool {
@@ -136,9 +144,9 @@ pub fn GameWorld::set_guard(
 ///|
 fn GameWorld::guard_damage(
   self : GameWorld,
-  damage : Int,
+  damage : Int32,
   source : (Double, Double)?,
-) -> Int {
+) -> Int32 {
   guard self.arts.guarding && source is Some((x, y)) else { return damage }
   let dx = x - self.player.x
   let dy = y - self.player.y
@@ -279,8 +287,8 @@ fn GameWorld::damage_visible_circle(
   x : Double,
   y : Double,
   radius : Double,
-  damage : Int,
-) -> Int {
+  damage : Int32,
+) -> Int32 {
   let mut hits = 0
   for enemy in self.enemies {
     let dx = enemy.x - x

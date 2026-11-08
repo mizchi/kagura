@@ -1,11 +1,11 @@
 ///|
 pub(all) struct TreasureChest {
-  id : Int
-  site : Int
+  id : Int32
+  site : Int32
   x : Double
   y : Double
   mut opened : Bool
-  mut opened_frame : Int
+  mut opened_frame : Int32
 }
 
 ///|

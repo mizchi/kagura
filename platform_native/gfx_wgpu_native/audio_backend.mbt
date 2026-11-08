@@ -19,7 +19,7 @@ fn runtime_audio_is_initialized() -> Bool {
 }
 
 ///|
-fn runtime_audio_try_initialize(sample_rate : Int, channels : Int) -> Bool {
+fn runtime_audio_try_initialize(sample_rate : Int32, channels : Int32) -> Bool {
   if sample_rate <= 0 || channels <= 0 {
     return false
   }
@@ -27,7 +27,10 @@ fn runtime_audio_try_initialize(sample_rate : Int, channels : Int) -> Bool {
 }
 
 ///|
-fn runtime_audio_write_frames(output : FixedArray[Float], frames : Int) -> Int {
+fn runtime_audio_write_frames(
+  output : FixedArray[Float],
+  frames : Int32,
+) -> Int32 {
   if !runtime_audio_is_initialized() {
     return 0
   }

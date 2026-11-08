@@ -10,8 +10,8 @@ pub(all) struct EnemyAIContext {
   projectiles : Array[Projectile]
   events : Array[GameEvent]
   params : BalanceParams
-  floor : Int
-  frame_count : Int
+  floor : Int32
+  frame_count : Int32
   dist_sq : Double
   chase_range_sq : Double
   same_room_visible : Bool
@@ -177,8 +177,8 @@ fn spawn_summoned_minion(
   enemy : Enemy,
   enemies : Array[Enemy],
   params : BalanceParams,
-  floor : Int,
-  frame_count : Int,
+  floor : Int32,
+  frame_count : Int32,
   events : Array[GameEvent],
 ) -> Unit {
   let summon_x = enemy.x +

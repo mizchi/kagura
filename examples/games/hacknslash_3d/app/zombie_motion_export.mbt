@@ -4,16 +4,16 @@ pub fn export_zombie_motion_asset() -> String {
   let skeleton : Array[Json] = shared_enemy_skeleton.bones.map(bone => {
     let pose = bone.local_transform
     {
-      "name": bone.name.to_json(),
-      "parent": bone.parent.to_json(),
-      "position": [pose.position.x, pose.position.y, pose.position.z].to_json(),
-      "rotation": [
+      "name": Json(bone.name),
+      "parent": Json(bone.parent),
+      "position": Json([pose.position.x, pose.position.y, pose.position.z]),
+      "rotation": Json([
         pose.rotation.x,
         pose.rotation.y,
         pose.rotation.z,
         pose.rotation.w,
-      ].to_json(),
-      "scale": [pose.scale.x, pose.scale.y, pose.scale.z].to_json(),
+      ]),
+      "scale": Json([pose.scale.x, pose.scale.y, pose.scale.z]),
     }
   })
   let clips : Array[Json] = []
@@ -25,48 +25,51 @@ pub fn export_zombie_motion_asset() -> String {
         @animation3d.Scale => "scale"
       }
       {
-        "joint": channel.node_index.to_json(),
-        "target": target.to_json(),
+        "joint": Json(channel.node_index),
+        "target": Json(target),
         "interpolation": "linear",
-        "times": channel.times.to_json(),
-        "values": channel.values.to_json(),
+        "times": Json(channel.times),
+        "values": Json(channel.values),
       }
     })
     let events : Array[Json] = if i == 2 {
       [
         {
           "name": "Impact",
-          "time": (@game.Pounce.melee_profile().unwrap().windup.to_double() /
-          60.0).to_json(),
+          "time": Json(
+            @game.Pounce.melee_profile().unwrap().windup.to_double() / 60.0,
+          ),
         },
       ]
     } else {
       []
     }
     clips.push({
-      "id": clip.name.to_json(),
-      "name": [
-        "項垂れる / Idle", "足を引きずる / Shamble", "飛びかかる / Pounce",
-      ][i].to_json(),
-      "duration": clip.duration.to_json(),
+      "id": Json(clip.name),
+      "name": Json(
+        [
+          "項垂れる / Idle", "足を引きずる / Shamble", "飛びかかる / Pounce",
+        ][i],
+      ),
+      "duration": Json(clip.duration),
       "fps": 60,
-      "events": events.to_json(),
-      "channels": channels.to_json(),
+      "events": Json(events),
+      "channels": Json(channels),
     })
   }
   let models : Array[Json] = [
     {
       "id": "zombie",
       "name": "屍人 / Zombie",
-      "parts": export_motion_parts(zombie_mesh.parts).to_json(),
+      "parts": Json(export_motion_parts(zombie_mesh.parts)),
     },
   ]
   let weapons : Array[Json] = [
     {
       "id": "natural",
       "name": "素手",
-      "parts": ([] : Array[Json]).to_json(),
-      "clips": ["zombie_idle", "zombie_shamble", "zombie_pounce"].to_json(),
+      "parts": Json(([] : Array[Json])),
+      "clips": Json(["zombie_idle", "zombie_shamble", "zombie_pounce"]),
       "defaultClip": "zombie_idle",
     },
   ]
@@ -75,9 +78,9 @@ pub fn export_zombie_motion_asset() -> String {
       "format": "kagura.motion",
       "version": 2,
       "name": "ASHEN REALMS — 屍人",
-      "skeleton": skeleton.to_json(),
-      "models": models.to_json(),
-      "clips": clips.to_json(),
-      "weapons": weapons.to_json(),
+      "skeleton": Json(skeleton),
+      "models": Json(models),
+      "clips": Json(clips),
+      "weapons": Json(weapons),
     } : Json).stringify()
 }

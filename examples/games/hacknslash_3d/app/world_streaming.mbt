@@ -2,14 +2,14 @@
 
 ///|
 struct RegionMeshCache {
-  region : Int
-  seed : Int
+  region : Int32
+  seed : Int32
   chunks : Array[DungeonChunk]
-  total : Int
+  total : Int32
   batches : Array[VisibleDungeonMeshCache]
   terrain_batches : Array[@scene3d.StaticMeshBatch]
-  mut visible_builds : Int
-  mut last_used : Int
+  mut visible_builds : Int32
+  mut last_used : Int32
 }
 
 ///|
@@ -18,7 +18,7 @@ fn RegionMeshCache::ready(self : RegionMeshCache) -> Bool {
 }
 
 ///|
-fn world_region_palette(region : Int) -> Array[@math3d.Vec4] {
+fn world_region_palette(region : Int32) -> Array[@math3d.Vec4] {
   let colors = hunting_palette.copy()
   let overrides = match region {
     1 =>
@@ -63,7 +63,7 @@ fn world_region_palette(region : Int) -> Array[@math3d.Vec4] {
 }
 
 ///|
-fn GameState::region_mesh_ready(self : GameState, id : Int) -> Bool {
+fn GameState::region_mesh_ready(self : GameState, id : Int32) -> Bool {
   if id < 0 || id >= self.region_meshes.length() {
     return false
   }
@@ -219,8 +219,8 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
 ///|
 fn GameState::adopt_region_mesh(
   self : GameState,
-  id : Int,
-  waypoint? : Bool = false,
+  id : Int32,
+  waypoint~ : Bool = false,
 ) -> Unit {
   self.refresh_terrain_stats()
   self.expedition_map = build_expedition_map(self.world)
@@ -331,8 +331,8 @@ fn neighbor_chunk_visible(
 
 ///|
 fn neighbor_detail_visible(
-  cx : Int,
-  cz : Int,
+  cx : Int32,
+  cz : Int32,
   px : Double,
   pz : Double,
 ) -> Bool {

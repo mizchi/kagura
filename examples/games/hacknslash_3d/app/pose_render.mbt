@@ -6,8 +6,8 @@ struct PoseRenderBucket {
 
 ///|
 struct PoseRenderState {
-  buckets : Map[Int, PoseRenderBucket]
-  active_keys : Array[Int]
+  buckets : Map[Int32, PoseRenderBucket]
+  active_keys : Array[Int32]
 }
 
 ///|
@@ -22,7 +22,7 @@ fn PoseRenderState::clear(self : PoseRenderState) -> Unit {
 ///|
 fn PoseRenderState::add(
   self : PoseRenderState,
-  key : Int,
+  key : Int32,
   model : @math3d.Mat4,
   color : @math3d.Vec4,
 ) -> Unit {
@@ -47,11 +47,11 @@ fn GameState::push_baked_enemy_commands(
   self : GameState,
   poses : PoseRenderState,
   mesh : EnemyMeshData,
-  skinning_for_key : (Int) -> Array[@math3d.Mat4],
+  skinning_for_key : (Int32) -> Array[@math3d.Mat4],
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   for key in poses.active_keys {

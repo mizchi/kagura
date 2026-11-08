@@ -4,7 +4,7 @@ fn hunter_ground_point(
   x : Double,
   y : Double,
   ground_y : Double,
-  dungeon? : @game.DungeonData? = None,
+  dungeon~ : @game.DungeonData? = None,
 ) -> (Double, Double)? {
   let inv = camera.to_camera3d().view_projection_matrix().inverse()
   let clip = inv.mul_vec4(
@@ -51,7 +51,7 @@ fn hunter_pointer_ground(
   camera : @camera3d.OrbitCamera,
   x : Double,
   y : Double,
-  dungeon? : @game.DungeonData? = None,
+  dungeon~ : @game.DungeonData? = None,
 ) -> (Double, Double)? {
   hunter_ground_point(camera, x, y, 0.0, dungeon~)
 }

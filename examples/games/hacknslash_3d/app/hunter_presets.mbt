@@ -50,7 +50,7 @@ fn GameState::hunter_preset_skills(self : GameState) -> Array[HunterSkillView] {
 ///|
 fn GameState::hunter_action_view(
   self : GameState,
-  key : Int,
+  key : Int32,
 ) -> HunterSkillView {
   let w = self.world
   if key == 74 || key == 70 || key == 86 {

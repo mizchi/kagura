@@ -14,29 +14,33 @@ import {
 // Values
 pub fn component(() -> @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
 
+pub fn control_panel(String, @kagura_ui.LayoutRect, @kagura_ui.UIInteractionState, fill~ : Int32, border~ : Int32, available_color? : Int32, selected_color? : Int32, children~ : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+
 pub fn for_each(() -> Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn fragment(Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn group(key? : String, name? : String, x? : Double, y? : Double, ui_hidden? : Bool, children~ : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
 
-pub fn label(key? : String, name? : String, x? : Double, y? : Double, content~ : String, color? : Int, scale? : Double) -> @ui.Node[Unit, SceneAttrValue]
+pub fn label(key? : String, name? : String, x? : Double, y? : Double, content~ : String, color? : Int32, scale? : Double) -> @ui.Node[Unit, SceneAttrValue]
 
-pub fn line(key? : String, name? : String, x0~ : Double, y0~ : Double, x1~ : Double, y1~ : Double, width? : Double, color? : Int) -> @ui.Node[Unit, SceneAttrValue]
+pub fn line(key? : String, name? : String, x0~ : Double, y0~ : Double, x1~ : Double, y1~ : Double, width? : Double, color? : Int32) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn match_case(when~ : () -> Bool, render~ : () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.MatchCase[Unit, SceneAttrValue]
 
-pub fn rect(key? : String, name? : String, x? : Double, y? : Double, w~ : Double, h~ : Double, fill? : Int, alpha? : Double, role? : String, focusable? : Bool, focused? : Bool, focus_index? : Int, children? : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+pub fn modal_overlay(@ui.Node[Unit, SceneAttrValue], @ui.Node[Unit, SceneAttrValue], width~ : Double, height~ : Double, color? : Int32, alpha? : Double) -> @ui.Node[Unit, SceneAttrValue]
 
-pub fn rect_outline(key? : String, name? : String, x~ : Double, y~ : Double, w~ : Double, h~ : Double, line_width? : Double, color? : Int) -> @ui.Node[Unit, SceneAttrValue]
+pub fn rect(key? : String, name? : String, x? : Double, y? : Double, w~ : Double, h~ : Double, fill? : Int32, alpha? : Double, role? : String, focusable? : Bool, focused? : Bool, focus_index? : Int32, interaction? : @kagura_ui.UIInteractionState, children? : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn rect_outline(key? : String, name? : String, x~ : Double, y~ : Double, w~ : Double, h~ : Double, line_width? : Double, color? : Int32) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn render_scene(@ui.Node[Unit, SceneAttrValue], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Array[@gfx.DrawTrianglesCommand]
 
 pub fn resolve(@ui.Node[Unit, SceneAttrValue]) -> ResolvedScene raise
 
-pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@kagura_core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int, Int) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@kagura_core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int32, Int32) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int32, height? : Int32, title? : String, canvas? : String) -> Unit
 
-pub fn[T : SceneGame] run_game(T, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int, Int) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+pub fn[T : SceneGame] run_game(T, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int32, Int32) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int32, height? : Int32, title? : String, canvas? : String) -> Unit
 
 pub fn show(() -> Bool, () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
 
@@ -46,7 +50,7 @@ pub fn switch_(cases~ : Array[@ui.MatchCase[Unit, SceneAttrValue]], fallback? : 
 
 pub fn ui_key(String, @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
 
-pub fn ui_snapshot_from_scene(@ui.Node[Unit, SceneAttrValue], screen_width~ : Double, screen_height~ : Double, frame? : Int, state? : String) -> @kagura_ui.UISnapshot
+pub fn ui_snapshot_from_scene(@ui.Node[Unit, SceneAttrValue], screen_width~ : Double, screen_height~ : Double, frame? : Int32, state? : String) -> @kagura_ui.UISnapshot
 
 // Errors
 
@@ -56,11 +60,13 @@ pub(all) struct ResolvedScene {
   hierarchy : Array[@hierarchy.Node]
 }
 
+#derive(@debug.Debug)
 pub enum SceneAttrValue {
-  SceneInt(Int)
+  SceneInt(Int32)
   SceneDouble(Double)
   SceneText(String)
-} derive(@debug.Debug)
+  SceneInteraction(@kagura_ui.UIInteractionState)
+}
 pub fn SceneAttrValue::output(Self, &Logger) -> Unit
 pub fn SceneAttrValue::to_repr(Self) -> @debug.Repr
 pub fn SceneAttrValue::to_string(Self) -> String

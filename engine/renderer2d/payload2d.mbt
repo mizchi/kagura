@@ -5,6 +5,7 @@
 /// into a standalone utility later.
 
 ///|
+#derive(Debug)
 pub struct TrianglePayload {
   has_payload : Bool
   ax : Double
@@ -23,8 +24,8 @@ pub struct TrianglePayload {
   uniform_g : Double
   uniform_b : Double
   uniform_a : Double
-  texture_seed : Int
-} derive(Debug)
+  texture_seed : Int32
+}
 
 ///|
 pub impl Show for TrianglePayload with fn output(self, logger) {
@@ -44,8 +45,8 @@ pub fn clamp_unit(value : Double) -> Double {
 
 ///|
 fn decode_uniform_channel(
-  uniforms : Array[Int],
-  index : Int,
+  uniforms : Array[Int32],
+  index : Int32,
   fallback : Double,
 ) -> Double {
   if index >= 0 && index < uniforms.length() {
@@ -61,7 +62,7 @@ fn decode_uniform_channel(
 }
 
 ///|
-fn resolve_texture_seed(src_image_ids : Array[Int]) -> Int {
+fn resolve_texture_seed(src_image_ids : Array[Int32]) -> Int32 {
   if src_image_ids.length() > 0 {
     let seed = src_image_ids[0]
     if seed < 0 {
@@ -76,10 +77,10 @@ fn resolve_texture_seed(src_image_ids : Array[Int]) -> Int {
 
 ///|
 fn resolve_index_or_default(
-  indices : Array[Int],
-  order : Int,
-  vertex_count : Int,
-) -> Int {
+  indices : Array[Int32],
+  order : Int32,
+  vertex_count : Int32,
+) -> Int32 {
   if vertex_count <= 0 {
     0
   } else if order >= 0 && order < indices.length() {
@@ -125,9 +126,9 @@ pub fn default_triangle_payload() -> TrianglePayload {
 ///|
 pub fn decode_triangle_payload(
   vertex_data : Array[Double],
-  indices : Array[Int],
-  uniform_dwords : Array[Int],
-  src_image_ids : Array[Int],
+  indices : Array[Int32],
+  uniform_dwords : Array[Int32],
+  src_image_ids : Array[Int32],
 ) -> TrianglePayload {
   let payload_len = vertex_data.length()
   if payload_len < 6 {

@@ -4,9 +4,11 @@ import {
 
 supported_targets = "js"
 
-options(link: {
-  "js": {
-    "format": "esm",
-    "exports": ["create", "create_run", "observe", "step"],
+options(
+  link: {
+    "js": {
+      "format": "esm",
+      "exports": [ "create", "create_run", "observe", "step" ],
+    },
   },
-})
+)

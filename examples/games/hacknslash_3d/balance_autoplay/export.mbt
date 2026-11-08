@@ -13,10 +13,10 @@ struct AutoplayExperimentConfig {
   hypothesis_name : String
   archetype_name : String
   build_policy_name : String
-  start_floor : Int
-  sim_max_frames : Int
-  max_generations : Int
-  seed_count : Int
+  start_floor : Int32
+  sim_max_frames : Int32
+  max_generations : Int32
+  seed_count : Int32
   specs : Array[@dec.ParamSpec]
 }
 
@@ -57,7 +57,7 @@ fn numeric_value(value : Double) -> @parquet.Value {
 fn autoplay_experiment_row(
   config : AutoplayExperimentConfig,
   run_kind : String,
-  generation : Int,
+  generation : Int32,
   loss : Double,
   metrics : @dec.Metrics,
   params : Array[Double],

@@ -197,7 +197,9 @@ test "compute_loss penalizes zero damage when target expects pressure" {
     total_damage_taken: t.target_total_damage.to_int(),
     damage_frames: [0, t.target_damage_interval.to_int()],
   }
-  assert_true(@balance_lib.compute_loss(safe, t) > @balance_lib.compute_loss(pressured, t))
+  assert_true(
+    @balance_lib.compute_loss(safe, t) > @balance_lib.compute_loss(pressured, t),
+  )
 }
 
 ///|
@@ -284,7 +286,9 @@ test "autoplay rebalance specs only nerf player spells and buff pressure" {
 
 ///|
 test "autoplay progression specs stay closer to current defaults than rebalance" {
-  let progression = @balance_lib.param_specs_for_hypothesis("autoplay_progression")
+  let progression = @balance_lib.param_specs_for_hypothesis(
+    "autoplay_progression",
+  )
   let rebalance = @balance_lib.param_specs_for_hypothesis("autoplay_rebalance")
   let names = @game.BalanceParams::param_names()
   let find = fn(

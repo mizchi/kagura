@@ -5,14 +5,14 @@ pub(all) struct SceneNode {
   color : @math3d.Vec4
   material : Material?
   skinning : SkinningState?
-  children : Array[Int]
+  children : Array[Int32]
 }
 
 ///|
 pub struct SceneGraph {
-  nodes : Map[Int, SceneNode]
-  roots : Array[Int]
-  mut next_id : Int
+  nodes : Map[Int32, SceneNode]
+  roots : Array[Int32]
+  mut next_id : Int32
 }
 
 ///|
@@ -21,7 +21,7 @@ pub fn SceneGraph::new() -> SceneGraph {
 }
 
 ///|
-pub fn SceneGraph::add_node(self : SceneGraph, node : SceneNode) -> Int {
+pub fn SceneGraph::add_node(self : SceneGraph, node : SceneNode) -> Int32 {
   let id = self.next_id
   self.next_id = self.next_id + 1
   self.nodes[id] = node
@@ -32,9 +32,9 @@ pub fn SceneGraph::add_node(self : SceneGraph, node : SceneNode) -> Int {
 ///|
 pub fn SceneGraph::add_child(
   self : SceneGraph,
-  parent_id : Int,
+  parent_id : Int32,
   node : SceneNode,
-) -> Int {
+) -> Int32 {
   let id = self.next_id
   self.next_id = self.next_id + 1
   self.nodes[id] = node
@@ -46,14 +46,14 @@ pub fn SceneGraph::add_child(
 }
 
 ///|
-pub fn SceneGraph::get_node(self : SceneGraph, id : Int) -> SceneNode? {
+pub fn SceneGraph::get_node(self : SceneGraph, id : Int32) -> SceneNode? {
   self.nodes.get(id)
 }
 
 ///|
 pub fn SceneGraph::set_node(
   self : SceneGraph,
-  id : Int,
+  id : Int32,
   node : SceneNode,
 ) -> Unit {
   self.nodes[id] = node
@@ -61,15 +61,15 @@ pub fn SceneGraph::set_node(
 
 ///|
 pub fn SceneGraph::clone_graph(self : SceneGraph) -> SceneGraph {
-  let nodes : Map[Int, SceneNode] = Map([])
+  let nodes : Map[Int32, SceneNode] = Map([])
   for id, node in self.nodes {
-    let children : Array[Int] = []
+    let children : Array[Int32] = []
     for child_id in node.children {
       children.push(child_id)
     }
     nodes[id] = { ..node, children, }
   }
-  let roots : Array[Int] = []
+  let roots : Array[Int32] = []
   for root_id in self.roots {
     roots.push(root_id)
   }
@@ -98,13 +98,13 @@ pub fn SceneGraph::apply_root_transform(
 
 ///|
 pub fn scene_node(
-  mesh? : @mesh3d.Mesh3D? = None,
-  position? : @math3d.Vec3 = @math3d.Vec3::zero(),
-  rotation? : @math3d.Quaternion = @math3d.Quaternion::identity(),
-  scale? : @math3d.Vec3 = @math3d.Vec3::one(),
-  color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
-  material? : Material? = None,
-  skinning? : SkinningState? = None,
+  mesh~ : @mesh3d.Mesh3D? = None,
+  position~ : @math3d.Vec3 = @math3d.Vec3::zero(),
+  rotation~ : @math3d.Quaternion = @math3d.Quaternion::identity(),
+  scale~ : @math3d.Vec3 = @math3d.Vec3::one(),
+  color~ : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+  material~ : Material? = None,
+  skinning~ : SkinningState? = None,
 ) -> SceneNode {
   {
     transform: @transform3d.Transform3D::from_components(

@@ -134,7 +134,7 @@ pub fn analyze_scene3d(request : String, snapshot : String) -> String {
     {
       "ok": true,
       "value": value,
-      "text": report(operation, value).to_json(),
+      "text": Json(report(operation, value)),
       "exitCode": if failed {
         1
       } else {
@@ -143,8 +143,8 @@ pub fn analyze_scene3d(request : String, snapshot : String) -> String {
     }
   } catch {
     @scene3d.Scene3DSnapshotError(message) | Failure(message) =>
-      { "ok": false, "error": message.to_json() }
-    error => { "ok": false, "error": error.to_string().to_json() }
+      { "ok": false, "error": Json(message) }
+    error => { "ok": false, "error": Json(error.to_string()) }
   }
   reply.stringify()
 }

@@ -37,27 +37,28 @@
 
 ///|
 /// Per-battle statistics for detailed analysis
+#derive(Debug)
 pub(all) struct BattleStats {
-  floor : Int
+  floor : Int32
   encounter : String
   won : Bool
-  turns : Int
-  hp_before : Int
-  hp_after : Int
-  damage_dealt : Int
-  damage_taken : Int
-  block_generated : Int
-  cards_played : Int
-  min_hp_during : Int // lowest HP reached during battle
+  turns : Int32
+  hp_before : Int32
+  hp_after : Int32
+  damage_dealt : Int32
+  damage_taken : Int32
+  block_generated : Int32
+  cards_played : Int32
+  min_hp_during : Int32 // lowest HP reached during battle
   // Danger/Resolution tracking
-  danger_turns : Int // turns where incoming > block (exposed to HP loss)
-  resolved_turns : Int // danger turns where player blocked all damage
-  max_danger_streak : Int // longest consecutive danger turns
-  total_danger_streaks : Int // number of danger streaks (for avg calculation)
-  total_danger_streak_len : Int // sum of all streak lengths
+  danger_turns : Int32 // turns where incoming > block (exposed to HP loss)
+  resolved_turns : Int32 // danger turns where player blocked all damage
+  max_danger_streak : Int32 // longest consecutive danger turns
+  total_danger_streaks : Int32 // number of danger streaks (for avg calculation)
+  total_danger_streak_len : Int32 // sum of all streak lengths
   // Act-progress-relative HP
   hp_progress_ratio : Double // hp_after / expected_hp_at_this_progress
-} derive(Debug)
+}
 
 ///|
 pub impl Show for BattleStats with fn output(self, logger) {
@@ -66,16 +67,17 @@ pub impl Show for BattleStats with fn output(self, logger) {
 
 ///|
 /// Per-act archetype snapshot
+#derive(Debug)
 pub(all) struct ActSnapshot {
-  act : Int
+  act : Int32
   archetype : Archetype
-  deck_size : Int
-  hp_at_start : Int
-  hp_at_end : Int
-  cards_added : Int
-  battles_won : Int
-  battles_total : Int
-} derive(Debug)
+  deck_size : Int32
+  hp_at_start : Int32
+  hp_at_end : Int32
+  cards_added : Int32
+  battles_won : Int32
+  battles_total : Int32
+}
 
 ///|
 pub impl Show for ActSnapshot with fn output(self, logger) {
@@ -84,18 +86,19 @@ pub impl Show for ActSnapshot with fn output(self, logger) {
 
 ///|
 /// Detailed run result with per-battle stats
+#derive(Debug)
 pub(all) struct DetailedRunResult {
   won : Bool
-  floors_reached : Int
+  floors_reached : Int32
   battles : Array[BattleStats]
   final_deck : Array[CardId]
   archetype : Archetype
   cards_added : Array[CardId]
-  cards_skipped : Int
+  cards_skipped : Int32
   // Act-level tracking
   act_snapshots : Array[ActSnapshot]
   archetype_pivot : Bool // did archetype change between acts?
-} derive(Debug)
+}
 
 ///|
 pub impl Show for DetailedRunResult with fn output(self, logger) {
@@ -104,6 +107,7 @@ pub impl Show for DetailedRunResult with fn output(self, logger) {
 
 ///|
 /// Fun metrics extracted from a set of runs
+#derive(Debug)
 pub(all) struct FunMetrics {
   // === 1. Tension (danger → resolution → relief) ===
   danger_turn_ratio : Double // % of player turns exposed to unblocked damage
@@ -146,7 +150,7 @@ pub(all) struct FunMetrics {
   archetype_pivot_rate : Double // % of runs where archetype changed between acts
   act2_win_rate : Double // win rate of runs that reached Act 2
   build_commitment_score : Double // avg act2 battles won / total when archetype stable
-} derive(Debug)
+}
 
 ///|
 pub impl Show for FunMetrics with fn output(self, logger) {
@@ -156,7 +160,7 @@ pub impl Show for FunMetrics with fn output(self, logger) {
 ///|
 /// Simulate a detailed run tracking per-battle stats
 pub fn simulate_detailed_run(
-  seed : Int,
+  seed : Int32,
   strategy : PlayStrategy,
 ) -> DetailedRunResult {
   let run = RunState::new(seed~)
@@ -508,7 +512,7 @@ pub fn simulate_detailed_run(
 
 ///|
 /// Analyze fun metrics from multiple detailed runs
-pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
+pub fn analyze_fun_metrics(run_count : Int32) -> FunMetrics {
   let detailed_runs : Array[DetailedRunResult] = []
   let mut i = 0
   while i < run_count {
@@ -1008,6 +1012,7 @@ fn log2(x : Double) -> Double {
 
 ///|
 /// Target ranges for each fun metric (what players find enjoyable)
+#derive(Debug)
 pub(all) struct FunTargets {
   // 1. Tension (danger/resolution model)
   danger_turn_ratio_min : Double // 0.30 — 30% of turns should feel dangerous
@@ -1043,7 +1048,7 @@ pub(all) struct FunTargets {
   per_battle_attrition_max : Double // 0.20 (20% max HP per battle)
   act_gross_attrition_min : Double // 0.60 (60% total damage / max HP)
   act_gross_attrition_max : Double // 1.20 (120% — rest sites are critical)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for FunTargets with fn output(self, logger) {
@@ -1134,6 +1139,7 @@ fn zone_score(value : Double, min : Double, max : Double) -> Double {
 
 ///|
 /// Comprehensive fun score with per-axis breakdown
+#derive(Debug)
 pub(all) struct FunScorecard {
   // Per-axis scores (0.0-1.0)
   tension_score : Double
@@ -1156,7 +1162,7 @@ pub(all) struct FunScorecard {
   // Overall
   total_score : Double // weighted average (0-100)
   overall_grade : String // S / A / B / C / D
-} derive(Debug)
+}
 
 ///|
 pub impl Show for FunScorecard with fn output(self, logger) {

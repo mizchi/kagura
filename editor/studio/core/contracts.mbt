@@ -1,5 +1,6 @@
 ///|
 /// Renderer-independent authoring document. Units: metres, radians, seconds; Y-up, +Z forward.
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct SceneNode {
   id : String
   name : String
@@ -8,21 +9,23 @@ pub(all) struct SceneNode {
   position : Array[Double]
   rotation : Array[Double]
   scale : Array[Double]
-  color : Int
-} derive(ToJson, FromJson, Eq, Debug)
+  color : Int32
+}
 
 ///|
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct Action {
   target : String
   duration : Double
   flashDuration : Double
   recoilDuration : Double
   recoilStrength : Double
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct Document {
-  version : Int
+  version : Int32
   name : String
   units : String
   up : String
@@ -30,20 +33,22 @@ pub(all) struct Document {
   nodes : Array[SceneNode]
   action : Action
   resources : Array[Resource]
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
+#derive(ToJson, Eq, Debug)
 pub(all) struct Preview {
   time : Double
   flash : Bool
   offset : Double
-} derive(ToJson, Eq, Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) suberror EditorError {
   Invalid(String)
-  Conflict(Int)
-} derive(Debug)
+  Conflict(Int32)
+}
 
 ///|
 pub fn default_document() -> Document {
@@ -97,9 +102,9 @@ fn node(
   asset : String,
   position : Array[Double],
   scale : Array[Double],
-  color : Int,
+  color : Int32,
 ) -> SceneNode {
-  { id, name, asset, parent: "", position, rotation: [0, 0, 0], scale, color }
+  { id, name, asset, parent: "", position, rotation: [0, 0, 0], scale, color, }
 }
 
 ///|
@@ -284,9 +289,9 @@ pub fn decode_document(value : Json) -> Document raise {
   guard value is Object(fields) else { raise Invalid("Expected object") }
   let normalized = fields.copy()
   if !normalized.contains("resources") {
-    normalized["resources"] = ([] : Array[Json]).to_json()
+    normalized["resources"] = Json(([] : Array[Json]))
   }
-  let value = normalized.to_json()
+  let value = Json(normalized)
   guard field(value, "resources") is Array(resources) else {
     raise Invalid("Expected resources array")
   }
@@ -317,7 +322,7 @@ pub fn Document::to_json(self : Document) -> Json {
 }
 
 ///|
-fn integer(value : Json) -> Int raise {
+fn integer(value : Json) -> Int32 raise {
   guard value is Number(n, ..) else { raise Invalid("Expected integer") }
   require(
     n >= 0 && n <= 2147483647 && n == n.to_int().to_double(),
@@ -342,3 +347,48 @@ pub fn hierarchy_nodes(doc : Document) -> Array[SceneNode] {
   }
   output
 }
+
+///|
+pub extend Action with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Action with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Action with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend Action with Eq::{not_equal, equal}
+
+///|
+pub extend Document with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Document with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Document with Eq::{not_equal, equal}
+
+///|
+pub extend EditorError with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Preview with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Preview with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend Preview with Eq::{not_equal, equal}
+
+///|
+pub extend SceneNode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SceneNode with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend SceneNode with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend SceneNode with Eq::{not_equal, equal}

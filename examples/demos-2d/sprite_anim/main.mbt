@@ -1,17 +1,17 @@
 ///|
-let screen_w : Int = 320
+let screen_w : Int32 = 320
 
 ///|
-let screen_h : Int = 240
+let screen_h : Int32 = 240
 
 ///|
-let frame_w : Int = 16
+let frame_w : Int32 = 16
 
 ///|
-let frame_h : Int = 16
+let frame_h : Int32 = 16
 
 ///|
-let atlas_page_id : Int = 100
+let atlas_page_id : Int32 = 100
 
 ///|
 /// Generate a 4x1 sprite sheet with solid-color frames (red, green, blue, yellow).
@@ -19,8 +19,8 @@ fn generate_sprite_sheet() -> @atlas.ImageSpec {
   let cols = 4
   let w = frame_w * cols
   let h = frame_h
-  let pixels : Array[Int] = Array::make(w * h * 4, 0)
-  let colors : Array[Array[Int]] = [
+  let pixels : Array[Int32] = Array::make(w * h * 4, 0)
+  let colors : Array[Array[Int32]] = [
     [255, 0, 0, 255],
     [0, 255, 0, 255],
     [0, 0, 255, 255],

@@ -15,18 +15,20 @@ pub fn set_bytes_loader((String, (Bytes?) -> Unit) -> Unit) -> Unit
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub(all) struct FetchHandle {
-  id : Int
-} derive(@debug.Debug)
+  id : Int32
+}
 pub fn FetchHandle::output(Self, &Logger) -> Unit
 pub fn FetchHandle::to_repr(Self) -> @debug.Repr
 pub fn FetchHandle::to_string(Self) -> String
 pub impl Show for FetchHandle
 
+#derive(@debug.Debug)
 pub(all) struct FetchProgress {
-  loaded : Int
-  total : Int
-} derive(@debug.Debug)
+  loaded : Int32
+  total : Int32
+}
 pub fn FetchProgress::output(Self, &Logger) -> Unit
 pub fn FetchProgress::to_repr(Self) -> @debug.Repr
 pub fn FetchProgress::to_string(Self) -> String

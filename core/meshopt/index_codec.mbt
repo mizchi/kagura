@@ -6,17 +6,17 @@
 // patterns, so arithmetic wraps exactly like the C `unsigned int`.
 
 ///|
-const INDEX_HEADER : Int = 0xe0
+const INDEX_HEADER : Int32 = 0xe0
 
 ///|
-const SEQUENCE_HEADER : Int = 0xd0
+const SEQUENCE_HEADER : Int32 = 0xd0
 
 ///|
 fn write_index(
   target : FixedArray[Byte],
-  i : Int,
-  index_size : Int,
-  v : Int,
+  i : Int32,
+  index_size : Int32,
+  v : Int32,
 ) -> Unit {
   let o = i * index_size
   target[o] = (v & 0xff).to_byte()
@@ -29,7 +29,7 @@ fn write_index(
 
 ///|
 /// Read a LEB128-style value of up to 5 bytes. Returns (value, new offset).
-fn decode_vbyte(source : BytesView, data : Int) -> (Int, Int) {
+fn decode_vbyte(source : BytesView, data : Int32) -> (Int32, Int32) {
   let lead = source[data].to_int()
   if lead < 128 {
     return (lead, data + 1)
@@ -50,7 +50,7 @@ fn decode_vbyte(source : BytesView, data : Int) -> (Int, Int) {
 }
 
 ///|
-fn dezig(v : Int) -> Int {
+fn dezig(v : Int32) -> Int32 {
   (v.reinterpret_as_uint() >> 1).reinterpret_as_int() ^ -(v & 1)
 }
 
@@ -59,8 +59,8 @@ fn dezig(v : Int) -> Int {
 /// `target` as little-endian `index_size`-byte (2 or 4) indices.
 pub fn decode_index_buffer(
   target : FixedArray[Byte],
-  index_count : Int,
-  index_size : Int,
+  index_count : Int32,
+  index_size : Int32,
   source : BytesView,
 ) -> Unit raise MeshoptError {
   if index_count < 0 || index_count % 3 != 0 {
@@ -101,13 +101,13 @@ pub fn decode_index_buffer(
   let data_safe_end = buffer_size - 16
   let codeaux_table = data_safe_end
   let mut tri = 0
-  fn push_vertex(v : Int, cond : Bool) {
+  fn push_vertex(v : Int32, cond : Bool) {
     vertex_fifo[vertex_offset] = v
     if cond {
       vertex_offset = (vertex_offset + 1) & 15
     }
   }
-  fn push_edge(a : Int, b : Int) {
+  fn push_edge(a : Int32, b : Int32) {
     edge_a[edge_offset] = a
     edge_b[edge_offset] = b
     edge_offset = (edge_offset + 1) & 15
@@ -255,8 +255,8 @@ pub fn decode_index_buffer(
 /// `target` as little-endian `index_size`-byte (2 or 4) indices.
 pub fn decode_index_sequence(
   target : FixedArray[Byte],
-  index_count : Int,
-  index_size : Int,
+  index_count : Int32,
+  index_size : Int32,
   source : BytesView,
 ) -> Unit raise MeshoptError {
   if index_count < 0 {
@@ -284,7 +284,7 @@ pub fn decode_index_sequence(
   let mut data = 1
   // Each index reads at most 5 bytes and the 4-byte tail keeps them in range.
   let data_safe_end = buffer_size - 4
-  let last : FixedArray[Int] = [0, 0]
+  let last : FixedArray[Int32] = [0, 0]
   for i in 0..<index_count {
     if data >= data_safe_end {
       raise UnexpectedEnd("index sequence data")

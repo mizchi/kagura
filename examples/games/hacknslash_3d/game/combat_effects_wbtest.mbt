@@ -1,5 +1,5 @@
 ///|
-fn count_chain_arcs(events : Array[GameEvent]) -> Int {
+fn count_chain_arcs(events : Array[GameEvent]) -> Int32 {
   let mut count = 0
   for event in events {
     match event {
@@ -33,7 +33,7 @@ fn has_fireball_cast(events : Array[GameEvent]) -> Bool {
 }
 
 ///|
-fn count_ground_telegraph_rings(events : Array[GameEvent]) -> Int {
+fn count_ground_telegraph_rings(events : Array[GameEvent]) -> Int32 {
   let mut count = 0
   for event in events {
     match event {
@@ -45,7 +45,7 @@ fn count_ground_telegraph_rings(events : Array[GameEvent]) -> Int {
 }
 
 ///|
-fn count_ground_telegraph_lines(events : Array[GameEvent]) -> Int {
+fn count_ground_telegraph_lines(events : Array[GameEvent]) -> Int32 {
   let mut count = 0
   for event in events {
     match event {
@@ -68,7 +68,7 @@ fn has_ice_nova_cast(events : Array[GameEvent]) -> Bool {
 }
 
 ///|
-fn count_homing_missile_launches(events : Array[GameEvent]) -> Int {
+fn count_homing_missile_launches(events : Array[GameEvent]) -> Int32 {
   let mut count = 0
   for event in events {
     match event {
@@ -80,7 +80,7 @@ fn count_homing_missile_launches(events : Array[GameEvent]) -> Int {
 }
 
 ///|
-fn count_homing_missile_trails(events : Array[GameEvent]) -> Int {
+fn count_homing_missile_trails(events : Array[GameEvent]) -> Int32 {
   let mut count = 0
   for event in events {
     match event {
@@ -103,7 +103,7 @@ fn has_homing_missile_impact(events : Array[GameEvent]) -> Bool {
 }
 
 ///|
-fn projectile_fireball_count(projectiles : Array[Projectile]) -> Int {
+fn projectile_fireball_count(projectiles : Array[Projectile]) -> Int32 {
   let mut count = 0
   for projectile in projectiles {
     match projectile.kind {
@@ -115,7 +115,7 @@ fn projectile_fireball_count(projectiles : Array[Projectile]) -> Int {
 }
 
 ///|
-fn projectile_homing_missile_count(projectiles : Array[Projectile]) -> Int {
+fn projectile_homing_missile_count(projectiles : Array[Projectile]) -> Int32 {
   let mut count = 0
   for projectile in projectiles {
     match projectile.kind {
@@ -127,7 +127,7 @@ fn projectile_homing_missile_count(projectiles : Array[Projectile]) -> Int {
 }
 
 ///|
-fn projectile_enemy_bolt_count(projectiles : Array[Projectile]) -> Int {
+fn projectile_enemy_bolt_count(projectiles : Array[Projectile]) -> Int32 {
   let mut count = 0
   for projectile in projectiles {
     match projectile.kind {

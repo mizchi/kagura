@@ -35,7 +35,7 @@ test "equipping each slot changes only its own visible parts and preserves an at
 
 ///|
 test "species heads share the same rig and stay independent of helmet and weapon" {
-  let counts : Array[Int] = []
+  let counts : Array[Int32] = []
   for species in [Human, Goblin, Kobold, Skeleton] {
     let actor = CharacterModel::new(species~)
     let head = character_head_parts(species)

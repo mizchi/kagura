@@ -2,7 +2,7 @@
 struct TerrainLabState {
   mut editing : Bool
   mut config : @terrain3d.TerrainConfig
-  mut revision : Int
+  mut revision : Int32
   mut generation_ms : Double
   mut stats : @terrain3d.HeightFieldStats
 }
@@ -26,7 +26,7 @@ fn TerrainLabState::new(dungeon : @game.DungeonData) -> TerrainLabState {
 }
 
 ///|
-fn terrain_pattern_index(pattern : @terrain3d.TerrainPattern) -> Int {
+fn terrain_pattern_index(pattern : @terrain3d.TerrainPattern) -> Int32 {
   match pattern {
     Flat => 0
     Perlin => 1
@@ -40,7 +40,7 @@ fn terrain_pattern_index(pattern : @terrain3d.TerrainPattern) -> Int {
 fn GameState::apply_terrain_lab(
   self : GameState,
   command : Array[Double],
-  persist? : Bool = true,
+  persist~ : Bool = true,
 ) -> Bool {
   if (command.length() != 5 && command.length() != 6) ||
     command.any(v => v.is_nan() || v.abs() > 2147483646.0) {
@@ -143,23 +143,26 @@ fn GameState::restore_terrain_lab(self : GameState, source : String) -> Unit {
 }
 
 ///|
+#derive(ToJson)
 struct TerrainLabView {
   editing : Bool
   expedition_available : Bool
   enabled : Bool
-  pattern : Int
-  seed : Int
+  pattern : Int32
+  seed : Int32
   amplitude : Double
   plains_relief : Double
   scale : Double
   roughness : Double
-  revision : Int
+  revision : Int32
   generation_ms : Double
   stats : @terrain3d.HeightFieldStats
   player_height : Double
-} derive(ToJson)
+}
+
 ///|
 pub extend TerrainLabView with ToJson::{to_json}
+
 ///|
 fn GameState::terrain_lab_view(self : GameState) -> TerrainLabView {
   let lab = self.terrain_lab

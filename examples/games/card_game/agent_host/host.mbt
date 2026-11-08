@@ -1,11 +1,11 @@
 ///|
-pub fn create(seed : Int) -> @lib.AgentSession {
+pub fn create(seed : Int32) -> @lib.AgentSession {
   @lib.AgentSession::new(seed~)
 }
 
 ///|
 pub fn create_run(
-  seed : Int,
+  seed : Int32,
   character : String,
   stage : String,
 ) -> @lib.AgentSession? {
@@ -31,7 +31,7 @@ pub fn observe(session : @lib.AgentSession) -> String {
 ///|
 pub fn step(
   session : @lib.AgentSession,
-  revision : Int,
+  revision : Int32,
   choice_id : String,
 ) -> String {
   match session.step(revision, choice_id) {

@@ -20,7 +20,7 @@ pub fn SpriteAnimationPlayer::update(
 /// Get the current frame index (discrete step).
 pub fn SpriteAnimationPlayer::current_frame_index(
   self : SpriteAnimationPlayer,
-) -> Int {
+) -> Int32 {
   if self.clip.frames.is_empty() {
     return 0
   }

@@ -1,5 +1,5 @@
 ///|
-extern "js" fn instance_shader(source : String, dwords : Int) -> String =
+extern "js" fn instance_shader(source : String, dwords : Int32) -> String =
   #| (source, dwords) => globalThis.__kaguraGfx?.instanceUniformShader?.(source, dwords) ?? source
 
 ///|
@@ -8,7 +8,7 @@ fn retain_mesh(mesh : @mesh3d.Mesh3D) -> Unit {
 }
 
 ///|
-fn next_uniforms(a : App) -> Array[Int] {
+fn next_uniforms(a : App) -> Array[Int32] {
   let i = a.uniform_cursor
   a.uniform_cursor += 1
   if i == a.uniforms.length() {
@@ -28,13 +28,13 @@ fn srgb_channel(value : Double) -> Double {
 }
 
 ///|
-fn rgb(hex : Int) -> @math3d.Vec3 {
+fn rgb(hex : Int32) -> @math3d.Vec3 {
   let c = color(hex)
   @sim.vec(c.x, c.y, c.z)
 }
 
 ///|
-fn color(hex : Int, alpha? : Double = 1.0) -> @math3d.Vec4 {
+fn color(hex : Int32, alpha~ : Double = 1.0) -> @math3d.Vec4 {
   @math3d.Vec4::new(
     srgb_channel(((hex >> 16) & 255).to_double() / 255.0),
     srgb_channel(((hex >> 8) & 255).to_double() / 255.0),
@@ -45,9 +45,9 @@ fn color(hex : Int, alpha? : Double = 1.0) -> @math3d.Vec4 {
 
 ///|
 fn material(
-  hex : Int,
-  glow? : Bool = false,
-  alpha? : Double = 1.0,
+  hex : Int32,
+  glow~ : Bool = false,
+  alpha~ : Double = 1.0,
 ) -> @rig.Material {
   let c = color(hex, alpha~)
   {
@@ -69,7 +69,7 @@ fn material(
 fn trs(
   p : @math3d.Vec3,
   scale : @math3d.Vec3,
-  rotation? : @math3d.Quaternion = @math3d.Quaternion::identity(),
+  rotation~ : @math3d.Quaternion = @math3d.Quaternion::identity(),
 ) -> @math3d.Mat4 {
   @transform3d.Transform3D::from_components(p, rotation, scale).to_mat4()
 }
@@ -83,9 +83,9 @@ fn submit(
   matrix : @math3d.Mat4,
   m : @rig.Material,
   vp : @math3d.Mat4,
-  sky? : Bool = false,
-  receive_shadow? : Bool = true,
-  tonemapped? : Bool = false,
+  sky~ : Bool = false,
+  receive_shadow~ : Bool = true,
+  tonemapped~ : Bool = false,
 ) -> Unit {
   retain_mesh(mesh)
   let region : @gfx.DstRegion = {
@@ -157,7 +157,7 @@ fn beam(
   start : @math3d.Vec3,
   end : @math3d.Vec3,
   width : Double,
-  hex : Int,
+  hex : Int32,
   vp : @math3d.Mat4,
 ) -> Unit {
   let d = end.sub(start)

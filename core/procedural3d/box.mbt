@@ -4,18 +4,18 @@
 ///|
 pub fn append_box_segment(
   verts : Array[Double],
-  indices : Array[Int],
-  joint_indices : Array[Int],
+  indices : Array[Int32],
+  joint_indices : Array[Int32],
   weights : Array[Double],
-  vertex_count : Ref[Int],
+  vertex_count : Ref[Int32],
   x0 : Double,
   y0 : Double,
   z0 : Double,
   x1 : Double,
   y1 : Double,
   z1 : Double,
-  bone_bottom : Int,
-  bone_top : Int,
+  bone_bottom : Int32,
+  bone_top : Int32,
 ) -> Unit {
   // 8 corners of box
   let corners : Array[(Double, Double, Double)] = [
@@ -29,7 +29,7 @@ pub fn append_box_segment(
     (x0, y1, z0), // back
   ]
   // 6 faces: front, back, right, left, top, bottom
-  let faces : Array[(Int, Int, Int, Int, Double, Double, Double)] = [
+  let faces : Array[(Int32, Int32, Int32, Int32, Double, Double, Double)] = [
     (0, 1, 2, 3, 0.0, 0.0, 1.0), // front
     (5, 4, 7, 6, 0.0, 0.0, -1.0), // back
     (1, 5, 6, 2, 1.0, 0.0, 0.0), // right

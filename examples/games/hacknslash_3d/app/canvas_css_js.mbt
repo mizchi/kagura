@@ -22,11 +22,11 @@ fn canvas_css_width() -> Double {
 }
 
 ///|
-extern "js" fn hunter_web_camera_command() -> Array[Double] =
+extern "js" fn js_hunter_web_camera_command() -> FixedArray[Double] =
   #| () => globalThis.__ashenCamera?.consumeCommand() ?? []
 
 ///|
-extern "js" fn hunter_web_terrain_command() -> Array[Double] =
+extern "js" fn js_hunter_web_terrain_command() -> FixedArray[Double] =
   #| () => globalThis.__ashenTerrain?.consume() ?? []
 
 ///|
@@ -42,7 +42,7 @@ extern "js" fn hunter_load_terrain_preferences() -> String =
   #| () => { try { return localStorage.getItem('ashen-hunt-terrain-v1') ?? ''; } catch { return ''; } }
 
 ///|
-extern "js" fn hunter_initial_terrain() -> Array[Double] =
+extern "js" fn js_hunter_initial_terrain() -> FixedArray[Double] =
   #| () => {
   #|   const q=new URLSearchParams(globalThis.location?.search??'');
   #|   const pattern=['flat','perlin','diamond','voronoi','hybrid','expedition'].indexOf(q.get('terrain'));
@@ -50,7 +50,7 @@ extern "js" fn hunter_initial_terrain() -> Array[Double] =
   #| }
 
 ///|
-extern "js" fn hunter_web_camera_look() -> Array[Double] =
+extern "js" fn js_hunter_web_camera_look() -> FixedArray[Double] =
   #| () => globalThis.__ashenCamera?.consumeLook() ?? []
 
 ///|
@@ -71,7 +71,7 @@ extern "js" fn hunter_web_enabled() -> Bool =
   #| () => globalThis.__ashenControls?.version === 1
 
 ///|
-extern "js" fn hunter_web_key() -> Int =
+extern "js" fn hunter_web_key() -> Int32 =
   #| () => { globalThis.__ashenGamepad?.poll(); return globalThis.__ashenControls?.consumeKey() ?? 0; }
 
 ///|
@@ -87,7 +87,7 @@ extern "js" fn hunter_web_attacking() -> Bool =
   #| () => globalThis.__ashenControls?.snapshot().attack ?? false
 
 ///|
-extern "js" fn hunter_web_selection() -> Int =
+extern "js" fn hunter_web_selection() -> Int32 =
   #| () => globalThis.__ashenControls?.selection() ?? -1
 
 ///|
@@ -118,7 +118,7 @@ fn GameState::publish_hunter_hud(self : GameState) -> Unit {
 }
 
 ///|
-extern "js" fn hunter_web_inventory_move() -> Array[Int] =
+extern "js" fn js_hunter_web_inventory_move() -> FixedArray[Int32] =
   #| () => {
   #|   const move=globalThis.__ashenControls?.inventoryMove();
   #|   return move ? [move.source, move.target, move.x, move.y, move.rotated ? 1 : 0] : [];
@@ -157,13 +157,48 @@ extern "js" fn hunter_web_pointer_y() -> Double =
   #| () => globalThis.__ashenControls?.pointerAim()?.y ?? -1
 
 ///|
-extern "js" fn hunter_web_stick_aim() -> Array[Double] =
+extern "js" fn js_hunter_web_stick_aim() -> FixedArray[Double] =
   #| () => { const p=globalThis.__ashenControls?.stickAim(); return p?[p.x,p.y]:[]; }
 
 ///|
-extern "js" fn hunter_web_ground_stick() -> Array[Double] =
+extern "js" fn js_hunter_web_ground_stick() -> FixedArray[Double] =
   #| () => { const p=globalThis.__ashenControls?.groundStick(); return p?[p.x,p.y]:[]; }
 
 ///|
 extern "js" fn hunter_web_skull_held() -> Bool =
   #| () => globalThis.__ashenControls?.isHeld("skull") ?? false
+
+///|
+fn hunter_web_camera_command() -> Array[Double] {
+  Array::from_fixed_array(js_hunter_web_camera_command())
+}
+
+///|
+fn hunter_web_terrain_command() -> Array[Double] {
+  Array::from_fixed_array(js_hunter_web_terrain_command())
+}
+
+///|
+fn hunter_initial_terrain() -> Array[Double] {
+  Array::from_fixed_array(js_hunter_initial_terrain())
+}
+
+///|
+fn hunter_web_camera_look() -> Array[Double] {
+  Array::from_fixed_array(js_hunter_web_camera_look())
+}
+
+///|
+fn hunter_web_inventory_move() -> Array[Int32] {
+  Array::from_fixed_array(js_hunter_web_inventory_move())
+}
+
+///|
+fn hunter_web_stick_aim() -> Array[Double] {
+  Array::from_fixed_array(js_hunter_web_stick_aim())
+}
+
+///|
+fn hunter_web_ground_stick() -> Array[Double] {
+  Array::from_fixed_array(js_hunter_web_ground_stick())
+}

@@ -3,8 +3,8 @@ pub struct DesktopNativeHooks {
   try_initialize : (WindowOptions) -> Bool
   poll : (Bool) -> Unit
   should_close : () -> Bool
-  outside_size : (Int, Int) -> @core.OutsideSize
-  capture_input : (Bool, Int) -> @core.InputSnapshot
+  outside_size : (Int32, Int32) -> @core.OutsideSize
+  capture_input : (Bool, Int32) -> @core.InputSnapshot
   set_fullscreen : (Bool, Bool) -> Bool
   is_fullscreen : (Bool, Bool) -> Bool
   set_cursor_mode : (Bool, CursorMode) -> CursorMode
@@ -24,8 +24,8 @@ pub fn new_desktop_native_hooks(
   try_initialize : (WindowOptions) -> Bool,
   poll : (Bool) -> Unit,
   should_close : () -> Bool,
-  outside_size : (Int, Int) -> @core.OutsideSize,
-  capture_input : (Bool, Int) -> @core.InputSnapshot,
+  outside_size : (Int32, Int32) -> @core.OutsideSize,
+  capture_input : (Bool, Int32) -> @core.InputSnapshot,
   set_fullscreen : (Bool, Bool) -> Bool,
   is_fullscreen : (Bool, Bool) -> Bool,
   set_cursor_mode : (Bool, CursorMode) -> CursorMode,
@@ -76,14 +76,17 @@ fn default_desktop_should_close() -> Bool {
 }
 
 ///|
-fn default_desktop_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn default_desktop_outside_size(
+  width : Int32,
+  height : Int32,
+) -> @core.OutsideSize {
   @core.new_outside_size(width.to_double(), height.to_double())
 }
 
 ///|
 fn default_desktop_capture_input(
   _active : Bool,
-  _tick : Int,
+  _tick : Int32,
 ) -> @core.InputSnapshot {
   @core.empty_input_snapshot()
 }
@@ -215,14 +218,17 @@ fn desktop_native_should_close() -> Bool {
 }
 
 ///|
-fn desktop_native_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn desktop_native_outside_size(
+  width : Int32,
+  height : Int32,
+) -> @core.OutsideSize {
   (desktop_native_hooks.val.outside_size)(width, height)
 }
 
 ///|
 fn desktop_native_capture_input(
   active : Bool,
-  tick : Int,
+  tick : Int32,
 ) -> @core.InputSnapshot {
   (desktop_native_hooks.val.capture_input)(active, tick)
 }

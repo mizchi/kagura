@@ -1,19 +1,22 @@
 ///|
 /// Versioned semantic layout; generation and validation never depend on render state.
+#derive(ToJson)
 pub(all) struct ExpeditionPlan {
-  version : Int
+  version : Int32
   name : String
   pads : Array[@terrain3d.TerrainPad]
   routes : Array[@terrain3d.TerrainRoute]
-} derive(ToJson)
+}
+
 ///|
 pub extend ExpeditionPlan with ToJson::{to_json}
+
 ///|
-pub fn expedition_plan(seed : Int, region : Int) -> ExpeditionPlan {
+pub fn expedition_plan(seed : Int32, region : Int32) -> ExpeditionPlan {
   let variation = hunting_hash(region, 71, seed)
   let lift = (variation % 3).to_double() * 0.5
   let pads : Array[@terrain3d.TerrainPad] = []
-  fn node(x : Double, z : Double, h : Double, r : Double) -> Int {
+  fn node(x : Double, z : Double, h : Double, r : Double) -> Int32 {
     let id = pads.length()
     pads.push({ x, z, height: h, radius: r, })
     id
@@ -48,7 +51,7 @@ pub fn expedition_plan(seed : Int, region : Int) -> ExpeditionPlan {
   let west = node(4.0, 40.0, 0.0, 3.0)
   let high_entry = node(61.0, 12.0, 3.0, 2.5)
   let routes : Array[@terrain3d.TerrainRoute] = []
-  fn connect(a : Int, b : Int, width : Double) -> Unit {
+  fn connect(a : Int32, b : Int32, width : Double) -> Unit {
     let a = pads[a]
     let b = pads[b]
     routes.push({
@@ -122,9 +125,9 @@ pub fn expedition_plan(seed : Int, region : Int) -> ExpeditionPlan {
 
 ///|
 pub fn expedition_surface(
-  seed : Int,
-  region : Int,
-  plains_relief? : Double = 1.0,
+  seed : Int32,
+  region : Int32,
+  plains_relief~ : Double = 1.0,
 ) -> @terrain3d.HeightField {
   let plan = expedition_plan(seed, region)
   let relief = plains_relief.clamp(min=0.0, max=1.0)
@@ -179,9 +182,9 @@ pub fn expedition_surface(
 ///|
 fn shape_expedition_region(
   dungeon : DungeonData,
-  seed : Int,
-  region : Int,
-  plains_relief? : Double = 1.0,
+  seed : Int32,
+  region : Int32,
+  plains_relief~ : Double = 1.0,
 ) -> Unit {
   let plan = expedition_plan(seed, region)
   let grid = dungeon.grid

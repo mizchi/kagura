@@ -99,7 +99,7 @@ pub fn apply(doc : Document, command : Json) -> Document raise {
     }
     "node.material" => {
       keys(command, ["op", "id", "color"])
-      let color : Int = integer(field(command, "color"))
+      let color : Int32 = integer(field(command, "color"))
       { ..selected, color, }
     }
     _ => raise Invalid("Unknown command: " + op)

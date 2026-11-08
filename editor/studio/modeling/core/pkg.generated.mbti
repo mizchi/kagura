@@ -9,7 +9,7 @@ import {
 // Values
 pub fn capture_expression(ModelDocument, ModelDocument, String, String) -> ModelExpression raise ModelError
 
-pub fn decode_document(Json) -> ModelDocument raise
+pub fn decode_document(@json.Json) -> ModelDocument raise
 
 pub fn evaluate_expressions(ModelDocument, Map[String, Double]) -> ModelDocument raise ModelError
 
@@ -18,67 +18,99 @@ pub fn kawaiko_document() -> ModelDocument
 pub fn validate_document(ModelDocument) -> Unit raise ModelError
 
 // Errors
+#derive(@debug.Debug)
 pub(all) suberror ModelError {
   Invalid(String)
-} derive(@debug.Debug)
+}
+pub fn ModelError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
 type ExpressionEdit
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct ExpressionTarget {
   node : String
   position : Array[Double]
   vertices : Array[VertexDelta]
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
+pub fn ExpressionTarget::equal(Self, Self) -> Bool
+pub fn ExpressionTarget::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ExpressionTarget::not_equal(Self, Self) -> Bool
+pub fn ExpressionTarget::to_json(Self) -> @json.Json
+pub fn ExpressionTarget::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct MeshNode {
   id : String
   name : String
-  color : Int
+  color : Int32
   position : Array[Double]
   vertices : Array[Array[Double]]
-  faces : Array[Array[Int]]
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+  faces : Array[Array[Int32]]
+}
+pub fn MeshNode::equal(Self, Self) -> Bool
+pub fn MeshNode::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn MeshNode::not_equal(Self, Self) -> Bool
+pub fn MeshNode::to_json(Self) -> @json.Json
+pub fn MeshNode::to_repr(Self) -> @debug.Repr
 
 type Modal
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct ModelDocument {
-  version : Int
+  version : Int32
   format : String
   name : String
   source : String
   nodes : Array[MeshNode]
   expressions : Array[ModelExpression]
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
+pub fn ModelDocument::equal(Self, Self) -> Bool
+pub fn ModelDocument::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ModelDocument::not_equal(Self, Self) -> Bool
+pub fn ModelDocument::to_json(Self) -> @json.Json
+pub fn ModelDocument::to_repr(Self) -> @debug.Repr
 
 pub struct ModelEditor {
   mut document : ModelDocument
-  mut revision : Int
+  mut revision : Int32
   mut selected : String
   mut mode : String
-  mut indices : Array[Int]
-  mut face : Int
+  mut indices : Array[Int32]
+  mut face : Int32
   mut modal : Modal?
   past : Array[ModelDocument]
   future : Array[ModelDocument]
-  mut serial : Int
+  mut serial : Int32
   mut expression_edit : ExpressionEdit?
   mut weights : Map[String, Double]
 }
 pub fn ModelEditor::new() -> Self
 pub fn ModelEditor::request(Self, String) -> String
-pub fn ModelEditor::snapshot(Self) -> Json
+pub fn ModelEditor::snapshot(Self) -> @json.Json
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct ModelExpression {
   id : String
   name : String
   targets : Array[ExpressionTarget]
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
+pub fn ModelExpression::equal(Self, Self) -> Bool
+pub fn ModelExpression::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ModelExpression::not_equal(Self, Self) -> Bool
+pub fn ModelExpression::to_json(Self) -> @json.Json
+pub fn ModelExpression::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct VertexDelta {
-  index : Int
+  index : Int32
   offset : Array[Double]
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
+pub fn VertexDelta::equal(Self, Self) -> Bool
+pub fn VertexDelta::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn VertexDelta::not_equal(Self, Self) -> Bool
+pub fn VertexDelta::to_json(Self) -> @json.Json
+pub fn VertexDelta::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

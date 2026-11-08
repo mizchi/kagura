@@ -5,12 +5,13 @@
 /// between asset/image repositories and backend upload layers.
 
 ///|
+#derive(Debug)
 pub struct Rgba {
-  r : Int
-  g : Int
-  b : Int
-  a : Int
-} derive(Debug)
+  r : Int32
+  g : Int32
+  b : Int32
+  a : Int32
+}
 
 ///|
 pub impl Show for Rgba with fn output(self, logger) {
@@ -18,12 +19,13 @@ pub impl Show for Rgba with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct ImagePalette2x2 {
   p00 : Rgba
   p10 : Rgba
   p01 : Rgba
   p11 : Rgba
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ImagePalette2x2 with fn output(self, logger) {
@@ -31,7 +33,7 @@ pub impl Show for ImagePalette2x2 with fn output(self, logger) {
 }
 
 ///|
-pub fn clamp_channel(channel : Int) -> Int {
+pub fn clamp_channel(channel : Int32) -> Int32 {
   if channel < 0 {
     0
   } else if channel > 255 {
@@ -42,7 +44,7 @@ pub fn clamp_channel(channel : Int) -> Int {
 }
 
 ///|
-pub fn new_rgba(r : Int, g : Int, b : Int, a : Int) -> Rgba {
+pub fn new_rgba(r : Int32, g : Int32, b : Int32, a : Int32) -> Rgba {
   {
     r: clamp_channel(r),
     g: clamp_channel(g),
@@ -67,7 +69,7 @@ pub fn new_solid_palette(color : Rgba) -> ImagePalette2x2 {
 }
 
 ///|
-fn channel_from_rgba(color : Rgba, channel_index : Int) -> Int {
+fn channel_from_rgba(color : Rgba, channel_index : Int32) -> Int32 {
   match channel_index {
     0 => color.r
     1 => color.g
@@ -80,9 +82,9 @@ fn channel_from_rgba(color : Rgba, channel_index : Int) -> Int {
 ///|
 pub fn palette_channel(
   palette : ImagePalette2x2,
-  pixel_index : Int,
-  channel_index : Int,
-) -> Int {
+  pixel_index : Int32,
+  channel_index : Int32,
+) -> Int32 {
   let color = match pixel_index {
     0 => Some(palette.p00)
     1 => Some(palette.p10)
@@ -97,7 +99,7 @@ pub fn palette_channel(
 }
 
 ///|
-pub fn checker_palette_from_seed(seed : Int) -> ImagePalette2x2 {
+pub fn checker_palette_from_seed(seed : Int32) -> ImagePalette2x2 {
   let normalized_seed = if seed < 0 { 0 } else { seed }
   let seed0 = (normalized_seed * 53 + 17) & 255
   let seed1 = (normalized_seed * 97 + 73) & 255

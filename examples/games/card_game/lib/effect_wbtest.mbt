@@ -6,7 +6,7 @@
 ///|
 /// Capture every part of the battle state a card can affect, as a flat Int
 /// vector that is cheap to compare.
-fn fingerprint(state : BattleState) -> Array[Int] {
+fn fingerprint(state : BattleState) -> Array[Int32] {
   let fp = [
     state.player.hp,
     state.player.max_hp,

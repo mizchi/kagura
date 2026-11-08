@@ -73,7 +73,7 @@ pub extern "js" fn delete_key(value : @core.Any, key : String) -> Unit =
   #| (value, key) => { delete value[key]; }
 
 ///|
-pub extern "js" fn fixed_decimal(value : Double, digits : Int) -> Double =
+pub extern "js" fn fixed_decimal(value : Double, digits : Int32) -> Double =
   #| (value, digits) => Number(value.toFixed(digits))
 
 ///|
@@ -92,6 +92,12 @@ pub fn number(value : @core.Any) -> Double {
 }
 
 ///|
-pub fn length(value : @core.Any) -> Int {
+pub fn length(value : @core.Any) -> Int32 {
   value._get("length").cast()
+}
+
+///|
+/// Copy a growable MoonBit array into the JavaScript array boundary.
+pub fn[T] array_to_js(values : Array[T]) -> @core.Any {
+  @core.any(FixedArray::from_array(values[:]))
 }

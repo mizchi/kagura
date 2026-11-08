@@ -1,10 +1,11 @@
 ///|
 /// Index range into a shared static mesh. Use index_count for the destination
 /// region and first_index for the draw command's index offset.
+#derive(Eq, Debug)
 pub struct StaticMeshSpan {
-  first_index : Int
-  index_count : Int
-} derive(Eq, Debug)
+  first_index : Int32
+  index_count : Int32
+}
 
 ///|
 pub extend StaticMeshSpan with Eq::{equal, not_equal}
@@ -35,7 +36,7 @@ pub fn StaticMeshBatch::new(meshes : Array[@mesh3d.Mesh3D]) -> StaticMeshBatch? 
     return None
   }
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let spans : Array[StaticMeshSpan] = []
   for mesh in meshes {
     if mesh.format.attributes != format.attributes ||
@@ -70,7 +71,7 @@ pub fn StaticMeshBatch::new(meshes : Array[@mesh3d.Mesh3D]) -> StaticMeshBatch? 
 /// visible spans coalesce; an invisible nonempty span always breaks the run.
 pub fn StaticMeshBatch::select(
   self : StaticMeshBatch,
-  visible : (Int) -> Bool,
+  visible : (Int32) -> Bool,
 ) -> Array[StaticMeshSpan] {
   let result : Array[StaticMeshSpan] = []
   for i, span in self.spans {

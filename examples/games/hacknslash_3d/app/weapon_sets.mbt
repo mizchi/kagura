@@ -9,9 +9,9 @@ struct EnemyWeaponSet {
   clip_id : String
   clip_name : String
   clip : @animation3d.AnimationClip
-  windup : Int
-  recovery : Int
-  bake_frames : Int
+  windup : Int32
+  recovery : Int32
+  bake_frames : Int32
 }
 
 ///|
@@ -67,7 +67,7 @@ let shared_enemy_weapons : Array[EnemyWeaponSet] = [
 ]
 
 ///|
-fn default_enemy_weapon_index(kind : @game.EnemyKind) -> Int {
+fn default_enemy_weapon_index(kind : @game.EnemyKind) -> Int32 {
   match kind {
     @game.Fast | @game.Exploder | @game.Teleporter => 1
     @game.Ranged => 3
@@ -144,7 +144,7 @@ fn combine_enemy_parts(parts : Array[EnemyMaterialPart]) -> EnemyMeshData {
 fn EnemyModels::get_equipped_mesh_data(
   self : EnemyModels,
   kind : @game.EnemyKind,
-  weapon_index? : Int = default_enemy_weapon_index(kind),
+  weapon_index~ : Int32 = default_enemy_weapon_index(kind),
 ) -> EnemyMeshData {
   if kind == @game.Zombie {
     return zombie_mesh

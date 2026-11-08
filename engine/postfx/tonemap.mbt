@@ -12,8 +12,8 @@ pub(all) enum ToneMapOperator {
 /// attachment (e.g. WebGPU bgra8unorm). Intermediate passes stay linear.
 pub fn tonemap_wgsl(
   op : ToneMapOperator,
-  output_srgb? : Bool = false,
-  vignette? : Bool = true,
+  output_srgb~ : Bool = false,
+  vignette~ : Bool = true,
 ) -> String {
   let tonemap_fn = match op {
     Reinhard =>
@@ -71,8 +71,8 @@ pub fn tonemap_wgsl(
 /// Encode tone map uniform as 4 dwords (vec4 alignment).
 pub fn tonemap_uniform_dwords(
   exposure : Double,
-  hit_flash? : Double = 0.0,
-) -> Array[Int] {
+  hit_flash~ : Double = 0.0,
+) -> Array[Int32] {
   [f32(exposure), f32(hit_flash), 0, 0]
 }
 
@@ -81,9 +81,9 @@ pub fn tonemap_uniform_dwords(
 pub fn new_tonemap_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  src_image_id : Int,
+  src_image_id : Int32,
   exposure : Double,
-  hit_flash? : Double = 0.0,
+  hit_flash~ : Double = 0.0,
 ) -> @gfx.DrawTrianglesCommand {
   new_fullscreen_quad_command(
     dst,

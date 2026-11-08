@@ -4,8 +4,8 @@
 ///|
 pub struct RigidGeometry {
   vertices : Array[Double]
-  indices : Array[Int]
-  joints : Array[Int]
+  indices : Array[Int32]
+  joints : Array[Int32]
   weights : Array[Double]
 }
 
@@ -39,7 +39,7 @@ pub fn RigidGeometry::triangle(
   a : @math3d.Vec3,
   b : @math3d.Vec3,
   c : @math3d.Vec3,
-  bone : Int,
+  bone : Int32,
 ) -> Unit {
   let normal = b.sub(a).cross(c.sub(a)).normalize()
   for p in [a, b, c] {
@@ -67,7 +67,7 @@ pub fn RigidGeometry::quad(
   b : @math3d.Vec3,
   c : @math3d.Vec3,
   d : @math3d.Vec3,
-  bone : Int,
+  bone : Int32,
 ) -> Unit {
   self.triangle(a, b, c, bone)
   self.triangle(a, c, d, bone)
@@ -82,7 +82,7 @@ pub fn RigidGeometry::box(
   w : Double,
   h : Double,
   d : Double,
-  bone : Int,
+  bone : Int32,
 ) -> Unit {
   let vc = Ref(self.vertices.length() / 8)
   append_box_segment(
@@ -108,13 +108,13 @@ pub fn RigidGeometry::loft(
   x : Double,
   z : Double,
   rings : Array[(Double, Double, Double)],
-  sides : Int,
-  bone : Int,
+  sides : Int32,
+  bone : Int32,
 ) -> Unit {
   if rings.length() < 2 || sides < 3 {
     return
   }
-  fn point(ring : Int, side : Int) -> @math3d.Vec3 {
+  fn point(ring : Int32, side : Int32) -> @math3d.Vec3 {
     let (y, rx, rz) = rings[ring]
     let a = side.to_double() * @math.PI * 2.0 / sides.to_double()
     @math3d.Vec3::new(x + @math.sin(a) * rx, y, z + @math.cos(a) * rz)

@@ -41,7 +41,7 @@ struct GameLayout {
 }
 
 ///|
-fn GameLayout::new(width : Int, height : Int) -> GameLayout {
+fn GameLayout::new(width : Int32, height : Int32) -> GameLayout {
   let w = width.to_double()
   let h = height.to_double()
   let card_h = if height < 440 { 100.0 } else { 150.0 }
@@ -57,7 +57,11 @@ fn GameLayout::new(width : Int, height : Int) -> GameLayout {
 }
 
 ///|
-fn GameLayout::card_rect(self : GameLayout, index : Int, count : Int) -> UiRect {
+fn GameLayout::card_rect(
+  self : GameLayout,
+  index : Int32,
+  count : Int32,
+) -> UiRect {
   let n = ui_max(count, 1).to_double()
   let width = ui_min(120.0, ui_max(64.0, (self.w - 32.0 - (n - 1.0) * 8.0) / n))
   let step = if count <= 1 {
@@ -77,8 +81,8 @@ fn GameLayout::card_rect(self : GameLayout, index : Int, count : Int) -> UiRect 
 ///|
 fn GameLayout::enemy_rect(
   self : GameLayout,
-  index : Int,
-  count : Int,
+  index : Int32,
+  count : Int32,
 ) -> UiRect {
   let n = ui_max(count, 1).to_double()
   let region_x = self.w * 0.4
@@ -140,8 +144,8 @@ fn GameLayout::end_turn_rect(self : GameLayout) -> UiRect {
 ///|
 fn GameLayout::reward_rect(
   self : GameLayout,
-  index : Int,
-  count : Int,
+  index : Int32,
+  count : Int32,
 ) -> UiRect {
   let n = ui_max(count, 1).to_double()
   let width = ui_min(150.0, (self.w - 40.0 - (n - 1.0) * 12.0) / n)
@@ -161,7 +165,12 @@ fn GameLayout::continue_rect(self : GameLayout) -> UiRect {
 }
 
 ///|
-fn hit_card(layout : GameLayout, count : Int, x : Double, y : Double) -> Int {
+fn hit_card(
+  layout : GameLayout,
+  count : Int32,
+  x : Double,
+  y : Double,
+) -> Int32 {
   // Later cards are painted on top in a crowded hand.
   for i = count - 1; i >= 0; i = i - 1 {
     let rect = layout.card_rect(i, count)
@@ -181,7 +190,7 @@ fn hit_enemy(
   state : BattleState,
   x : Double,
   y : Double,
-) -> Int {
+) -> Int32 {
   for i = 0; i < state.enemies.length(); i = i + 1 {
     if !state.enemies[i].fighter.is_dead() &&
       layout.enemy_rect(i, state.enemies.length()).contains(x, y) {
@@ -217,7 +226,7 @@ fn preview_is_clear(l : GameLayout, state : BattleState, r : UiRect) -> Bool {
 fn drag_card_rect(
   l : GameLayout,
   state : BattleState,
-  index : Int,
+  index : Int32,
   x : Double,
   y : Double,
 ) -> UiRect {

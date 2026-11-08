@@ -40,7 +40,7 @@ pub struct VelocityState3D {
   wx : Array[Double]
   wy : Array[Double]
   wz : Array[Double]
-  mut count : Int
+  mut count : Int32
 }
 
 ///|

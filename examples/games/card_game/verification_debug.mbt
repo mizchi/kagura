@@ -1,6 +1,6 @@
 ///|
 fn initial_states() -> @engine.InitialStates[@lib.Game] {
-  let named : Array[(String, (Int, Int) -> @lib.Game)] = []
+  let named : Array[(String, (Int32, Int32) -> @lib.Game)] = []
   for
     name in [
       "map", "map_unique", "event", "shop", "shop_sold", "card_removal", "treasure",

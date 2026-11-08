@@ -9,7 +9,7 @@ import {
 // Values
 pub fn default_run_options() -> RunOptions
 
-pub fn new_noop_game(Int, Int) -> NoopGame
+pub fn new_noop_game(Int32, Int32) -> NoopGame
 
 pub fn new_run_options(init_unfocused? : Bool, screen_transparent? : Bool, screen_cleared_every_frame? : Bool) -> RunOptions
 
@@ -18,29 +18,31 @@ pub fn[T : Game] run_game(T, RunOptions) -> Unit
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub enum EngineTermination {
   RegularTermination
   Fatal(String)
-} derive(@debug.Debug)
+}
 pub fn EngineTermination::output(Self, &Logger) -> Unit
 pub fn EngineTermination::to_repr(Self) -> @debug.Repr
 pub fn EngineTermination::to_string(Self) -> String
 pub impl Show for EngineTermination
 
 pub struct NoopGame {
-  logical_width : Int
-  logical_height : Int
+  logical_width : Int32
+  logical_height : Int32
 }
 pub fn NoopGame::draw(Self, @kagura_core.FrameBudget) -> Unit
 pub fn NoopGame::layout(Self, @kagura_core.OutsideSize) -> @kagura_core.LogicalSize
 pub fn NoopGame::update(Self, @kagura_core.InputSnapshot) -> EngineTermination?
 pub impl Game for NoopGame
 
+#derive(@debug.Debug)
 pub struct RunOptions {
   init_unfocused : Bool
   screen_transparent : Bool
   screen_cleared_every_frame : Bool
-} derive(@debug.Debug)
+}
 pub fn RunOptions::output(Self, &Logger) -> Unit
 pub fn RunOptions::to_repr(Self) -> @debug.Repr
 pub fn RunOptions::to_string(Self) -> String

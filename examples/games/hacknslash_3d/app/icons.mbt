@@ -4,7 +4,7 @@
 // Each pattern is a 16-element array of 16-bit row masks
 
 ///|
-fn icon_sword() -> Array[Int] {
+fn icon_sword() -> Array[Int32] {
   [
     0b0000000000000010, 0b0000000000000100, 0b0000000000001000, 0b0000000000010000,
     0b0000000000100000, 0b0000000001000000, 0b0000000010000000, 0b0000000100000000,
@@ -14,7 +14,7 @@ fn icon_sword() -> Array[Int] {
 }
 
 ///|
-fn icon_armor() -> Array[Int] {
+fn icon_armor() -> Array[Int32] {
   [
     0b0000011111000000, 0b0000100000100000, 0b0001000000010000, 0b0011111111111000,
     0b0010000000001000, 0b0010000000001000, 0b0010000000001000, 0b0010000000001000,
@@ -24,7 +24,7 @@ fn icon_armor() -> Array[Int] {
 }
 
 ///|
-fn icon_ring() -> Array[Int] {
+fn icon_ring() -> Array[Int32] {
   [
     0b0000000000000000, 0b0000000000000000, 0b0000001111000000, 0b0000010000100000,
     0b0000100000010000, 0b0001000000001000, 0b0001000000001000, 0b0001000000001000,
@@ -34,7 +34,7 @@ fn icon_ring() -> Array[Int] {
 }
 
 ///|
-fn icon_heart() -> Array[Int] {
+fn icon_heart() -> Array[Int32] {
   [
     0b0000000000000000, 0b0000000000000000, 0b0001100001100000, 0b0010010010010000,
     0b0100001100001000, 0b0100000000001000, 0b0100000000001000, 0b0010000000010000,
@@ -44,7 +44,7 @@ fn icon_heart() -> Array[Int] {
 }
 
 ///|
-fn icon_star() -> Array[Int] {
+fn icon_star() -> Array[Int32] {
   [
     0b0000000100000000, 0b0000000100000000, 0b0000001110000000, 0b0000001110000000,
     0b0111111111111100, 0b0011111111111000, 0b0001111111110000, 0b0000111111100000,
@@ -54,7 +54,7 @@ fn icon_star() -> Array[Int] {
 }
 
 ///|
-fn icon_skull() -> Array[Int] {
+fn icon_skull() -> Array[Int32] {
   [
     0b0000011111000000, 0b0000100000100000, 0b0001000000010000, 0b0010000000001000,
     0b0010011001001000, 0b0010011001001000, 0b0010000000001000, 0b0010000000001000,
@@ -64,7 +64,7 @@ fn icon_skull() -> Array[Int] {
 }
 
 ///|
-fn all_icon_patterns() -> Array[Array[Int]] {
+fn all_icon_patterns() -> Array[Array[Int32]] {
   [
     icon_sword(),
     icon_armor(),
@@ -76,22 +76,22 @@ fn all_icon_patterns() -> Array[Array[Int]] {
 }
 
 ///|
-let icon_atlas_default_id : Int = 512
+let icon_atlas_default_id : Int32 = 512
 
 ///|
 let ui_icon_size : Double = 16.0
 
 ///|
-let skill_icon_base_id : Int = 10
+let skill_icon_base_id : Int32 = 10
 
 // Rasterize a 16x16 icon pattern into RGBA8 pixel array
 
 ///|
-fn rasterize_icon(pattern : Array[Int], color : Int) -> Array[Int] {
+fn rasterize_icon(pattern : Array[Int32], color : Int32) -> Array[Int32] {
   let r = (color >> 16) & 0xFF
   let g = (color >> 8) & 0xFF
   let b = color & 0xFF
-  let pixels : Array[Int] = []
+  let pixels : Array[Int32] = []
   for row in 0..<16 {
     let bits = pattern[row]
     for col in 0..<16 {
@@ -158,12 +158,12 @@ struct IconAtlas {
 }
 
 ///|
-fn icon_pattern_count() -> Int {
+fn icon_pattern_count() -> Int32 {
   all_icon_patterns().length()
 }
 
 ///|
-fn normalize_icon_index(icon_id : Int, base : Int) -> Int {
+fn normalize_icon_index(icon_id : Int32, base : Int32) -> Int32 {
   let count = icon_pattern_count()
   if count <= 0 {
     return 0
@@ -192,7 +192,7 @@ fn skill_icon_key(node : @game.SkillNode) -> @atlas.AssetKey {
 }
 
 ///|
-fn create_icon_atlas(atlas_id? : Int = icon_atlas_default_id) -> IconAtlas {
+fn create_icon_atlas(atlas_id~ : Int32 = icon_atlas_default_id) -> IconAtlas {
   let inputs = build_icon_sprite_inputs()
   let config : @sprite_packer.PackerConfig = {
     max_width: 256,
@@ -265,7 +265,7 @@ fn GameState::append_item_icon(
   item : @game.ItemData,
   x : Double,
   y : Double,
-  size? : Double = ui_icon_size,
+  size~ : Double = ui_icon_size,
 ) -> Bool {
   append_icon_draw_command(
     cmds,
@@ -288,7 +288,7 @@ fn GameState::append_skill_icon(
   node : @game.SkillNode,
   x : Double,
   y : Double,
-  size? : Double = ui_icon_size,
+  size~ : Double = ui_icon_size,
 ) -> Bool {
   append_icon_draw_command(
     cmds,

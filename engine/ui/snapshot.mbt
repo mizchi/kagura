@@ -13,12 +13,13 @@
 /// - `scripts/ui-integrity-gate.mjs` (deterministic UI defect gate)
 
 ///|
+#derive(Debug)
 pub(all) struct UISnapshotRect {
   left : Double
   top : Double
   width : Double
   height : Double
-} derive(Debug)
+}
 
 ///|
 pub extend UISnapshotRect with @moonbitlang/core/debug.Debug::{to_repr}
@@ -32,12 +33,13 @@ pub impl Show for UISnapshotRect with fn output(self, logger) {
 pub extend UISnapshotRect with Show::{to_string, output}
 
 ///|
+#derive(Debug)
 pub(all) struct UISafeArea {
   top : Double
   right : Double
   bottom : Double
   left : Double
-} derive(Debug)
+}
 
 ///|
 pub extend UISafeArea with @moonbitlang/core/debug.Debug::{to_repr}
@@ -53,10 +55,11 @@ pub extend UISafeArea with Show::{to_string, output}
 ///|
 /// Measured extent of a node's text, as reported by `@text.TextRenderer::measure`.
 /// Compared against the node rect to detect overflow the renderer will clip.
+#derive(Debug)
 pub(all) struct UITextMetrics {
   width : Double
   height : Double
-} derive(Debug)
+}
 
 ///|
 pub extend UITextMetrics with @moonbitlang/core/debug.Debug::{to_repr}
@@ -77,6 +80,7 @@ pub extend UITextMetrics with Show::{to_string, output}
 /// the effective scissor rect at draw time, `hit` the rect the pointer is
 /// actually tested against (they diverge when a widget's hit box drifts from
 /// what is drawn).
+#derive(Debug)
 pub(all) struct UISnapshotNode {
   path : String
   id : String
@@ -86,16 +90,17 @@ pub(all) struct UISnapshotNode {
   top : Double
   width : Double
   height : Double
-  z : Int
+  z : Int32
   visible : Bool
   clip : UISnapshotRect?
   text : String?
   text_measured : UITextMetrics?
   focusable : Bool
-  focus_index : Int
+  focus_index : Int32
   focused : Bool
   hit : UISnapshotRect?
-} derive(Debug)
+  interaction : UIInteractionState?
+}
 
 ///|
 pub extend UISnapshotNode with @moonbitlang/core/debug.Debug::{to_repr}
@@ -130,20 +135,22 @@ pub fn default_ui_snapshot_node() -> UISnapshotNode {
     focus_index: -1,
     focused: false,
     hit: None,
+    interaction: None,
   }
 }
 
 ///|
+#derive(Debug)
 pub(all) struct UISnapshot {
   screen_width : Double
   screen_height : Double
   dpr : Double
   safe_area : UISafeArea
-  frame : Int
+  frame : Int32
   state : String
   nodes : Array[UISnapshotNode]
   focus_order : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend UISnapshot with @moonbitlang/core/debug.Debug::{to_repr}
@@ -252,6 +259,24 @@ fn append_rect_fields(buf : StringBuilder, rect : UISnapshotRect) -> Unit {
 }
 
 ///|
+fn append_interaction_json(
+  buf : StringBuilder,
+  state : UIInteractionState,
+) -> Unit {
+  buf.write_string("{\"available\":")
+  buf.write_string(if state.available { "true" } else { "false" })
+  buf.write_string(",\"selected\":")
+  buf.write_string(if state.selected { "true" } else { "false" })
+  buf.write_string(",\"drop_target\":")
+  buf.write_string(if state.drop_target { "true" } else { "false" })
+  if state.disabled_reason is Some(reason) {
+    buf.write_string(",")
+    append_json_string(buf, "disabled_reason", reason)
+  }
+  buf.write_string("}")
+}
+
+///|
 fn append_node_json(buf : StringBuilder, node : UISnapshotNode) -> Unit {
   buf.write_string("{")
   append_json_string(buf, "path", node.path)
@@ -313,6 +338,10 @@ fn append_node_json(buf : StringBuilder, node : UISnapshotNode) -> Unit {
       buf.write_string("}")
     }
     None => ()
+  }
+  if node.interaction is Some(state) {
+    buf.write_string(",\"interaction\":")
+    append_interaction_json(buf, state)
   }
   buf.write_string("}")
 }

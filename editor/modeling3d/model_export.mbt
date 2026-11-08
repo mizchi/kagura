@@ -1,7 +1,7 @@
 ///|
 priv struct ExportBufferSlice {
-  offset : Int
-  length : Int
+  offset : Int32
+  length : Int32
 }
 
 ///|
@@ -10,8 +10,8 @@ priv struct ExportMeshPayload {
   normal_view : ExportBufferSlice
   uv_view : ExportBufferSlice
   index_view : ExportBufferSlice
-  vertex_count : Int
-  index_count : Int
+  vertex_count : Int32
+  index_count : Int32
   position_min : @math3d.Vec3
   position_max : @math3d.Vec3
 }
@@ -26,7 +26,7 @@ pub(all) struct ExportSceneNode {
   source_id : String
   node_kind : String
   primitive_kind : String?
-  stamp_count : Int?
+  stamp_count : Int32?
 }
 
 ///|
@@ -90,7 +90,7 @@ pub fn export_scene_nodes(doc : ModelDocument) -> Array[ExportSceneNode] {
 }
 
 ///|
-fn push_u32_le(arr : Array[Byte], value : Int) -> Unit {
+fn push_u32_le(arr : Array[Byte], value : Int32) -> Unit {
   arr.push((value & 0xFF).to_byte())
   arr.push(((value >> 8) & 0xFF).to_byte())
   arr.push(((value >> 16) & 0xFF).to_byte())
@@ -133,7 +133,7 @@ fn f32_to_bytes(v : Double) -> Array[Byte] {
 ///|
 fn pad_bytes_to_alignment(
   bytes : Array[Byte],
-  alignment : Int,
+  alignment : Int32,
   fill : Byte,
 ) -> Unit {
   while bytes.length() % alignment != 0 {
@@ -145,7 +145,7 @@ fn pad_bytes_to_alignment(
 fn append_slice_bytes(
   bin : Array[Byte],
   values : Array[Byte],
-  alignment : Int,
+  alignment : Int32,
 ) -> ExportBufferSlice {
   pad_bytes_to_alignment(bin, alignment, b'\x00')
   let offset = bin.length()
@@ -286,7 +286,7 @@ fn append_vec4_json(buf : StringBuilder, value : @math3d.Vec4) -> Unit {
 fn append_buffer_view_json(
   buf : StringBuilder,
   slice : ExportBufferSlice,
-  target : Int,
+  target : Int32,
 ) -> Unit {
   buf.write_string("{\"buffer\":0,\"byteOffset\":")
   buf.write_string(slice.offset.to_string())
@@ -301,7 +301,7 @@ fn append_buffer_view_json(
 fn append_document_extras_json(
   buf : StringBuilder,
   doc_name : String,
-  node_count : Int,
+  node_count : Int32,
 ) -> Unit {
   buf.write_string("\"extras\":{\"kagura_document_name\":\"")
   buf.write_string(json_escape(doc_name))
@@ -352,7 +352,7 @@ fn append_glb_json(
   doc : ModelDocument,
   nodes : Array[ExportSceneNode],
   payloads : Array[ExportMeshPayload],
-  bin_len : Int,
+  bin_len : Int32,
 ) -> Unit {
   buf.write_string("{")
   buf.write_string(

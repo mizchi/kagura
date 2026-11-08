@@ -1,49 +1,61 @@
 ///|
+#derive(FromJson)
 pub(all) struct SceneAction {
   cooldown : Double
   damage : Double
   flashDuration : Double
-  flashColor : Int
+  flashColor : Int32
   recoilDuration : Double
   recoilStrength : Double
   shotSound : String
   hitSound : String
-} derive(FromJson)
+}
+
 ///|
 pub extend SceneAction with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
+#derive(FromJson)
 pub(all) struct SceneSolid {
   id : String
   kind : String
   center : Array[Double]
   size : Array[Double]
-  color : Int
-} derive(FromJson)
+  color : Int32
+}
+
 ///|
 pub extend SceneSolid with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
+#derive(FromJson)
 pub(all) struct SceneTarget {
   id : String
   position : Array[Double]
   yaw : Double
-} derive(FromJson)
+}
+
 ///|
 pub extend SceneTarget with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
+#derive(FromJson)
 pub(all) struct SceneRecipe {
   bounds : Array[Double]
   spawn : Array[Double]
   solids : Array[SceneSolid]
   targets : Array[SceneTarget]
-  waves : Array[Array[Int]]
+  waves : Array[Array[Int32]]
   timeLimit : Double
   fov : Double
-  sky : Int
+  sky : Int32
   sun : Double
   action : SceneAction
-} derive(FromJson)
+}
+
 ///|
 pub extend SceneRecipe with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
 fn vector_from_array(v : Array[Double]) -> @math3d.Vec3 {
   vec(v[0], v[1], v[2])
@@ -132,7 +144,7 @@ pub fn mission_time(g : Game) -> Double {
 }
 
 ///|
-pub fn wave_count(g : Game) -> Int {
+pub fn wave_count(g : Game) -> Int32 {
   if g.scene is Some(scene) {
     scene.waves.length()
   } else {

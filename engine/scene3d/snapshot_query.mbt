@@ -5,7 +5,7 @@ fn float3(j : Json?, what : String) -> @math3d.Vec3 raise {
 
 ///|
 fn vec_out(v : @math3d.Vec3) -> Json {
-  [v.x.to_json(), v.y.to_json(), v.z.to_json()]
+  [Json(v.x), Json(v.y), Json(v.z)]
 }
 
 ///|
@@ -84,10 +84,10 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
         findings.push(
           (
             {
-              "kind": f.kind.to_json(),
-              "paths": f.paths.to_json(),
-              "message": f.message.to_json(),
-              "allowed": allowed.to_json(),
+              "kind": Json(f.kind),
+              "paths": Json(f.paths),
+              "message": Json(f.message),
+              "allowed": Json(allowed),
             } : Json),
         )
       }
@@ -104,8 +104,8 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
       }
       {
         "findings": Json::array(findings),
-        "unused_allow": unused.to_json(),
-        "failed": failed.to_json(),
+        "unused_allow": Json(unused),
+        "failed": Json(failed),
       }
     }
     Some(String("distance")) => {
@@ -114,10 +114,10 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
       }
       let d = snap.distance(a, b)
       {
-        "a": a.to_json(),
-        "b": b.to_json(),
-        "distance": d.distance.to_json(),
-        "intersecting": d.intersecting.to_json(),
+        "a": Json(a),
+        "b": Json(b),
+        "distance": Json(d.distance),
+        "intersecting": Json(d.intersecting),
         "point_a": vec_out(d.point_a),
         "point_b": vec_out(d.point_b),
       }
@@ -127,7 +127,7 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
         "pairs": Json::array(
           snap
           .overlaps(contact_tolerance=tolerance)
-          .map(p => ([p.0.to_json(), p.1.to_json()] : Json)),
+          .map(p => ([Json(p.0), Json(p.1)] : Json)),
         ),
       }
     Some(String("raycast")) => {
@@ -137,9 +137,7 @@ pub fn query_scene3d_snapshot(request : Json, snapshot : Json) -> Json raise {
       )
       {
         "hits": Json::array(
-          hits.map(h => {
-            ({ "path": h.0.to_json(), "distance": h.1.to_json() } : Json)
-          }),
+          hits.map(h => ({ "path": Json(h.0), "distance": Json(h.1) } : Json)),
         ),
       }
     }

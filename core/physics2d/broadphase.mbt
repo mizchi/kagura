@@ -1,6 +1,6 @@
 ///|
 struct BroadphaseEntry2D {
-  id : Int
+  id : Int32
   aabb : AABB2D
 }
 
@@ -28,26 +28,26 @@ pub struct SpatialHashGrid2D {
   cell_size : Double
   inv_cell_size : Double
   entries : Array[BroadphaseEntry2D]
-  cell_cx : Array[Int]
-  cell_cy : Array[Int]
-  cell_items : Array[Array[Int]]
-  mut cell_count : Int
-  mut slots : FixedArray[Int]
-  mut slot_mask : Int
+  cell_cx : Array[Int32]
+  cell_cy : Array[Int32]
+  cell_items : Array[Array[Int32]]
+  mut cell_count : Int32
+  mut slots : FixedArray[Int32]
+  mut slot_mask : Int32
   /// Pair-dedupe table for `get_pairs`, pooled across calls.
-  pair_lo : Array[Int]
-  pair_hi : Array[Int]
-  mut pair_count : Int
-  mut pair_slots : FixedArray[Int]
-  mut pair_slot_mask : Int
+  pair_lo : Array[Int32]
+  pair_hi : Array[Int32]
+  mut pair_count : Int32
+  mut pair_slots : FixedArray[Int32]
+  mut pair_slot_mask : Int32
   /// `get_pairs_into`'s output columns, pooled across calls. Distinct from the
   /// dedupe table above, which also holds pairs whose AABB test then failed.
-  pair_id_a : Array[Int]
-  pair_id_b : Array[Int]
+  pair_id_a : Array[Int32]
+  pair_id_b : Array[Int32]
 }
 
 ///|
-let initial_slot_capacity2d : Int = 64
+let initial_slot_capacity2d : Int32 = 64
 
 ///|
 pub fn SpatialHashGrid2D::new(cell_size : Double) -> SpatialHashGrid2D {
@@ -82,12 +82,12 @@ pub fn SpatialHashGrid2D::clear(self : SpatialHashGrid2D) -> Unit {
 }
 
 ///|
-pub fn SpatialHashGrid2D::count(self : SpatialHashGrid2D) -> Int {
+pub fn SpatialHashGrid2D::count(self : SpatialHashGrid2D) -> Int32 {
   self.entries.length()
 }
 
 ///|
-fn floor_to_int(x : Double) -> Int {
+fn floor_to_int(x : Double) -> Int32 {
   let i = x.to_int()
   if x < i.to_double() {
     i - 1
@@ -99,7 +99,7 @@ fn floor_to_int(x : Double) -> Int {
 ///|
 /// Two-prime spatial hash, avalanched. Without the final mix, neighbouring cells
 /// land in neighbouring slots and a grid walk probes long runs.
-fn cell_hash2d(cx : Int, cy : Int) -> Int {
+fn cell_hash2d(cx : Int32, cy : Int32) -> Int32 {
   let mut h = (cx * 73856093) ^ (cy * 19349663)
   h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
@@ -129,9 +129,9 @@ fn SpatialHashGrid2D::grow_slots(self : SpatialHashGrid2D) -> Unit {
 /// whole table.
 fn SpatialHashGrid2D::find_cell(
   self : SpatialHashGrid2D,
-  cx : Int,
-  cy : Int,
-) -> Int {
+  cx : Int32,
+  cy : Int32,
+) -> Int32 {
   let mask = self.slot_mask
   let mut slot = cell_hash2d(cx, cy) & mask
   for ;; {
@@ -150,9 +150,9 @@ fn SpatialHashGrid2D::find_cell(
 ///|
 fn SpatialHashGrid2D::find_or_create_cell(
   self : SpatialHashGrid2D,
-  cx : Int,
-  cy : Int,
-) -> Int {
+  cx : Int32,
+  cy : Int32,
+) -> Int32 {
   let mask = self.slot_mask
   let mut slot = cell_hash2d(cx, cy) & mask
   for ;; {
@@ -186,9 +186,9 @@ fn SpatialHashGrid2D::find_or_create_cell(
 /// Items in a cell, or `None` when nothing has been inserted there.
 fn SpatialHashGrid2D::cell_at(
   self : SpatialHashGrid2D,
-  cx : Int,
-  cy : Int,
-) -> Array[Int]? {
+  cx : Int32,
+  cy : Int32,
+) -> Array[Int32]? {
   let ci = self.find_cell(cx, cy)
   if ci < 0 {
     None
@@ -200,7 +200,7 @@ fn SpatialHashGrid2D::cell_at(
 ///|
 pub fn SpatialHashGrid2D::insert(
   self : SpatialHashGrid2D,
-  id : Int,
+  id : Int32,
   aabb : AABB2D,
 ) -> Unit {
   let idx = self.entries.length()
@@ -224,7 +224,7 @@ fn SpatialHashGrid2D::reset_pairs(self : SpatialHashGrid2D) -> Unit {
 }
 
 ///|
-fn pair_hash2d(lo : Int, hi : Int) -> Int {
+fn pair_hash2d(lo : Int32, hi : Int32) -> Int32 {
   let mut h = (lo * 73856093) ^ (hi * 19349663)
   h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
@@ -256,8 +256,8 @@ fn SpatialHashGrid2D::grow_pair_slots(self : SpatialHashGrid2D) -> Unit {
 /// behaviour and it is preserved deliberately.
 fn SpatialHashGrid2D::mark_pair(
   self : SpatialHashGrid2D,
-  lo : Int,
-  hi : Int,
+  lo : Int32,
+  hi : Int32,
 ) -> Bool {
   let mask = self.pair_slot_mask
   let mut slot = pair_hash2d(lo, hi) & mask

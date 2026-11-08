@@ -1,15 +1,16 @@
 ///|
 /// Frame profiler data. Collect timing in update/draw and pass to `build_profiler_hud`.
+#derive(Debug)
 pub(all) struct FrameProfile {
   fps : Double
   frame_time_ms : Double
   update_ms : Double
   draw_ms : Double
   gpu_frame_ms : Double
-  draw_calls : Int
-  vertex_count : Int
-  asset_inflight : Int
-} derive(Debug)
+  draw_calls : Int32
+  vertex_count : Int32
+  asset_inflight : Int32
+}
 
 ///|
 pub impl Show for FrameProfile with fn output(self, logger) {

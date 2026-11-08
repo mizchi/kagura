@@ -22,7 +22,7 @@ fn role_name(role : NodeRole) -> String {
 ///|
 /// Decode the glyph codes `ascii()` produced back into a readable string.
 /// Digits were remapped to 0-9 for `glyph_pattern`; everything else is ASCII.
-fn decode_glyphs(chars : Array[Int]) -> String {
+fn decode_glyphs(chars : Array[Int32]) -> String {
   let buf = StringBuilder()
   for code in chars {
     let c = if code >= 0 && code <= 9 { code + 48 } else { code }
@@ -40,10 +40,10 @@ fn decode_glyphs(chars : Array[Int]) -> String {
 fn build_node_paths(
   tree : @ui.UITree,
   root : @ui.UINodeId,
-  node_roles : Map[Int, NodeRole],
-) -> Map[Int, String] {
-  let paths : Map[Int, String] = Map([])
-  fn segment(id : @ui.UINodeId, index : Int) -> String {
+  node_roles : Map[Int32, NodeRole],
+) -> Map[Int32, String] {
+  let paths : Map[Int32, String] = Map([])
+  fn segment(id : @ui.UINodeId, index : Int32) -> String {
     let role = match node_roles.get(id.value) {
       Some(value) => role_name(value)
       None => "node"
@@ -51,7 +51,7 @@ fn build_node_paths(
     role + "[" + index.to_string() + "]"
   }
 
-  fn walk(id : @ui.UINodeId, prefix : String, index : Int) -> Unit {
+  fn walk(id : @ui.UINodeId, prefix : String, index : Int32) -> Unit {
     let path = if prefix == "" {
       segment(id, index)
     } else {

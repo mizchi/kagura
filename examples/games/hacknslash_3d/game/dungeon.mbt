@@ -1,6 +1,7 @@
 // Dungeon generation, collision, height map
 
 ///|
+#derive(Eq, Debug)
 enum DungeonGeneratorKind {
   ArenaChain
   TinyKeep
@@ -8,7 +9,7 @@ enum DungeonGeneratorKind {
   BSP
   Cellular
   Rogue
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for DungeonGeneratorKind with fn output(self, logger) {
@@ -97,8 +98,8 @@ fn validated_tinykeep_config(
 
 ///|
 fn dungeon_generator_kind_for_floor(
-  seed~ : Int,
-  floor : Int,
+  seed~ : Int32,
+  floor : Int32,
 ) -> DungeonGeneratorKind {
   // Boss floors (every 5th) use TinyKeep for large open arenas
   if floor > 1 && floor % 5 == 0 {
@@ -119,8 +120,8 @@ fn dungeon_generator_kind_for_floor(
 
 ///|
 fn arena_chain_config_for_floor(
-  seed~ : Int,
-  floor : Int,
+  seed~ : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> @arena_chain.ArenaChainConfig {
   let boss_floor = floor % 5 == 0
@@ -174,8 +175,8 @@ fn arena_chain_config_for_floor(
 
 ///|
 fn diablo_config_for_floor(
-  seed~ : Int,
-  floor : Int,
+  seed~ : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> @diablo.DiabloConfig {
   let room_count_scale = @cmp.maximum(0.75, params.map_room_count_scale)
@@ -195,8 +196,8 @@ fn diablo_config_for_floor(
 
 ///|
 fn bsp_config_for_floor(
-  seed~ : Int,
-  floor : Int,
+  seed~ : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> @bsp.BspConfig {
   let _ = seed
@@ -212,8 +213,8 @@ fn bsp_config_for_floor(
 
 ///|
 fn cellular_config_for_floor(
-  seed~ : Int,
-  floor : Int,
+  seed~ : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> @cellular.CellularConfig {
   let _ = seed
@@ -231,8 +232,8 @@ fn cellular_config_for_floor(
 
 ///|
 fn rogue_config_for_floor(
-  seed~ : Int,
-  floor : Int,
+  seed~ : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> @rogue.RogueConfig {
   let _ = seed
@@ -264,7 +265,7 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
         let mut max_x = col
         let mut min_y = row
         let mut max_y = row
-        let stack : Array[(Int, Int)] = [(col, row)]
+        let stack : Array[(Int32, Int32)] = [(col, row)]
         visited[idx] = true
         while stack.length() > 0 {
           let (cx, cy) = stack.unsafe_pop()
@@ -315,8 +316,8 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
 
 ///|
 fn tinykeep_config_for_floor(
-  seed~ : Int,
-  floor : Int,
+  seed~ : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> @tinykeep.TinyKeepConfig {
   let room_count_scale = @cmp.maximum(0.75, params.map_room_count_scale)
@@ -339,8 +340,8 @@ fn tinykeep_config_for_floor(
 ///|
 fn generate_layout_for_kind(
   kind : DungeonGeneratorKind,
-  seed : Int,
-  floor : Int,
+  seed : Int32,
+  floor : Int32,
   params : BalanceParams,
   rng : @terrain.RNG,
 ) -> GeneratedDungeonLayout {
@@ -403,9 +404,9 @@ fn is_layout_traversable(layout : GeneratedDungeonLayout) -> Bool {
 
 ///|
 pub fn generate_dungeon(
-  seed : Int,
-  floor? : Int = 1,
-  params? : BalanceParams = BalanceParams::default(),
+  seed : Int32,
+  floor~ : Int32 = 1,
+  params~ : BalanceParams = BalanceParams::default(),
 ) -> DungeonData {
   let kind = dungeon_generator_kind_for_floor(seed~, floor)
   let rng = @terrain.make_rng(seed.reinterpret_as_uint())
@@ -449,7 +450,7 @@ pub fn generate_dungeon(
 pub fn build_height_map(
   grid : @terrain.Grid2D,
   _rooms : Array[@terrain.Room],
-  _seed : Int,
+  _seed : Int32,
 ) -> Array[Double] {
   Array::make(grid.width * grid.height, 0.0)
 }

@@ -5,10 +5,11 @@
 /// - gameforui.go (final screen customization)
 
 ///|
+#derive(Debug)
 pub enum EngineTermination {
   RegularTermination
   Fatal(String)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for EngineTermination with fn output(self, logger) {
@@ -16,11 +17,12 @@ pub impl Show for EngineTermination with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct RunOptions {
   init_unfocused : Bool
   screen_transparent : Bool
   screen_cleared_every_frame : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RunOptions with fn output(self, logger) {
@@ -47,12 +49,12 @@ pub(open) trait FinalScreenDrawer {
 
 ///|
 pub struct NoopGame {
-  logical_width : Int
-  logical_height : Int
+  logical_width : Int32
+  logical_height : Int32
 }
 
 ///|
-pub fn new_noop_game(width : Int, height : Int) -> NoopGame {
+pub fn new_noop_game(width : Int32, height : Int32) -> NoopGame {
   { logical_width: width, logical_height: height, }
 }
 
@@ -78,9 +80,9 @@ pub fn default_run_options() -> RunOptions {
 
 ///|
 pub fn new_run_options(
-  init_unfocused? : Bool = false,
-  screen_transparent? : Bool = false,
-  screen_cleared_every_frame? : Bool = true,
+  init_unfocused~ : Bool = false,
+  screen_transparent~ : Bool = false,
+  screen_cleared_every_frame~ : Bool = true,
 ) -> RunOptions {
   { init_unfocused, screen_transparent, screen_cleared_every_frame, }
 }

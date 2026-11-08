@@ -131,34 +131,38 @@ fn export_charge_clip(
       frame / 60.0
     })
     {
-      "joint": channel.node_index.to_json(),
-      "target": (match channel.target {
-        @animation3d.Translation => "translation"
-        @animation3d.Rotation => "rotation"
-        @animation3d.Scale => "scale"
-      }).to_json(),
-      "interpolation": (if channel.interpolation is @animation3d.Step {
-        "step"
-      } else {
-        "linear"
-      }).to_json(),
-      "times": times.to_json(),
-      "values": channel.values.to_json(),
+      "joint": Json(channel.node_index),
+      "target": Json(
+        match channel.target {
+          @animation3d.Translation => "translation"
+          @animation3d.Rotation => "rotation"
+          @animation3d.Scale => "scale"
+        },
+      ),
+      "interpolation": Json(
+        if channel.interpolation is @animation3d.Step {
+          "step"
+        } else {
+          "linear"
+        },
+      ),
+      "times": Json(times),
+      "values": Json(channel.values),
     }
   })
   let events : Array[Json] = [
-    { "name": "Launch", "time": (profile.windup.to_double() / 60.0).to_json() },
+    { "name": "Launch", "time": Json(profile.windup.to_double() / 60.0) },
     {
       "name": "Brake",
-      "time": ((profile.windup + profile.active).to_double() / 60.0).to_json(),
+      "time": Json((profile.windup + profile.active).to_double() / 60.0),
     },
   ]
   {
     "id": "charge",
     "name": "突進",
-    "duration": (profile.duration().to_double() / 60.0).to_json(),
+    "duration": Json(profile.duration().to_double() / 60.0),
     "fps": 60,
-    "channels": channels.to_json(),
-    "events": events.to_json(),
+    "channels": Json(channels),
+    "events": Json(events),
   }
 }

@@ -187,6 +187,7 @@ pub fn Scene3DSnapshot::from_json(json : Json) -> Scene3DSnapshot raise {
 
 ///|
 /// One problem `Scene3DSnapshot::check` found.
+#derive(Debug)
 pub(all) struct Scene3DFinding {
   /// `non_finite`, `unnormalized_rotation`, `zero_scale`, `outside_view` or
   /// `overlap`.
@@ -194,7 +195,7 @@ pub(all) struct Scene3DFinding {
   /// The node, or both nodes of an overlap.
   paths : Array[String]
   message : String
-} derive(Debug)
+}
 
 ///|
 pub extend Scene3DFinding with @moonbitlang/core/debug.Debug::{to_repr}
@@ -326,7 +327,7 @@ fn related(a : String, b : String) -> Bool {
 /// the mesh, so an overlap is reported only where both volumes overlap.
 pub fn Scene3DSnapshot::check(
   self : Scene3DSnapshot,
-  contact_tolerance? : Double = 0.01,
+  contact_tolerance~ : Double = 0.01,
 ) -> Array[Scene3DFinding] {
   let findings = []
   for n in self.nodes {
@@ -453,7 +454,7 @@ pub fn Scene3DSnapshot::distance(
 /// leaving out a node and its own descendants.
 pub fn Scene3DSnapshot::overlaps(
   self : Scene3DSnapshot,
-  contact_tolerance? : Double = 0.01,
+  contact_tolerance~ : Double = 0.01,
 ) -> Array[(String, String)] {
   let meshes = self.nodes.filter(n => n.box is Some(_))
   let pairs = []

@@ -1,5 +1,5 @@
 ///|
-fn rgb(hex : Int) -> @math3d.Vec3 {
+fn rgb(hex : Int32) -> @math3d.Vec3 {
   @sim.vec(
     ((hex >> 16) & 255).to_double() / 255,
     ((hex >> 8) & 255).to_double() / 255,
@@ -8,7 +8,7 @@ fn rgb(hex : Int) -> @math3d.Vec3 {
 }
 
 ///|
-fn color(hex : Int) -> @math3d.Vec4 {
+fn color(hex : Int32) -> @math3d.Vec4 {
   @math3d.Vec4::from_vec3(rgb(hex), 1)
 }
 
@@ -16,7 +16,7 @@ fn color(hex : Int) -> @math3d.Vec4 {
 fn transform(
   p : @math3d.Vec3,
   scale : @math3d.Vec3,
-  yaw? : Double = 0,
+  yaw~ : Double = 0,
 ) -> @math3d.Mat4 {
   @math3d.Mat4::translation(p.x, p.y, p.z)
   .multiply(@math3d.Mat4::rotation_y(yaw))
@@ -26,7 +26,7 @@ fn transform(
 ///|
 priv struct Builder {
   vertices : Array[Double]
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
@@ -40,8 +40,8 @@ fn Builder::triangle(
   a : @math3d.Vec3,
   b : @math3d.Vec3,
   c : @math3d.Vec3,
-  hex : Int,
-  glow? : Double = 0,
+  hex : Int32,
+  glow~ : Double = 0,
 ) -> Unit {
   let n = b.sub(a).cross(c.sub(a)).normalize()
   let index = self.vertices.length() / 8
@@ -68,10 +68,10 @@ fn Builder::add(
   self : Builder,
   mesh : @mesh3d.Mesh3D,
   model : @math3d.Mat4,
-  hex : Int,
-  glow? : Double = 0,
+  hex : Int32,
+  glow~ : Double = 0,
 ) -> Unit {
-  fn point(i : Int) -> @math3d.Vec3 {
+  fn point(i : Int32) -> @math3d.Vec3 {
     let v = mesh.vertex_data
     let p = model.mul_vec4(
       @math3d.Vec4::new(v[i * 8], v[i * 8 + 1], v[i * 8 + 2], 1),
@@ -94,7 +94,7 @@ fn Builder::ellipsoid(
   self : Builder,
   p : @math3d.Vec3,
   scale : @math3d.Vec3,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
   self.add(@mesh3d.Mesh3D::sphere(1, 8, 5), transform(p, scale), hex)
 }
@@ -104,8 +104,8 @@ fn Builder::box(
   self : Builder,
   p : @math3d.Vec3,
   scale : @math3d.Vec3,
-  hex : Int,
-  yaw? : Double = 0,
+  hex : Int32,
+  yaw~ : Double = 0,
 ) -> Unit {
   self.add(@mesh3d.Mesh3D::cube(1), transform(p, scale, yaw~), hex)
 }
@@ -116,7 +116,7 @@ fn Builder::cone(
   base : @math3d.Vec3,
   tip : @math3d.Vec3,
   radius : Double,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
   for i = 0; i < 8; i = i + 1 {
     let a = i.to_double() * @math.PI / 4
@@ -134,7 +134,7 @@ fn Builder::bone(
   a : @math3d.Vec3,
   b : @math3d.Vec3,
   radius : Double,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
   let axis = b.sub(a).normalize()
   let u = axis.cross(@sim.vec(0, 1, 0)).normalize().scale(radius)
@@ -319,8 +319,8 @@ fn island_mesh() -> @mesh3d.Mesh3D {
 ///|
 fn palette_mesh(
   base : @mesh3d.Mesh3D,
-  hex : Int,
-  glow? : Double = 0,
+  hex : Int32,
+  glow~ : Double = 0,
 ) -> @mesh3d.Mesh3D {
   let b = builder()
   b.add(base, @math3d.Mat4::identity(), hex, glow~)

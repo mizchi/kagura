@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-08
+
+### Release highlights
+
+- Align all 20 public modules, their internal dependencies and CLI scaffolding
+  at `0.7.0`.
+- Support MoonBit `v0.10.20` across the workspace, examples, standalone editors,
+  Wasm guest and vendored GLFW, with warnings treated as errors.
+- Update JavaScript bindings and convert MoonBit growable arrays explicitly at
+  JavaScript boundaries. Rebuild the browser runtime and installable CLI.
+- Integrate UI interaction availability, modal layers and pointer input cleanup
+  with scene snapshots and focus handling.
+- Prepare legacy registry dependency manifests automatically, check every
+  source-owned module and repair the Wasm guest build and browser host.
+
+### Migration
+
+Upgrade the Kagura modules together to `0.7.0` and use MoonBit `v0.10.20`
+(`moon 0.1.20261104`) or newer. Run `just moon-deps` after upgrading the
+toolchain and updating the registry; `just check` and `just test` also prepare
+downloaded dependencies automatically.
+
 ### Added
 
 - Add `kagura capture` and `kagura profile` for any running Kagura game URL,

@@ -2,11 +2,12 @@
 /// 3D camera with perspective and orthographic projection modes.
 
 ///|
+#derive(Debug)
 pub enum ProjectionMode {
   Perspective
   /// Orthographic(left, right, bottom, top)
   Orthographic(Double, Double, Double, Double)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ProjectionMode with fn output(self, logger) {

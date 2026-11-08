@@ -1,7 +1,7 @@
 ///|
 pub(all) struct Material {
   color : @math3d.Vec4
-  src_image_id : Int // -1 = no texture
+  src_image_id : Int32 // -1 = no texture
   metallic : Double // 0.0 = dielectric (default)
   roughness : Double // 0.5 (default)
   emissive : @math3d.Vec3 // (0,0,0) (default)
@@ -9,11 +9,11 @@ pub(all) struct Material {
 
 ///|
 pub fn Material::new(
-  color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
-  src_image_id? : Int = -1,
-  metallic? : Double = 0.0,
-  roughness? : Double = 0.5,
-  emissive? : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
+  color~ : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+  src_image_id~ : Int32 = -1,
+  metallic~ : Double = 0.0,
+  roughness~ : Double = 0.5,
+  emissive~ : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
 ) -> Material {
   { color, src_image_id, metallic, roughness, emissive, }
 }
@@ -70,8 +70,8 @@ pub(all) struct InstanceData {
 
 ///|
 pub fn InstanceData::new(
-  transform? : @transform3d.Transform3D = @transform3d.Transform3D::new(),
-  color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+  transform~ : @transform3d.Transform3D = @transform3d.Transform3D::new(),
+  color~ : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
 ) -> InstanceData {
   { transform, color, }
 }

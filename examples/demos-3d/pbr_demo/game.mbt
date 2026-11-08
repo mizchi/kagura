@@ -4,13 +4,13 @@
 // 5x5 grid of spheres with varying metallic (columns) and roughness (rows).
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
-let grid_size : Int = 5
+let grid_size : Int32 = 5
 
 ///|
 let sphere_spacing : Double = 2.5

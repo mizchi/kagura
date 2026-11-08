@@ -6,9 +6,9 @@ pub(all) struct RoundTripPatchAction {
   apply_mode : String
   target_position : @math3d.Vec3?
   target_scale : @math3d.Vec3?
-  target_color_hex : Int?
+  target_color_hex : Int32?
   target_text : String?
-  target_int : Int?
+  target_int : Int32?
   summary : String
 }
 
@@ -47,7 +47,7 @@ fn primitive_kind_from_string(name : String) -> PrimitiveKind? {
 }
 
 ///|
-fn roundtrip_color_channel_to_int(value : Double) -> Int {
+fn roundtrip_color_channel_to_int(value : Double) -> Int32 {
   let clamped = if value < 0.0 {
     0.0
   } else if value > 1.0 {
@@ -59,7 +59,7 @@ fn roundtrip_color_channel_to_int(value : Double) -> Int {
 }
 
 ///|
-fn roundtrip_color_hex(value : @math3d.Vec4) -> Int {
+fn roundtrip_color_hex(value : @math3d.Vec4) -> Int32 {
   (roundtrip_color_channel_to_int(value.x) << 16) |
   (roundtrip_color_channel_to_int(value.y) << 8) |
   roundtrip_color_channel_to_int(value.z)
@@ -74,9 +74,9 @@ fn roundtrip_patch_action(
   summary : String,
   target_position : @math3d.Vec3?,
   target_scale : @math3d.Vec3?,
-  target_color_hex : Int?,
+  target_color_hex : Int32?,
   target_text : String?,
-  target_int : Int?,
+  target_int : Int32?,
 ) -> RoundTripPatchAction {
   {
     source_id,
@@ -736,7 +736,7 @@ fn append_roundtrip_manual_issue_prompt_section(
 }
 
 ///|
-pub fn primitive_index_by_id(doc : ModelDocument, source_id : String) -> Int? {
+pub fn primitive_index_by_id(doc : ModelDocument, source_id : String) -> Int32? {
   for i in 0..<doc.primitives.length() {
     if doc.primitives[i].id == source_id {
       return Some(i)
@@ -749,7 +749,7 @@ pub fn primitive_index_by_id(doc : ModelDocument, source_id : String) -> Int? {
 fn sculpt_layer_index_by_id_local(
   doc : ModelDocument,
   source_id : String,
-) -> Int? {
+) -> Int32? {
   for i in 0..<doc.sculpt_layers.length() {
     if doc.sculpt_layers[i].id == source_id {
       return Some(i)
@@ -861,7 +861,7 @@ fn roundtrip_opt_in_append_source_ids(
 }
 
 ///|
-fn roundtrip_opt_in_append_candidate_count(plan : RoundTripPatchPlan) -> Int {
+fn roundtrip_opt_in_append_candidate_count(plan : RoundTripPatchPlan) -> Int32 {
   let mut count = 0
   for action in plan.manual_actions {
     if action.action_kind == "review_extra" && action.target_kind == "primitive" {
@@ -891,7 +891,7 @@ fn roundtrip_opt_in_remove_source_ids(
 }
 
 ///|
-fn roundtrip_opt_in_remove_candidate_count(plan : RoundTripPatchPlan) -> Int {
+fn roundtrip_opt_in_remove_candidate_count(plan : RoundTripPatchPlan) -> Int32 {
   let mut count = 0
   for action in plan.manual_actions {
     if action.action_kind == "review_missing" &&
@@ -1165,7 +1165,7 @@ pub fn roundtrip_patch_code_snippet(
   for i in 0..<doc.primitives.length() {
     let mut position : @math3d.Vec3? = None
     let mut scale : @math3d.Vec3? = None
-    let mut color_hex : Int? = None
+    let mut color_hex : Int32? = None
     let mut kind : PrimitiveKind? = None
     for action in plan.auto_actions {
       if action.source_id != doc.primitives[i].id {
@@ -1233,7 +1233,7 @@ pub fn roundtrip_patch_code_snippet(
     }
   }
   for i in 0..<doc.sculpt_layers.length() {
-    let mut color_hex : Int? = None
+    let mut color_hex : Int32? = None
     for action in plan.auto_actions {
       if action.source_id != doc.sculpt_layers[i].id {
         continue

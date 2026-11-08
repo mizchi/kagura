@@ -38,16 +38,17 @@
 
 ///|
 /// Economy metrics for a single turn
+#derive(Debug)
 pub(all) struct TurnEconomy {
-  energy_spent : Int
-  energy_wasted : Int // energy left at end of turn
-  damage_dealt : Int
-  block_gained : Int
-  block_wasted : Int // block that didn't absorb anything
-  hp_lost : Int
-  cards_played : Int
-  cards_drawn : Int
-} derive(Debug)
+  energy_spent : Int32
+  energy_wasted : Int32 // energy left at end of turn
+  damage_dealt : Int32
+  block_gained : Int32
+  block_wasted : Int32 // block that didn't absorb anything
+  hp_lost : Int32
+  cards_played : Int32
+  cards_drawn : Int32
+}
 
 ///|
 pub impl Show for TurnEconomy with fn output(self, logger) {
@@ -56,21 +57,22 @@ pub impl Show for TurnEconomy with fn output(self, logger) {
 
 ///|
 /// Economy metrics aggregated over a full battle
+#derive(Debug)
 pub(all) struct BattleEconomy {
-  turns : Int
-  total_damage_dealt : Int
-  total_block_gained : Int
-  total_hp_lost : Int
-  total_energy_spent : Int
-  total_energy_wasted : Int
-  total_cards_played : Int
+  turns : Int32
+  total_damage_dealt : Int32
+  total_block_gained : Int32
+  total_hp_lost : Int32
+  total_energy_spent : Int32
+  total_energy_wasted : Int32
+  total_cards_played : Int32
   // Derived ratios
   dpe : Double // Damage Per Energy
   bpe : Double // Block Per Energy
   damage_per_turn : Double // Average damage output per turn
   damage_taken_per_turn : Double // Average HP loss per turn
   efficiency : Double // (damage + block) / (energy * baseline_dpe)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for BattleEconomy with fn output(self, logger) {
@@ -82,8 +84,8 @@ pub impl Show for BattleEconomy with fn output(self, logger) {
 fn analyze_battle_economy(
   encounter : EncounterId,
   strategy : PlayStrategy,
-  seed : Int,
-  relics? : Array[RelicId] = [],
+  seed : Int32,
+  relics~ : Array[RelicId] = [],
 ) -> BattleEconomy {
   let enemy_ids = encounter_enemies(encounter)
   let state = BattleState::new(enemy_ids, seed~, relics~)
@@ -101,7 +103,7 @@ fn analyze_battle_economy(
       Some((hand_idx, target)) => {
         let card_id = state.hand[hand_idx]
         let def = card_def(card_id)
-        let hp_before_enemies : Array[Int] = []
+        let hp_before_enemies : Array[Int32] = []
         for e in state.enemies {
           hp_before_enemies.push(e.fighter.hp)
         }
@@ -191,8 +193,8 @@ fn analyze_battle_economy(
 fn analyze_economy_aggregate(
   encounter : EncounterId,
   strategy : PlayStrategy,
-  count : Int,
-  relics? : Array[RelicId] = [],
+  count : Int32,
+  relics~ : Array[RelicId] = [],
 ) -> BattleEconomy {
   let mut total_turns = 0
   let mut total_damage = 0
@@ -277,6 +279,7 @@ fn analyze_economy_aggregate(
 
 ///|
 /// Card value model: estimates the "real" value of a card in context
+#derive(Debug)
 pub(all) struct CardValue {
   raw_damage : Double // Direct damage output
   raw_block : Double // Direct block output
@@ -286,7 +289,7 @@ pub(all) struct CardValue {
   scaling_value : Double // Strength/permanent buffs
   synergy_multiplier : Double // How much better this gets with archetype
   total : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for CardValue with fn output(self, logger) {
@@ -490,13 +493,14 @@ fn encounter_difficulty(id : EncounterId) -> Double {
 
 ///|
 /// Run simulation with full economy tracking
+#derive(Debug)
 pub(all) struct RunSimResult {
   won : Bool
-  floors_reached : Int
-  hp_at_each_floor : Array[Int]
-  deck_size_at_each_floor : Array[Int]
+  floors_reached : Int32
+  hp_at_each_floor : Array[Int32]
+  deck_size_at_each_floor : Array[Int32]
   cards_added : Array[CardId]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RunSimResult with fn output(self, logger) {
@@ -504,10 +508,10 @@ pub impl Show for RunSimResult with fn output(self, logger) {
 }
 
 ///|
-pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
+pub fn simulate_run(seed : Int32, strategy : PlayStrategy) -> RunSimResult {
   let run = RunState::new(seed~)
-  let hp_history : Array[Int] = [run.player_hp]
-  let deck_history : Array[Int] = [run.deck.length()]
+  let hp_history : Array[Int32] = [run.player_hp]
+  let deck_history : Array[Int32] = [run.deck.length()]
   let cards_added : Array[CardId] = []
   let mut safety = 0
   while safety < 200 {
@@ -657,14 +661,15 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
 
 ///|
 /// Run multiple full-run simulations
+#derive(Debug)
 pub(all) struct RunSimSummary {
-  total : Int
-  wins : Int
-  avg_floors : Int
-  avg_final_hp : Int
-  avg_deck_size : Int
-  win_rate_pct : Int
-} derive(Debug)
+  total : Int32
+  wins : Int32
+  avg_floors : Int32
+  avg_final_hp : Int32
+  avg_deck_size : Int32
+  win_rate_pct : Int32
+}
 
 ///|
 pub impl Show for RunSimSummary with fn output(self, logger) {
@@ -672,7 +677,7 @@ pub impl Show for RunSimSummary with fn output(self, logger) {
 }
 
 ///|
-pub fn simulate_runs(count : Int, strategy : PlayStrategy) -> RunSimSummary {
+pub fn simulate_runs(count : Int32, strategy : PlayStrategy) -> RunSimSummary {
   let mut wins = 0
   let mut total_floors = 0
   let mut total_hp = 0

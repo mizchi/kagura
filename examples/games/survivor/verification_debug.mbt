@@ -1,5 +1,5 @@
 ///|
-fn gameover_fixture(width : Int, height : Int) -> SurvivorState {
+fn gameover_fixture(width : Int32, height : Int32) -> SurvivorState {
   let state = SurvivorState::new()
   state.set_viewport(width, height)
   state.as_gameover()

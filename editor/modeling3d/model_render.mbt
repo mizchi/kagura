@@ -1,5 +1,5 @@
 ///|
-pub fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
+pub fn hex_to_vec4(hex : Int32) -> @math3d.Vec4 {
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0
   let b = (hex & 0xFF).to_double() / 255.0
@@ -199,7 +199,7 @@ fn append_sculpt_layer_objects_with_style(
 }
 
 ///|
-fn layer_occupied_voxel_count(layer : SculptLayer) -> Int {
+fn layer_occupied_voxel_count(layer : SculptLayer) -> Int32 {
   let mut count = 0
   let half = layer.half_extent
   for ix in -half..<=half {
@@ -217,9 +217,9 @@ fn layer_occupied_voxel_count(layer : SculptLayer) -> Int {
 ///|
 fn voxel_cell_center(
   layer : SculptLayer,
-  ix : Int,
-  iy : Int,
-  iz : Int,
+  ix : Int32,
+  iy : Int32,
+  iz : Int32,
 ) -> @math3d.Vec3 {
   let cell = layer.voxel_size
   @math3d.Vec3::new(

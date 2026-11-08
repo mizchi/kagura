@@ -1,10 +1,11 @@
 ///|
+#derive(Debug)
 pub enum EffectSpawnPattern {
   Point
   Ring
   Column
   Line
-} derive(Debug)
+}
 
 ///|
 pub impl Show for EffectSpawnPattern with fn output(self, logger) {
@@ -12,13 +13,14 @@ pub impl Show for EffectSpawnPattern with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct EffectTrack {
   id : String
   label : String
   start_time : Double
   duration : Double
   burst_interval : Double
-  burst_particles : Int
+  burst_particles : Int32
   pattern : EffectSpawnPattern
   origin : @math3d.Vec3
   secondary_origin : @math3d.Vec3
@@ -33,7 +35,7 @@ pub struct EffectTrack {
   color_end : @math3d.Vec4
   gravity : @math3d.Vec3
   enabled : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for EffectTrack with fn output(self, logger) {
@@ -41,6 +43,7 @@ pub impl Show for EffectTrack with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct EffectDocument {
   name : String
   duration : Double
@@ -48,7 +51,7 @@ pub struct EffectDocument {
   notes : String
   ai_edit_goal : String
   tracks : Array[EffectTrack]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for EffectDocument with fn output(self, logger) {

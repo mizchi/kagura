@@ -1,16 +1,17 @@
 ///|
 /// Pure command contract. Filesystem discovery and process ownership belong to
 /// the Node host, so parsing is testable without a compiler, Vite, or a browser.
+#derive(Eq, Debug)
 pub enum Command {
   Help(String?)
-  Dev(String?, Int?, String)
+  Dev(String?, Int32?, String)
   Build(String?, String?)
-  Studio(Int?, String)
+  Studio(Int32?, String)
   NewWeb(String)
   Capture(BrowserOptions)
   Profile(BrowserOptions)
   Scene3D(Scene3DOptions)
-} derive(Eq, Debug)
+}
 
 ///|
 fn known_command(name : String) -> Bool {
@@ -24,7 +25,7 @@ fn known_command(name : String) -> Bool {
 }
 
 ///|
-fn parse_port(value : String) -> Int? {
+fn parse_port(value : String) -> Int32? {
   if value.is_empty() {
     return None
   }
@@ -65,7 +66,7 @@ pub fn parse_args(args : Array[String]) -> Result[Command, String] {
     return parse_scene3d_args(args)
   }
   let mut project : String? = None
-  let mut port : Int? = None
+  let mut port : Int32? = None
   let mut host : String? = None
   let mut out_dir : String? = None
   let mut positional = false
@@ -164,9 +165,9 @@ fn[T : ToJson] optional_json(value : T?) -> Json {
 }
 
 ///|
-pub fn parse_cli(args : Array[String]) -> String {
-  let reply : Json = match parse_args(args) {
-    Err(message) => { "ok": false, "error": message.to_json() }
+pub fn parse_cli(args : FixedArray[String]) -> String {
+  let reply : Json = match parse_args(Array::from_fixed_array(args)) {
+    Err(message) => { "ok": false, "error": Json(message) }
     Ok(Help(command)) =>
       { "ok": true, "command": "help", "topic": optional_json(command) }
     Ok(Dev(project, port, host)) =>
@@ -175,7 +176,7 @@ pub fn parse_cli(args : Array[String]) -> String {
         "command": "dev",
         "project": optional_json(project),
         "port": optional_json(port),
-        "host": host.to_json(),
+        "host": Json(host),
       }
     Ok(Build(project, out_dir)) =>
       {
@@ -189,10 +190,10 @@ pub fn parse_cli(args : Array[String]) -> String {
         "ok": true,
         "command": "studio",
         "port": optional_json(port),
-        "host": host.to_json(),
+        "host": Json(host),
       }
     Ok(NewWeb(directory)) =>
-      { "ok": true, "command": "new", "directory": directory.to_json() }
+      { "ok": true, "command": "new", "directory": Json(directory) }
     Ok(Capture(options)) => browser_request("capture", options)
     Ok(Profile(options)) => browser_request("profile", options)
     Ok(Scene3D(options)) => scene3d_request(options)

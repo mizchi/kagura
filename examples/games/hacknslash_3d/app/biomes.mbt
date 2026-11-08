@@ -18,7 +18,7 @@ fn biome_weights(x : Double, z : Double) -> Array[Double] {
 
 ///|
 /// Gradually mix existing plant/rock families instead of switching at a border.
-fn biome_species(x : Double, z : Double, hash : Int) -> Int {
+fn biome_species(x : Double, z : Double, hash : Int32) -> Int32 {
   let roll = (hash % 100).abs().to_double() / 100.0
   let weights = biome_weights(x, z)
   let mut cumulative = 0.0

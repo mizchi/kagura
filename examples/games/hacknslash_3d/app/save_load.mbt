@@ -438,7 +438,7 @@ fn GameState::restore_save(self : GameState, data : String) -> Bool {
       level_progress.pending_choices = 0
     }
   }
-  let positions : Array[(Int, Int, Bool)?] = []
+  let positions : Array[(Int32, Int32, Bool)?] = []
   if parts.length() > 15 {
     for entry in split_string(parts[15], ';') {
       let fields = split_string(entry, ',')
@@ -553,7 +553,7 @@ fn join_strings(parts : Array[String], sep : String) -> String {
 }
 
 ///|
-fn parse_int(s : String) -> Int {
+fn parse_int(s : String) -> Int32 {
   let mut result = 0
   let mut negative = false
   for i, c in s {

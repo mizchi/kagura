@@ -8,7 +8,7 @@ pub fn sweep_camera_boom(
   start : @math3d.Vec3,
   end : @math3d.Vec3,
   blocked : (@math3d.Vec3) -> Bool,
-  step? : Double = 0.12,
+  step~ : Double = 0.12,
 ) -> Double {
   let delta = end.sub(start)
   let length = delta.length()

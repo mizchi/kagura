@@ -23,10 +23,5 @@ pub fn run_native_app() -> Unit {
     height=screen_h,
   )
   initialize_native_runtime_state(state)
-  @engine.run_game(
-    state,
-    width=screen_w,
-    height=screen_h,
-    title="ASHEN REALMS",
-  )
+  @engine.run_game(state, width=screen_w, height=screen_h, title="ASHEN REALMS")
 }

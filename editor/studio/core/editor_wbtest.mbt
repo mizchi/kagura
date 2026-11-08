@@ -162,7 +162,7 @@ fn attempt(f : () -> Unit raise) -> Bool {
 ///|
 test "action references validate and removing target clears its preview binding" {
   let editor = Session::new()
-  let invalid = { ..editor.document.action, target: "missing" }
+  let invalid = { ..editor.document.action, target: "missing", }
   assert_false(
     attempt(fn() raise {
       ignore(

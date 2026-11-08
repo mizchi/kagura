@@ -1,6 +1,6 @@
 ///|
 /// Deterministic playable previews for boundary crossing and waypoint UI captures.
-fn apply_world_preview(state : GameState, id : Int, boundary : Bool) -> Unit {
+fn apply_world_preview(state : GameState, id : Int32, boundary : Bool) -> Unit {
   guard state.world.atlas is Some(atlas) else { return }
   if id < 0 || id >= @game.world_regions.length() {
     return
@@ -99,7 +99,7 @@ fn apply_wolf_combat_preview(state : GameState) -> Unit {
 ///|
 fn apply_hunting_site_preview(
   state : GameState,
-  id : Int,
+  id : Int32,
   peaceful : Bool,
   overview : Bool,
 ) -> Unit {

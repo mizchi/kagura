@@ -1,11 +1,11 @@
 ///|
-let screen_w : Int = 320
+let screen_w : Int32 = 320
 
 ///|
-let screen_h : Int = 240
+let screen_h : Int32 = 240
 
 ///|
-let atlas_page_id : Int = 100
+let atlas_page_id : Int32 = 100
 
 ///|
 fn main {

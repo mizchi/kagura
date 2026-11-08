@@ -26,8 +26,8 @@ fn Game::setup_inspection(self : Game) -> Unit {
 fn Game::scene_snapshot(self : Game) -> String {
   let result : Json = {
     "layout": self.layout.to_json(),
-    "birdY": self.bird_y.get().to_json(),
-    "mode": self.game_mode.get().to_json(),
+    "birdY": Json(self.bird_y.get()),
+    "mode": Json(self.game_mode.get()),
   }
   result.stringify()
 }

@@ -1,5 +1,5 @@
 ///|
-fn test_beam(delay? : Double = 1.0) -> BeamPath {
+fn test_beam(delay~ : Double = 1.0) -> BeamPath {
   BeamPath::new(
     @math3d.Vec3::zero(),
     @math3d.Vec3::new(0, 0, 40),

@@ -5,7 +5,7 @@
 /// Access counters/hierarchy only from files selected by targets: ["debug"].
 pub(all) struct Control {
   mut paused : Bool
-  mut revision : Int
+  mut revision : Int32
   mut hierarchy : Array[@hierarchy.Node]
 }
 

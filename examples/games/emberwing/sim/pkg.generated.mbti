@@ -26,13 +26,13 @@ pub fn lock_targets(Game) -> Array[LockTarget]
 
 pub fn mouth(Game) -> @math3d.Vec3
 
-pub fn new_game(Int) -> Game
+pub fn new_game(Int32) -> Game
 
 pub fn player_radius() -> Double
 
 pub fn project(@math3d.Mat4, @math3d.Vec3) -> @math3d.Vec3
 
-pub fn spawn_enemy(Game, @math3d.Vec3, Int, elite? : Bool, boss? : Bool) -> Unit
+pub fn spawn_enemy(Game, @math3d.Vec3, Int32, elite? : Bool, boss? : Bool) -> Unit
 
 pub fn step(Game, Input, Double) -> Unit
 
@@ -49,8 +49,8 @@ pub(all) struct Beam {
 }
 
 pub(all) struct Bowl {
-  id : Int
-  points : Int
+  id : Int32
+  points : Int32
   scale : Double
   mut position : @math3d.Vec3
   mut age : Double
@@ -59,7 +59,7 @@ pub(all) struct Bowl {
 }
 
 pub(all) struct Enemy {
-  id : Int
+  id : Int32
   mut position : @math3d.Vec3
   origin : @math3d.Vec3
   phase : Double
@@ -71,7 +71,7 @@ pub(all) struct Enemy {
 }
 
 pub(all) struct Fireball {
-  target : Int
+  target : Int32
   mut position : @math3d.Vec3
   mut velocity : @math3d.Vec3
   mut age : Double
@@ -79,23 +79,23 @@ pub(all) struct Fireball {
 }
 
 pub(all) struct Game {
-  seed : Int
+  seed : Int32
   mut mode : String
   mut time : Double
-  mut wave : Int
+  mut wave : Int32
   mut next_wave : Double
   mut next_rock : Double
   mut boss_spawned : Bool
   mut boss_defeated : Bool
   mut boss_clock : Double
-  mut boss_salvo : Int
+  mut boss_salvo : Int32
   mut victory_clock : Double
-  mut beam_event : Int
-  mut serial : Int
-  mut hp : Int
-  mut score : Int
-  mut kills : Int
-  mut best_chain : Int
+  mut beam_event : Int32
+  mut serial : Int32
+  mut hp : Int32
+  mut score : Int32
+  mut kills : Int32
+  mut best_chain : Int32
   mut hit_timer : Double
   mut heat : Double
   mut overheated : Bool
@@ -108,11 +108,11 @@ pub(all) struct Game {
   mut aim_x : Double
   mut aim_y : Double
   mut aspect : Double
-  mut volley_event : Int
-  mut hit_event : Int
-  mut lock_event : Int
+  mut volley_event : Int32
+  mut hit_event : Int32
+  mut lock_event : Int32
   enemies : Array[Enemy]
-  locks : Array[Int]
+  locks : Array[Int32]
   balls : Array[Fireball]
   shots : Array[Shot]
   bowls : Array[Bowl]
@@ -131,8 +131,8 @@ pub(all) struct Input {
 }
 
 pub(all) struct LockTarget {
-  id : Int
-  enemy : Int
+  id : Int32
+  enemy : Int32
   position : @math3d.Vec3
   radius : Double
   boss : Bool

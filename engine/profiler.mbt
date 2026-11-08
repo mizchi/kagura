@@ -1,15 +1,16 @@
 ///|
 /// Frame profiler data for lightweight in-game overlays.
+#derive(Debug)
 pub(all) struct FrameProfile {
   fps : Double
   frame_time_ms : Double
   update_ms : Double
   draw_ms : Double
   gpu_frame_ms : Double
-  draw_calls : Int
-  vertex_count : Int
-  asset_inflight : Int
-} derive(Debug)
+  draw_calls : Int32
+  vertex_count : Int32
+  asset_inflight : Int32
+}
 
 ///|
 pub impl Show for FrameProfile with fn output(self, logger) {
@@ -49,7 +50,7 @@ fn profiler_frame(
 fn append_profiler_text(
   cmds : Array[@gfx.DrawTrianglesCommand],
   frame : @renderer2d.RenderFrame2D,
-  chars : Array[Int],
+  chars : Array[Int32],
   cx : Double,
   cy : Double,
   color : @gfx.Color,
@@ -66,7 +67,7 @@ fn append_profiler_text(
 fn append_profiler_number(
   cmds : Array[@gfx.DrawTrianglesCommand],
   frame : @renderer2d.RenderFrame2D,
-  number : Int,
+  number : Int32,
   cx : Double,
   cy : Double,
   color : @gfx.Color,

@@ -11,16 +11,16 @@ fn default_window_options_for_test() -> WindowOptions {
 }
 
 ///|
-let test_native_init_calls : Ref[Int] = Ref(0)
+let test_native_init_calls : Ref[Int32] = Ref(0)
 
 ///|
-let test_native_poll_calls : Ref[Int] = Ref(0)
+let test_native_poll_calls : Ref[Int32] = Ref(0)
 
 ///|
 let test_native_should_close_value : Ref[Bool] = Ref(false)
 
 ///|
-let test_native_capture_calls : Ref[Int] = Ref(0)
+let test_native_capture_calls : Ref[Int32] = Ref(0)
 
 ///|
 let test_native_fullscreen_value : Ref[Bool] = Ref(false)
@@ -35,10 +35,10 @@ let test_native_device_scale_factor_value : Ref[Double] = Ref(1.0)
 let test_native_vsync_enabled_value : Ref[Bool] = Ref(true)
 
 ///|
-let test_native_close_window_calls : Ref[Int] = Ref(0)
+let test_native_close_window_calls : Ref[Int32] = Ref(0)
 
 ///|
-let test_native_request_attention_calls : Ref[Int] = Ref(0)
+let test_native_request_attention_calls : Ref[Int32] = Ref(0)
 
 ///|
 fn test_native_try_initialize(_options : WindowOptions) -> Bool {
@@ -59,12 +59,15 @@ fn test_native_should_close() -> Bool {
 }
 
 ///|
-fn test_native_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn test_native_outside_size(width : Int32, height : Int32) -> @core.OutsideSize {
   @core.new_outside_size((width * 2).to_double(), (height * 3).to_double())
 }
 
 ///|
-fn test_native_capture_input(active : Bool, tick : Int) -> @core.InputSnapshot {
+fn test_native_capture_input(
+  active : Bool,
+  tick : Int32,
+) -> @core.InputSnapshot {
   if active {
     test_native_capture_calls.val = test_native_capture_calls.val + 1
     @core.new_input_snapshot(
@@ -166,16 +169,16 @@ fn test_native_request_attention(active : Bool) -> Unit {
 }
 
 ///|
-let test_web_init_calls : Ref[Int] = Ref(0)
+let test_web_init_calls : Ref[Int32] = Ref(0)
 
 ///|
-let test_web_poll_calls : Ref[Int] = Ref(0)
+let test_web_poll_calls : Ref[Int32] = Ref(0)
 
 ///|
 let test_web_should_close_value : Ref[Bool] = Ref(false)
 
 ///|
-let test_web_capture_calls : Ref[Int] = Ref(0)
+let test_web_capture_calls : Ref[Int32] = Ref(0)
 
 ///|
 let test_web_fullscreen_value : Ref[Bool] = Ref(false)
@@ -190,10 +193,10 @@ let test_web_device_scale_factor_value : Ref[Double] = Ref(1.0)
 let test_web_vsync_enabled_value : Ref[Bool] = Ref(true)
 
 ///|
-let test_web_close_window_calls : Ref[Int] = Ref(0)
+let test_web_close_window_calls : Ref[Int32] = Ref(0)
 
 ///|
-let test_web_request_attention_calls : Ref[Int] = Ref(0)
+let test_web_request_attention_calls : Ref[Int32] = Ref(0)
 
 ///|
 fn test_web_try_initialize(
@@ -217,7 +220,7 @@ fn test_web_should_close() -> Bool {
 }
 
 ///|
-fn test_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn test_web_outside_size(width : Int32, height : Int32) -> @core.OutsideSize {
   @core.new_outside_size((width * 4).to_double(), (height * 5).to_double())
 }
 
@@ -236,7 +239,7 @@ fn test_web_current_surface(
 }
 
 ///|
-fn test_web_capture_input(active : Bool, tick : Int) -> @core.InputSnapshot {
+fn test_web_capture_input(active : Bool, tick : Int32) -> @core.InputSnapshot {
   if active {
     test_web_capture_calls.val = test_web_capture_calls.val + 1
     @core.new_input_snapshot(

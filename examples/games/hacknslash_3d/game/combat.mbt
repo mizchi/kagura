@@ -149,7 +149,7 @@ pub fn spawn_ground_item(
 }
 
 ///|
-fn apply_life_steal(world : GameWorld, damage : Int) -> Unit {
+fn apply_life_steal(world : GameWorld, damage : Int32) -> Unit {
   if world.player_stats.life_steal <= 0.0 {
     return
   }
@@ -164,7 +164,7 @@ fn apply_life_steal(world : GameWorld, damage : Int) -> Unit {
 }
 
 ///|
-fn enemy_xp_reward(enemy : Enemy) -> Int {
+fn enemy_xp_reward(enemy : Enemy) -> Int32 {
   if enemy.kind == Boss {
     return 8
   }
@@ -172,7 +172,7 @@ fn enemy_xp_reward(enemy : Enemy) -> Int {
 }
 
 ///|
-fn roll_drop_item_kind(world : GameWorld, item_seed : Int) -> ItemKind {
+fn roll_drop_item_kind(world : GameWorld, item_seed : Int32) -> ItemKind {
   let config = world.params.drop_table_config()
   let equipment_weight = @cmp.maximum(0, config.equipment_weight)
   let health_weight = @cmp.maximum(0, config.health_weight)
@@ -328,10 +328,10 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
 fn apply_player_damage_to_enemy(
   world : GameWorld,
   enemy : Enemy,
-  damage : Int,
+  damage : Int32,
   source_x : Double,
   source_y : Double,
-  life_steal? : Bool = true,
+  life_steal~ : Bool = true,
 ) -> Unit {
   enemy.hp = enemy.hp - damage
   enemy.damage_timer = damage_flash_duration

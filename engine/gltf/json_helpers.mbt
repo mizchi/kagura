@@ -15,7 +15,7 @@ fn json_string(val : Json) -> String {
 }
 
 ///|
-fn json_int(val : Json) -> Int {
+fn json_int(val : Json) -> Int32 {
   match val {
     Number(n, ..) => n.to_int()
     _ => 0
@@ -31,7 +31,7 @@ fn json_double(val : Json) -> Double {
 }
 
 ///|
-fn json_int_opt(val : Json) -> Int? {
+fn json_int_opt(val : Json) -> Int32? {
   match val {
     Number(n, ..) => Some(n.to_int())
     _ => None
@@ -47,7 +47,7 @@ fn json_array(val : Json) -> Array[Json] {
 }
 
 ///|
-fn json_get_int(obj : Json, key : String, default_ : Int) -> Int {
+fn json_get_int(obj : Json, key : String, default_ : Int32) -> Int32 {
   match json_get(obj, key) {
     Some(v) => json_int(v)
     None => default_

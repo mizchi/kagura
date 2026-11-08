@@ -20,9 +20,9 @@ extern "js" fn pretty(source : String) -> String =
   #| (source) => JSON.stringify(JSON.parse(source), null, 2)
 
 ///|
-extern "js" fn color_string(color : Int) -> String =
+extern "js" fn color_string(color : Int32) -> String =
   #| (color) => '#' + color.toString(16).padStart(6, '0')
 
 ///|
-extern "js" fn color_number(id : String) -> Int =
+extern "js" fn color_number(id : String) -> Int32 =
   #| (id) => parseInt(document.getElementById(id).value.slice(1), 16)

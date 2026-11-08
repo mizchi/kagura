@@ -7,8 +7,8 @@ priv struct App {
   mut clock : Double
   mut aspect : Double
   mut render_ms : Double
-  mut draws : Int
-  mut triangles : Int
+  mut draws : Int32
+  mut triangles : Int32
   shader : @gfx.ShaderHandle
   sky_shader : @gfx.ShaderHandle
   lighting : @light3d.LightingEnvironment
@@ -126,25 +126,28 @@ fn update(a : App) -> Unit {
 }
 
 ///|
+#derive(ToJson)
 priv struct TargetView {
-  id : Int
+  id : Int32
   x : Double
   y : Double
   depth : Double
   locked : Bool
   elite : Bool
   boss : Bool
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct BowlView {
   x : Double
   y : Double
   age : Double
-  points : Int
-} derive(ToJson)
+  points : Int32
+}
 
 ///|
+#derive(ToJson)
 priv struct DangerView {
   kind : String
   x : Double
@@ -154,20 +157,21 @@ priv struct DangerView {
   radius : Double
   remaining : Double
   progress : Double
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct Hud {
   mode : String
   time : Double
-  wave : Int
-  hp : Int
-  score : Int
-  kills : Int
-  best_chain : Int
-  locks : Int
-  fireballs : Int
-  bowls : Int
+  wave : Int32
+  hp : Int32
+  score : Int32
+  kills : Int32
+  best_chain : Int32
+  locks : Int32
+  fireballs : Int32
+  bowls : Int32
   heat : Double
   overheated : Bool
   breathing : Bool
@@ -175,30 +179,30 @@ priv struct Hud {
   aim_x : Double
   aim_y : Double
   hit_timer : Double
-  volley_event : Int
-  hit_event : Int
-  lock_event : Int
+  volley_event : Int32
+  hit_event : Int32
+  lock_event : Int32
   targets : Array[TargetView]
   dishes : Array[BowlView]
-  draw_calls : Int
-  triangles : Int
+  draw_calls : Int32
+  triangles : Int32
   cpu_ms : Double
   player_x : Double
   player_y : Double
   player_screen_x : Double
   player_screen_y : Double
   player_radius : Double
-  shots : Int
-  rocks : Int
-  beams : Int
-  beam_event : Int
+  shots : Int32
+  rocks : Int32
+  beams : Int32
+  beam_event : Int32
   boss_active : Bool
   boss_defeated : Bool
   boss_hp : Double
   boss_max_hp : Double
-  boss_phase : Int
+  boss_phase : Int32
   dangers : Array[DangerView]
-} derive(ToJson)
+}
 
 ///|
 fn hud(a : App, vp : @math3d.Mat4) -> String {

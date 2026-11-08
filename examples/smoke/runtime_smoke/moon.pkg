@@ -6,7 +6,6 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/web_runtime_hooks" @web_hooks,
   "mizchi/gfx",
-  "mizchi/atlas",
   "mizchi/renderer2d",
   "mizchi/kagura_platform" @platform,
   "mizchi/kagura_engine/runtime",

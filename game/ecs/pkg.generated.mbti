@@ -23,9 +23,10 @@ pub fn system_sync_to_physics(World, @physics3d.PhysicsWorld) -> Unit
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct EntityId {
-  value : Int
-} derive(Eq, @debug.Debug)
+  value : Int32
+}
 pub fn EntityId::equal(Self, Self) -> Bool
 pub fn EntityId::not_equal(Self, Self) -> Bool
 pub fn EntityId::output(Self, &Logger) -> Unit
@@ -33,27 +34,30 @@ pub fn EntityId::to_repr(Self) -> @debug.Repr
 pub fn EntityId::to_string(Self) -> String
 pub impl Show for EntityId
 
+#derive(@debug.Debug)
 pub(all) struct Health {
-  current : Int
-  max : Int
-} derive(@debug.Debug)
+  current : Int32
+  max : Int32
+}
 pub fn Health::output(Self, &Logger) -> Unit
 pub fn Health::to_repr(Self) -> @debug.Repr
 pub fn Health::to_string(Self) -> String
 pub impl Show for Health
 
+#derive(@debug.Debug)
 pub(all) struct Sprite {
-  image_id : Int
+  image_id : Int32
   width : Double
   height : Double
-  color : Int
+  color : Int32
   alpha : Double
-} derive(@debug.Debug)
+}
 pub fn Sprite::output(Self, &Logger) -> Unit
 pub fn Sprite::to_repr(Self) -> @debug.Repr
 pub fn Sprite::to_string(Self) -> String
 pub impl Show for Sprite
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Tag {
   Player
   Enemy
@@ -61,7 +65,7 @@ pub(all) enum Tag {
   Item
   Obstacle
   Custom(String)
-} derive(Eq, @debug.Debug)
+}
 pub fn Tag::equal(Self, Self) -> Bool
 pub fn Tag::not_equal(Self, Self) -> Bool
 pub fn Tag::output(Self, &Logger) -> Unit
@@ -69,18 +73,19 @@ pub fn Tag::to_repr(Self) -> @debug.Repr
 pub fn Tag::to_string(Self) -> String
 pub impl Show for Tag
 
+#derive(@debug.Debug)
 pub(all) struct Velocity {
   x : Double
   y : Double
   z : Double
-} derive(@debug.Debug)
+}
 pub fn Velocity::output(Self, &Logger) -> Unit
 pub fn Velocity::to_repr(Self) -> @debug.Repr
 pub fn Velocity::to_string(Self) -> String
 pub impl Show for Velocity
 
 pub struct World {
-  mut next_id : Int
+  mut next_id : Int32
   alive : Array[Bool]
   tags : Array[Array[Tag]?]
   transforms : Array[@transform3d.Transform3D?]
@@ -88,8 +93,8 @@ pub struct World {
   health : Array[Health?]
   sprites : Array[Sprite?]
   materials : Array[@scene3d.Material?]
-  physics_body_ids : Array[Int?]
-  scene_node_ids : Array[Int?]
+  physics_body_ids : Array[Int32?]
+  scene_node_ids : Array[Int32?]
   animation_players : Array[@animation3d.AnimationPlayer?]
 }
 pub fn World::add_tag(Self, EntityId, Tag) -> Unit
@@ -100,12 +105,12 @@ pub fn World::each_with_tag(Self, Tag, (EntityId) -> Unit) -> Unit
 pub fn World::each_with_transform(Self, (EntityId, @transform3d.Transform3D) -> Unit) -> Unit
 pub fn World::each_with_transform_velocity(Self, (EntityId, @transform3d.Transform3D, Velocity) -> Unit) -> Unit
 pub fn World::entities_with_tag(Self, Tag) -> Array[EntityId]
-pub fn World::entity_count(Self) -> Int
+pub fn World::entity_count(Self) -> Int32
 pub fn World::get_animation_player(Self, EntityId) -> @animation3d.AnimationPlayer?
 pub fn World::get_health(Self, EntityId) -> Health?
 pub fn World::get_material(Self, EntityId) -> @scene3d.Material?
-pub fn World::get_physics_body_id(Self, EntityId) -> Int?
-pub fn World::get_scene_node_id(Self, EntityId) -> Int?
+pub fn World::get_physics_body_id(Self, EntityId) -> Int32?
+pub fn World::get_scene_node_id(Self, EntityId) -> Int32?
 pub fn World::get_sprite(Self, EntityId) -> Sprite?
 pub fn World::get_transform(Self, EntityId) -> @transform3d.Transform3D?
 pub fn World::get_velocity(Self, EntityId) -> Velocity?
@@ -115,9 +120,9 @@ pub fn World::new() -> Self
 pub fn World::set_animation_player(Self, EntityId, @animation3d.AnimationPlayer) -> Unit
 pub fn World::set_health(Self, EntityId, Health) -> Unit
 pub fn World::set_material(Self, EntityId, @scene3d.Material) -> Unit
-pub fn World::set_physics_body_id(Self, EntityId, Int) -> Unit
+pub fn World::set_physics_body_id(Self, EntityId, Int32) -> Unit
 pub fn World::set_position(Self, EntityId, Double, Double, Double) -> Unit
-pub fn World::set_scene_node_id(Self, EntityId, Int) -> Unit
+pub fn World::set_scene_node_id(Self, EntityId, Int32) -> Unit
 pub fn World::set_sprite(Self, EntityId, Sprite) -> Unit
 pub fn World::set_transform(Self, EntityId, @transform3d.Transform3D) -> Unit
 pub fn World::set_velocity(Self, EntityId, Velocity) -> Unit

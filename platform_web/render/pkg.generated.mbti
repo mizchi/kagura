@@ -2,19 +2,19 @@
 package "mizchi/kagura_platform_web/render"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn command_needs_depth(@core.Any) -> Bool
+pub fn command_needs_depth(@js_core.Any) -> Bool
 
-pub fn equal_dwords(@core.Any, @core.Any, @core.Any) -> Bool
+pub fn equal_dwords(@js_core.Any, @js_core.Any, @js_core.Any) -> Bool
 
-pub fn get_instance_count(@core.Any) -> Int
+pub fn get_instance_count(@js_core.Any) -> Int32
 
-pub fn get_resource_cache_key(@core.Any) -> Int
+pub fn get_resource_cache_key(@js_core.Any) -> Int32
 
-pub fn instance_uniform_shader(String, @core.Any) -> String
+pub fn instance_uniform_shader(String, @js_core.Any) -> String
 
 pub fn is_3d_shader(String) -> Bool
 
@@ -22,15 +22,15 @@ pub fn is_stride32(String) -> Bool
 
 pub fn is_stride64(String) -> Bool
 
-pub fn parse_texture_bindings(String) -> @core.Any
+pub fn parse_texture_bindings(String) -> @js_core.Any
 
-pub fn register_geometry(@core.Any, @core.Any, @core.Any, @core.Any, @core.Any) -> @core.Any
+pub fn register_geometry(@js_core.Any, @js_core.Any, @js_core.Any, @js_core.Any, @js_core.Any) -> @js_core.Any
 
-pub fn register_static_geometry(@core.Any, @core.Any, @core.Any) -> @core.Any
+pub fn register_static_geometry(@js_core.Any, @js_core.Any, @js_core.Any) -> @js_core.Any
 
-pub fn snapshot_draw_geometry(@core.Any, @core.Any, @core.Any) -> @core.Any
+pub fn snapshot_draw_geometry(@js_core.Any, @js_core.Any, @js_core.Any) -> @js_core.Any
 
-pub fn unregister_geometry(@core.Any, @core.Any) -> Unit
+pub fn unregister_geometry(@js_core.Any, @js_core.Any) -> Unit
 
 // Errors
 

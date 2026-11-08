@@ -1,26 +1,30 @@
 // Read-only view models shared by the browser HUD and contract tests.
 
 ///|
+#derive(ToJson)
 struct HunterSkillView {
-  key : Int
+  key : Int32
   glyph : String
   hold : String
   name : String
   description : String
-  level : Int
-  remaining : Int
-  total : Int
-} derive(ToJson)
+  level : Int32
+  remaining : Int32
+  total : Int32
+}
+
 ///|
 pub extend HunterSkillView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterNodeView {
-  id : Int
-  index : Int
-  branch : Int
+  id : Int32
+  index : Int32
+  branch : Int32
   x : Double
   y : Double
-  prereqs : Array[Int]
+  prereqs : Array[Int32]
   description : String
   effect : String
   next_effect : String
@@ -28,62 +32,68 @@ struct HunterNodeView {
   kind : String
   status : String
   name : String
-  level : Int
-  max_level : Int
-  cost : Int
+  level : Int32
+  max_level : Int32
+  cost : Int32
   available : Bool
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterNodeView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterExtraSkillView {
-  key : Int
+  key : Int32
   name : String
   glyph : String
-  remaining : Int
-  total : Int
-} derive(ToJson)
+  remaining : Int32
+  total : Int32
+}
+
 ///|
 pub extend HunterExtraSkillView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterHudView {
-  resting_enemies : Int
-  waking_enemies : Int
+  resting_enemies : Int32
+  waking_enemies : Int32
   builds : Array[StartingBuildView]
-  preset : Int
+  preset : Int32
   preset_name : String
   presets : Array[String]
   save_slots : Array[SaveSlotView]
-  active_save_slot : Int
+  active_save_slot : Int32
   save_notice : String
-  save_delete_slot : Int
+  save_delete_slot : Int32
   respawn_region : String
   terrain : TerrainLabView
   camera : HunterCameraView
   exploration : HunterExplorationView
   combat : HunterCombatView
   loot : Array[HunterLootView]
-  version : Int
+  version : Int32
   mode : String
   menu : String
   paused : Bool
   muted : Bool
-  cursor : Int
-  hp : Int
-  max_hp : Int
-  level : Int
-  xp : Int
-  next_xp : Int
-  floor : Int
-  score : Int
-  remaining : Int
+  cursor : Int32
+  hp : Int32
+  max_hp : Int32
+  level : Int32
+  xp : Int32
+  next_xp : Int32
+  floor : Int32
+  score : Int32
+  remaining : Int32
   map_x : Double
   map_z : Double
-  dodge : Int
-  dodge_total : Int
+  dodge : Int32
+  dodge_total : Int32
   charge : HunterSkillView
   charging : Bool
-  charge_frame : Int
+  charge_frame : Int32
   slot_options : Array[HunterSkillView]
   skills : Array[HunterSkillView]
   extra_skills : Array[HunterExtraSkillView]
@@ -94,17 +104,19 @@ struct HunterHudView {
   inventory : Array[String]
   equipment : Array[String]
   nodes : Array[HunterNodeView]
-  skill_points : Int
+  skill_points : Int32
   offers : Array[String]
   weapon : String
-  weapon_index : Int
+  weapon_index : Int32
   weapon_action : String
-  attack_remaining : Int
+  attack_remaining : Int32
   weapon_locked : Bool
   weapons : Array[String]
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterHudView with ToJson::{to_json}
+
 ///|
 fn hunter_skill_name(id : @game.SkillId) -> String {
   match id {

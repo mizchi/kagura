@@ -1,5 +1,6 @@
 ///|
 /// Relic identifiers
+#derive(Debug, Eq)
 pub(all) enum RelicId {
   BurningBlood // Heal 6 HP at end of combat
   Vajra // Start combat with +1 Strength
@@ -16,7 +17,7 @@ pub(all) enum RelicId {
   EmberSeal
   MerchantCharm
   Wayfinder
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for RelicId with fn output(self, logger) {
@@ -25,11 +26,12 @@ pub impl Show for RelicId with fn output(self, logger) {
 
 ///|
 /// Relic definition (static data)
+#derive(Debug)
 pub(all) struct RelicDef {
   id : RelicId
   name : String
   description : String
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RelicDef with fn output(self, logger) {
@@ -134,12 +136,13 @@ fn relic_def(id : RelicId) -> RelicDef {
 
 ///|
 /// Mutable relic runtime state
+#derive(Debug)
 pub(all) struct RelicState {
-  mut pen_nib_counter : Int // Tracks attacks played for PenNib
+  mut pen_nib_counter : Int32 // Tracks attacks played for PenNib
   mut akabeko_active : Bool // First attack this combat gets +8
-  mut fan_counter : Int // Counts attacks for OrnamentalFan
-  mut flower_counter : Int // Counts turns for HappyFlower
-} derive(Debug)
+  mut fan_counter : Int32 // Counts attacks for OrnamentalFan
+  mut flower_counter : Int32 // Counts turns for HappyFlower
+}
 
 ///|
 pub impl Show for RelicState with fn output(self, logger) {
@@ -219,7 +222,7 @@ fn relics_on_turn_start(
   relics : Array[RelicId],
   relic_state : RelicState,
   player : Fighter,
-  turn : Int,
+  turn : Int32,
 ) -> Array[String] {
   let logs : Array[String] = []
   for r in relics {
@@ -269,8 +272,8 @@ fn relics_on_attack(
   relics : Array[RelicId],
   relic_state : RelicState,
   player : Fighter,
-  damage : Int,
-) -> (Int, Array[String]) {
+  damage : Int32,
+) -> (Int32, Array[String]) {
   let logs : Array[String] = []
   let mut result = damage
   // Akabeko: first attack +8

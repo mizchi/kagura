@@ -10,7 +10,7 @@ pub fn help_text() -> String
 
 pub fn parse_args(Array[String]) -> Result[Command, String]
 
-pub fn parse_cli(Array[String]) -> String
+pub fn parse_cli(FixedArray[String]) -> String
 
 pub fn project_name(String, String) -> String
 
@@ -21,29 +21,32 @@ pub fn scaffold_files(String) -> String
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct BrowserOptions {
   url : String
   output : String?
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   headed : Bool
-  timeout : Int
-  samples : Int
-  profile_ms : Int
-  warmup_ms : Int
-} derive(Eq, @debug.Debug)
+  timeout : Int32
+  samples : Int32
+  profile_ms : Int32
+  warmup_ms : Int32
+}
 
+#derive(Eq, @debug.Debug)
 pub enum Command {
   Help(String?)
-  Dev(String?, Int?, String)
+  Dev(String?, Int32?, String)
   Build(String?, String?)
-  Studio(Int?, String)
+  Studio(Int32?, String)
   NewWeb(String)
   Capture(BrowserOptions)
   Profile(BrowserOptions)
   Scene3D(Scene3DOptions)
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Scene3DOptions {
   operation : String
   snapshot : String
@@ -53,7 +56,7 @@ pub(all) struct Scene3DOptions {
   allow : Array[String]
   tolerance : Double?
   json : Bool
-} derive(Eq, @debug.Debug)
+}
 
 // Type aliases
 

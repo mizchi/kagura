@@ -4,8 +4,8 @@ let tripo_base_url : String = "https://api.tripo3d.ai/v2/openapi"
 ///|
 fn tripo_headers(api_key : String) -> String {
   let obj : Json = {
-    "Content-Type": "application/json".to_json(),
-    "Authorization": ("Bearer " + api_key).to_json(),
+    "Content-Type": Json("application/json"),
+    "Authorization": Json("Bearer " + api_key),
   }
   obj.stringify()
 }
@@ -14,10 +14,7 @@ fn tripo_headers(api_key : String) -> String {
 /// Submit a text-to-model task.
 /// Returns (task_id, error_message).
 fn tripo_text_to_model(api_key : String, prompt : String) -> (String, String) {
-  let body : Json = {
-    "type": "text_to_model".to_json(),
-    "prompt": prompt.to_json(),
-  }
+  let body : Json = { "type": Json("text_to_model"), "prompt": Json(prompt) }
   let result = js_http_post(
     tripo_base_url + "/task",
     tripo_headers(api_key),
@@ -36,9 +33,9 @@ fn tripo_rig_model(
   original_task_id : String,
 ) -> (String, String) {
   let body : Json = {
-    "type": "rig_model".to_json(),
-    "original_model_task_id": original_task_id.to_json(),
-    "out_format": "glb".to_json(),
+    "type": Json("rig_model"),
+    "original_model_task_id": Json(original_task_id),
+    "out_format": Json("glb"),
   }
   let result = js_http_post(
     tripo_base_url + "/task",
@@ -58,12 +55,12 @@ fn tripo_retarget_animation(
   original_task_id : String,
   animation : String,
 ) -> (String, String) {
-  let anim_entry : Json = { "animation": animation.to_json() }
+  let anim_entry : Json = { "animation": Json(animation) }
   let body : Json = {
-    "type": "retarget_animation".to_json(),
-    "original_model_task_id": original_task_id.to_json(),
-    "out_format": "glb".to_json(),
-    "animations": [anim_entry].to_json(),
+    "type": Json("retarget_animation"),
+    "original_model_task_id": Json(original_task_id),
+    "out_format": Json("glb"),
+    "animations": Json([anim_entry]),
   }
   let result = js_http_post(
     tripo_base_url + "/task",
@@ -82,8 +79,8 @@ fn tripo_retarget_animation(
 fn tripo_poll_task(
   api_key : String,
   task_id : String,
-  max_polls : Int,
-  interval_sec : Int,
+  max_polls : Int32,
+  interval_sec : Int32,
 ) -> (String, String, String) {
   for i = 0; i < max_polls; i = i + 1 {
     let result = js_http_get(

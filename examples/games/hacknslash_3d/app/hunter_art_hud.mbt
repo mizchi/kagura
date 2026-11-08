@@ -1,25 +1,28 @@
 ///|
+#derive(ToJson)
 struct HunterArtsView {
   whirling : Bool
-  whirlwind_frame : Int
+  whirlwind_frame : Int32
   whirlwind_radius : Double
   guarding : Bool
-  guard_energy : Int
-  guard_recovery : Int
+  guard_energy : Int32
+  guard_recovery : Int32
   targeting : Bool
   target_valid : Bool
   target_x : Double
   target_y : Double
   radius : Double
-  ground_remaining : Int
-  dash_remaining : Int
+  ground_remaining : Int32
+  dash_remaining : Int32
   action : String
-  action_frame : Int
+  action_frame : Int32
   impact_pending : Bool
   feedback : String
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterArtsView with ToJson::{to_json}
+
 ///|
 fn GameState::hunter_arts_view(self : GameState) -> HunterArtsView {
   let arts = self.world.arts

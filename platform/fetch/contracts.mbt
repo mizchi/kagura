@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 pub(all) struct FetchProgress {
-  loaded : Int
-  total : Int // -1 if unknown
-} derive(Debug)
+  loaded : Int32
+  total : Int32 // -1 if unknown
+}
 
 ///|
 pub impl Show for FetchProgress with fn output(self, logger) {
@@ -10,9 +11,10 @@ pub impl Show for FetchProgress with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct FetchHandle {
-  id : Int
-} derive(Debug)
+  id : Int32
+}
 
 ///|
 pub impl Show for FetchHandle with fn output(self, logger) {

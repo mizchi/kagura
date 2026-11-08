@@ -1,9 +1,9 @@
 ///|
 priv struct GltfAccessor {
-  buffer_view : Int
-  byte_offset : Int
-  component_type : Int
-  count : Int
+  buffer_view : Int32
+  byte_offset : Int32
+  component_type : Int32
+  count : Int32
   type_ : String
   normalized : Bool
 }
@@ -12,29 +12,29 @@ priv struct GltfAccessor {
 /// The EXT_meshopt_compression / KHR_meshopt_compression part of a
 /// bufferView: where the compressed bytes are and how to decode them.
 priv struct GltfCompressedView {
-  buffer : Int
-  byte_offset : Int
-  byte_length : Int
-  byte_stride : Int
-  count : Int
+  buffer : Int32
+  byte_offset : Int32
+  byte_length : Int32
+  byte_stride : Int32
+  count : Int32
   mode : String
   filter : String
 }
 
 ///|
 priv struct GltfBufferView {
-  buffer : Int
-  byte_offset : Int
-  byte_stride : Int
+  buffer : Int32
+  byte_offset : Int32
+  byte_stride : Int32
   compressed : GltfCompressedView?
 }
 
 ///|
 priv struct GltfPrimitive {
-  attributes : Map[String, Int]
-  indices : Int?
-  material : Int?
-  mode : Int
+  attributes : Map[String, Int32]
+  indices : Int32?
+  material : Int32?
+  mode : Int32
 }
 
 ///|
@@ -44,9 +44,9 @@ priv struct GltfMesh {
 
 ///|
 priv struct GltfNode {
-  mesh : Int?
-  skin : Int?
-  children : Array[Int]
+  mesh : Int32?
+  skin : Int32?
+  children : Array[Int32]
   translation : @math3d.Vec3
   rotation : @math3d.Quaternion
   scale : @math3d.Vec3
@@ -54,7 +54,7 @@ priv struct GltfNode {
 
 ///|
 priv struct GltfScene {
-  nodes : Array[Int]
+  nodes : Array[Int32]
 }
 
 ///|
@@ -64,21 +64,21 @@ priv struct GltfMaterial {
 
 ///|
 priv struct GltfSkin {
-  joints : Array[Int]
-  inverse_bind_matrices : Int? // accessor index
+  joints : Array[Int32]
+  inverse_bind_matrices : Int32? // accessor index
 }
 
 ///|
 priv struct GltfAnimSampler {
-  input : Int // accessor index (keyframe times)
-  output : Int // accessor index (keyframe values)
+  input : Int32 // accessor index (keyframe times)
+  output : Int32 // accessor index (keyframe values)
   interpolation : String // "LINEAR", "STEP", "CUBICSPLINE"
 }
 
 ///|
 priv struct GltfAnimChannel {
-  sampler : Int
-  target_node : Int
+  sampler : Int32
+  target_node : Int32
   target_path : String // "translation", "rotation", "scale"
 }
 
@@ -99,5 +99,5 @@ priv struct GltfDocument {
   materials : Array[GltfMaterial]
   skins : Array[GltfSkin]
   animations : Array[GltfAnimation]
-  default_scene : Int
+  default_scene : Int32
 }

@@ -1,11 +1,12 @@
 ///|
+#derive(FromJson)
 struct CaptureRequest {
-  width : Int
-  height : Int
-  frames : Int
+  width : Int32
+  height : Int32
+  frames : Int32
   inputs : Array[HeadlessInputStep]
   initial_state : String?
-} derive(FromJson)
+}
 
 ///|
 pub extend CaptureRequest with @moonbitlang/core/json.FromJson::{from_json}
@@ -39,7 +40,7 @@ fn parse_capture_request(text : String) -> CaptureRequest raise {
 ///|
 fn CaptureRequest::input_at(
   self : CaptureRequest,
-  tick : Int,
+  tick : Int32,
 ) -> @core.InputSnapshot {
   if tick < 0 || tick >= self.inputs.length() {
     return headless_input_snapshot(default_headless_input())

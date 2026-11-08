@@ -6,8 +6,8 @@ pub fn RigidGeometry::segment(
   b : @math3d.Vec3,
   radius_a : Double,
   radius_b : Double,
-  sides : Int,
-  bone : Int,
+  sides : Int32,
+  bone : Int32,
 ) -> Unit {
   let delta = b.sub(a)
   if delta.length() < 0.000001 || sides < 3 {
@@ -21,7 +21,7 @@ pub fn RigidGeometry::segment(
   }
   let right = axis.cross(reference).normalize()
   let front = axis.cross(right).normalize()
-  fn point(center : @math3d.Vec3, radius : Double, i : Int) -> @math3d.Vec3 {
+  fn point(center : @math3d.Vec3, radius : Double, i : Int32) -> @math3d.Vec3 {
     let angle = i.to_double() * @math.PI * 2.0 / sides.to_double()
     center
     .add(right.scale(@math.cos(angle) * radius))

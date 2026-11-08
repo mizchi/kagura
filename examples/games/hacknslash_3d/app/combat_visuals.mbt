@@ -17,8 +17,8 @@ struct CombatVisual {
   end_y : Double
   radius : Double
   angle : Double
-  hits : Int
-  mut age : Int
+  hits : Int32
+  mut age : Int32
 }
 
 ///|
@@ -161,7 +161,7 @@ fn GameState::push_combat_mesh(
   vp : @math3d.Mat4,
   dst : @gfx.ImageHandle,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  terrain_relative? : Bool = false,
+  terrain_relative~ : Bool = false,
 ) -> Unit {
   if !terrain_relative || self.world.dungeon.terrain_surface is None {
     @web_hooks.register_static_geometry(mesh.vertex_data, mesh.indices)
@@ -202,7 +202,7 @@ fn combat_transform(
   sx : Double,
   sy : Double,
   sz : Double,
-  yaw? : Double = 0.0,
+  yaw~ : Double = 0.0,
 ) -> @math3d.Mat4 {
   @transform3d.Transform3D::from_position_rotation(
     @math3d.Vec3::new(x, y, z),

@@ -2,19 +2,19 @@
 
 ///|
 pub(all) struct SimMetrics {
-  survival_frames : Int
-  floors_cleared : Int
-  total_damage_taken : Int
-  total_kills : Int
-  score : Int
+  survival_frames : Int32
+  floors_cleared : Int32
+  total_damage_taken : Int32
+  total_kills : Int32
+  score : Int32
   hp_samples : Array[Double] // hp/max_hp ratio sampled periodically
-  floor_times : Array[Int] // frames per floor
+  floor_times : Array[Int32] // frames per floor
   // Extended metrics
-  kill_frames : Array[Int] // frame number of each kill (for kill pacing)
-  damage_frames : Array[Int] // frame number of each damage event
-  equip_upgrades : Int // number of equipment upgrades
-  learned_skill_count : Int // number of learned skill nodes
-  near_death_count : Int // times HP dropped below 25%
+  kill_frames : Array[Int32] // frame number of each kill (for kill pacing)
+  damage_frames : Array[Int32] // frame number of each damage event
+  equip_upgrades : Int32 // number of equipment upgrades
+  learned_skill_count : Int32 // number of learned skill nodes
+  near_death_count : Int32 // times HP dropped below 25%
 }
 
 ///|
@@ -145,10 +145,10 @@ pub fn SimMetrics::near_death_rate(self : SimMetrics) -> Double {
 ///|
 pub fn run_simulation(
   params : @game.BalanceParams,
-  seed : Int,
-  max_frames : Int,
-  archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
-  build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
+  seed : Int32,
+  max_frames : Int32,
+  archetype~ : @game.CharacterArchetype = @game.default_character_archetype(),
+  build_policy~ : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
 ) -> SimMetrics {
   run_simulation_from_floor(
     params,
@@ -163,11 +163,11 @@ pub fn run_simulation(
 ///|
 pub fn run_simulation_from_floor(
   params : @game.BalanceParams,
-  seed : Int,
-  max_frames : Int,
-  start_floor : Int,
-  archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
-  build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
+  seed : Int32,
+  max_frames : Int32,
+  start_floor : Int32,
+  archetype~ : @game.CharacterArchetype = @game.default_character_archetype(),
+  build_policy~ : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
 ) -> SimMetrics {
   let world = @game.GameWorld::new(seed~, params~, archetype~, build_policy~)
   if start_floor > 1 {
@@ -177,9 +177,9 @@ pub fn run_simulation_from_floor(
   world.auto_play = true
   world.mode = @game.Playing
   let hp_samples : Array[Double] = []
-  let floor_times : Array[Int] = []
-  let kill_frames : Array[Int] = []
-  let damage_frames : Array[Int] = []
+  let floor_times : Array[Int32] = []
+  let kill_frames : Array[Int32] = []
+  let damage_frames : Array[Int32] = []
   let mut total_damage = 0
   let mut total_kills = 0
   let mut floor_start_frame = 0

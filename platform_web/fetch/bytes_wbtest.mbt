@@ -3,11 +3,11 @@
 
 ///|
 extern "js" fn js_test_set_fetch_buf(
-  fetch_id : Int,
-  b0 : Int,
-  b1 : Int,
-  b2 : Int,
-  b3 : Int,
+  fetch_id : Int32,
+  b0 : Int32,
+  b1 : Int32,
+  b2 : Int32,
+  b3 : Int32,
 ) -> Unit =
   #| (id, b0, b1, b2, b3) => {
   #|   if (!globalThis.__kagura_fetch) globalThis.__kagura_fetch = {};
@@ -15,7 +15,7 @@ extern "js" fn js_test_set_fetch_buf(
   #| }
 
 ///|
-extern "js" fn js_test_has_fetch_buf(fetch_id : Int) -> Bool =
+extern "js" fn js_test_has_fetch_buf(fetch_id : Int32) -> Bool =
   #| (id) => {
   #|   return !!(globalThis.__kagura_fetch && globalThis.__kagura_fetch[id]);
   #| }

@@ -26,7 +26,7 @@ pub(all) struct PrimitiveNode {
   kind : PrimitiveKind
   position : @math3d.Vec3
   scale : @math3d.Vec3
-  color_hex : Int
+  color_hex : Int32
 }
 
 ///|
@@ -41,8 +41,8 @@ pub(all) struct SculptStamp {
 pub(all) struct SculptLayer {
   id : String
   voxel_size : Double
-  half_extent : Int
-  color_hex : Int
+  half_extent : Int32
+  color_hex : Int32
   muted_stamp_ids : Array[String]
   stamps : Array[SculptStamp]
 }
@@ -57,10 +57,10 @@ pub(all) struct ModelDocument {
 
 ///|
 pub(all) struct DocumentStats {
-  primitive_count : Int
-  sculpt_layer_count : Int
-  occupied_voxel_count : Int
-  render_object_count : Int
-  baked_vertex_count : Int
-  baked_triangle_count : Int
+  primitive_count : Int32
+  sculpt_layer_count : Int32
+  occupied_voxel_count : Int32
+  render_object_count : Int32
+  baked_vertex_count : Int32
+  baked_triangle_count : Int32
 }

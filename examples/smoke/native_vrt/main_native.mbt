@@ -1,8 +1,8 @@
 ///|
-let vrt_width : Int = 320
+let vrt_width : Int32 = 320
 
 ///|
-let vrt_height : Int = 240
+let vrt_height : Int32 = 240
 
 ///|
 let max_diff_ratio : Double = 0.01
@@ -17,7 +17,7 @@ struct VrtResult {
 
 ///|
 /// Read the full readback framebuffer as an Array[Int] (RGBA).
-fn read_full_framebuffer() -> Array[Int]? {
+fn read_full_framebuffer() -> Array[Int32]? {
   @wgpu_native.runtime_read_pixels(0, 0, vrt_width, vrt_height)
 }
 
@@ -54,7 +54,7 @@ fn save_baseline(name : String) -> Bool {
 
 ///|
 /// Compare rendered framebuffer against baseline.
-fn compare_snapshot(name : String, pixels : Array[Int]) -> VrtResult {
+fn compare_snapshot(name : String, pixels : Array[Int32]) -> VrtResult {
   let baseline = load_baseline(name)
   match baseline {
     None =>
@@ -82,14 +82,14 @@ fn compare_snapshot(name : String, pixels : Array[Int]) -> VrtResult {
       }
       // pixelmatch 0.4 changed `Image.data` to `FixedArray[Int]` so the native
       // path can hand the buffer straight to C; both sides are packed here.
-      let baseline_pixels : FixedArray[Int] = FixedArray::make(
+      let baseline_pixels : FixedArray[Int32] = FixedArray::make(
         img.width * img.height * 4,
         0,
       )
       for i in 0..<baseline_pixels.length() {
         baseline_pixels[i] = img.data[i].to_int()
       }
-      let captured_pixels : FixedArray[Int] = FixedArray::make(
+      let captured_pixels : FixedArray[Int32] = FixedArray::make(
         pixels.length(),
         0,
       )

@@ -1,6 +1,6 @@
 ///|
 pub(all) struct Enemy {
-  id : Int
+  id : Int32
   name : String
   home : @math3d.Vec3
   mut position : @math3d.Vec3
@@ -22,10 +22,10 @@ pub(all) struct Enemy {
 
 ///|
 pub(all) struct Projectile {
-  id : Int
-  kind : Int
-  target : Int
-  owner : Int
+  id : Int32
+  kind : Int32
+  target : Int32
+  owner : Int32
   mut position : @math3d.Vec3
   mut velocity : @math3d.Vec3
   mut age : Double
@@ -35,14 +35,14 @@ pub(all) struct Projectile {
 ///|
 pub(all) struct Effect {
   position : @math3d.Vec3
-  kind : Int
+  kind : Int32
   mut age : Double
 }
 
 ///|
 pub(all) struct QueuedShot {
-  target : Int
-  side : Int
+  target : Int32
+  side : Int32
   mut delay : Double
 }
 
@@ -64,7 +64,7 @@ pub(all) struct Game {
   units : Array[Enemy]
   mut phase : String
   mut elapsed : Double
-  mut wave : Int
+  mut wave : Int32
   mut hp : Double
   mut damage_flash : Double
   mut projectiles : Array[Projectile]
@@ -74,17 +74,17 @@ pub(all) struct Game {
   mut rifle_cooldown : Double
   mut missile_cooldown : Double
   mut attack_age : Double
-  mut next_id : Int
-  mut shots : Int
-  mut missiles : Int
-  mut hits : Int
-  mut kills : Int
-  mut enemy_shots : Int
-  mut enemy_hits : Int
+  mut next_id : Int32
+  mut shots : Int32
+  mut missiles : Int32
+  mut hits : Int32
+  mut kills : Int32
+  mut enemy_shots : Int32
+  mut enemy_hits : Int32
 }
 
 ///|
-pub fn new_enemy(id : Int) -> Enemy {
+pub fn new_enemy(id : Int32) -> Enemy {
   let positions = [
     vec(-9.0, 0.0, -9.0),
     vec(10.0, 0.0, 20.0),
@@ -121,9 +121,9 @@ pub fn new_enemy(id : Int) -> Enemy {
 
 ///|
 pub fn new_game(
-  ai? : Bool = true,
-  spawn? : @math3d.Vec3 = default_stage().spawn,
-  yaw? : Double = 0.0,
+  ai~ : Bool = true,
+  spawn~ : @math3d.Vec3 = default_stage().spawn,
+  yaw~ : Double = 0.0,
 ) -> Game {
   let stage = { ..default_stage(), spawn, }
   {

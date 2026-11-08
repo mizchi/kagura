@@ -6,10 +6,10 @@ pub fn navigation_input_from_glfw(
   snapshot : @core.InputSnapshot,
 ) -> @core.InputSnapshot {
   let pads = snapshot.gamepads.map(pad => {
-    let buttons : Array[Int] = []
+    let buttons : Array[Int32] = []
     for button in pad.pressed_buttons {
       let standard = match button {
-        0..=5 => button
+        0..<=5 => button
         6 => 8 // Back
         7 => 9 // Start
         8 => 16 // Guide

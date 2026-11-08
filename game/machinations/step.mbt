@@ -12,8 +12,8 @@
 
 ///|
 /// Fresh per-node time buffers (Delay line / Queue store; empty for others).
-fn make_buffers(diagram : Diagram) -> Array[Array[Int]] {
-  let bufs : Array[Array[Int]] = []
+fn make_buffers(diagram : Diagram) -> Array[Array[Int32]] {
+  let bufs : Array[Array[Int32]] = []
   for i in 0..<diagram.nodes.length() {
     let node = diagram.nodes[i]
     let buf = match node.kind {
@@ -30,7 +30,7 @@ fn make_buffers(diagram : Diagram) -> Array[Array[Int]] {
 /// Create the initial simulation state for a diagram, seeded for reproducibility.
 pub fn SimState::init(
   diagram : Diagram,
-  seed? : UInt64 = 0x123456789ABCDEF,
+  seed~ : UInt64 = 0x123456789ABCDEF,
 ) -> SimState {
   let n = diagram.nodes.length()
   let values = Array::make(n, 0)
@@ -49,7 +49,7 @@ pub fn SimState::init(
 
 ///|
 /// Queue an interactive activation for the next `step` (e.g. a click on a node).
-pub fn SimState::activate(self : SimState, node : Int) -> Unit {
+pub fn SimState::activate(self : SimState, node : Int32) -> Unit {
   if node >= 0 && node < self.pending.length() {
     self.pending[node] = true
   }
@@ -80,7 +80,7 @@ fn is_special(kind : NodeKind) -> Bool {
 }
 
 ///|
-fn node_active(diagram : Diagram, state : SimState, idx : Int) -> Bool {
+fn node_active(diagram : Diagram, state : SimState, idx : Int32) -> Bool {
   // An unsatisfied activator disables the node entirely.
   if node_blocked(diagram, state, idx) {
     return false
@@ -101,7 +101,7 @@ fn node_active(diagram : Diagram, state : SimState, idx : Int) -> Bool {
 ///|
 /// Resolve a rate label to a concrete amount for this step. `avail` is the
 /// amount available at the source end (used by `All`).
-fn resolve_rate(rate : Rate, state : SimState, avail : Int) -> Int {
+fn resolve_rate(rate : Rate, state : SimState, avail : Int32) -> Int32 {
   match rate {
     Fixed(n) => n
     Dice(count, sides) => roll_dice(state, count, sides)
@@ -210,7 +210,7 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
 
 ///|
 /// Run `count` steps.
-pub fn run(diagram : Diagram, state : SimState, count : Int) -> Unit {
+pub fn run(diagram : Diagram, state : SimState, count : Int32) -> Unit {
   for _ in 0..<count {
     step(diagram, state)
   }

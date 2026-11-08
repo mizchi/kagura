@@ -1,10 +1,11 @@
 ///|
 /// TextLabel: simple positioned text with alignment.
+#derive(Debug, Eq)
 pub(all) enum TextAlign {
   Left
   Center
   Right
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for TextAlign with fn output(self, logger) {
@@ -17,7 +18,7 @@ pub(all) struct TextLabel {
   y : Double
   text : String
   size : Double
-  color : Int // hex
+  color : Int32 // hex
   align : TextAlign
 }
 

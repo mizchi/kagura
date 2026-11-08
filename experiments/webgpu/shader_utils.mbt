@@ -1,7 +1,7 @@
 ///|
 /// Texture binding info parsed from WGSL source
 pub(all) struct TextureBinding {
-  binding : Int
+  binding : Int32
   type_ : String // "texture" or "sampler"
 }
 
@@ -94,7 +94,7 @@ fn js_parse_texture_bindings(source : String) -> @core.Any {
 
 ///|
 /// Parse integer from string via JS
-fn js_parse_int(s : String) -> Int {
+fn js_parse_int(s : String) -> Int32 {
   @core.global_this()
   ._get("parseInt")
   ._invoke([@core.Any::string(s), @core.Any::int(10)])
@@ -103,7 +103,7 @@ fn js_parse_int(s : String) -> Int {
 
 ///|
 /// Helper extension methods for @core.Any type conversions
-fn @core.Any::cast_int(self : @core.Any) -> Int {
+fn @core.Any::cast_int(self : @core.Any) -> Int32 {
   self.cast()
 }
 
@@ -123,7 +123,7 @@ fn @core.Any::string(s : String) -> @core.Any {
 }
 
 ///|
-fn @core.Any::int(i : Int) -> @core.Any {
+fn @core.Any::int(i : Int32) -> @core.Any {
   @core.any(i)
 }
 

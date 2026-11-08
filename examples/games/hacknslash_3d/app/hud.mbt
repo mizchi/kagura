@@ -37,7 +37,7 @@ fn GameState::invalidate_hud_static_cache(self : GameState) -> Unit {
 }
 
 ///|
-fn GameState::hud_static_text_mode(self : GameState) -> Int {
+fn GameState::hud_static_text_mode(self : GameState) -> Int32 {
   match self.text_renderer {
     Some(_) => 1
     None => 0
@@ -45,7 +45,7 @@ fn GameState::hud_static_text_mode(self : GameState) -> Int {
 }
 
 ///|
-fn cooldown_tenths_text(timer : Int) -> String {
+fn cooldown_tenths_text(timer : Int32) -> String {
   let tenths = (timer + 5) / 6
   let whole = tenths / 10
   let frac = tenths % 10
@@ -53,7 +53,7 @@ fn cooldown_tenths_text(timer : Int) -> String {
 }
 
 ///|
-fn hp_bar_ratio_clamped(current : Int, max_hp : Int) -> Double {
+fn hp_bar_ratio_clamped(current : Int32, max_hp : Int32) -> Double {
   if max_hp <= 0 {
     return 0.0
   }
@@ -62,7 +62,7 @@ fn hp_bar_ratio_clamped(current : Int, max_hp : Int) -> Double {
 }
 
 ///|
-fn hp_status_text(current : Int, max_hp : Int) -> String {
+fn hp_status_text(current : Int32, max_hp : Int32) -> String {
   let shown_max = @cmp.maximum(0, max_hp)
   let shown_current = @cmp.maximum(0, @cmp.minimum(current, shown_max))
   shown_current.to_string() + "/" + shown_max.to_string()
@@ -77,9 +77,9 @@ fn GameState::draw_spell_cooldown_widget(
   x : Double,
   y : Double,
   width : Double,
-  timer : Int,
-  max_timer : Int,
-  color_hex : Int,
+  timer : Int32,
+  max_timer : Int32,
+  color_hex : Int32,
 ) -> Unit {
   let bg_y = y + 2.0
   ctx.draw_text(cmds, label, 12.0, x, y, 0xDDEEFF)
@@ -190,7 +190,7 @@ fn item_drop_label_text(kind : @game.ItemKind) -> String {
 }
 
 ///|
-fn item_drop_label_color(kind : @game.ItemKind) -> Int {
+fn item_drop_label_color(kind : @game.ItemKind) -> Int32 {
   match kind {
     @game.Health => 0x66FFAA
     @game.Score => 0xFFCC33
@@ -376,7 +376,7 @@ fn GameState::ensure_hud_static_cache(
 ///|
 fn GameState::render_hud_scene_fallback(
   self : GameState,
-  alive_count : Int,
+  alive_count : Int32,
 ) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   @scene.fragment([
@@ -409,7 +409,7 @@ fn GameState::render_hud_scene_fallback(
 ///|
 fn GameState::render_hud_scene_fallback_dynamic(
   self : GameState,
-  alive_count : Int,
+  alive_count : Int32,
 ) -> @scene.SceneNode {
   self.render_hud_scene_fallback(alive_count)
 }

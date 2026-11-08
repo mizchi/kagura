@@ -6,10 +6,10 @@ fn main {
   println("")
   let max_generations = 40
   let sim_max_frames = 9000
-  let seeds : Array[Int] = [42, 137, 256, 512]
+  let seeds : Array[Int32] = [42, 137, 256, 512]
   let specs = @blib.param_specs()
   let targets = @blib.BalanceTargets::default().to_dec_targets()
-  let profiles : Array[(String, Int)] = [
+  let profiles : Array[(String, Int32)] = [
     ("Classic", 0),
     ("GlassCannon", 1),
     ("Tank", 2),
@@ -171,7 +171,7 @@ fn print_metrics(m : @dec.Metrics) -> Unit {
 }
 
 ///|
-fn pad(s : String, width : Int) -> String {
+fn pad(s : String, width : Int32) -> String {
   let mut r = s
   while r.length() < width {
     r = r + " "

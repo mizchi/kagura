@@ -28,7 +28,7 @@ struct ModelBounds {
   mut max_x : Double
   mut max_y : Double
   mut max_z : Double
-  mut triangles : Int
+  mut triangles : Int32
 }
 
 ///|
@@ -42,7 +42,7 @@ fn model_bounds(graph : @scene3d.SceneGraph) -> ModelBounds {
     max_z: -1.0e30,
     triangles: 0,
   }
-  fn visit(id : Int, parent : @math3d.Mat4) -> Unit {
+  fn visit(id : Int32, parent : @math3d.Mat4) -> Unit {
     if graph.get_node(id) is Some(node) {
       let world = parent.multiply(node.transform.to_mat4())
       if node.mesh is Some(mesh) {

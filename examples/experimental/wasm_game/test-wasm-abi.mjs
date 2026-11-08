@@ -1,5 +1,5 @@
 // Semantic ABI conformance test for WASM guest modules
-// Usage: node examples/wasm_game/test-wasm-abi.mjs [moonbit|rust|zig|all]
+// Usage: node examples/experimental/wasm_game/test-wasm-abi.mjs [moonbit|rust|zig|all]
 import {
   HOST_ASSET_TITLE,
   allocGuest,

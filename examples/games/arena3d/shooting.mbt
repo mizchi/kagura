@@ -5,10 +5,10 @@ let shot_speed : Double = 16.0
 let shot_range : Double = 40.0
 
 ///|
-let shot_capacity : Int = 12
+let shot_capacity : Int32 = 12
 
 ///|
-let shot_impact_frames : Int = 12
+let shot_impact_frames : Int32 = 12
 
 ///|
 struct Shot {
@@ -16,14 +16,14 @@ struct Shot {
   mut position : @math3d.Vec3
   direction : @math3d.Vec3
   mut travelled : Double
-  mut impact_frames : Int
+  mut impact_frames : Int32
 }
 
 ///|
 struct ShotHit {
   distance : Double
-  body_id : Int?
-  enemy_index : Int?
+  body_id : Int32?
+  enemy_index : Int32?
 }
 
 ///|
@@ -33,8 +33,8 @@ fn GameState::trace_shot(
   range : Double,
 ) -> ShotHit {
   let mut distance = range
-  let mut body_id : Int? = None
-  let mut enemy_index : Int? = None
+  let mut body_id : Int32? = None
+  let mut enemy_index : Int32? = None
   for body in self.physics.bodies {
     if body.id == player_body_id {
       continue

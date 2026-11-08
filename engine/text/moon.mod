@@ -1,6 +1,6 @@
 name = "mizchi/text"
 
-version = "0.6.0"
+version = "0.7.0"
 
 description = "Text rendering helpers (glyph cache, batch builder, font engine) on top of mizchi/gfx and mizchi/font, extracted from kagura"
 
@@ -11,6 +11,6 @@ license = "Apache-2.0"
 warnings = "-6-29-53-68"
 
 import {
-  "mizchi/gfx@0.1.0",
-  "mizchi/font@0.7.3",
+  "mizchi/gfx@0.1.1",
+  "mizchi/font@0.7.4",
 }

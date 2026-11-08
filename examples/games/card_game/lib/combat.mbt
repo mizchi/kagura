@@ -1,10 +1,11 @@
 ///|
 /// Status effects with duration (turns remaining)
+#derive(Debug)
 pub(all) struct StatusEffects {
-  mut vulnerable : Int // Take 50% more damage
-  mut weak : Int // Deal 25% less damage
-  mut strength : Int // +damage per attack (permanent)
-} derive(Debug)
+  mut vulnerable : Int32 // Take 50% more damage
+  mut weak : Int32 // Deal 25% less damage
+  mut strength : Int32 // +damage per attack (permanent)
+}
 
 ///|
 pub impl Show for StatusEffects with fn output(self, logger) {
@@ -18,15 +19,16 @@ fn StatusEffects::new() -> StatusEffects {
 
 ///|
 /// A combatant (player or enemy)
+#derive(Debug)
 pub(all) struct Fighter {
   name : String
-  mut hp : Int
-  mut max_hp : Int
-  mut block : Int
-  mut energy : Int
-  mut max_energy : Int
+  mut hp : Int32
+  mut max_hp : Int32
+  mut block : Int32
+  mut energy : Int32
+  mut max_energy : Int32
   status : StatusEffects
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Fighter with fn output(self, logger) {
@@ -34,7 +36,11 @@ pub impl Show for Fighter with fn output(self, logger) {
 }
 
 ///|
-fn Fighter::new(name : String, max_hp : Int, max_energy? : Int = 0) -> Fighter {
+fn Fighter::new(
+  name : String,
+  max_hp : Int32,
+  max_energy~ : Int32 = 0,
+) -> Fighter {
   {
     name,
     hp: max_hp,
@@ -53,7 +59,7 @@ fn Fighter::is_dead(self : Fighter) -> Bool {
 
 ///|
 /// Calculate outgoing damage with attacker's status effects
-fn calculate_attack_damage(base : Int, attacker : Fighter) -> Int {
+fn calculate_attack_damage(base : Int32, attacker : Fighter) -> Int32 {
   let mut damage = base + attacker.status.strength
   if attacker.status.weak > 0 {
     // Weak: deal 25% less damage
@@ -68,7 +74,7 @@ fn calculate_attack_damage(base : Int, attacker : Fighter) -> Int {
 
 ///|
 /// Calculate incoming damage with defender's status effects
-fn calculate_received_damage(damage : Int, defender : Fighter) -> Int {
+fn calculate_received_damage(damage : Int32, defender : Fighter) -> Int32 {
   let mut result = damage
   if defender.status.vulnerable > 0 {
     // Vulnerable: take 50% more damage
@@ -83,7 +89,7 @@ fn calculate_received_damage(damage : Int, defender : Fighter) -> Int {
 
 ///|
 /// Apply damage to a fighter (goes through block first)
-fn apply_damage(fighter : Fighter, raw_damage : Int) -> Int {
+fn apply_damage(fighter : Fighter, raw_damage : Int32) -> Int32 {
   let damage = calculate_received_damage(raw_damage, fighter)
   if fighter.block >= damage {
     fighter.block -= damage
@@ -101,7 +107,7 @@ fn apply_damage(fighter : Fighter, raw_damage : Int) -> Int {
 
 ///|
 /// Add block to a fighter
-fn add_block(fighter : Fighter, amount : Int) -> Unit {
+fn add_block(fighter : Fighter, amount : Int32) -> Unit {
   fighter.block += amount
 }
 

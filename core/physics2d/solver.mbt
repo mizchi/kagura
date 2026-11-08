@@ -233,8 +233,8 @@ let pi : Double = 3.14159265358979323846
 fn precompute_constraint2d(
   a : RigidBody2D,
   b : RigidBody2D,
-  idx_a : Int,
-  idx_b : Int,
+  idx_a : Int32,
+  idx_b : Int32,
   contact : Contact2D,
   hertz : Double,
   damping_ratio : Double,
@@ -305,7 +305,7 @@ fn precompute_constraint2d(
 /// Updates body velocities and accumulated impulses in-place.
 fn solve_constraint2d(
   constraints : Array[ContactConstraint2D],
-  ci : Int,
+  ci : Int32,
   bodies : Array[RigidBody2D],
   vel : VelocityState2D,
   use_bias : Bool,

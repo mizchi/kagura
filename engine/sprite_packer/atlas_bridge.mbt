@@ -2,7 +2,7 @@
 /// Convert a PackedSprite to an AtlasRegion.
 pub fn packed_sprite_to_atlas_region(
   sprite : PackedSprite,
-  atlas_id : Int,
+  atlas_id : Int32,
 ) -> @atlas.AtlasRegion {
   @atlas.new_atlas_region(
     sprite.x,
@@ -20,7 +20,7 @@ pub fn packed_sprite_to_atlas_region(
 pub fn create_packed_atlas_repository(
   inputs : Array[SpriteInput],
   result : PackResult,
-  atlas_id? : Int = 0,
+  atlas_id~ : Int32 = 0,
 ) -> @atlas.SimpleAtlasImageRepository {
   let repo = @atlas.new_simple_atlas_image_repository(
     result.width,
@@ -81,7 +81,7 @@ pub fn pack_result_to_tile_atlas_table(
 ///|
 /// Parse tile index from key like "tile_3" or "sprite_12" -> Some(3) / Some(12).
 /// Returns None if the key doesn't end with _N pattern.
-fn parse_tile_index(key : String) -> Int? {
+fn parse_tile_index(key : String) -> Int32? {
   // Find last underscore
   let bytes = key.to_array()
   let mut last_underscore = -1

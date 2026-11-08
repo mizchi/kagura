@@ -1,8 +1,8 @@
 ///|
 pub fn hunter_equipment_item(
   slot : EquipSlot,
-  weapon? : PlayerWeaponKind = Cleaver,
-  rarity? : ItemRarity = Common,
+  weapon~ : PlayerWeaponKind = Cleaver,
+  rarity~ : ItemRarity = Common,
 ) -> ItemData {
   {
     name: match slot {
@@ -74,7 +74,7 @@ pub fn hunter_equipment_item(
 
 ///|
 pub fn new_hunter_inventory(
-  archetype? : CharacterArchetype = Melee,
+  archetype~ : CharacterArchetype = Melee,
 ) -> Inventory {
   let inventory = Inventory::new_grid(8, 6)
   for
@@ -102,7 +102,7 @@ pub fn new_hunter_inventory(
 }
 
 ///|
-fn hunter_drop_variant(base : ItemData, seed : Int) -> ItemData {
+fn hunter_drop_variant(base : ItemData, seed : Int32) -> ItemData {
   let value = seed & 0x7FFFFFFF
   let slot = match base.slot {
     Armor => [Armor, Helmet, Gloves, Boots, Offhand][value / 7 % 5]

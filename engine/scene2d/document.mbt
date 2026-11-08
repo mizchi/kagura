@@ -1,5 +1,6 @@
 ///|
 /// Axis-aligned 2D authoring rectangles. Behavior and component constraints belong to each game.
+#derive(FromJson, ToJson)
 pub(all) struct Element {
   id : String
   name : String
@@ -8,8 +9,8 @@ pub(all) struct Element {
   y : Double
   width : Double
   height : Double
-  color : Int
-} derive(FromJson, ToJson)
+  color : Int32
+}
 
 ///|
 pub extend Element with @moonbitlang/core/json.FromJson::{from_json}
@@ -18,13 +19,14 @@ pub extend Element with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Element with ToJson::{to_json}
 
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct Document {
   coordinates : String
-  width : Int
-  height : Int
-  background : Int
+  width : Int32
+  height : Int32
+  background : Int32
   objects : Array[Element]
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Document with @moonbitlang/core/json.FromJson::{from_json}

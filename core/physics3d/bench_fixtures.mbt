@@ -9,11 +9,11 @@
 /// Deterministic LCG, so fixture jitter is identical on every machine, target,
 /// and run.
 priv struct BenchRng3D {
-  mut state : UInt
+  mut state : UInt32
 }
 
 ///|
-fn BenchRng3D::new(seed : UInt) -> BenchRng3D {
+fn BenchRng3D::new(seed : UInt32) -> BenchRng3D {
   { state: seed, }
 }
 
@@ -50,7 +50,7 @@ fn BenchFixture3D::reset(self : BenchFixture3D) -> Unit {
 
 ///|
 /// Cube side length for `count` bodies, so a pile is roughly cubic.
-fn bench_grid_side3d(count : Int) -> Int {
+fn bench_grid_side3d(count : Int32) -> Int32 {
   let mut side = 1
   while side * side * side < count {
     side = side + 1
@@ -60,7 +60,7 @@ fn bench_grid_side3d(count : Int) -> Int {
 
 ///|
 /// Square side length for `count` bodies, for the single-layer resting fixture.
-fn bench_grid_cols3d(count : Int) -> Int {
+fn bench_grid_cols3d(count : Int32) -> Int32 {
   let mut cols = 1
   while cols * cols < count {
     cols = cols + 1
@@ -74,7 +74,7 @@ fn bench_grid_cols3d(count : Int) -> Int {
 ///
 /// `warm_frames` must stay below `sleep_time_threshold3d / dt` or the fixture
 /// starts pricing the sleep fast-path instead of the solver.
-fn bench_pile_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
+fn bench_pile_fixture3d(count : Int32, warm_frames : Int32) -> BenchFixture3D {
   let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -9.8, 0.0), 1.0)
   let side = bench_grid_side3d(count)
   let span = side.to_double() * bench_pile_spacing3d
@@ -162,7 +162,10 @@ fn bench_pile_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
 ///|
 /// Spheres spread far enough apart that the broadphase finds no pairs. Prices
 /// the per-body floor of a frame with the narrowphase and solver empty.
-fn bench_scatter_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
+fn bench_scatter_fixture3d(
+  count : Int32,
+  warm_frames : Int32,
+) -> BenchFixture3D {
   let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -9.8, 0.0), 1.0)
   let side = bench_grid_side3d(count)
   let rng = BenchRng3D::new(0x5EED_3D02)
@@ -195,7 +198,10 @@ fn bench_scatter_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
 /// Spheres at rest on the floor, spaced so each one touches the floor and
 /// nothing else, so every dynamic body is its own island and the island sleep
 /// rule can fire. See the 2D counterpart for why this is not a pile.
-fn bench_resting_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
+fn bench_resting_fixture3d(
+  count : Int32,
+  warm_frames : Int32,
+) -> BenchFixture3D {
   let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -9.8, 0.0), 1.0)
   let side = bench_grid_cols3d(count)
   let span = side.to_double() * bench_resting_spacing3d
@@ -237,7 +243,7 @@ fn bench_resting_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
 /// A hanging rope: one static anchor and `count` links chained by distance
 /// joints. Prices `precompute_distance_joint3d` + `solve_distance_joint3d`,
 /// which no benchmark covered before.
-fn bench_rope_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
+fn bench_rope_fixture3d(count : Int32, warm_frames : Int32) -> BenchFixture3D {
   let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -9.8, 0.0), 1.0)
   bench_build_chain_bodies3d(world, count)
   for i = 0; i + 1 < count; i = i + 1 {
@@ -260,7 +266,10 @@ fn bench_rope_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
 ///|
 /// The same chain held by ball joints instead, so the two joint solvers are
 /// tracked separately rather than averaged together.
-fn bench_ball_chain_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D {
+fn bench_ball_chain_fixture3d(
+  count : Int32,
+  warm_frames : Int32,
+) -> BenchFixture3D {
   let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -9.8, 0.0), 1.0)
   bench_build_chain_bodies3d(world, count)
   for i = 0; i + 1 < count; i = i + 1 {
@@ -282,7 +291,7 @@ fn bench_ball_chain_fixture3d(count : Int, warm_frames : Int) -> BenchFixture3D 
 ///|
 /// Chain links: body 0 is the static anchor, the rest hang below it far enough
 /// apart that no contacts are generated, so a joint benchmark prices joints.
-fn bench_build_chain_bodies3d(world : PhysicsWorld, count : Int) -> Unit {
+fn bench_build_chain_bodies3d(world : PhysicsWorld, count : Int32) -> Unit {
   world.add_body(
     RigidBody::new_static(
       0,
@@ -305,7 +314,7 @@ fn bench_build_chain_bodies3d(world : PhysicsWorld, count : Int) -> Unit {
 ///|
 /// Static bodies get ids well above the dynamic range so a static/dynamic pair
 /// can never be confused with a dynamic/dynamic one in the contact cache.
-let bench_static_id_base3d : Int = 1_000_000
+let bench_static_id_base3d : Int32 = 1_000_000
 
 ///|
 let bench_pile_radius3d : Double = 0.5
@@ -337,8 +346,8 @@ let bench_dt3d : Double = 1.0 / 60.0
 ///|
 /// Below `sleep_time_threshold3d / bench_dt3d`, so a warmed pile is in contact
 /// and warm-started but still awake.
-let bench_warm_frames3d : Int = 8
+let bench_warm_frames3d : Int32 = 8
 
 ///|
 /// Past the sleep threshold with margin, so the resting fixture is fully asleep.
-let bench_resting_frames3d : Int = 40
+let bench_resting_frames3d : Int32 = 40

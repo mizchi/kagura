@@ -29,8 +29,8 @@ test "loft produces outward faces and consistent rigid skinning" {
 ///|
 test "box faces have outward winding and top bottom joint assignments" {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
-  let joints : Array[Int] = []
+  let indices : Array[Int32] = []
+  let joints : Array[Int32] = []
   let weights : Array[Double] = []
   let count = Ref(0)
   @procedural3d.append_box_segment(

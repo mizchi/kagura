@@ -19,7 +19,7 @@ pub fn apply_object_patch(previous : @core.Any, patch : @core.Any) -> @core.Any 
 pub fn create_dependency_gate() -> @core.Any {
   let previous : Ref[@core.Any?] = Ref(None)
   @core.from_fn1(fn(dependencies : @core.Any) -> Bool {
-    let count : Int = dependencies._get("length").cast()
+    let count : Int32 = dependencies._get("length").cast()
     if previous.val is Some(old) && @interop.length(old) == count {
       let mut same = true
       for i = 0; i < count; i = i + 1 {

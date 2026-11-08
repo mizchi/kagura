@@ -159,7 +159,7 @@ pub fn create_control_input(options : @core.Any) -> @core.Any {
         @core.from_entries([
           ("x", @core.any(state.x)),
           ("y", @core.any(state.y)),
-          ("actions", @core.any(actions)),
+          ("actions", @interop.array_to_js(actions)),
         ])
       }),
     ),

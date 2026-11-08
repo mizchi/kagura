@@ -5,7 +5,7 @@ pub(all) struct AtlasQuad2D {
   top : Double
   right : Double
   bottom : Double
-  uniform_dwords : Array[Int]
+  uniform_dwords : Array[Int32]
 }
 
 ///|
@@ -15,7 +15,7 @@ pub fn AtlasQuad2D::new(
   top~ : Double,
   right~ : Double,
   bottom~ : Double,
-  uniform_dwords? : Array[Int] = [],
+  uniform_dwords~ : Array[Int32] = [],
 ) -> AtlasQuad2D {
   { source, left, top, right, bottom, uniform_dwords, }
 }

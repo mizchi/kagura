@@ -230,8 +230,8 @@ fn soft_constraint_params3d(
 fn precompute_constraint3d(
   a : RigidBody,
   b : RigidBody,
-  idx_a : Int,
-  idx_b : Int,
+  idx_a : Int32,
+  idx_b : Int32,
   contact : Contact,
   gamma : Double,
   bias_coefficient : Double,
@@ -366,7 +366,7 @@ fn precompute_constraint3d(
 /// bit-identical to the version it replaces rather than merely close.
 fn solve_constraint3d(
   constraints : Array[ContactConstraintRuntime3D],
-  ci : Int,
+  ci : Int32,
   bodies : Array[RigidBody],
   vel : VelocityState3D,
   use_bias : Bool,

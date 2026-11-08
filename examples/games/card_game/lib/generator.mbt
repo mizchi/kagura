@@ -17,18 +17,20 @@
 
 ///|
 /// A synthesized card: a cost plus a list of IR effects.
+#derive(Debug)
 pub(all) struct SynthCard {
-  cost : Int
+  cost : Int32
   effects : Array[Effect]
-} derive(Debug)
+}
 
 ///|
 /// How a generated card scores against its energy budget.
+#derive(Debug, Eq)
 pub(all) enum Verdict {
   Underpowered
   Balanced
   Overpowered
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for Verdict with fn output(self, logger) {
@@ -38,14 +40,15 @@ pub impl Show for Verdict with fn output(self, logger) {
 ///|
 /// Measured result of evaluating a synthesized card over the horizon. All
 /// figures are *differential* (with the card minus without it).
+#derive(Debug)
 pub(all) struct SynthEval {
-  damage : Int // extra damage dealt to the dummy
-  prevented : Int // extra incoming damage absorbed by Block
-  extra_hp_lost : Int // extra HP given up (self-damage cards)
+  damage : Int32 // extra damage dealt to the dummy
+  prevented : Int32 // extra incoming damage absorbed by Block
+  extra_hp_lost : Int32 // extra HP given up (self-damage cards)
   value : Double // weighted total value
   budget : Double // value the cost "should" buy
   verdict : Verdict
-} derive(Debug)
+}
 
 ///|
 pub impl Show for SynthEval with fn output(self, logger) {
@@ -55,25 +58,25 @@ pub impl Show for SynthEval with fn output(self, logger) {
 ///|
 /// Tiny linear-congruential PRNG (same family as the battle RNG).
 priv struct Rng {
-  mut s : Int
+  mut s : Int32
 }
 
 ///|
-fn Rng::next(self : Rng) -> Int {
+fn Rng::next(self : Rng) -> Int32 {
   self.s = self.s * 1103515245 + 12345
   (self.s >> 16) & 0x7FFF
 }
 
 ///|
 /// Inclusive range.
-fn Rng::range(self : Rng, lo : Int, hi : Int) -> Int {
+fn Rng::range(self : Rng, lo : Int32, hi : Int32) -> Int32 {
   lo + self.next() % (hi - lo + 1)
 }
 
 ///|
 /// Generate one card from the parametric core of the IR. Every branch yields a
 /// runnable effect, so the generator can never emit an invalid card.
-pub fn gen_card(seed : Int) -> SynthCard {
+pub fn gen_card(seed : Int32) -> SynthCard {
   let rng = { s: seed, }
   let cost = rng.range(0, 3)
   let n_effects = rng.range(1, 2)
@@ -105,24 +108,24 @@ pub fn gen_card(seed : Int) -> SynthCard {
 /// Horizon (turns) the multi-turn evaluator simulates. Long enough for
 /// persistent powers (Demon Form, Metallicize) and Strength scaling to show
 /// their deferred value.
-const EVAL_HORIZON : Int = 6
+const EVAL_HORIZON : Int32 = 6
 
 ///|
 /// Damage of one "baseline attack" — a stand-in for the rest of the deck. The
 /// player throws `EVAL_BASELINE_ATTACKS` of these per turn so that Strength /
 /// Vulnerable buffs have something to multiply.
-const EVAL_STRIKE_BASE : Int = 6
+const EVAL_STRIKE_BASE : Int32 = 6
 
 ///|
-const EVAL_BASELINE_ATTACKS : Int = 2
+const EVAL_BASELINE_ATTACKS : Int32 = 2
 
 ///|
 /// The training dummy's base attack and Strength (so Disarm / Weak have
 /// something to bite into).
-const EVAL_ENEMY_ATTACK : Int = 8
+const EVAL_ENEMY_ATTACK : Int32 = 8
 
 ///|
-const EVAL_ENEMY_STRENGTH : Int = 3
+const EVAL_ENEMY_STRENGTH : Int32 = 3
 
 ///|
 /// Value a single energy buys (Strike ≈ 6 damage for 1 energy).
@@ -131,9 +134,9 @@ const EVAL_PER_ENERGY : Double = 6.0
 ///|
 /// What the multi-turn simulation accumulated.
 priv struct HorizonResult {
-  damage : Int // damage dealt to the dummy over the horizon
-  prevented : Int // incoming damage absorbed by Block
-  hp_lost : Int // incoming damage that got through to HP
+  damage : Int32 // damage dealt to the dummy over the horizon
+  prevented : Int32 // incoming damage absorbed by Block
+  hp_lost : Int32 // incoming damage that got through to HP
   immediate : Double // one-off utility value (energy / draw / self-HP)
 }
 
@@ -328,13 +331,14 @@ pub fn describe_card(card : SynthCard) -> String {
 
 ///|
 /// Aggregate result of generating and grading a batch of cards.
+#derive(Debug)
 pub(all) struct GenSummary {
-  generated : Int
-  runnable : Int // cards that executed without error
-  underpowered : Int
-  balanced : Int
-  overpowered : Int
-} derive(Debug)
+  generated : Int32
+  runnable : Int32 // cards that executed without error
+  underpowered : Int32
+  balanced : Int32
+  overpowered : Int32
+}
 
 ///|
 pub impl Show for GenSummary with fn output(self, logger) {
@@ -345,7 +349,7 @@ pub impl Show for GenSummary with fn output(self, logger) {
 /// Generate `count` cards, execute each, and tally the verdicts. Because the
 /// IR is closed typed data, `runnable` always equals `generated` — the loop
 /// the paper could not reach with free-form code generation.
-pub fn generate_and_grade(count : Int, seed? : Int = 1) -> GenSummary {
+pub fn generate_and_grade(count : Int32, seed~ : Int32 = 1) -> GenSummary {
   let mut runnable = 0
   let mut under = 0
   let mut balanced = 0
@@ -375,9 +379,9 @@ pub fn generate_and_grade(count : Int, seed? : Int = 1) -> GenSummary {
 /// Generate cards and keep only those graded `Balanced` (a designer-assist
 /// filter). Returns up to `keep` accepted cards.
 pub fn generate_balanced(
-  keep : Int,
-  max_tries? : Int = 1000,
-  seed? : Int = 1,
+  keep : Int32,
+  max_tries~ : Int32 = 1000,
+  seed~ : Int32 = 1,
 ) -> Array[SynthCard] {
   let kept : Array[SynthCard] = []
   let mut tries = 0
@@ -418,8 +422,8 @@ pub fn grade_designed_cards() -> GenSummary {
 /// Build a reproducible multi-line report of the generate→evaluate loop, for
 /// the headless runner.
 pub fn format_generation_report(
-  count? : Int = 1000,
-  seed? : Int = 12345,
+  count~ : Int32 = 1000,
+  seed~ : Int32 = 12345,
 ) -> String {
   let lines : Array[String] = []
   let s = generate_and_grade(count, seed~)

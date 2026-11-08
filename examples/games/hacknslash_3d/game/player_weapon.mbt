@@ -1,23 +1,27 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum PlayerWeaponKind {
   Cleaver
   Spear
   Knuckles
   Focus
   Bow
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend PlayerWeaponKind with Eq::{not_equal, equal}
+
 ///|
 pub extend PlayerWeaponKind with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 /// Frame timing is shared by combat, rig playback and portable motion exports.
 pub(all) struct PlayerWeaponProfile {
   id : String
   name : String
   action : String
-  windup : Int
-  recovery : Int
+  windup : Int32
+  recovery : Int32
   reach : Double
   width : Double
 }
@@ -72,7 +76,7 @@ let player_weapon_profiles : Array[PlayerWeaponProfile] = [
 ]
 
 ///|
-pub fn PlayerWeaponKind::index(self : PlayerWeaponKind) -> Int {
+pub fn PlayerWeaponKind::index(self : PlayerWeaponKind) -> Int32 {
   match self {
     Cleaver => 0
     Spear => 1
@@ -83,7 +87,7 @@ pub fn PlayerWeaponKind::index(self : PlayerWeaponKind) -> Int {
 }
 
 ///|
-pub fn player_weapon_from_index(index : Int) -> PlayerWeaponKind? {
+pub fn player_weapon_from_index(index : Int32) -> PlayerWeaponKind? {
   match index {
     0 => Some(Cleaver)
     1 => Some(Spear)
@@ -116,7 +120,7 @@ pub(all) struct PlayerWeaponAttack {
   weapon : PlayerWeaponKind
   combo : CleaverComboStep
   angle : Double
-  mut frame : Int
+  mut frame : Int32
 }
 
 ///|

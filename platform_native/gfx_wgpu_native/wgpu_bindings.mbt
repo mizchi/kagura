@@ -31,10 +31,11 @@ type WGPUQueue
 
 ///|
 // Status/Result 型
+#derive(Debug)
 pub enum WGPUStatus {
   Success // 0
   Error // 1
-} derive(Debug)
+}
 
 ///|
 pub impl Show for WGPUStatus with fn output(self, logger) {
@@ -43,6 +44,7 @@ pub impl Show for WGPUStatus with fn output(self, logger) {
 
 ///|
 // Backend 型（Metal, Vulkan, DX12 など）
+#derive(Debug)
 pub enum WGPUBackendType {
   Undefined // 0
   Null // 1
@@ -53,7 +55,7 @@ pub enum WGPUBackendType {
   Vulkan // 6
   OpenGL // 7
   OpenGLES // 8
-} derive(Debug)
+}
 
 ///|
 pub impl Show for WGPUBackendType with fn output(self, logger) {
@@ -66,7 +68,7 @@ pub impl Show for WGPUBackendType with fn output(self, logger) {
 // ===============================
 
 // Instance API
-extern "C" fn wgpuCreateInstance(descriptor : Int) -> WGPUInstance = "wgpuCreateInstance"
+extern "C" fn wgpuCreateInstance(descriptor : Int32) -> WGPUInstance = "wgpuCreateInstance"
 
 ///|
 extern "C" fn wgpuInstanceRelease(instance : WGPUInstance) -> Unit = "wgpuInstanceRelease"
@@ -194,8 +196,8 @@ extern "C" fn moonbit_configure_surface(
   surface : WGPUSurface,
   device : WGPUDevice,
   adapter : WGPUAdapter,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit = "moonbit_configure_surface"
 
 ///|
@@ -203,8 +205,8 @@ pub fn configure_surface(
   surface : WGPUSurface,
   device : WGPUDevice,
   adapter : WGPUAdapter,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   moonbit_configure_surface(surface, device, adapter, width, height)
 }
@@ -246,7 +248,7 @@ pub fn shader_module_release(shaderModule : WGPUShaderModule) -> Unit {
 extern "C" fn moonbit_create_render_pipeline(
   device : WGPUDevice,
   shaderModule : WGPUShaderModule,
-  format : Int,
+  format : Int32,
 ) -> WGPURenderPipeline = "moonbit_create_render_pipeline"
 
 ///|
@@ -256,7 +258,7 @@ extern "C" fn wgpuRenderPipelineRelease(pipeline : WGPURenderPipeline) -> Unit =
 pub fn create_render_pipeline(
   device : WGPUDevice,
   shaderModule : WGPUShaderModule,
-  format : Int,
+  format : Int32,
 ) -> WGPURenderPipeline {
   moonbit_create_render_pipeline(device, shaderModule, format)
 }
@@ -299,7 +301,7 @@ extern "C" fn moonbit_render_frame_with_plan(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
-  draw_calls : Int,
+  draw_calls : Int32,
 ) -> Unit = "moonbit_render_frame_with_plan"
 
 ///|
@@ -312,7 +314,7 @@ pub fn render_frame_with_plan(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
-  draw_calls : Int,
+  draw_calls : Int32,
 ) -> Unit {
   moonbit_render_frame_with_plan(
     surface, device, queue, pipeline, clear_r, clear_g, clear_b, clear_a, draw_calls,
@@ -361,44 +363,44 @@ pub fn clear_planned_image_palette_registry() -> Unit {
 
 ///|
 extern "C" fn moonbit_register_planned_image_palette(
-  image_id : Int,
-  p00_r : Int,
-  p00_g : Int,
-  p00_b : Int,
-  p00_a : Int,
-  p10_r : Int,
-  p10_g : Int,
-  p10_b : Int,
-  p10_a : Int,
-  p01_r : Int,
-  p01_g : Int,
-  p01_b : Int,
-  p01_a : Int,
-  p11_r : Int,
-  p11_g : Int,
-  p11_b : Int,
-  p11_a : Int,
+  image_id : Int32,
+  p00_r : Int32,
+  p00_g : Int32,
+  p00_b : Int32,
+  p00_a : Int32,
+  p10_r : Int32,
+  p10_g : Int32,
+  p10_b : Int32,
+  p10_a : Int32,
+  p01_r : Int32,
+  p01_g : Int32,
+  p01_b : Int32,
+  p01_a : Int32,
+  p11_r : Int32,
+  p11_g : Int32,
+  p11_b : Int32,
+  p11_a : Int32,
 ) -> Unit = "moonbit_register_planned_image_palette"
 
 ///|
 pub fn register_planned_image_palette(
-  image_id : Int,
-  p00_r : Int,
-  p00_g : Int,
-  p00_b : Int,
-  p00_a : Int,
-  p10_r : Int,
-  p10_g : Int,
-  p10_b : Int,
-  p10_a : Int,
-  p01_r : Int,
-  p01_g : Int,
-  p01_b : Int,
-  p01_a : Int,
-  p11_r : Int,
-  p11_g : Int,
-  p11_b : Int,
-  p11_a : Int,
+  image_id : Int32,
+  p00_r : Int32,
+  p00_g : Int32,
+  p00_b : Int32,
+  p00_a : Int32,
+  p10_r : Int32,
+  p10_g : Int32,
+  p10_b : Int32,
+  p10_a : Int32,
+  p01_r : Int32,
+  p01_g : Int32,
+  p01_b : Int32,
+  p01_a : Int32,
+  p11_r : Int32,
+  p11_g : Int32,
+  p11_b : Int32,
+  p11_a : Int32,
 ) -> Unit {
   moonbit_register_planned_image_palette(
     image_id, p00_r, p00_g, p00_b, p00_a, p10_r, p10_g, p10_b, p10_a, p01_r, p01_g,
@@ -407,34 +409,36 @@ pub fn register_planned_image_palette(
 }
 
 ///|
-extern "C" fn moonbit_planned_image_palette_registry_count() -> Int = "moonbit_planned_image_palette_registry_count"
+extern "C" fn moonbit_planned_image_palette_registry_count() -> Int32 = "moonbit_planned_image_palette_registry_count"
 
 ///|
-pub fn planned_image_palette_registry_count() -> Int {
+pub fn planned_image_palette_registry_count() -> Int32 {
   moonbit_planned_image_palette_registry_count()
 }
 
 ///|
 extern "C" fn moonbit_planned_image_palette_channel(
-  image_id : Int,
-  pixel_index : Int,
-  channel_index : Int,
-) -> Int = "moonbit_planned_image_palette_channel"
+  image_id : Int32,
+  pixel_index : Int32,
+  channel_index : Int32,
+) -> Int32 = "moonbit_planned_image_palette_channel"
 
 ///|
 pub fn planned_image_palette_channel(
-  image_id : Int,
-  pixel_index : Int,
-  channel_index : Int,
-) -> Int {
+  image_id : Int32,
+  pixel_index : Int32,
+  channel_index : Int32,
+) -> Int32 {
   moonbit_planned_image_palette_channel(image_id, pixel_index, channel_index)
 }
 
 ///|
-extern "C" fn moonbit_planned_image_palette_generation(image_id : Int) -> Int = "moonbit_planned_image_palette_generation"
+extern "C" fn moonbit_planned_image_palette_generation(
+  image_id : Int32,
+) -> Int32 = "moonbit_planned_image_palette_generation"
 
 ///|
-pub fn planned_image_palette_generation(image_id : Int) -> Int {
+pub fn planned_image_palette_generation(image_id : Int32) -> Int32 {
   moonbit_planned_image_palette_generation(image_id)
 }
 
@@ -448,122 +452,126 @@ pub fn clear_planned_source_image_registry() -> Unit {
 
 ///|
 extern "C" fn moonbit_begin_planned_source_image_upload(
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit = "moonbit_begin_planned_source_image_upload"
 
 ///|
 pub fn begin_planned_source_image_upload(
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   moonbit_begin_planned_source_image_upload(image_id, width, height)
 }
 
 ///|
-extern "C" fn moonbit_begin_planned_source_image_patch(image_id : Int) -> Int = "moonbit_begin_planned_source_image_patch"
+extern "C" fn moonbit_begin_planned_source_image_patch(
+  image_id : Int32,
+) -> Int32 = "moonbit_begin_planned_source_image_patch"
 
 ///|
-pub fn begin_planned_source_image_patch(image_id : Int) -> Bool {
+pub fn begin_planned_source_image_patch(image_id : Int32) -> Bool {
   moonbit_begin_planned_source_image_patch(image_id) != 0
 }
 
 ///|
 extern "C" fn moonbit_set_planned_source_image_pixel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  r : Int,
-  g : Int,
-  b : Int,
-  a : Int,
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  r : Int32,
+  g : Int32,
+  b : Int32,
+  a : Int32,
 ) -> Unit = "moonbit_set_planned_source_image_pixel"
 
 ///|
 pub fn set_planned_source_image_pixel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  r : Int,
-  g : Int,
-  b : Int,
-  a : Int,
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  r : Int32,
+  g : Int32,
+  b : Int32,
+  a : Int32,
 ) -> Unit {
   moonbit_set_planned_source_image_pixel(image_id, x, y, r, g, b, a)
 }
 
 ///|
-extern "C" fn moonbit_end_planned_source_image_upload(image_id : Int) -> Unit = "moonbit_end_planned_source_image_upload"
+extern "C" fn moonbit_end_planned_source_image_upload(image_id : Int32) -> Unit = "moonbit_end_planned_source_image_upload"
 
 ///|
-pub fn end_planned_source_image_upload(image_id : Int) -> Unit {
+pub fn end_planned_source_image_upload(image_id : Int32) -> Unit {
   moonbit_end_planned_source_image_upload(image_id)
 }
 
 ///|
-extern "C" fn moonbit_end_planned_source_image_patch(image_id : Int) -> Int = "moonbit_end_planned_source_image_patch"
+extern "C" fn moonbit_end_planned_source_image_patch(image_id : Int32) -> Int32 = "moonbit_end_planned_source_image_patch"
 
 ///|
-pub fn end_planned_source_image_patch(image_id : Int) -> Bool {
+pub fn end_planned_source_image_patch(image_id : Int32) -> Bool {
   moonbit_end_planned_source_image_patch(image_id) != 0
 }
 
 ///|
-extern "C" fn moonbit_planned_source_image_registry_count() -> Int = "moonbit_planned_source_image_registry_count"
+extern "C" fn moonbit_planned_source_image_registry_count() -> Int32 = "moonbit_planned_source_image_registry_count"
 
 ///|
-pub fn planned_source_image_registry_count() -> Int {
+pub fn planned_source_image_registry_count() -> Int32 {
   moonbit_planned_source_image_registry_count()
 }
 
 ///|
-extern "C" fn moonbit_planned_source_image_width(image_id : Int) -> Int = "moonbit_planned_source_image_width"
+extern "C" fn moonbit_planned_source_image_width(image_id : Int32) -> Int32 = "moonbit_planned_source_image_width"
 
 ///|
-pub fn planned_source_image_width(image_id : Int) -> Int {
+pub fn planned_source_image_width(image_id : Int32) -> Int32 {
   moonbit_planned_source_image_width(image_id)
 }
 
 ///|
-extern "C" fn moonbit_planned_source_image_height(image_id : Int) -> Int = "moonbit_planned_source_image_height"
+extern "C" fn moonbit_planned_source_image_height(image_id : Int32) -> Int32 = "moonbit_planned_source_image_height"
 
 ///|
-pub fn planned_source_image_height(image_id : Int) -> Int {
+pub fn planned_source_image_height(image_id : Int32) -> Int32 {
   moonbit_planned_source_image_height(image_id)
 }
 
 ///|
-extern "C" fn moonbit_planned_source_image_generation(image_id : Int) -> Int = "moonbit_planned_source_image_generation"
+extern "C" fn moonbit_planned_source_image_generation(
+  image_id : Int32,
+) -> Int32 = "moonbit_planned_source_image_generation"
 
 ///|
-pub fn planned_source_image_generation(image_id : Int) -> Int {
+pub fn planned_source_image_generation(image_id : Int32) -> Int32 {
   moonbit_planned_source_image_generation(image_id)
 }
 
 ///|
 extern "C" fn moonbit_planned_source_image_pixel_channel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  channel_index : Int,
-) -> Int = "moonbit_planned_source_image_pixel_channel"
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  channel_index : Int32,
+) -> Int32 = "moonbit_planned_source_image_pixel_channel"
 
 ///|
 pub fn planned_source_image_pixel_channel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  channel_index : Int,
-) -> Int {
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  channel_index : Int32,
+) -> Int32 {
   moonbit_planned_source_image_pixel_channel(image_id, x, y, channel_index)
 }
 
 ///|
 extern "C" fn moonbit_push_planned_draw_command(
-  draw_calls : Int,
-  has_triangle_payload : Int,
+  draw_calls : Int32,
+  has_triangle_payload : Int32,
   ax : Double,
   ay : Double,
   bx : Double,
@@ -580,14 +588,14 @@ extern "C" fn moonbit_push_planned_draw_command(
   uniform_g : Double,
   uniform_b : Double,
   uniform_a : Double,
-  texture_seed : Int,
-  dst_image_id : Int,
+  texture_seed : Int32,
+  dst_image_id : Int32,
 ) -> Unit = "moonbit_push_planned_draw_command"
 
 ///|
 pub fn push_planned_draw_command(
-  draw_calls : Int,
-  has_triangle_payload : Int,
+  draw_calls : Int32,
+  has_triangle_payload : Int32,
   ax : Double,
   ay : Double,
   bx : Double,
@@ -604,8 +612,8 @@ pub fn push_planned_draw_command(
   uniform_g : Double,
   uniform_b : Double,
   uniform_a : Double,
-  texture_seed : Int,
-  dst_image_id : Int,
+  texture_seed : Int32,
+  dst_image_id : Int32,
 ) -> Unit {
   moonbit_push_planned_draw_command(
     draw_calls, has_triangle_payload, ax, ay, bx, by, cx, cy, au, av, bu, bv, cu,
@@ -615,16 +623,16 @@ pub fn push_planned_draw_command(
 
 ///|
 extern "C" fn moonbit_register_offscreen_target(
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit = "moonbit_register_offscreen_target"
 
 ///|
 pub fn register_offscreen_target(
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   moonbit_register_offscreen_target(image_id, width, height)
 }
@@ -675,8 +683,8 @@ extern "C" fn moonbit_render_frame_with_plan_payload(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
-  draw_calls : Int,
-  has_triangle_payload : Int,
+  draw_calls : Int32,
+  has_triangle_payload : Int32,
   ax : Double,
   ay : Double,
   bx : Double,
@@ -693,7 +701,7 @@ extern "C" fn moonbit_render_frame_with_plan_payload(
   uniform_g : Double,
   uniform_b : Double,
   uniform_a : Double,
-  texture_seed : Int,
+  texture_seed : Int32,
 ) -> Unit = "moonbit_render_frame_with_plan_payload"
 
 ///|
@@ -701,19 +709,21 @@ extern "C" fn moonbit_render_frame_with_plan_payload(
 // Readback API
 // ===============================
 
-extern "C" fn moonbit_read_pixels_available() -> Int = "moonbit_read_pixels_available"
+extern "C" fn moonbit_read_pixels_available() -> Int32 = "moonbit_read_pixels_available"
 
 ///|
-extern "C" fn moonbit_read_pixels_width() -> Int = "moonbit_read_pixels_width"
+extern "C" fn moonbit_read_pixels_width() -> Int32 = "moonbit_read_pixels_width"
 
 ///|
-extern "C" fn moonbit_read_pixels_height() -> Int = "moonbit_read_pixels_height"
+extern "C" fn moonbit_read_pixels_height() -> Int32 = "moonbit_read_pixels_height"
 
 ///|
-extern "C" fn moonbit_read_pixels_channel(offset : Int) -> Int = "moonbit_read_pixels_channel"
+extern "C" fn moonbit_read_pixels_channel(offset : Int32) -> Int32 = "moonbit_read_pixels_channel"
 
 ///|
-extern "C" fn moonbit_capture_offscreen_target_readback(image_id : Int) -> Int = "moonbit_capture_offscreen_target_readback"
+extern "C" fn moonbit_capture_offscreen_target_readback(
+  image_id : Int32,
+) -> Int32 = "moonbit_capture_offscreen_target_readback"
 
 ///|
 pub fn read_pixels_available() -> Bool {
@@ -721,28 +731,28 @@ pub fn read_pixels_available() -> Bool {
 }
 
 ///|
-pub fn read_pixels_width() -> Int {
+pub fn read_pixels_width() -> Int32 {
   moonbit_read_pixels_width()
 }
 
 ///|
-pub fn read_pixels_height() -> Int {
+pub fn read_pixels_height() -> Int32 {
   moonbit_read_pixels_height()
 }
 
 ///|
-pub fn read_pixels_channel(offset : Int) -> Int {
+pub fn read_pixels_channel(offset : Int32) -> Int32 {
   moonbit_read_pixels_channel(offset)
 }
 
 ///|
-pub fn capture_offscreen_target_readback(image_id : Int) -> Bool {
+pub fn capture_offscreen_target_readback(image_id : Int32) -> Bool {
   moonbit_capture_offscreen_target_readback(image_id) != 0
 }
 
 ///|
 #borrow(path)
-extern "C" fn moonbit_write_readback_bmp(path : String) -> Int = "moonbit_write_readback_bmp"
+extern "C" fn moonbit_write_readback_bmp(path : String) -> Int32 = "moonbit_write_readback_bmp"
 
 ///|
 /// Save the current readback framebuffer to a BMP file.
@@ -761,8 +771,8 @@ pub fn render_frame_with_plan_payload(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
-  draw_calls : Int,
-  has_triangle_payload : Int,
+  draw_calls : Int32,
+  has_triangle_payload : Int32,
   ax : Double,
   ay : Double,
   bx : Double,
@@ -779,7 +789,7 @@ pub fn render_frame_with_plan_payload(
   uniform_g : Double,
   uniform_b : Double,
   uniform_a : Double,
-  texture_seed : Int,
+  texture_seed : Int32,
 ) -> Unit {
   moonbit_render_frame_with_plan_payload(
     surface, device, queue, pipeline, clear_r, clear_g, clear_b, clear_a, draw_calls,

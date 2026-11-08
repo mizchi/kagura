@@ -69,7 +69,7 @@ pub fn precompute_distance_joint(
 /// with the contacts, so they share its working set. See `velocity_state.mbt`.
 pub fn solve_distance_joint(
   constraints : Array[DistanceJointConstraint2D],
-  ci : Int,
+  ci : Int32,
   bodies : Array[RigidBody2D],
   joint : DistanceJoint2D,
   vel : VelocityState2D,
@@ -197,7 +197,7 @@ pub fn precompute_revolute_joint(
 /// See `solve_distance_joint` for why velocities come from `vel`.
 pub fn solve_revolute_joint(
   constraints : Array[RevoluteJointConstraint2D],
-  ci : Int,
+  ci : Int32,
   bodies : Array[RigidBody2D],
   vel : VelocityState2D,
   use_bias : Bool,

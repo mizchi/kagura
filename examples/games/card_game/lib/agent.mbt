@@ -1,5 +1,5 @@
 ///|
-pub fn AgentSession::new(seed? : Int = 42) -> AgentSession {
+pub fn AgentSession::new(seed~ : Int32 = 42) -> AgentSession {
   { scene: Title, seed, run: None, revision: 0, }
 }
 
@@ -7,7 +7,7 @@ pub fn AgentSession::new(seed? : Int = 42) -> AgentSession {
 pub fn AgentSession::start(
   character : CharacterId,
   stage : StageId,
-  seed? : Int = 42,
+  seed~ : Int32 = 42,
 ) -> AgentSession {
   {
     scene: Playing,
@@ -24,8 +24,8 @@ pub fn AgentSession::is_terminal(self : AgentSession) -> Bool {
 
 ///|
 fn agent_play_choice(
-  index : Int,
-  target : Int,
+  index : Int32,
+  target : Int32,
   card : CardId,
   name : String,
 ) -> AgentChoice {
@@ -177,7 +177,7 @@ pub fn AgentSession::choices(self : AgentSession) -> Array[AgentChoice] {
 /// silently play the card that slid into an old hand index.
 pub fn AgentSession::step(
   self : AgentSession,
-  revision : Int,
+  revision : Int32,
   choice_id : String,
 ) -> AgentStepResult {
   if revision != self.revision {

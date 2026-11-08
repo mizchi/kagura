@@ -15,12 +15,13 @@ import {
 // Types and methods
 type AssetEntry
 
+#derive(Eq, @debug.Debug)
 pub enum AssetPriority {
   Critical
   High
   Normal
   Low
-} derive(Eq, @debug.Debug)
+}
 pub fn AssetPriority::equal(Self, Self) -> Bool
 pub fn AssetPriority::not_equal(Self, Self) -> Bool
 pub fn AssetPriority::output(Self, &Logger) -> Unit
@@ -30,43 +31,44 @@ pub impl Show for AssetPriority
 
 pub struct AssetStreamManager {
   fetcher : &@fetch.BytesFetcher
-  max_concurrent : Int
-  mut next_id : Int
+  max_concurrent : Int32
+  mut next_id : Int32
   pending : Array[StreamRequest]
-  active : Map[Int, StreamRequest]
-  mut completed_count : Int
-  mut failed_count : Int
+  active : Map[Int32, StreamRequest]
+  mut completed_count : Int32
+  mut failed_count : Int32
 }
-pub fn AssetStreamManager::cancel(Self, Int) -> Unit
-pub fn AssetStreamManager::enqueue(Self, String, AssetPriority, (Bytes?) -> Unit) -> Int
+pub fn AssetStreamManager::cancel(Self, Int32) -> Unit
+pub fn AssetStreamManager::enqueue(Self, String, AssetPriority, (Bytes?) -> Unit) -> Int32
 pub fn AssetStreamManager::image_fetch_fn(Self, priority? : AssetPriority) -> (String, (@atlas.ImageSpec?) -> Unit) -> Unit
-pub fn AssetStreamManager::new(&@fetch.BytesFetcher, max_concurrent? : Int) -> Self
+pub fn AssetStreamManager::new(&@fetch.BytesFetcher, max_concurrent? : Int32) -> Self
 pub fn AssetStreamManager::progress(Self) -> StreamProgress
-pub fn AssetStreamManager::reprioritize(Self, Int, AssetPriority) -> Bool
+pub fn AssetStreamManager::reprioritize(Self, Int32, AssetPriority) -> Bool
 pub fn AssetStreamManager::update(Self) -> Unit
 
 pub struct AssetStreamer {
   manager : AssetStreamManager
   config : AssetStreamerConfig
-  mut frame_count : Int
+  mut frame_count : Int32
   handles : Map[String, AssetEntry]
   on_evict : (@atlas.AssetKey) -> Unit
 }
 pub fn AssetStreamer::evict(Self, @atlas.AssetKey) -> Unit
 pub fn AssetStreamer::new(&@fetch.BytesFetcher, config? : AssetStreamerConfig, on_evict? : (@atlas.AssetKey) -> Unit) -> Self
 pub fn AssetStreamer::progress(Self) -> StreamProgress
-pub fn AssetStreamer::request(Self, String, @atlas.AssetKey, AssetPriority, (Bytes?) -> Unit) -> Int
-pub fn AssetStreamer::request_by_distance(Self, String, @atlas.AssetKey, Double, thresholds? : DistanceThresholds, on_complete~ : (Bytes?) -> Unit) -> Int
-pub fn AssetStreamer::request_lod(Self, String, @atlas.AssetKey, Int, AssetPriority, (Bytes?) -> Unit) -> Int
+pub fn AssetStreamer::request(Self, String, @atlas.AssetKey, AssetPriority, (Bytes?) -> Unit) -> Int32
+pub fn AssetStreamer::request_by_distance(Self, String, @atlas.AssetKey, Double, thresholds? : DistanceThresholds, on_complete~ : (Bytes?) -> Unit) -> Int32
+pub fn AssetStreamer::request_lod(Self, String, @atlas.AssetKey, Int32, AssetPriority, (Bytes?) -> Unit) -> Int32
 pub fn AssetStreamer::stream_manager(Self) -> AssetStreamManager
 pub fn AssetStreamer::touch(Self, @atlas.AssetKey) -> Unit
 pub fn AssetStreamer::update(Self) -> Unit
 
+#derive(@debug.Debug)
 pub(all) struct AssetStreamerConfig {
-  max_concurrent : Int
-  max_cached : Int
-  eviction_interval : Int
-} derive(@debug.Debug)
+  max_concurrent : Int32
+  max_cached : Int32
+  eviction_interval : Int32
+}
 pub fn AssetStreamerConfig::default() -> Self
 pub fn AssetStreamerConfig::output(Self, &Logger) -> Unit
 pub fn AssetStreamerConfig::to_repr(Self) -> @debug.Repr
@@ -74,74 +76,79 @@ pub fn AssetStreamerConfig::to_string(Self) -> String
 pub impl Show for AssetStreamerConfig
 
 pub struct AsyncImageLoader {
-  mut next_id : Int
-  requests : Map[Int, AsyncImageRequest]
-  mut pending_ids : Array[Int]
-  mut completed_ids : Array[Int]
+  mut next_id : Int32
+  requests : Map[Int32, AsyncImageRequest]
+  mut pending_ids : Array[Int32]
+  mut completed_ids : Array[Int32]
   fetch_image_fn : (String, (@atlas.ImageSpec?) -> Unit) -> Unit
 }
-pub fn AsyncImageLoader::commit_image(Self, Int, @atlas.SimpleImageRepository) -> @gfx.ImageHandle?
-pub fn AsyncImageLoader::drain_completed(Self) -> Array[Int]
-pub fn AsyncImageLoader::enqueue(Self, @atlas.AssetKey, String) -> Int
+pub fn AsyncImageLoader::commit_image(Self, Int32, @atlas.SimpleImageRepository) -> @gfx.ImageHandle?
+pub fn AsyncImageLoader::drain_completed(Self) -> Array[Int32]
+pub fn AsyncImageLoader::enqueue(Self, @atlas.AssetKey, String) -> Int32
 pub fn AsyncImageLoader::new(fetch_image_fn? : (String, (@atlas.ImageSpec?) -> Unit) -> Unit) -> Self
 pub fn AsyncImageLoader::progress(Self) -> AsyncImageProgress
-pub fn AsyncImageLoader::request(Self, Int) -> AsyncImageRequest?
-pub fn AsyncImageLoader::start_pending(Self) -> Int
+pub fn AsyncImageLoader::request(Self, Int32) -> AsyncImageRequest?
+pub fn AsyncImageLoader::start_pending(Self) -> Int32
 
+#derive(@debug.Debug)
 pub struct AsyncImageProgress {
-  total : Int
-  pending : Int
-  loading : Int
-  succeeded : Int
-  failed : Int
-} derive(@debug.Debug)
+  total : Int32
+  pending : Int32
+  loading : Int32
+  succeeded : Int32
+  failed : Int32
+}
 pub fn AsyncImageProgress::output(Self, &Logger) -> Unit
 pub fn AsyncImageProgress::to_repr(Self) -> @debug.Repr
 pub fn AsyncImageProgress::to_string(Self) -> String
 pub impl Show for AsyncImageProgress
 
+#derive(@debug.Debug)
 pub struct AsyncImageRequest {
-  id : Int
+  id : Int32
   key : @atlas.AssetKey
   url : String
   mut status : AsyncImageStatus
   mut image_spec : @atlas.ImageSpec?
-} derive(@debug.Debug)
+}
 pub fn AsyncImageRequest::output(Self, &Logger) -> Unit
 pub fn AsyncImageRequest::to_repr(Self) -> @debug.Repr
 pub fn AsyncImageRequest::to_string(Self) -> String
 pub impl Show for AsyncImageRequest
 
+#derive(@debug.Debug)
 pub enum AsyncImageStatus {
   Pending
   Loading
   Succeeded
   Failed
-} derive(@debug.Debug)
+}
 pub fn AsyncImageStatus::output(Self, &Logger) -> Unit
-pub fn AsyncImageStatus::to_int(Self) -> Int
+pub fn AsyncImageStatus::to_int(Self) -> Int32
 pub fn AsyncImageStatus::to_repr(Self) -> @debug.Repr
 pub fn AsyncImageStatus::to_string(Self) -> String
 pub impl Show for AsyncImageStatus
 
+#derive(@debug.Debug)
 pub(all) struct DistanceThresholds {
   critical : Double
   high : Double
   normal : Double
-} derive(@debug.Debug)
+}
 pub fn DistanceThresholds::default() -> Self
 pub fn DistanceThresholds::output(Self, &Logger) -> Unit
 pub fn DistanceThresholds::to_repr(Self) -> @debug.Repr
 pub fn DistanceThresholds::to_string(Self) -> String
 pub impl Show for DistanceThresholds
 
+#derive(@debug.Debug)
 pub(all) struct StreamProgress {
-  total : Int
-  pending : Int
-  active : Int
-  completed : Int
-  failed : Int
-} derive(@debug.Debug)
+  total : Int32
+  pending : Int32
+  active : Int32
+  completed : Int32
+  failed : Int32
+}
 pub fn StreamProgress::output(Self, &Logger) -> Unit
 pub fn StreamProgress::to_repr(Self) -> @debug.Repr
 pub fn StreamProgress::to_string(Self) -> String

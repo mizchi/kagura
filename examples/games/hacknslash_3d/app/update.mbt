@@ -1,13 +1,13 @@
 // Game state construction, update logic, reset
 
 ///|
-let key_m : Int = 77
+let key_m : Int32 = 77
 
 ///|
-let key_p : Int = 80
+let key_p : Int32 = 80
 
 ///|
-fn GameState::new(seed~ : Int) -> GameState {
+fn GameState::new(seed~ : Int32) -> GameState {
   GameState::new_with_params(
     seed~,
     @game.BalanceParams::default(),
@@ -18,7 +18,7 @@ fn GameState::new(seed~ : Int) -> GameState {
 
 ///|
 fn GameState::new_with_ssao(
-  seed~ : Int,
+  seed~ : Int32,
   ssao_config : @render_pipeline3d.SSAOConfig,
 ) -> GameState {
   GameState::new_with_params(
@@ -35,13 +35,13 @@ fn GameState::new_with_ssao(
 
 ///|
 fn GameState::new_with_params(
-  seed~ : Int,
+  seed~ : Int32,
   params : @game.BalanceParams,
-  postfx_config? : @render_pipeline3d.PostFXConfig = @render_pipeline3d.PostFXConfig::default(),
-  archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
-  build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
-  hunting_grounds? : Bool = false,
-  species? : CharacterSpecies = Human,
+  postfx_config~ : @render_pipeline3d.PostFXConfig = @render_pipeline3d.PostFXConfig::default(),
+  archetype~ : @game.CharacterArchetype = @game.default_character_archetype(),
+  build_policy~ : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
+  hunting_grounds~ : Bool = false,
+  species~ : CharacterSpecies = Human,
 ) -> GameState {
   let map_started = hunter_terrain_clock()
   let world = @game.GameWorld::new(
@@ -425,7 +425,7 @@ fn GameState::update_title(
 }
 
 ///|
-fn GameState::random_seed(self : GameState) -> Int {
+fn GameState::random_seed(self : GameState) -> Int32 {
   // Use frame count as entropy source for varying seeds between sessions
   let t = self.world.frame_count
   let h = t * 31337 + 137
@@ -922,8 +922,8 @@ fn GameState::spawn_damage_popup(
   self : GameState,
   x : Double,
   y : Double,
-  amount : Int,
-  color_hex : Int,
+  amount : Int32,
+  color_hex : Int32,
 ) -> Unit {
   if self.damage_popups.length() >= 48 {
     ignore(self.damage_popups.remove(0))

@@ -2,17 +2,17 @@
 package "mizchi/kagura_platform_web/diagnostics"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn install_frame_profiler(@core.Any) -> @core.Any
+pub fn install_frame_profiler(@js_core.Any) -> @js_core.Any
 
-pub fn percentile(@core.Any, Double) -> Double
+pub fn percentile(@js_core.Any, Double) -> Double
 
-pub fn read_frame_profile(@core.Any) -> @core.Any
+pub fn read_frame_profile(@js_core.Any) -> @js_core.Any
 
-pub fn summarize_intervals(@core.Any) -> @core.Any
+pub fn summarize_intervals(@js_core.Any) -> @js_core.Any
 
 // Errors
 

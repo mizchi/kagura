@@ -31,7 +31,7 @@ pub fn MotorConfig::default() -> MotorConfig {
 /// Unit contact normal points from the support toward the character. Velocity is
 /// sampled at the contact point, allowing control relative to moving supports.
 pub(all) struct GroundContact {
-  body_id : Int
+  body_id : Int32
   normal : @math3d.Vec3
   velocity : @math3d.Vec3
 }

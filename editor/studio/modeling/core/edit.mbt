@@ -1,7 +1,7 @@
 ///|
 fn transform_mesh(
   n : MeshNode,
-  indices : Array[Int],
+  indices : Array[Int32],
   kind : String,
   value : Array[Double],
   object_mode : Bool,
@@ -17,7 +17,7 @@ fn transform_mesh(
       }
     }
   }
-  let selected : Map[Int, Bool] = Map([])
+  let selected : Map[Int32, Bool] = Map([])
   for i in indices {
     selected[i] = true
   }
@@ -54,10 +54,10 @@ fn transform_mesh(
 }
 
 ///|
-fn extrude_mesh(n : MeshNode, face : Int) -> (MeshNode, Array[Int]) {
+fn extrude_mesh(n : MeshNode, face : Int32) -> (MeshNode, Array[Int32]) {
   let f = n.faces[face]
   let vertices = n.vertices.copy()
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for i in f {
     indices.push(vertices.length())
     vertices.push(n.vertices[i].copy())
@@ -74,7 +74,7 @@ fn extrude_mesh(n : MeshNode, face : Int) -> (MeshNode, Array[Int]) {
 ///|
 fn replace_node(
   doc : ModelDocument,
-  index : Int,
+  index : Int32,
   node : MeshNode,
 ) -> ModelDocument {
   let nodes = doc.nodes.copy()

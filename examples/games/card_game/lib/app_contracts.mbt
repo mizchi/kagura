@@ -1,47 +1,53 @@
 ///|
+#derive(Eq)
 enum AppScene {
   Title
   Settings
   CharacterSelect
   Playing
-} derive(Eq)
+}
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum CharacterId {
   Ironclad
   Warden
-} derive(Debug, Eq)
+}
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum StageId {
   Ascent
   ActTwo
   GuardianTrial
-} derive(Debug, Eq)
+}
 
 ///|
+#derive(Eq)
 enum MotionMode {
   System
   Reduced
   Full
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 enum PileKind {
   Deck
   Draw
   Discard
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 enum CombatFocus {
-  Hand(Int)
-  Target(Int) // -1 is the player / battlefield for untargeted cards
+  Hand(Int32)
+  Target(Int32) // -1 is the player / battlefield for untargeted cards
   EndTurn
   DrawPile
   DiscardPile
   DeckButton
-} derive(Eq)
+}
 
 ///|
 fn character_name(id : CharacterId) -> String {

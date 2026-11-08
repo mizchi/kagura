@@ -1,10 +1,11 @@
 ///|
+#derive(Debug)
 pub enum AsyncImageStatus {
   Pending
   Loading
   Succeeded
   Failed
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AsyncImageStatus with fn output(self, logger) {
@@ -12,7 +13,7 @@ pub impl Show for AsyncImageStatus with fn output(self, logger) {
 }
 
 ///|
-pub fn AsyncImageStatus::to_int(self : AsyncImageStatus) -> Int {
+pub fn AsyncImageStatus::to_int(self : AsyncImageStatus) -> Int32 {
   match self {
     AsyncImageStatus::Pending => 0
     AsyncImageStatus::Loading => 1
@@ -22,13 +23,14 @@ pub fn AsyncImageStatus::to_int(self : AsyncImageStatus) -> Int {
 }
 
 ///|
+#derive(Debug)
 pub struct AsyncImageRequest {
-  id : Int
+  id : Int32
   key : @atlas.AssetKey
   url : String
   mut status : AsyncImageStatus
   mut image_spec : @atlas.ImageSpec?
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AsyncImageRequest with fn output(self, logger) {
@@ -36,13 +38,14 @@ pub impl Show for AsyncImageRequest with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct AsyncImageProgress {
-  total : Int
-  pending : Int
-  loading : Int
-  succeeded : Int
-  failed : Int
-} derive(Debug)
+  total : Int32
+  pending : Int32
+  loading : Int32
+  succeeded : Int32
+  failed : Int32
+}
 
 ///|
 pub impl Show for AsyncImageProgress with fn output(self, logger) {
@@ -51,16 +54,16 @@ pub impl Show for AsyncImageProgress with fn output(self, logger) {
 
 ///|
 pub struct AsyncImageLoader {
-  mut next_id : Int
-  requests : Map[Int, AsyncImageRequest]
-  mut pending_ids : Array[Int]
-  mut completed_ids : Array[Int]
+  mut next_id : Int32
+  requests : Map[Int32, AsyncImageRequest]
+  mut pending_ids : Array[Int32]
+  mut completed_ids : Array[Int32]
   fetch_image_fn : (String, (@atlas.ImageSpec?) -> Unit) -> Unit
 }
 
 ///|
 pub fn AsyncImageLoader::new(
-  fetch_image_fn? : (String, (@atlas.ImageSpec?) -> Unit) -> Unit = @atlas.fetch_image,
+  fetch_image_fn~ : (String, (@atlas.ImageSpec?) -> Unit) -> Unit = @atlas.fetch_image,
 ) -> AsyncImageLoader {
   {
     next_id: 1,
@@ -76,7 +79,7 @@ pub fn AsyncImageLoader::enqueue(
   self : AsyncImageLoader,
   key : @atlas.AssetKey,
   url : String,
-) -> Int {
+) -> Int32 {
   let id = self.next_id
   self.next_id = self.next_id + 1
   self.requests.set(id, {
@@ -91,7 +94,7 @@ pub fn AsyncImageLoader::enqueue(
 }
 
 ///|
-pub fn AsyncImageLoader::start_pending(self : AsyncImageLoader) -> Int {
+pub fn AsyncImageLoader::start_pending(self : AsyncImageLoader) -> Int32 {
   let pending = self.pending_ids
   self.pending_ids = []
   let mut started = 0
@@ -128,13 +131,15 @@ pub fn AsyncImageLoader::start_pending(self : AsyncImageLoader) -> Int {
 ///|
 pub fn AsyncImageLoader::request(
   self : AsyncImageLoader,
-  id : Int,
+  id : Int32,
 ) -> AsyncImageRequest? {
   self.requests.get(id)
 }
 
 ///|
-pub fn AsyncImageLoader::drain_completed(self : AsyncImageLoader) -> Array[Int] {
+pub fn AsyncImageLoader::drain_completed(
+  self : AsyncImageLoader,
+) -> Array[Int32] {
   let done = self.completed_ids
   self.completed_ids = []
   done
@@ -168,7 +173,7 @@ pub fn AsyncImageLoader::progress(
 ///|
 pub fn AsyncImageLoader::commit_image(
   self : AsyncImageLoader,
-  id : Int,
+  id : Int32,
   repo : @atlas.SimpleImageRepository,
 ) -> @gfx.ImageHandle? {
   match self.requests.get(id) {

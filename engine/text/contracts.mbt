@@ -45,9 +45,9 @@ pub struct TextRenderer {
 ///|
 pub fn TextRenderer::new(
   font : @font.TTFont,
-  atlas_size : Int,
-  base_page_id : Int,
-  pipeline_id : Int,
+  atlas_size : Int32,
+  base_page_id : Int32,
+  pipeline_id : Int32,
 ) -> TextRenderer {
   {
     inner: @font.TextRenderer::new(font, atlas_size, base_page_id, pipeline_id),
@@ -57,10 +57,10 @@ pub fn TextRenderer::new(
 ///|
 pub fn TextRenderer::new_with_options(
   font : @font.TTFont,
-  atlas_size : Int,
-  base_page_id : Int,
-  pipeline_id : Int,
-  max_pages : Int,
+  atlas_size : Int32,
+  base_page_id : Int32,
+  pipeline_id : Int32,
+  max_pages : Int32,
 ) -> TextRenderer {
   {
     inner: @font.TextRenderer::new_with_options(
@@ -81,13 +81,13 @@ pub fn TextRenderer::render_text(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   blend : @gfx.BlendMode,
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let font = self.inner.font
   let scale = size_px / font.units_per_em.to_double()
   let positions = font.layout_text(text, size_px)
   // Group: page_index -> Array[GlyphQuad]
-  let page_quads : Map[Int, Array[@font.GlyphQuad]] = Map([])
+  let page_quads : Map[Int32, Array[@font.GlyphQuad]] = Map([])
   for pos in positions {
     if pos.glyph_id == 0 {
       continue
@@ -177,12 +177,12 @@ pub fn TextRenderer::get_atlas(self : TextRenderer) -> @font.GlyphAtlas {
 }
 
 ///|
-pub fn TextRenderer::get_page_id(self : TextRenderer) -> Int {
+pub fn TextRenderer::get_page_id(self : TextRenderer) -> Int32 {
   self.inner.base_page_id
 }
 
 ///|
-pub fn TextRenderer::glyph_count(self : TextRenderer) -> Int {
+pub fn TextRenderer::glyph_count(self : TextRenderer) -> Int32 {
   self.inner.glyph_count()
 }
 
@@ -192,20 +192,20 @@ pub fn TextRenderer::clear(self : TextRenderer) -> Unit {
 }
 
 ///|
-pub fn TextRenderer::page_count(self : TextRenderer) -> Int {
+pub fn TextRenderer::page_count(self : TextRenderer) -> Int32 {
   self.inner.page_count()
 }
 
 ///|
 pub fn TextRenderer::get_page(
   self : TextRenderer,
-  index : Int,
+  index : Int32,
 ) -> @font.GlyphAtlas {
   self.inner.get_page(index)
 }
 
 ///|
-pub fn TextRenderer::get_page_ids(self : TextRenderer) -> Array[Int] {
+pub fn TextRenderer::get_page_ids(self : TextRenderer) -> Array[Int32] {
   self.inner.get_page_ids()
 }
 
@@ -222,18 +222,18 @@ pub fn TextRenderer::flush_dirty_pages(
 
 ///|
 pub struct FontLoadHooks {
-  load_font_data : (String) -> Array[Int]?
+  load_font_data : (String) -> Array[Int32]?
 }
 
 ///|
 pub fn new_font_load_hooks(
-  load_font_data : (String) -> Array[Int]?,
+  load_font_data : (String) -> Array[Int32]?,
 ) -> FontLoadHooks {
   { load_font_data, }
 }
 
 ///|
-fn default_load_font_data(_name : String) -> Array[Int]? {
+fn default_load_font_data(_name : String) -> Array[Int32]? {
   None
 }
 
@@ -256,7 +256,7 @@ pub fn reset_font_load_hooks() -> Unit {
 }
 
 ///|
-pub fn font_data_to_bytes(data : Array[Int]) -> Bytes {
+pub fn font_data_to_bytes(data : Array[Int32]) -> Bytes {
   let arr : FixedArray[Byte] = FixedArray::make(data.length(), b'\x00')
   for i, v in data {
     arr[i] = v.to_byte()
@@ -278,9 +278,9 @@ pub fn load_font(name : String) -> @font.TTFont? {
 ///|
 pub fn load_text_renderer(
   name : String,
-  atlas_size : Int,
-  page_id : Int,
-  pipeline_id : Int,
+  atlas_size : Int32,
+  page_id : Int32,
+  pipeline_id : Int32,
 ) -> TextRenderer? {
   match load_font(name) {
     None => None

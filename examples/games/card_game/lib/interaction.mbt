@@ -1,15 +1,15 @@
 ///|
-let enemy_drag_id_base : Int = 1000
+let enemy_drag_id_base : Int32 = 1000
 
 ///|
-let battlefield_drag_id : Int = 2000
+let battlefield_drag_id : Int32 = 2000
 
 ///|
 /// Transient input state is separate from persistent combat/run rules.
 pub struct Game {
   mut scene : AppScene
   mut scene_return : AppScene
-  mut scene_focus : Int
+  mut scene_focus : Int32
   mut character : CharacterId
   mut motion_mode : MotionMode
   navigation : @ui.UINavigationInputAdapter
@@ -17,8 +17,8 @@ pub struct Game {
   mut popup : PileKind?
   mut combat_focus : CombatFocus?
   run : @signals.Signal[RunState]
-  selected_card : @signals.Signal[Int]
-  target_enemy : @signals.Signal[Int]
+  selected_card : @signals.Signal[Int32]
+  target_enemy : @signals.Signal[Int32]
   input : @inpututil.InputHelper
   mut layout : GameLayout
   mut cursor_x : Double
@@ -26,8 +26,8 @@ pub struct Game {
   mut need_target : Bool
   drag : @ui.UIDragController
   mut hint : String
-  mut room_page : Int
-  mut popup_page : Int
+  mut room_page : Int32
+  mut popup_page : Int32
   mut presentation : Presentation?
   mut last_frame_ms : Double?
   mut reduced_motion : Bool
@@ -78,7 +78,7 @@ pub fn Game::new() -> Game {
 }
 
 ///|
-pub fn Game::set_viewport(self : Game, width : Int, height : Int) -> Unit {
+pub fn Game::set_viewport(self : Game, width : Int32, height : Int32) -> Unit {
   if self.layout.w != width.to_double() || self.layout.h != height.to_double() {
     self.cancel_card()
     self.combat_focus = None
@@ -158,8 +158,8 @@ fn Game::cancel_card(self : Game) -> Unit {
 fn Game::commit_card(
   self : Game,
   state : BattleState,
-  index : Int,
-  target : Int,
+  index : Int32,
+  target : Int32,
 ) -> Unit {
   let before = CombatFeedback::capture(state)
   let flight = if index >= 0 && index < state.hand.length() {
@@ -187,7 +187,7 @@ fn Game::commit_card(
 }
 
 ///|
-fn Game::select_card(self : Game, state : BattleState, index : Int) -> Unit {
+fn Game::select_card(self : Game, state : BattleState, index : Int32) -> Unit {
   if !can_play_card(state, index) {
     self.hint = "NOT ENOUGH ENERGY"
     self.cancel_card()
@@ -240,7 +240,7 @@ fn Game::start_enemy_turn(self : Game, state : BattleState) -> Unit {
 pub fn Game::update(
   self : Game,
   input : @core.InputSnapshot,
-  elapsed_ms? : Double = 1000.0 / 60.0,
+  elapsed_ms~ : Double = 1000.0 / 60.0,
 ) -> Unit {
   @inpututil.update_input_helper(self.input, input)
   let navigation = self.navigation.update(input, elapsed_ms~)

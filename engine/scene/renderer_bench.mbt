@@ -12,7 +12,7 @@
 /// A HUD-shaped tree: a background, a grid of sprites, two bars and a row of
 /// labels. Deliberately text-heavy, because a label is a run of 3x5 dot glyphs
 /// and so carries an order of magnitude more quads than the rect next to it.
-fn bench_hud_scene(sprites : Int, labels : Int) -> SceneNode {
+fn bench_hud_scene(sprites : Int32, labels : Int32) -> SceneNode {
   let children : Array[SceneNode] = [rect(w=320.0, h=240.0, fill=0x1A2E1A)]
   for i in 0..<sprites {
     children.push(

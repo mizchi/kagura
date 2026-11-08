@@ -17,7 +17,7 @@ pub fn mount_switch(
     props.attrs + [("type", @luna.attr_static("button"))],
     [@luna.text(label)],
   )
-  { state, dispose: @client.render_vnode(target, vnode) }
+  { state, dispose: @client.render_vnode(target, vnode), }
 }
 
 ///|

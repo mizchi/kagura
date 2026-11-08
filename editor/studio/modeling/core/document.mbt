@@ -1,28 +1,31 @@
 ///|
 /// Editable indexed polygons; local vertices, Y-up, +Z forward, metres.
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct MeshNode {
   id : String
   name : String
-  color : Int
+  color : Int32
   position : Array[Double]
   vertices : Array[Array[Double]]
-  faces : Array[Array[Int]]
-} derive(ToJson, FromJson, Eq, Debug)
+  faces : Array[Array[Int32]]
+}
 
 ///|
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct ModelDocument {
-  version : Int
+  version : Int32
   format : String
   name : String
   source : String
   nodes : Array[MeshNode]
   expressions : Array[ModelExpression]
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) suberror ModelError {
   Invalid(String)
-} derive(Debug)
+}
 
 ///|
 fn require(ok : Bool, message : String) -> Unit raise ModelError {
@@ -77,7 +80,7 @@ pub fn validate_document(doc : ModelDocument) -> Unit raise ModelError {
         f.length() >= 3 && f.length() <= 32,
         "Polygons need 3-32 vertices",
       )
-      let used : Map[Int, Bool] = Map([])
+      let used : Map[Int32, Bool] = Map([])
       for i in f {
         require(
           i >= 0 && i < n.vertices.length() && !used.contains(i),
@@ -125,10 +128,10 @@ pub fn decode_document(j : Json) -> ModelDocument raise {
   guard j is Object(fields) else { raise Invalid("Expected document") }
   let normalized = fields.copy()
   if !normalized.contains("expressions") {
-    normalized["expressions"] = ([] : Array[Json]).to_json()
+    normalized["expressions"] = Json(([] : Array[Json]))
   }
   validate_expression_json(normalized["expressions"])
-  let doc : ModelDocument = @json.from_json(normalized.to_json())
+  let doc : ModelDocument = @json.from_json(Json(normalized))
   validate_document(doc)
   doc
 }
@@ -148,7 +151,7 @@ fn subtract(a : Array[Double], b : Array[Double]) -> Array[Double] {
 }
 
 ///|
-fn normal(n : MeshNode, face : Int) -> Array[Double] {
+fn normal(n : MeshNode, face : Int32) -> Array[Double] {
   let f = n.faces[face]
   let v = cross(
     subtract(n.vertices[f[1]], n.vertices[f[0]]),
@@ -161,3 +164,30 @@ fn normal(n : MeshNode, face : Int) -> Array[Double] {
     v.map(x => x / length)
   }
 }
+
+///|
+pub extend MeshNode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MeshNode with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend MeshNode with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend MeshNode with Eq::{not_equal, equal}
+
+///|
+pub extend ModelDocument with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ModelDocument with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend ModelDocument with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend ModelDocument with Eq::{not_equal, equal}
+
+///|
+pub extend ModelError with @moonbitlang/core/debug.Debug::{to_repr}

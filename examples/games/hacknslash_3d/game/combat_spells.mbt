@@ -3,9 +3,9 @@ fn find_next_chain_target(
   world : GameWorld,
   source_x : Double,
   source_y : Double,
-  chained_enemy_indices : Array[Int],
+  chained_enemy_indices : Array[Int32],
   max_range : Double,
-) -> Int {
+) -> Int32 {
   let (nearest_index, _nearest_dist_sq) = @physics2d.grid_find_nearest_visible_candidate_index(
     world.dungeon.grid,
     source_x,
@@ -110,7 +110,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
       telegraph_x, telegraph_y, chain_lightning_telegraph_radius,
     ),
   )
-  let chained_enemy_indices : Array[Int] = []
+  let chained_enemy_indices : Array[Int32] = []
   let mut arc_start_x = world.player.x
   let mut arc_start_y = world.player.y
   let cl_level = world.skills.get_level(ChainLightning)
@@ -349,7 +349,7 @@ fn spawn_split_fireball_projectiles(
   world : GameWorld,
   projectile : Projectile,
   spawned_projectiles : Array[Projectile],
-  remaining_splits : Int,
+  remaining_splits : Int32,
 ) -> Unit {
   if remaining_splits <= 0 {
     return
@@ -380,7 +380,7 @@ fn explode_player_fireball(
   world : GameWorld,
   projectile : Projectile,
   spawned_projectiles : Array[Projectile],
-  remaining_splits : Int,
+  remaining_splits : Int32,
 ) -> Unit {
   if !projectile.alive {
     return
@@ -465,7 +465,7 @@ pub fn process_player_projectiles(
 // Skill activation via number keys
 
 ///|
-pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
+pub fn activate_skill(world : GameWorld, slot : Int32) -> Unit {
   if (world.hunting_grounds && slot == 0) ||
     world.hunter_action_locked() ||
     world.weapon_attack is Some(_) ||

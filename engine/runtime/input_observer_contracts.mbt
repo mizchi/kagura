@@ -1,17 +1,18 @@
 ///|
+#derive(Debug)
 pub struct InputEdgeSummary {
-  tick : Int
-  just_pressed_key_count : Int
-  just_released_key_count : Int
-  just_pressed_mouse_button_count : Int
-  just_released_mouse_button_count : Int
-  just_pressed_touch_count : Int
-  just_released_touch_count : Int
-  just_connected_gamepad_count : Int
-  just_disconnected_gamepad_count : Int
-  just_pressed_gamepad_button_count : Int
-  just_released_gamepad_button_count : Int
-} derive(Debug)
+  tick : Int32
+  just_pressed_key_count : Int32
+  just_released_key_count : Int32
+  just_pressed_mouse_button_count : Int32
+  just_released_mouse_button_count : Int32
+  just_pressed_touch_count : Int32
+  just_released_touch_count : Int32
+  just_connected_gamepad_count : Int32
+  just_disconnected_gamepad_count : Int32
+  just_pressed_gamepad_button_count : Int32
+  just_released_gamepad_button_count : Int32
+}
 
 ///|
 pub impl Show for InputEdgeSummary with fn output(self, logger) {
@@ -25,11 +26,11 @@ pub struct InputEdgeObserverState {
   touch_state : @inputstate.TouchInputState
   gamepad_state : @inputstate.GamepadInputState
   mut history : Array[InputEdgeSummary]
-  history_limit : Int
+  history_limit : Int32
 }
 
 ///|
-fn clamp_history_limit(limit : Int) -> Int {
+fn clamp_history_limit(limit : Int32) -> Int32 {
   if limit <= 0 {
     1
   } else {
@@ -40,7 +41,7 @@ fn clamp_history_limit(limit : Int) -> Int {
 ///|
 fn bounded_history_push(
   history : Array[InputEdgeSummary],
-  history_limit : Int,
+  history_limit : Int32,
   summary : InputEdgeSummary,
 ) -> Array[InputEdgeSummary] {
   let limit = clamp_history_limit(history_limit)
@@ -59,7 +60,7 @@ fn bounded_history_push(
 
 ///|
 pub fn new_input_edge_observer_state(
-  history_limit : Int,
+  history_limit : Int32,
 ) -> InputEdgeObserverState {
   {
     key_state: @inputstate.new_key_input_state(),
@@ -74,7 +75,7 @@ pub fn new_input_edge_observer_state(
 ///|
 pub fn observe_input_edge(
   state : InputEdgeObserverState,
-  tick : Int,
+  tick : Int32,
   snapshot : @core.InputSnapshot,
 ) -> InputEdgeSummary {
   @inputstate.update_key_input_state(state.key_state, snapshot)

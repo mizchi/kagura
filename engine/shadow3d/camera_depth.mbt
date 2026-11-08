@@ -8,8 +8,8 @@ fn camera_depth_resource_cache_key(
   depth_target : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   mesh : @mesh3d.Mesh3D,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   // mix_cache_key / double_cache_bits live in shadow3d/contracts.mbt
   // (same sub-package), see comments there.
   let mut hash = 0x43445054
@@ -68,8 +68,8 @@ pub fn shader_camera_depth_wgsl() -> String {
 
 ///|
 /// Encode camera depth uniform: camera_vp (16 dwords).
-pub fn camera_depth_uniform_dwords(camera_vp : @math3d.Mat4) -> Array[Int] {
-  let dwords : Array[Int] = []
+pub fn camera_depth_uniform_dwords(camera_vp : @math3d.Mat4) -> Array[Int32] {
+  let dwords : Array[Int32] = []
   for i in 0..<16 {
     dwords.push(f32(camera_vp.elements[i]))
   }
@@ -84,7 +84,7 @@ pub fn new_camera_depth_command(
   shader : @gfx.ShaderHandle,
   mesh : @mesh3d.Mesh3D,
   camera_vp : @math3d.Mat4,
-  cache_resources? : Bool = true,
+  cache_resources~ : Bool = true,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = camera_depth_uniform_dwords(camera_vp)
   let dst_region = @gfx.new_dst_region(
@@ -125,7 +125,7 @@ pub fn camera_depth_pass_commands(
   depth_shader : @gfx.ShaderHandle,
   casters : Array[ShadowCaster],
   camera_vp : @math3d.Mat4,
-  cache_resources? : Bool = true,
+  cache_resources~ : Bool = true,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   for caster in casters {

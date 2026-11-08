@@ -1,8 +1,9 @@
 ///|
+#derive(Debug, Eq)
 pub(all) enum UIPointerId {
   Mouse
-  Touch(Int)
-} derive(Debug, Eq)
+  Touch(Int32)
+}
 
 ///|
 /// One normalized primary pointer, in the caller's logical coordinate space.
@@ -23,23 +24,25 @@ pub fn UIPointerFrame::new(
   pointer : UIPointerId,
   x : Double,
   y : Double,
-  pressed? : Bool = false,
-  released? : Bool = false,
-  down? : Bool = false,
-  cancelled? : Bool = false,
+  pressed~ : Bool = false,
+  released~ : Bool = false,
+  down~ : Bool = false,
+  cancelled~ : Bool = false,
 ) -> UIPointerFrame {
   { pointer, x, y, pressed, released, down, cancelled, }
 }
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum UIDragCancelReason {
   Explicit
   InputCancelled
   Disabled
   NoTarget
-} derive(Debug, Eq)
+}
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum UIDragPhase {
   Start
   Move
@@ -48,10 +51,11 @@ pub(all) enum UIDragPhase {
   Drop
   Cancel(UIDragCancelReason)
   End(Bool) // true only after an accepted Drop
-} derive(Debug, Eq)
+}
 
 ///|
 /// Immutable event data. Enter/Leave name the entered/left target respectively.
+#derive(Debug)
 pub struct UIDragEvent {
   phase : UIDragPhase
   source : UINodeId
@@ -61,7 +65,7 @@ pub struct UIDragEvent {
   start_y : Double
   x : Double
   y : Double
-} derive(Debug)
+}
 
 ///|
 /// Read-only presentation state; the controller owns the mutable gesture.

@@ -27,7 +27,7 @@ pub(all) struct EmitterConfig {
   color_start : @math3d.Vec4
   color_end : @math3d.Vec4
   gravity : @math3d.Vec3
-  max_particles : Int
+  max_particles : Int32
 }
 
 ///|
@@ -53,7 +53,7 @@ pub(all) struct ParticleEmitter {
   config : EmitterConfig
   mut particles : Array[Particle]
   mut spawn_accumulator : Double
-  mut frame_count : Int
+  mut frame_count : Int32
 }
 
 ///|
@@ -63,7 +63,7 @@ pub fn ParticleEmitter::new(config : EmitterConfig) -> ParticleEmitter {
 
 ///|
 /// Deterministic hash function for RNG.
-fn hash_u32(seed : Int) -> Int {
+fn hash_u32(seed : Int32) -> Int32 {
   let mut h = seed
   h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
@@ -75,14 +75,14 @@ fn hash_u32(seed : Int) -> Int {
 
 ///|
 /// Convert hash to [0, 1] range.
-fn hash_to_double(seed : Int) -> Double {
+fn hash_to_double(seed : Int32) -> Double {
   let h = hash_u32(seed)
   h.to_double() / 2147483647.0
 }
 
 ///|
 /// Linearly interpolate between min and max using a hash-based random value.
-fn hash_lerp(seed : Int, min : Double, max : Double) -> Double {
+fn hash_lerp(seed : Int32, min : Double, max : Double) -> Double {
   min + hash_to_double(seed) * (max - min)
 }
 
@@ -183,6 +183,6 @@ pub fn ParticleEmitter::update_physics_only(
 
 ///|
 /// Get the number of active particles.
-pub fn ParticleEmitter::particle_count(self : ParticleEmitter) -> Int {
+pub fn ParticleEmitter::particle_count(self : ParticleEmitter) -> Int32 {
   self.particles.length()
 }

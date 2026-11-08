@@ -9,10 +9,10 @@
 /// 5. Save to BMP
 
 ///|
-let screen_w : Int = 320
+let screen_w : Int32 = 320
 
 ///|
-let screen_h : Int = 240
+let screen_h : Int32 = 240
 
 ///|
 let html_source : String =
@@ -96,18 +96,10 @@ fn render_paint_node(
   // Clipping
   let clips = w > 0.0 &&
     h > 0.0 &&
-    (
-      node.overflow_x != @crater_types.Visible ||
-      node.overflow_y != @crater_types.Visible
-    )
+    (node.overflow_x != @css.Visible || node.overflow_y != @css.Visible)
   if clips {
     let clipped = scissor.push(
-      @widget2d.ScissorRect::new(
-        x.to_int(),
-        y.to_int(),
-        w.to_int(),
-        h.to_int(),
-      ),
+      @widget2d.ScissorRect::new(x.to_int(), y.to_int(), w.to_int(), h.to_int()),
     )
     if !clipped {
       scissor.pop()
@@ -124,7 +116,7 @@ fn render_paint_node(
 }
 
 ///|
-fn crater_color_to_hex(color : @crater_types.Color) -> Int {
+fn crater_color_to_hex(color : @css.Color) -> Int32 {
   let r = if color.r > 255 { 255 } else if color.r < 0 { 0 } else { color.r }
   let g = if color.g > 255 { 255 } else if color.g < 0 { 0 } else { color.g }
   let b = if color.b > 255 { 255 } else if color.b < 0 { 0 } else { color.b }
@@ -139,9 +131,9 @@ fn push_dot_text(
   _size_px : Double,
   x : Double,
   y : Double,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
-  let chars : Array[Int] = []
+  let chars : Array[Int32] = []
   for ch in text {
     let mut code = ch.to_int()
     if code >= 97 && code <= 122 {
@@ -187,8 +179,8 @@ fn make_cmd(
   ctx : @engine.EngineContext,
   scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
-  indices : Array[Int],
-  color_hex : Int,
+  indices : Array[Int32],
+  color_hex : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let sc = scissor.current()
   @gfx.new_draw_triangles_command(

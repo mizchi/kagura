@@ -4,14 +4,14 @@ pub(all) struct Material {
   metallic : Double
   roughness : Double
   emissive : @math3d.Vec3
-  texture : Int
+  texture : Int32
   transparent : Bool
   unlit : Bool
 }
 
 ///|
 pub(all) struct Batch {
-  bone : Int
+  bone : Int32
   mesh : @mesh3d.Mesh3D
   material : Material
 }
@@ -19,7 +19,7 @@ pub(all) struct Batch {
 ///|
 pub(all) struct Bone {
   name : String
-  parent : Int
+  parent : Int32
   rest : @transform3d.Transform3D
 }
 
@@ -136,9 +136,9 @@ pub fn read_asset(source : String) -> Asset raise {
         values: numbers(field(ch, "values")),
       }
     })
-    clips[name] = { name, channels, duration: num(field(c, "duration")) }
+    clips[name] = { name, channels, duration: num(field(c, "duration")), }
   }
-  { batches, bones, clips }
+  { batches, bones, clips, }
 }
 
 ///|

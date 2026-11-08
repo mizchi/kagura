@@ -2,10 +2,11 @@
 pub type PickupEffect = @interactable2d.InteractablePickupEffect
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct PickupRewardConfig {
-  score_amount : Int
-  heal_amount : Int
-} derive(Eq, Debug)
+  score_amount : Int32
+  heal_amount : Int32
+}
 
 ///|
 pub impl Show for PickupRewardConfig with fn output(self, logger) {
@@ -13,11 +14,12 @@ pub impl Show for PickupRewardConfig with fn output(self, logger) {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct BuiltinPickupResult {
-  next_hp : Int
-  next_score : Int
+  next_hp : Int32
+  next_score : Int32
   heal_feedback : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for BuiltinPickupResult with fn output(self, logger) {
@@ -26,19 +28,20 @@ pub impl Show for BuiltinPickupResult with fn output(self, logger) {
 
 ///|
 pub fn PickupRewardConfig::new(
-  score_amount~ : Int,
-  heal_amount~ : Int,
+  score_amount~ : Int32,
+  heal_amount~ : Int32,
 ) -> PickupRewardConfig {
   { score_amount, heal_amount, }
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct EquipmentPickupPlan {
   store_incoming : Bool
   store_previous_equipped : Bool
   equip_incoming : Bool
   use_fifo_storage : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for EquipmentPickupPlan with fn output(self, logger) {
@@ -46,10 +49,11 @@ pub impl Show for EquipmentPickupPlan with fn output(self, logger) {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum PickupResolution {
-  Builtin(Int, Int, Bool)
+  Builtin(Int32, Int32, Bool)
   Equipment(EquipmentPickupPlan)
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for PickupResolution with fn output(self, logger) {
@@ -90,10 +94,10 @@ pub fn plan_equipment_pickup(
 ///|
 pub fn resolve_builtin_pickup_effect(
   effect : PickupEffect,
-  actor_hp : Int,
-  actor_max_hp : Int,
+  actor_hp : Int32,
+  actor_max_hp : Int32,
   rewards : PickupRewardConfig,
-) -> (Int, Int, Bool)? {
+) -> (Int32, Int32, Bool)? {
   match effect {
     ScorePickup => Some((actor_hp, rewards.score_amount, false))
     HealthPickup => {
@@ -111,9 +115,9 @@ pub fn resolve_builtin_pickup_effect(
 ///|
 pub fn apply_builtin_pickup(
   effect : PickupEffect,
-  actor_hp : Int,
-  actor_max_hp : Int,
-  actor_score : Int,
+  actor_hp : Int32,
+  actor_max_hp : Int32,
+  actor_score : Int32,
   rewards : PickupRewardConfig,
 ) -> BuiltinPickupResult? {
   match resolve_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
@@ -126,8 +130,8 @@ pub fn apply_builtin_pickup(
 ///|
 pub fn resolve_pickup(
   effect : PickupEffect,
-  actor_hp : Int,
-  actor_max_hp : Int,
+  actor_hp : Int32,
+  actor_max_hp : Int32,
   rewards : PickupRewardConfig,
   auto_play~ : Bool,
   should_equip~ : Bool,

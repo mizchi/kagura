@@ -1,9 +1,10 @@
 ///|
+#derive(Debug)
 pub(all) enum BodyType {
   Dynamic
   Static
   Kinematic
-} derive(Debug)
+}
 
 ///|
 pub impl Show for BodyType with fn output(self, logger) {
@@ -24,6 +25,7 @@ pub impl Show for BodyType with fn output(self, logger) {
 /// BoxShape(half_extents=Vec3::new(1.0, 0.1, 1.0), offset=Vec3::zero())
 /// match shape { SphereShape(radius~, ..) => radius; _ => 0.0 }
 /// ```
+#derive(Debug)
 pub(all) enum ColliderShape {
   /// Sphere of `radius` centred at `position + offset`.
   SphereShape(offset~ : @math3d.Vec3, radius~ : Double)
@@ -33,7 +35,7 @@ pub(all) enum ColliderShape {
   /// Box of `half_extents` centred at `position + offset`, turned by
   /// `RigidBody.rotation`.
   BoxShape(half_extents~ : @math3d.Vec3, offset~ : @math3d.Vec3)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ColliderShape with fn output(self, logger) {
@@ -41,8 +43,9 @@ pub impl Show for ColliderShape with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct RigidBody {
-  id : Int
+  id : Int32
   body_type : BodyType
   position : @math3d.Vec3
   velocity : @math3d.Vec3
@@ -61,7 +64,7 @@ pub(all) struct RigidBody {
   is_sleeping : Bool
   sleep_timer : Double
   is_bullet : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RigidBody with fn output(self, logger) {
@@ -69,13 +72,14 @@ pub impl Show for RigidBody with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct Contact {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   normal : @math3d.Vec3
   penetration : Double
   contact_point : @math3d.Vec3
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Contact with fn output(self, logger) {
@@ -84,8 +88,8 @@ pub impl Show for Contact with fn output(self, logger) {
 
 ///|
 pub(all) struct SolverConfig3D {
-  substeps : Int
-  velocity_iterations : Int
+  substeps : Int32
+  velocity_iterations : Int32
   contact_hertz : Double
   contact_damping_ratio : Double
   /// Relax passes per substep, run after the position integration with the
@@ -96,7 +100,7 @@ pub(all) struct SolverConfig3D {
   /// the bodies afterwards; a pass with bias, softness and restitution all
   /// disabled takes it back out. 0 disables it, which is the historical
   /// behaviour.
-  relax_iterations : Int
+  relax_iterations : Int32
 }
 
 ///|
@@ -112,8 +116,8 @@ pub fn SolverConfig3D::default() -> SolverConfig3D {
 
 ///|
 pub(all) struct ContactConstraint3D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   contact : Contact
   r_a : @math3d.Vec3
   r_b : @math3d.Vec3
@@ -132,8 +136,8 @@ pub(all) struct ContactConstraint3D {
 
 ///|
 priv struct ContactConstraintRuntime3D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   contact : Contact
   r_a : @math3d.Vec3
   r_b : @math3d.Vec3
@@ -161,8 +165,8 @@ priv struct ContactConstraintRuntime3D {
 
 ///|
 pub(all) struct DistanceJoint3D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   local_anchor_a : @math3d.Vec3
   local_anchor_b : @math3d.Vec3
   rest_length : Double
@@ -172,8 +176,8 @@ pub(all) struct DistanceJoint3D {
 
 ///|
 pub(all) struct DistanceJointConstraint3D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   r_a : @math3d.Vec3
   r_b : @math3d.Vec3
   axis : @math3d.Vec3
@@ -186,8 +190,8 @@ pub(all) struct DistanceJointConstraint3D {
 
 ///|
 pub(all) struct BallJoint3D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   local_anchor_a : @math3d.Vec3
   local_anchor_b : @math3d.Vec3
   hertz : Double
@@ -196,8 +200,8 @@ pub(all) struct BallJoint3D {
 
 ///|
 pub(all) struct BallJointConstraint3D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   r_a : @math3d.Vec3
   r_b : @math3d.Vec3
   effective_mass_x : Double

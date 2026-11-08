@@ -2,7 +2,7 @@
 /// Optional JS WebGPU optimization; other backends manage their own resources.
 pub fn register_static_geometry(
   _vertices : Array[Double],
-  _indices : Array[Int],
+  _indices : Array[Int32],
 ) -> Unit {
   ()
 }

@@ -6,10 +6,10 @@
 // Uses SpatialHashGrid for broadphase candidate selection.
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
 let move_speed : Double = 0.1
@@ -27,7 +27,7 @@ let ray_max_dist : Double = 50.0
 let arena_half : Double = 12.0
 
 ///|
-let obj_count : Int = 12
+let obj_count : Int32 = 12
 
 // ============================================================
 // Collider types
@@ -41,7 +41,7 @@ enum ColliderKind {
 
 ///|
 struct ColliderObj {
-  id : Int
+  id : Int32
   kind : ColliderKind
   position : @math3d.Vec3
   size : Double // half-extent for box, radius for sphere
@@ -61,9 +61,9 @@ struct DemoState {
   ground_mesh : @mesh3d.Mesh3D
   objects : Array[ColliderObj]
   shader3d : @gfx.ShaderHandle
-  mut hit_id : Int // -1 = no hit
+  mut hit_id : Int32 // -1 = no hit
   mut hit_point : @math3d.Vec3
-  mut frame : Int
+  mut frame : Int32
   mut prev_cursor_x : Double
   mut prev_cursor_y : Double
 }
@@ -73,7 +73,7 @@ struct DemoState {
 // ============================================================
 
 ///|
-fn pseudo_random(seed : Int) -> Double {
+fn pseudo_random(seed : Int32) -> Double {
   let n = (seed * 1103515245 + 12345).land(0x7FFFFFFF)
   n.to_double() / 2147483647.0
 }
@@ -452,8 +452,8 @@ fn clamp(v : Double, lo : Double, hi : Double) -> Double {
 }
 
 ///|
-fn ascii(s : String) -> Array[Int] {
-  let result : Array[Int] = []
+fn ascii(s : String) -> Array[Int32] {
+  let result : Array[Int32] = []
   for i = 0; i < s.length(); i = i + 1 {
     let c = s[i].to_int()
     // glyph_pattern expects 0-9 for digits, ASCII for letters/symbols

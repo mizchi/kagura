@@ -10,11 +10,11 @@ pub fn run(
   on_frame? : () -> Unit,
   after_render? : (Double, Double) -> Unit,
   audio_ctx? : @audio.MixerAudioContext,
-  audio_frames_per_tick? : Int = 735,
-  width? : Int = 320,
-  height? : Int = 240,
-  title? : String = "kagura",
-  canvas? : String = "",
+  audio_frames_per_tick~ : Int32 = 735,
+  width~ : Int32 = 320,
+  height~ : Int32 = 240,
+  title~ : String = "kagura",
+  canvas~ : String = "",
 ) -> Unit {
   let _ = canvas
   if try_run_native_capture(update~, draw~, on_frame?, width~, height~) {

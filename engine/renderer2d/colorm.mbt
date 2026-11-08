@@ -14,9 +14,10 @@
 /// - Ebiten colorm package
 
 ///|
+#derive(Debug)
 pub struct ColorM {
   elements : FixedArray[Double]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ColorM with fn output(self, logger) {
@@ -34,15 +35,15 @@ pub fn ColorM::identity() -> ColorM {
 }
 
 ///|
-fn ColorM::element_at(self : ColorM, row : Int, col : Int) -> Double {
+fn ColorM::element_at(self : ColorM, row : Int32, col : Int32) -> Double {
   self.elements[row * 5 + col]
 }
 
 ///|
 fn ColorM::set_element(
   self : ColorM,
-  row : Int,
-  col : Int,
+  row : Int32,
+  col : Int32,
   value : Double,
 ) -> Unit {
   self.elements[row * 5 + col] = value

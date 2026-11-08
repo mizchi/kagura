@@ -12,7 +12,7 @@
 /// `None` covers both "no config staged" and "config missing a required path";
 /// the caller reports which, since only it knows what it was trying to capture.
 pub fn read_capture_config(
-  filename? : String = @capture_data.capture_config_filename,
+  filename~ : String = @capture_data.capture_config_filename,
 ) -> @capture_data.CaptureConfig? {
   match @wgpu_native.read_file_bytes(filename) {
     Some(data) =>

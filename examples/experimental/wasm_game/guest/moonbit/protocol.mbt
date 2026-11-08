@@ -11,34 +11,34 @@ struct InputState {
   cursor_y : Double
   wheel_x : Double
   wheel_y : Double
-  keys : Array[Int]
-  mouse_btns : Array[Int]
+  keys : Array[Int32]
+  mouse_btns : Array[Int32]
 }
 
 ///|
 /// Read InputSnapshot from linear memory at (ptr, len).
-fn read_input(ptr : Int) -> InputState {
+fn read_input(ptr : Int32) -> InputState {
   let cursor_x = mem_load_f64(ptr)
   let cursor_y = mem_load_f64(ptr + 8)
   let wheel_x = mem_load_f64(ptr + 16)
   let wheel_y = mem_load_f64(ptr + 24)
   let key_count = mem_load32(ptr + 32)
-  let keys : Array[Int] = []
+  let keys : Array[Int32] = []
   for i = 0; i < key_count; i = i + 1 {
     keys.push(mem_load32(ptr + 36 + i * 4))
   }
   let mouse_offset = ptr + 36 + key_count * 4
   let mouse_btn_count = mem_load32(mouse_offset)
-  let mouse_btns : Array[Int] = []
+  let mouse_btns : Array[Int32] = []
   for i = 0; i < mouse_btn_count; i = i + 1 {
     mouse_btns.push(mem_load32(mouse_offset + 4 + i * 4))
   }
-  { cursor_x, cursor_y, wheel_x, wheel_y, keys, mouse_btns }
+  { cursor_x, cursor_y, wheel_x, wheel_y, keys, mouse_btns, }
 }
 
 ///|
 /// Check if a key code is currently pressed.
-fn is_key_pressed(input : InputState, key_code : Int) -> Bool {
+fn is_key_pressed(input : InputState, key_code : Int32) -> Bool {
   for k in input.keys {
     if k == key_code {
       return true
@@ -56,30 +56,30 @@ fn is_mouse_pressed(input : InputState) -> Bool {
 ///|
 /// A single draw command to be sent to the host.
 struct DrawCmd {
-  vertex_count : Int
-  index_count : Int
-  src_image_id : Int
-  uniform_r : Int
-  uniform_g : Int
-  uniform_b : Int
-  uniform_a : Int
+  vertex_count : Int32
+  index_count : Int32
+  src_image_id : Int32
+  uniform_r : Int32
+  uniform_g : Int32
+  uniform_b : Int32
+  uniform_a : Int32
   vertices : Array[Float]
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
 struct Utf8Slice {
-  ptr : Int
-  len : Int
+  ptr : Int32
+  len : Int32
 }
 
 ///|
 fn write_semantic_guest_config_bytes(
-  logical_width : Int,
-  logical_height : Int,
-  target_tps : Int,
+  logical_width : Int32,
+  logical_height : Int32,
+  target_tps : Int32,
   title : Utf8Slice,
-) -> Int {
+) -> Int32 {
   let ptr = bump_alloc(16 + title.len)
   mem_store32(ptr, logical_width)
   mem_store32(ptr + 4, logical_height)
@@ -94,11 +94,11 @@ fn write_semantic_guest_config_bytes(
 ///|
 /// Write semantic guest config to linear memory and return the pointer.
 fn write_semantic_guest_config(
-  logical_width : Int,
-  logical_height : Int,
-  target_tps : Int,
+  logical_width : Int32,
+  logical_height : Int32,
+  target_tps : Int32,
   title : String,
-) -> Int {
+) -> Int32 {
   let title_bytes = title.to_array()
   let title_ptr = bump_alloc(title_bytes.length())
   for i = 0; i < title_bytes.length(); i = i + 1 {
@@ -112,7 +112,7 @@ fn write_semantic_guest_config(
 
 ///|
 /// Write an array of DrawCmds to linear memory and return the pointer.
-fn write_draw_commands(cmds : Array[DrawCmd]) -> Int {
+fn write_draw_commands(cmds : Array[DrawCmd]) -> Int32 {
   let ptr = bump_alloc(4)
   mem_store32(ptr, cmds.length())
   for cmd in cmds {

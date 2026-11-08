@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/float",
   "mizchi/kagura_game/inventory",
   "mizchi/kagura_game/inpututil",
   "mizchi/kagura_core/terrain3d",
@@ -41,7 +42,6 @@ import {
   "mizchi/terrain/tinykeep",
   "mizchi/web_runtime_hooks" @web_hooks,
   "mizchi/text",
-  "mizchi/atlas",
   "mizchi/atlas",
   "mizchi/kagura_engine/hud",
   "mizchi/kagura_engine/sprite_packer",

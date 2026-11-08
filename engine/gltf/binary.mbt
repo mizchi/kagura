@@ -1,10 +1,10 @@
 ///|
-fn read_u16_le(buf : Bytes, offset : Int) -> Int {
+fn read_u16_le(buf : Bytes, offset : Int32) -> Int32 {
   buf[offset].to_int() | (buf[offset + 1].to_int() << 8)
 }
 
 ///|
-fn read_i8(buf : Bytes, offset : Int) -> Int {
+fn read_i8(buf : Bytes, offset : Int32) -> Int32 {
   let v = buf[offset].to_int()
   if v >= 0x80 {
     v - 0x100
@@ -14,7 +14,7 @@ fn read_i8(buf : Bytes, offset : Int) -> Int {
 }
 
 ///|
-fn read_i16_le(buf : Bytes, offset : Int) -> Int {
+fn read_i16_le(buf : Bytes, offset : Int32) -> Int32 {
   let v = read_u16_le(buf, offset)
   if v >= 0x8000 {
     v - 0x10000
@@ -24,7 +24,7 @@ fn read_i16_le(buf : Bytes, offset : Int) -> Int {
 }
 
 ///|
-fn read_u32_le(buf : Bytes, offset : Int) -> Int {
+fn read_u32_le(buf : Bytes, offset : Int32) -> Int32 {
   buf[offset].to_int() |
   (buf[offset + 1].to_int() << 8) |
   (buf[offset + 2].to_int() << 16) |
@@ -32,7 +32,7 @@ fn read_u32_le(buf : Bytes, offset : Int) -> Int {
 }
 
 ///|
-fn read_f32_le(buf : Bytes, offset : Int) -> Double {
+fn read_f32_le(buf : Bytes, offset : Int32) -> Double {
   let bits = read_u32_le(buf, offset)
   let sign = if bits >> 31 != 0 { -1.0 } else { 1.0 }
   let exponent = (bits >> 23) & 0xFF
@@ -52,7 +52,7 @@ fn read_f32_le(buf : Bytes, offset : Int) -> Double {
 }
 
 ///|
-fn pow2(exp : Int) -> Double {
+fn pow2(exp : Int32) -> Double {
   if exp >= 0 {
     let mut result = 1.0
     for _i in 0..<exp {

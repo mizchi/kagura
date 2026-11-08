@@ -1,20 +1,23 @@
 ///|
-let save_slot_count : Int = 6
+let save_slot_count : Int32 = 6
 
 ///|
+#derive(ToJson)
 struct SaveSlotView {
-  slot : Int
+  slot : Int32
   status : String
-  level : Int
-  score : Int
+  level : Int32
+  score : Int32
   archetype : String
   build_name : String
   region : String
-} derive(ToJson)
+}
+
 ///|
 pub extend SaveSlotView with ToJson::{to_json}
+
 ///|
-fn save_slot_key(slot : Int) -> String {
+fn save_slot_key(slot : Int32) -> String {
   // Keep the existing save in slot 1 without copying or deleting it.
   if slot == 0 {
     "hacknslash3d_save"
@@ -134,7 +137,7 @@ fn GameState::clear_session_presentation(self : GameState) -> Unit {
 }
 
 ///|
-fn GameState::select_save_slot(self : GameState, slot : Int) -> Bool {
+fn GameState::select_save_slot(self : GameState, slot : Int32) -> Bool {
   if slot < 0 || slot >= save_slot_count {
     return false
   }

@@ -3,7 +3,7 @@
 pub let manual_pickup_radius : Double = 32.0
 
 ///|
-fn GameWorld::allocate_pickup_id(self : GameWorld) -> Int {
+fn GameWorld::allocate_pickup_id(self : GameWorld) -> Int32 {
   let id = self.next_pickup_id
   self.next_pickup_id += 1
   id
@@ -26,8 +26,8 @@ pub fn GameWorld::loot_in_reach(self : GameWorld, item : ItemDrop) -> Bool {
 }
 
 ///|
-pub fn GameWorld::nearest_pickup_id(self : GameWorld) -> Int? {
-  let mut nearest : Int? = None
+pub fn GameWorld::nearest_pickup_id(self : GameWorld) -> Int32? {
+  let mut nearest : Int32? = None
   let mut distance = manual_pickup_radius * manual_pickup_radius + 1.0
   for item in self.items {
     if item.pickup_id is Some(id) {
@@ -45,7 +45,7 @@ pub fn GameWorld::nearest_pickup_id(self : GameWorld) -> Int? {
 
 ///|
 /// Zero selects the nearest reachable item; positive IDs select exactly that drop.
-pub fn GameWorld::pickup_item(self : GameWorld, id : Int) -> Bool {
+pub fn GameWorld::pickup_item(self : GameWorld, id : Int32) -> Bool {
   if self.mode != Playing ||
     self.ui_mode != UIMode::None ||
     self.player.hp <= 0 ||

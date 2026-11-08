@@ -11,10 +11,10 @@ pub(all) enum View {
 ///|
 pub fn group(
   key~ : String,
-  name? : String = key,
-  position? : @math3d.Vec3 = @math3d.Vec3::zero(),
-  rotation? : @math3d.Quaternion = @math3d.Quaternion::identity(),
-  scale? : @math3d.Vec3 = @math3d.Vec3::one(),
+  name~ : String = key,
+  position~ : @math3d.Vec3 = @math3d.Vec3::zero(),
+  rotation~ : @math3d.Quaternion = @math3d.Quaternion::identity(),
+  scale~ : @math3d.Vec3 = @math3d.Vec3::one(),
   children~ : Array[View],
 ) -> View {
   Element(key, name, scene_node(position~, rotation~, scale~), children)
@@ -23,15 +23,15 @@ pub fn group(
 ///|
 pub fn mesh(
   key~ : String,
-  name? : String = key,
+  name~ : String = key,
   mesh~ : @mesh3d.Mesh3D,
-  position? : @math3d.Vec3 = @math3d.Vec3::zero(),
-  rotation? : @math3d.Quaternion = @math3d.Quaternion::identity(),
-  scale? : @math3d.Vec3 = @math3d.Vec3::one(),
-  color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
-  material? : Material? = None,
-  skinning? : SkinningState? = None,
-  children? : Array[View] = [],
+  position~ : @math3d.Vec3 = @math3d.Vec3::zero(),
+  rotation~ : @math3d.Quaternion = @math3d.Quaternion::identity(),
+  scale~ : @math3d.Vec3 = @math3d.Vec3::one(),
+  color~ : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+  material~ : Material? = None,
+  skinning~ : SkinningState? = None,
+  children~ : Array[View] = [],
 ) -> View {
   Element(
     key,
@@ -74,7 +74,7 @@ pub fn component(render : () -> View) -> View {
 /// Stable keyed IDs; a failed render leaves the previous graph and hierarchy intact.
 pub struct SceneRoot {
   mut current : SceneGraph
-  mut ids : Map[String, Int]
+  mut ids : Map[String, Int32]
   mut outline : Array[@hierarchy.Node]
 }
 
@@ -89,7 +89,7 @@ pub fn SceneRoot::graph(self : SceneRoot) -> SceneGraph {
 }
 
 ///|
-pub fn SceneRoot::node_id(self : SceneRoot, path : String) -> Int? {
+pub fn SceneRoot::node_id(self : SceneRoot, path : String) -> Int32? {
   self.ids.get(path)
 }
 
@@ -105,14 +105,14 @@ pub fn SceneRoot::hierarchy(self : SceneRoot) -> Array[@hierarchy.Node] {
 pub fn SceneRoot::render(self : SceneRoot, view : View) -> Unit raise {
   let graph = SceneGraph::new()
   graph.next_id = self.current.next_id
-  let ids : Map[String, Int] = Map([])
+  let ids : Map[String, Int32] = Map([])
   let mut count = 0
   fn visit(
     view : View,
     parent : String,
-    children : Array[Int],
+    children : Array[Int32],
     generated : Bool,
-    depth : Int,
+    depth : Int32,
     subject : String?,
   ) -> Array[@hierarchy.Node] raise {
     count += 1
@@ -215,7 +215,7 @@ pub(all) struct SceneView {
 pub fn scene(
   root~ : View,
   camera~ : @camera3d.Camera3D,
-  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
 ) -> SceneView {
   { root, camera, lighting, }
 }

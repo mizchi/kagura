@@ -1,0 +1,132 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_studio/core"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn apply(Document, @json.Json) -> Document raise
+
+pub fn decode_document(@json.Json) -> Document raise
+
+pub fn default_document() -> Document
+
+pub fn find_node(Document, String) -> SceneNode?
+
+pub fn hierarchy_nodes(Document) -> Array[SceneNode]
+
+pub fn sample_action(Action, Double) -> Preview
+
+pub fn validate(Document) -> Unit raise EditorError
+
+// Errors
+#derive(@debug.Debug)
+pub(all) suberror EditorError {
+  Invalid(String)
+  Conflict(Int32)
+}
+pub fn EditorError::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
+pub(all) struct Action {
+  target : String
+  duration : Double
+  flashDuration : Double
+  recoilDuration : Double
+  recoilStrength : Double
+}
+pub fn Action::equal(Self, Self) -> Bool
+pub fn Action::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Action::not_equal(Self, Self) -> Bool
+pub fn Action::to_json(Self) -> @json.Json
+pub fn Action::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
+pub(all) struct Document {
+  version : Int32
+  name : String
+  units : String
+  up : String
+  forward : String
+  nodes : Array[SceneNode]
+  action : Action
+  resources : Array[Resource]
+}
+pub fn Document::equal(Self, Self) -> Bool
+pub fn Document::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Document::not_equal(Self, Self) -> Bool
+pub fn Document::to_json(Self) -> @json.Json
+pub fn Document::to_repr(Self) -> @debug.Repr
+
+pub struct Editor {
+  session : Session
+  mut selection : String
+  mut time : Double
+  mut layout : String
+}
+pub fn Editor::from_document(@json.Json) -> Self raise
+pub fn Editor::new() -> Self
+pub fn Editor::request(Self, String) -> @json.Json
+pub fn Editor::snapshot(Self) -> @json.Json
+
+#derive(Eq, @debug.Debug, @json.ToJson)
+pub(all) struct Preview {
+  time : Double
+  flash : Bool
+  offset : Double
+}
+pub fn Preview::equal(Self, Self) -> Bool
+pub fn Preview::not_equal(Self, Self) -> Bool
+pub fn Preview::to_json(Self) -> @json.Json
+pub fn Preview::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
+pub(all) struct Resource {
+  id : String
+  kind : String
+  version : Int32
+  data : @json.Json
+}
+pub fn Resource::equal(Self, Self) -> Bool
+pub fn Resource::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Resource::not_equal(Self, Self) -> Bool
+pub fn Resource::to_json(Self) -> @json.Json
+pub fn Resource::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
+pub(all) struct SceneNode {
+  id : String
+  name : String
+  asset : String
+  parent : String
+  position : Array[Double]
+  rotation : Array[Double]
+  scale : Array[Double]
+  color : Int32
+}
+pub fn SceneNode::equal(Self, Self) -> Bool
+pub fn SceneNode::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneNode::not_equal(Self, Self) -> Bool
+pub fn SceneNode::to_json(Self) -> @json.Json
+pub fn SceneNode::to_repr(Self) -> @debug.Repr
+
+pub struct Session {
+  mut document : Document
+  mut revision : Int32
+  past : Array[Document]
+  future : Array[Document]
+}
+pub fn Session::can_redo(Self) -> Bool
+pub fn Session::can_undo(Self) -> Bool
+pub fn Session::clear_history(Self) -> Unit
+pub fn Session::execute(Self, @json.Json) -> Unit raise
+pub fn Session::new() -> Self
+pub fn Session::redo(Self) -> Unit raise EditorError
+pub fn Session::undo(Self) -> Unit raise EditorError
+
+// Type aliases
+
+// Traits

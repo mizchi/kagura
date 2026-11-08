@@ -6,16 +6,16 @@ pub fn export_enemy_motion_asset() -> String {
   let skeleton : Array[Json] = shared_enemy_skeleton.bones.map(bone => {
     let pose = bone.local_transform
     {
-      "name": bone.name.to_json(),
-      "parent": bone.parent.to_json(),
-      "position": [pose.position.x, pose.position.y, pose.position.z].to_json(),
-      "rotation": [
+      "name": Json(bone.name),
+      "parent": Json(bone.parent),
+      "position": Json([pose.position.x, pose.position.y, pose.position.z]),
+      "rotation": Json([
         pose.rotation.x,
         pose.rotation.y,
         pose.rotation.z,
         pose.rotation.w,
-      ].to_json(),
-      "scale": [pose.scale.x, pose.scale.y, pose.scale.z].to_json(),
+      ]),
+      "scale": Json([pose.scale.x, pose.scale.y, pose.scale.z]),
     }
   })
   let characters : Array[Json] = []
@@ -28,9 +28,9 @@ pub fn export_enemy_motion_asset() -> String {
       ("boss", "Skeleton lord", models.boss),
     ] {
     characters.push({
-      "id": id.to_json(),
-      "name": name.to_json(),
-      "parts": export_motion_parts(data.parts).to_json(),
+      "id": Json(id),
+      "name": Json(name),
+      "parts": Json(export_motion_parts(data.parts)),
     })
   }
   let clips : Array[Json] = []
@@ -42,11 +42,11 @@ pub fn export_enemy_motion_asset() -> String {
     let windup = weapon.windup
     let recovery = weapon.recovery
     weapons.push({
-      "id": weapon.id.to_json(),
-      "name": weapon.name.to_json(),
-      "parts": export_motion_parts(weapon.mesh.parts).to_json(),
-      "clips": [id, "charge"].to_json(),
-      "defaultClip": id.to_json(),
+      "id": Json(weapon.id),
+      "name": Json(weapon.name),
+      "parts": Json(export_motion_parts(weapon.mesh.parts)),
+      "clips": Json([id, "charge"]),
+      "defaultClip": Json(id),
     })
     let contact = windup.to_double() / 60.0
     let duration = (windup + recovery).to_double() / 60.0
@@ -68,30 +68,32 @@ pub fn export_enemy_motion_asset() -> String {
         _ => "linear"
       }
       {
-        "joint": channel.node_index.to_json(),
-        "target": target.to_json(),
-        "interpolation": interpolation.to_json(),
-        "times": times.to_json(),
-        "values": channel.values.to_json(),
+        "joint": Json(channel.node_index),
+        "target": Json(target),
+        "interpolation": Json(interpolation),
+        "times": Json(times),
+        "values": Json(channel.values),
       }
     })
     let events : Array[Json] = [
       {
-        "name": (if id == "bow_shot" || id == "cast_spell" {
-          "Release"
-        } else {
-          "Impact"
-        }).to_json(),
-        "time": contact.to_json(),
+        "name": Json(
+          if id == "bow_shot" || id == "cast_spell" {
+            "Release"
+          } else {
+            "Impact"
+          },
+        ),
+        "time": Json(contact),
       },
     ]
     clips.push({
-      "id": id.to_json(),
-      "name": name.to_json(),
-      "duration": duration.to_json(),
+      "id": Json(id),
+      "name": Json(name),
+      "duration": Json(duration),
       "fps": 60,
-      "events": events.to_json(),
-      "channels": channels.to_json(),
+      "events": Json(events),
+      "channels": Json(channels),
     })
   }
   clips.push(
@@ -102,21 +104,21 @@ pub fn export_enemy_motion_asset() -> String {
       "format": "kagura.motion",
       "version": 2,
       "name": "ASHEN REALMS",
-      "skeleton": skeleton.to_json(),
-      "models": characters.to_json(),
-      "weapons": weapons.to_json(),
-      "clips": clips.to_json(),
+      "skeleton": Json(skeleton),
+      "models": Json(characters),
+      "weapons": Json(weapons),
+      "clips": Json(clips),
     } : Json).stringify()
 }
 
 ///|
 fn export_motion_parts(parts : Array[EnemyMaterialPart]) -> Array[Json] {
   parts.map(part => {
-    "name": part.name.to_json(),
-    "color": [part.color.x, part.color.y, part.color.z, part.color.w].to_json(),
-    "vertices": part.geometry.bind_mesh.vertex_data.to_json(),
-    "indices": part.geometry.bind_mesh.indices.to_json(),
-    "joints": part.geometry.skin_data.joint_indices.to_json(),
-    "weights": part.geometry.skin_data.weights.to_json(),
+    "name": Json(part.name),
+    "color": Json([part.color.x, part.color.y, part.color.z, part.color.w]),
+    "vertices": Json(part.geometry.bind_mesh.vertex_data),
+    "indices": Json(part.geometry.bind_mesh.indices),
+    "joints": Json(part.geometry.skin_data.joint_indices),
+    "weights": Json(part.geometry.skin_data.weights),
   })
 }

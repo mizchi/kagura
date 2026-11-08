@@ -1,11 +1,12 @@
 ///|
 /// Internal rectangle type for MaxRects algorithm.
+#derive(Debug, Eq)
 struct Rect {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
-} derive(Debug, Eq)
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
+}
 
 ///|
 pub impl Show for Rect with fn output(self, logger) {
@@ -20,16 +21,20 @@ pub struct MaxRectsAllocator {
 }
 
 ///|
-pub fn new_maxrects_allocator(width : Int, height : Int) -> MaxRectsAllocator {
+pub fn new_maxrects_allocator(
+  width : Int32,
+  height : Int32,
+) -> MaxRectsAllocator {
   { free_rects: [{ x: 0, y: 0, width, height, }], }
 }
 
 ///|
 /// Result of a single allocation attempt.
+#derive(Debug)
 pub(all) struct AllocResult {
-  x : Int
-  y : Int
-} derive(Debug)
+  x : Int32
+  y : Int32
+}
 
 ///|
 pub impl Show for AllocResult with fn output(self, logger) {
@@ -41,8 +46,8 @@ pub impl Show for AllocResult with fn output(self, logger) {
 /// Returns the position if successful, None if no space.
 pub fn MaxRectsAllocator::insert(
   self : MaxRectsAllocator,
-  w : Int,
-  h : Int,
+  w : Int32,
+  h : Int32,
 ) -> AllocResult? {
   // Find best rect using BestShortSideFit
   let mut best_idx = -1

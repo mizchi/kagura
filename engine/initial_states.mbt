@@ -1,8 +1,8 @@
 ///|
 /// Factories construct fresh game state. They do not perform scene transitions.
 pub struct InitialStates[T] {
-  default_factory : (Int, Int) -> T
-  named : Array[(String, (Int, Int) -> T)]
+  default_factory : (Int32, Int32) -> T
+  named : Array[(String, (Int32, Int32) -> T)]
 }
 
 ///|
@@ -30,8 +30,8 @@ fn valid_initial_state_name(name : String) -> Bool {
 
 ///|
 pub fn[T] InitialStates::new(
-  default~ : (Int, Int) -> T,
-  named? : Array[(String, (Int, Int) -> T)] = [],
+  default~ : (Int32, Int32) -> T,
+  named~ : Array[(String, (Int32, Int32) -> T)] = [],
 ) -> InitialStates[T] raise InitialStateError {
   let names : Array[String] = []
   if named.length() > 64 {
@@ -56,8 +56,8 @@ pub fn[T] InitialStates::names(self : InitialStates[T]) -> Array[String] {
 pub fn[T] InitialStates::create(
   self : InitialStates[T],
   name : String?,
-  width~ : Int,
-  height~ : Int,
+  width~ : Int32,
+  height~ : Int32,
 ) -> T raise InitialStateError {
   if width < 1 || height < 1 {
     raise InitialStateError("Invalid initial viewport")
@@ -83,8 +83,8 @@ let applied_initial_state : Ref[String?] = Ref(None)
 /// SceneGame and custom loops because the result is the game's own T.
 pub fn[T] InitialStates::create_for_capture(
   self : InitialStates[T],
-  width~ : Int,
-  height~ : Int,
+  width~ : Int32,
+  height~ : Int32,
 ) -> T {
   let (width, height) = capture_viewport(width, height)
   let name = requested_initial_state()

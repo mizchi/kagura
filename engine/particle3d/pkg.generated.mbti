@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn build_billboard_vertices(@mizchi/kagura_core/particle3d.ParticleEmitter, @math3d.Vec3, @math3d.Vec3) -> (Array[Double], Array[Int])
+pub fn build_billboard_vertices(@mizchi/kagura_core/particle3d.ParticleEmitter, @math3d.Vec3, @math3d.Vec3) -> (Array[Double], Array[Int32])
 
 pub fn default_emitter_config() -> @mizchi/kagura_core/particle3d.EmitterConfig
 
@@ -24,13 +24,13 @@ pub(all) struct ParticleManager {
   mut emitters : Array[BurstEmitter]
   particle_shader : @gfx.ShaderHandle
   mut vertex_scratch : Array[Double]
-  mut index_scratch : Array[Int]
+  mut index_scratch : Array[Int32]
 }
-pub fn ParticleManager::append_draw_commands(Self, Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Unit
-pub fn ParticleManager::draw(Self, @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
-pub fn ParticleManager::new(Int) -> Self
+pub fn ParticleManager::append_draw_commands(Self, Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @camera3d.Camera3D, Int32, Int32, Int32) -> Unit
+pub fn ParticleManager::draw(Self, @gfx.ImageHandle, @camera3d.Camera3D, Int32, Int32, Int32) -> Array[@gfx.DrawTrianglesCommand]
+pub fn ParticleManager::new(Int32) -> Self
 pub fn ParticleManager::spawn(Self, @mizchi/kagura_core/particle3d.EmitterConfig) -> Unit
-pub fn ParticleManager::total_particle_count(Self) -> Int
+pub fn ParticleManager::total_particle_count(Self) -> Int32
 pub fn ParticleManager::update(Self, Double) -> Unit
 
 // Type aliases

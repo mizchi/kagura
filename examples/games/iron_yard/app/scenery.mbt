@@ -219,7 +219,7 @@ fn scenery(stage : @sim.Stage) -> Array[SceneryPart] {
 // Unit radius, unit length, Z-axis pipe, with side normals and closed caps.
 fn cylinder_mesh() -> @mesh3d.Mesh3D {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let push = fn(x, y, z, nx, ny, nz) {
     for v in [x, y, z, nx, ny, nz, 0.0, 0.0] {
       vertices.push(v)
@@ -257,7 +257,7 @@ fn cylinder_mesh() -> @mesh3d.Mesh3D {
 // Three RingGeometry(5.4, 5.58, 64), rotated -PI/2 around X.
 fn ring_mesh() -> @mesh3d.Mesh3D {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for radius in [5.4, 5.58] {
     for i in 0..<65 {
       let angle = i.to_double() * 2.0 * @math.PI / 64.0

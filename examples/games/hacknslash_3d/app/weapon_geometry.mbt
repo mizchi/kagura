@@ -41,7 +41,7 @@ fn build_knuckles_weapon() -> EnemyMeshData {
 }
 
 ///|
-fn build_spear_weapon(length_scale? : Double = 1.0) -> EnemyMeshData {
+fn build_spear_weapon(length_scale~ : Double = 1.0) -> EnemyMeshData {
   // Extend the shaft ahead of the grip, keeping the hand anchor, width and head shape.
   let extension = 1.05 * (length_scale - 1.0)
   let iron = @procedural3d.RigidGeometry::new()

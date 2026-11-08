@@ -9,7 +9,7 @@ pub(all) struct ParticleManager {
   mut emitters : Array[BurstEmitter]
   particle_shader : @gfx.ShaderHandle
   mut vertex_scratch : Array[Double]
-  mut index_scratch : Array[Int]
+  mut index_scratch : Array[Int32]
 }
 
 ///|
@@ -19,7 +19,7 @@ pub(all) struct BurstEmitter {
 }
 
 ///|
-pub fn ParticleManager::new(shader_id : Int) -> ParticleManager {
+pub fn ParticleManager::new(shader_id : Int32) -> ParticleManager {
   {
     emitters: [],
     particle_shader: @gfx.new_shader_handle(
@@ -67,9 +67,9 @@ pub fn ParticleManager::draw(
   self : ParticleManager,
   dst : @gfx.ImageHandle,
   camera : @camera3d.Camera3D,
-  screen_w : Int,
-  screen_h : Int,
-  frame_count : Int,
+  screen_w : Int32,
+  screen_h : Int32,
+  frame_count : Int32,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   self.append_draw_commands(cmds, dst, camera, screen_w, screen_h, frame_count)
@@ -83,9 +83,9 @@ pub fn ParticleManager::append_draw_commands(
   cmds : Array[@gfx.DrawTrianglesCommand],
   dst : @gfx.ImageHandle,
   camera : @camera3d.Camera3D,
-  screen_w : Int,
-  screen_h : Int,
-  frame_count : Int,
+  screen_w : Int32,
+  screen_h : Int32,
+  frame_count : Int32,
 ) -> Unit {
   self.vertex_scratch.clear()
   self.index_scratch.clear()
@@ -140,7 +140,7 @@ pub fn ParticleManager::append_draw_commands(
 
 ///|
 /// Get total active particle count across all emitters.
-pub fn ParticleManager::total_particle_count(self : ParticleManager) -> Int {
+pub fn ParticleManager::total_particle_count(self : ParticleManager) -> Int32 {
   let mut total = 0
   for be in self.emitters {
     total = total + be.emitter.particle_count()

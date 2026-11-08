@@ -15,15 +15,15 @@ pub fn replay_attack(source : String, time : Double) -> String {
   let g = @sim.attack_preview(source, time) catch { _ => panic() }
   let snapshot = @json.parse(@sim.snapshot(g)) catch { _ => panic() }
   guard snapshot is Object(fields) else { panic() }
-  fields["attackAge"] = g.attack_age.to_json()
-  fields["projectilePositions"] = g.projectiles
-    .map(fn(p) { @sim.vector_json(p.position) })
-    .to_json()
-  fields["effects"] = g.effects
-    .map(fn(e) -> Json {
+  fields["attackAge"] = Json(g.attack_age)
+  fields["projectilePositions"] = Json(
+    g.projectiles.map(fn(p) { @sim.vector_json(p.position) }),
+  )
+  fields["effects"] = Json(
+    g.effects.map(fn(e) -> Json {
       { "position": @sim.vector_json(e.position), "kind": e.kind, "age": e.age }
-    })
-    .to_json()
+    }),
+  )
   snapshot.stringify()
 }
 

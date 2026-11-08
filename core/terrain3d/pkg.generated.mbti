@@ -9,77 +9,82 @@ import {
 }
 
 // Values
-pub fn coordinate_random(Int, Int, Int) -> Double
+pub fn coordinate_random(Int32, Int32, Int32) -> Double
 
-pub fn generate_height_field(Int, Int, TerrainConfig) -> HeightField
+pub fn generate_height_field(Int32, Int32, TerrainConfig) -> HeightField
 
 pub fn grid_to_mesh3d(@types.Grid2D, tile_size? : Double, wall_height? : Double) -> @mesh3d.Mesh3D
 
-pub fn priority_scatter_cell(Int, Int, Int, probability~ : Double, radius? : Int) -> Bool
+pub fn priority_scatter_cell(Int32, Int32, Int32, probability~ : Double, radius? : Int32) -> Bool
 
 // Errors
 
 // Types and methods
 pub struct HeightField {
-  cells_x : Int
-  cells_z : Int
+  cells_x : Int32
+  cells_z : Int32
   values : Array[Double]
 }
-pub fn HeightField::at(Self, Int, Int) -> Double
-pub fn HeightField::cell_slope(Self, Int, Int) -> Double
-pub fn HeightField::crop(Self, Int, Int, Int, Int) -> Self
+pub fn HeightField::at(Self, Int32, Int32) -> Double
+pub fn HeightField::cell_slope(Self, Int32, Int32) -> Double
+pub fn HeightField::crop(Self, Int32, Int32, Int32, Int32) -> Self
 pub fn HeightField::grade_routes(Self, Array[TerrainPad], Array[TerrainRoute], blend~ : Double) -> Unit
 pub fn HeightField::limit_slope(Self, Double) -> Unit
-pub fn HeightField::new(Int, Int, Array[Double]) -> Self
+pub fn HeightField::new(Int32, Int32, Array[Double]) -> Self
 pub fn HeightField::project_polygon(Self, Array[(Double, Double)], lift? : Double) -> @mesh3d.Mesh3D
 pub fn HeightField::raycast(Self, Double, Double, Double, Double, Double, Double, max_distance? : Double) -> (Double, Double, Double)?
 pub fn HeightField::sample(Self, Double, Double) -> Double
-pub fn HeightField::set(Self, Int, Int, Double) -> Unit
+pub fn HeightField::set(Self, Int32, Int32, Double) -> Unit
 pub fn HeightField::statistics(Self) -> HeightFieldStats
 
+#derive(@json.ToJson)
 pub(all) struct HeightFieldStats {
   minimum : Double
   maximum : Double
   max_slope : Double
-  triangles : Int
-} derive(ToJson)
-pub fn HeightFieldStats::to_json(Self) -> Json
+  triangles : Int32
+}
+pub fn HeightFieldStats::to_json(Self) -> @json.Json
 
+#derive(Eq, @json.FromJson, @json.ToJson)
 pub(all) struct TerrainConfig {
   pattern : TerrainPattern
-  seed : Int
+  seed : Int32
   amplitude : Double
   scale : Double
   roughness : Double
-} derive(Eq, ToJson, @json.FromJson)
+}
 pub fn TerrainConfig::default() -> Self
 pub fn TerrainConfig::equal(Self, Self) -> Bool
-pub fn TerrainConfig::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TerrainConfig::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn TerrainConfig::not_equal(Self, Self) -> Bool
-pub fn TerrainConfig::to_json(Self) -> Json
+pub fn TerrainConfig::to_json(Self) -> @json.Json
 pub fn TerrainConfig::validated(Self) -> Self
 
+#derive(@json.ToJson)
 pub(all) struct TerrainPad {
   x : Double
   z : Double
   height : Double
   radius : Double
-} derive(ToJson)
-pub fn TerrainPad::to_json(Self) -> Json
+}
+pub fn TerrainPad::to_json(Self) -> @json.Json
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) enum TerrainPattern {
   Flat
   Perlin
   DiamondSquare
   Voronoi
   Hybrid
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
 pub fn TerrainPattern::equal(Self, Self) -> Bool
-pub fn TerrainPattern::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TerrainPattern::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn TerrainPattern::not_equal(Self, Self) -> Bool
-pub fn TerrainPattern::to_json(Self) -> Json
+pub fn TerrainPattern::to_json(Self) -> @json.Json
 pub fn TerrainPattern::to_repr(Self) -> @debug.Repr
 
+#derive(@json.ToJson)
 pub(all) struct TerrainRoute {
   ax : Double
   az : Double
@@ -88,9 +93,9 @@ pub(all) struct TerrainRoute {
   bz : Double
   bh : Double
   width : Double
-} derive(ToJson)
+}
 pub fn TerrainRoute::projection(Self, Double, Double) -> (Double, Double)
-pub fn TerrainRoute::to_json(Self) -> Json
+pub fn TerrainRoute::to_json(Self) -> @json.Json
 
 pub(all) struct WarpedDensityField {
   frequency_x : Double

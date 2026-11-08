@@ -23,8 +23,8 @@ pub fn[S] number_field(
   id : String,
   get~ : (S) -> Double,
   set? : (S, Double) -> S raise,
-  label? : String = id,
-  unit? : String = "",
+  label~ : String = id,
+  unit~ : String = "",
 ) -> Property[S] {
   let write : ((S, Json) -> S raise)? = set.map(fn(set) {
     fn(state, json) raise {
@@ -47,7 +47,7 @@ pub fn[S] text_field(
   id : String,
   get~ : (S) -> String,
   set? : (S, String) -> S raise,
-  label? : String = id,
+  label~ : String = id,
 ) -> Property[S] {
   {
     id,
@@ -63,7 +63,7 @@ pub fn[S] boolean_field(
   id : String,
   get~ : (S) -> Bool,
   set? : (S, Bool) -> S raise,
-  label? : String = id,
+  label~ : String = id,
 ) -> Property[S] {
   {
     id,
@@ -78,7 +78,7 @@ pub fn[S] boolean_field(
 pub fn[S] bind_subject(
   id : String,
   fields~ : Array[Property[S]],
-  name? : String = id,
+  name~ : String = id,
 ) -> SubjectBinding[S] {
   { id, name, fields: fields.copy(), }
 }

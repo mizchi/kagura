@@ -674,9 +674,9 @@ fn Game::view_enemy(
   self : Game,
   enemy : Enemy,
   r : UiRect,
-  index : Int,
+  index : Int32,
   targeted : Bool,
-  drop? : DropFeedback? = None,
+  drop~ : DropFeedback? = None,
 ) -> @scene.SceneNode {
   let unique_accent = match enemy.id {
     CinderDuelist => 0xFFA082
@@ -817,10 +817,10 @@ fn pixel_actor(
   x : Double,
   y : Double,
   size : Double,
-  color : Int,
+  color : Int32,
   monster : Bool,
-  enemy? : EnemyId? = None,
-  alpha? : Double = 1.0,
+  enemy~ : EnemyId? = None,
+  alpha~ : Double = 1.0,
 ) -> @scene.SceneNode {
   let pattern = match enemy {
     Some(CinderDuelist) =>
@@ -876,7 +876,7 @@ fn pixel_actor(
 fn view_reward(
   run : RunState,
   l : GameLayout,
-  focused? : Int = -1,
+  focused~ : Int32 = -1,
 ) -> @scene.SceneNode {
   let nodes : Array[@scene.SceneNode] = [
     fit_text(
@@ -998,8 +998,8 @@ fn view_result(
 fn view_deck(
   run : RunState,
   l : GameLayout,
-  page : Int,
-  focused_id? : Int = -1,
+  page : Int32,
+  focused_id~ : Int32 = -1,
 ) -> @scene.SceneNode {
   let nodes : Array[@scene.SceneNode] = [
     fit_text(
@@ -1084,6 +1084,6 @@ fn view_deck(
 }
 
 ///|
-fn deck_page_count(run : RunState) -> Int {
+fn deck_page_count(run : RunState) -> Int32 {
   ui_max(1, (run.deck.length() + run.relics.length() + 7) / 8)
 }

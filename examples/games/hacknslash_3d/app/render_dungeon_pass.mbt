@@ -14,7 +14,7 @@ fn build_dungeon_tinted_lighting_cache(
 ///|
 struct MeshAccumulator {
   vertices : Array[Double]
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
@@ -31,7 +31,7 @@ fn same_dungeon_group_color(left : @math3d.Vec4, right : @math3d.Vec4) -> Bool {
 }
 
 ///|
-fn dungeon_surface_index(kind : DungeonSurfaceKind) -> Int {
+fn dungeon_surface_index(kind : DungeonSurfaceKind) -> Int32 {
   match kind {
     Floor => 0
     Corridor => 1
@@ -106,7 +106,7 @@ fn build_visible_dungeon_mesh_cache(
 fn GameState::dungeon_diffuse_image_id(
   self : GameState,
   surface_kind : DungeonSurfaceKind,
-) -> Int? {
+) -> Int32? {
   match surface_kind {
     Floor | Corridor | Door => self.dungeon_floor_texture_image_id
     Wall | Pillar => self.dungeon_wall_texture_image_id

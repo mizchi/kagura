@@ -1,5 +1,5 @@
 import {
-  "mizchi/hacknslash_3d/app" @app,
+  "mizchi/hacknslash_3d/app",
 }
 
 warnings = "-1-2-7-29"
@@ -15,8 +15,5 @@ options(
       "cc-link-flags": "-L${build.KAGURA_NATIVE_WGPU_LIB_DIR} -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
-  targets: {
-    "main_js.mbt": [ "js" ],
-    "main_native.mbt": [ "native" ],
-  },
+  targets: { "main_js.mbt": [ "js" ], "main_native.mbt": [ "native" ] },
 )

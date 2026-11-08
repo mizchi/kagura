@@ -32,8 +32,8 @@ fn assert_true_or_panic(condition : Bool, message : String) -> Unit {
 
 ///|
 pub fn try_init_triangle_context(
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   title : String,
 ) -> TriangleContext? {
   if !@glfw.glfw_init() {
@@ -66,8 +66,8 @@ pub fn try_init_triangle_context(
 
 ///|
 pub fn init_triangle_context(
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   title : String,
 ) -> TriangleContext {
   match try_init_triangle_context(width, height, title) {
@@ -91,7 +91,7 @@ pub fn render_triangle_frame_with_plan(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
-  draw_calls : Int,
+  draw_calls : Int32,
 ) -> Unit {
   let safe_draw_calls = if draw_calls < 0 { 0 } else { draw_calls }
   render_frame_with_plan(
@@ -114,7 +114,7 @@ pub fn render_triangle_frame_with_plan_payload(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
-  draw_calls : Int,
+  draw_calls : Int32,
   has_triangle_payload : Bool,
   ax : Double,
   ay : Double,
@@ -132,7 +132,7 @@ pub fn render_triangle_frame_with_plan_payload(
   uniform_g : Double,
   uniform_b : Double,
   uniform_a : Double,
-  texture_seed : Int,
+  texture_seed : Int32,
 ) -> Unit {
   let safe_draw_calls = if draw_calls < 0 { 0 } else { draw_calls }
   render_frame_with_plan_payload(
@@ -177,7 +177,7 @@ pub fn reset_triangle_draw_plan_queue() -> Unit {
 
 ///|
 pub fn stage_triangle_draw_plan_command(
-  draw_calls : Int,
+  draw_calls : Int32,
   has_triangle_payload : Bool,
   ax : Double,
   ay : Double,
@@ -195,8 +195,8 @@ pub fn stage_triangle_draw_plan_command(
   uniform_g : Double,
   uniform_b : Double,
   uniform_a : Double,
-  texture_seed : Int,
-  dst_image_id : Int,
+  texture_seed : Int32,
+  dst_image_id : Int32,
 ) -> Unit {
   push_planned_draw_command(
     draw_calls,
@@ -249,8 +249,8 @@ pub fn render_triangle_frame_with_staged_plan(
 ///|
 pub fn reconfigure_triangle_surface(
   ctx : TriangleContext,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   let safe_width = if width <= 0 { 1 } else { width }
   let safe_height = if height <= 0 { 1 } else { height }
@@ -296,7 +296,10 @@ pub fn shutdown_triangle_context(ctx : TriangleContext) -> Unit {
 ///|
 /// Initialize a headless (invisible window) context for offscreen rendering.
 /// Suitable for screenshot generation and CI testing without a display.
-pub fn try_init_headless_context(width : Int, height : Int) -> TriangleContext? {
+pub fn try_init_headless_context(
+  width : Int32,
+  height : Int32,
+) -> TriangleContext? {
   if !@glfw.glfw_init() {
     None
   } else {
@@ -324,7 +327,7 @@ pub fn try_init_headless_context(width : Int, height : Int) -> TriangleContext? 
 
 ///|
 /// Initialize a headless context, panicking on failure.
-pub fn init_headless_context(width : Int, height : Int) -> TriangleContext {
+pub fn init_headless_context(width : Int32, height : Int32) -> TriangleContext {
   match try_init_headless_context(width, height) {
     Some(ctx) => ctx
     None => {

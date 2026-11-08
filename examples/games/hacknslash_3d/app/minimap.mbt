@@ -1,7 +1,7 @@
 ///|
 fn minimap_layout(
   ctx : @hud.HudContext,
-) -> (Double, Double, Double, Double, Int) {
+) -> (Double, Double, Double, Double, Int32) {
   let map_size = 100.0
   let map_x = ctx.screen_w - map_size - 8.0
   let map_y = 8.0 // top-right
@@ -13,9 +13,9 @@ fn minimap_layout(
 ///|
 fn find_room_index_at_minimap_tile(
   rooms : Array[@terrain.Room],
-  gx : Int,
-  gy : Int,
-) -> Int {
+  gx : Int32,
+  gy : Int32,
+) -> Int32 {
   let point : @terrain.Point = { x: gx, y: gy, }
   for i, room in rooms {
     if room.rect.contains(point) {
@@ -29,20 +29,20 @@ fn find_room_index_at_minimap_tile(
 fn GameState::build_minimap_static_cmds(
   self : GameState,
   ctx : @hud.HudContext,
-  pcx : Int,
-  pcy : Int,
+  pcx : Int32,
+  pcy : Int32,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let (map_size, map_x, map_y, cell_size, radius) = minimap_layout(ctx)
   let grid = self.world.dungeon.grid
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let border_vertices : Array[Double] = []
-  let border_indices : Array[Int] = []
+  let border_indices : Array[Int32] = []
   let wall_vertices : Array[Double] = []
-  let wall_indices : Array[Int] = []
+  let wall_indices : Array[Int32] = []
   let floor_vertices : Array[Double] = []
-  let floor_indices : Array[Int] = []
+  let floor_indices : Array[Int32] = []
   let fog_vertices : Array[Double] = []
-  let fog_indices : Array[Int] = []
+  let fog_indices : Array[Int32] = []
   ctx.append_rect_batch_geometry(
     border_vertices,
     border_indices,
@@ -121,8 +121,8 @@ fn GameState::build_minimap_static_cmds(
 fn GameState::ensure_minimap_static_cache(
   self : GameState,
   ctx : @hud.HudContext,
-  pcx : Int,
-  pcy : Int,
+  pcx : Int32,
+  pcy : Int32,
 ) -> Unit {
   if self.minimap_cache_player_tile_x == pcx &&
     self.minimap_cache_player_tile_y == pcy &&
@@ -323,9 +323,9 @@ fn GameState::render_minimap(
     cmds.push(cmd)
   }
   let enemy_vertices : Array[Double] = []
-  let enemy_indices : Array[Int] = []
+  let enemy_indices : Array[Int32] = []
   let boss_vertices : Array[Double] = []
-  let boss_indices : Array[Int] = []
+  let boss_indices : Array[Int32] = []
   for enemy in self.world.enemies {
     if enemy.alive {
       let enemy_room = @game.find_room_at(

@@ -1,4 +1,5 @@
 ///|
+#derive(Debug)
 pub struct TimelineTrackLane {
   id : String
   label : String
@@ -7,7 +8,7 @@ pub struct TimelineTrackLane {
   active : Bool
   marker_ratios : Array[Double]
   accent_color : @math3d.Vec4
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TimelineTrackLane with fn output(self, logger) {
@@ -15,12 +16,13 @@ pub impl Show for TimelineTrackLane with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct TimelineView {
   duration : Double
   normalized_time : Double
   playhead_ratio : Double
   lanes : Array[TimelineTrackLane]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TimelineView with fn output(self, logger) {

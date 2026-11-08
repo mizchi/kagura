@@ -3,6 +3,7 @@
 
 ///|
 /// Phase of the overall run
+#derive(Debug, Eq)
 pub(all) enum RunPhase {
   Battle
   CardReward
@@ -14,7 +15,7 @@ pub(all) enum RunPhase {
   TreasureRoom
   RunVictory
   RunDefeat
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for RunPhase with fn output(self, logger) {
@@ -23,11 +24,12 @@ pub impl Show for RunPhase with fn output(self, logger) {
 
 ///|
 /// Floor type determines what happens on each floor
+#derive(Debug, Eq)
 enum FloorType {
   Combat(EncounterTier)
   Rest
   Boss
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for FloorType with fn output(self, logger) {
@@ -36,6 +38,7 @@ pub impl Show for FloorType with fn output(self, logger) {
 
 ///|
 /// The full run state persisting across battles
+#derive(Debug)
 pub(all) struct RunState {
   character : CharacterId
   stage : StageId
@@ -43,24 +46,24 @@ pub(all) struct RunState {
   relics : Array[RelicId]
   relic_state : RelicState
   potions : Array[PotionId]
-  mut player_hp : Int
-  mut player_max_hp : Int
-  mut floor : Int
+  mut player_hp : Int32
+  mut player_max_hp : Int32
+  mut floor : Int32
   mut phase : RunPhase
   mut battle : BattleState?
   card_rewards : Array[CardId]
-  mut rng_seed : Int
-  mut gold : Int
+  mut rng_seed : Int32
+  mut gold : Int32
   mut route : RouteState?
   mut current_room : RoomKind?
   mut event : EventId?
   mut shop : ShopState?
   treasure_rewards : Array[RelicId]
   unique_enemies_seen : Array[EnemyId]
-  mut cards_removed : Int
+  mut cards_removed : Int32
   mut last_relic : RelicId?
-  mut last_gold : Int
-} derive(Debug)
+  mut last_gold : Int32
+}
 
 ///|
 pub impl Show for RunState with fn output(self, logger) {
@@ -68,7 +71,7 @@ pub impl Show for RunState with fn output(self, logger) {
 }
 
 ///|
-let max_floor : Int = 30
+let max_floor : Int32 = 30
 
 ///|
 /// Floor layout for Act 1 (15 floors) + Act 2 (floors 16-30)
@@ -99,7 +102,7 @@ let max_floor : Int = 30
 /// Floor 28: Normal
 /// Floor 29: Rest site (prep for boss)
 /// Floor 30: BOSS (Bronze Automaton)
-fn floor_type(floor : Int) -> FloorType {
+fn floor_type(floor : Int32) -> FloorType {
   match floor {
     // Act 1
     1 => Combat(Easy)
@@ -139,7 +142,7 @@ fn floor_type(floor : Int) -> FloorType {
 
 ///|
 /// Which act does a floor belong to?
-pub fn floor_act(floor : Int) -> Int {
+pub fn floor_act(floor : Int32) -> Int32 {
   if floor <= 15 {
     1
   } else {
@@ -149,7 +152,7 @@ pub fn floor_act(floor : Int) -> Int {
 
 ///|
 /// Progress within the current act (0.0 at start, 1.0 at boss)
-pub fn act_progress(floor : Int) -> Double {
+pub fn act_progress(floor : Int32) -> Double {
   if floor <= 15 {
     (floor - 1).to_double() / 14.0 // Act 1: floors 1-15
   } else {
@@ -159,7 +162,7 @@ pub fn act_progress(floor : Int) -> Double {
 
 ///|
 /// Create a new run
-pub fn RunState::new(seed? : Int = 42) -> RunState {
+pub fn RunState::new(seed~ : Int32 = 42) -> RunState {
   RunState::start(Ironclad, Ascent, seed~)
 }
 
@@ -167,7 +170,7 @@ pub fn RunState::new(seed? : Int = 42) -> RunState {
 pub fn RunState::start(
   character : CharacterId,
   stage : StageId,
-  seed? : Int = 42,
+  seed~ : Int32 = 42,
 ) -> RunState {
   let state = create_run_state(character, stage, seed)
   advance_floor(state)
@@ -178,7 +181,7 @@ pub fn RunState::start(
 fn create_run_state(
   character : CharacterId,
   stage : StageId,
-  seed : Int,
+  seed : Int32,
 ) -> RunState {
   let state : RunState = {
     character,
@@ -226,7 +229,7 @@ fn create_run_state(
 
 ///|
 /// Simple RNG for run-level decisions
-fn run_random(state : RunState) -> Int {
+fn run_random(state : RunState) -> Int32 {
   state.rng_seed = state.rng_seed * 1103515245 + 12345
   (state.rng_seed >> 16) & 0x7FFF
 }
@@ -505,7 +508,7 @@ fn on_battle_defeat(state : RunState) -> Unit {
 
 ///|
 /// Add a card reward to deck and advance
-fn pick_card_reward(state : RunState, index : Int) -> Unit {
+fn pick_card_reward(state : RunState, index : Int32) -> Unit {
   if index >= 0 && index < state.card_rewards.length() {
     state.deck.push(state.card_rewards[index])
   }

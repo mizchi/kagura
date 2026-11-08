@@ -3,7 +3,7 @@ import {
   "mizchi/luna",
   "mizchi/luna/dom/client",
   "mizchi/luna_components/headless" @controls,
-  "mizchi/js/core" @js,
+  "mizchi/js_core" @js,
   "mizchi/signals",
   "mizchi/luna/dom",
   "mizchi/js_browser/dom" @browser,

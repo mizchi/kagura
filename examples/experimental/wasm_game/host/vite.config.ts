@@ -1,3 +1,4 @@
+import { MOONBIT_SOURCE_DIR, TARGETS } from "../guest-paths.mjs";
 import { defineConfig, type Plugin } from "vite";
 import { execSync } from "child_process";
 import { resolve, dirname } from "path";
@@ -6,11 +7,8 @@ import { copyFileSync, existsSync, watch as fsWatch } from "fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const moonbitSrc = resolve(__dirname, "../guest/moonbit/src");
-const moonbitOut = resolve(
-  __dirname,
-  "../guest/moonbit/_build/wasm/debug/build/wasm_game_guest.wasm",
-);
+const moonbitSrc = MOONBIT_SOURCE_DIR;
+const moonbitOut = TARGETS.moonbit.path;
 const publicWasm = resolve(__dirname, "public/game.wasm");
 
 function wasmHmrPlugin(): Plugin {
@@ -35,7 +33,8 @@ function wasmHmrPlugin(): Plugin {
           moonbitSrc,
           { recursive: true, signal: abortController.signal },
           (_event, filename) => {
-            if (!filename?.endsWith(".mbt")) return;
+            if (!filename || /(^|[/\\])(?:_build|\.mooncakes)(?:[/\\]|$)/.test(filename)) return;
+            if (!/\.mbt$|(^|[/\\])moon\.(pkg|mod)$/.test(filename)) return;
             console.log(`[wasm-hmr] MoonBit source changed: ${filename}`);
             try {
               execSync("moon build --target wasm", {

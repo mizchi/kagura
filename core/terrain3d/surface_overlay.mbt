@@ -38,10 +38,10 @@ fn clip_surface_polygon(
 pub fn HeightField::project_polygon(
   self : HeightField,
   points : Array[(Double, Double)],
-  lift? : Double = 0.01,
+  lift~ : Double = 0.01,
 ) -> @mesh3d.Mesh3D {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   if points.length() < 3 ||
     points.any(p => {
       p.0.is_nan() || p.1.is_nan() || p.0.abs() > 1.0e9 || p.1.abs() > 1.0e9

@@ -1,30 +1,34 @@
 ///|
+#derive(ToJson)
 struct HunterRegionView {
-  id : Int
+  id : Int32
   name : String
   subtitle : String
-  x : Int
-  z : Int
-  tier : Int
+  x : Int32
+  z : Int32
+  tier : Int32
   unlocked : Bool
   visited : Bool
   ready : Bool
-  progress : Int
-} derive(ToJson)
+  progress : Int32
+}
+
 ///|
 pub extend HunterRegionView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterAtlasView {
-  generation : Int
+  generation : Int32
   expedition : ExpeditionMapView?
   anchors : Array[ExpeditionAnchorView]
   at_region_waypoint : Bool
-  current : Int
+  current : Int32
   name : String
   subtitle : String
   near_waypoint : Bool
   regions : Array[HunterRegionView]
-  travel_target : Int?
+  travel_target : Int32?
   waypoint_x : Double
   waypoint_z : Double
   global_x : Double
@@ -33,11 +37,13 @@ struct HunterAtlasView {
   prepare_max_ms : Double
   chunk_max_ms : Double
   batch_max_ms : Double
-  batches_built : Int
-  chunks_built : Int
-} derive(ToJson)
+  batches_built : Int32
+  chunks_built : Int32
+}
+
 ///|
 pub extend HunterAtlasView with ToJson::{to_json}
+
 ///|
 fn GameState::hunter_atlas_view(self : GameState) -> HunterAtlasView? {
   guard self.world.atlas is Some(atlas) else { return None }
@@ -219,7 +225,7 @@ fn GameState::render_waypoints_ui(
 let world_waypoint_ring : @mesh3d.Mesh3D = {
   let g = @procedural3d.RigidGeometry::new()
   for i in 0..<32 {
-    fn p(index : Int, radius : Double) -> @math3d.Vec3 {
+    fn p(index : Int32, radius : Double) -> @math3d.Vec3 {
       let angle = index.to_double() * @math.PI * 2.0 / 32.0
       @math3d.Vec3::new(
         @math.cos(angle) * radius,

@@ -1,4 +1,5 @@
 ///|
+#derive(Eq, Debug)
 pub enum EffectPresetId {
   ForgeBurst
   ChainLightning
@@ -10,7 +11,7 @@ pub enum EffectPresetId {
   GroundTelegraphLine
   BeamLightning
   MeteorFall
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for EffectPresetId with fn output(self, logger) {

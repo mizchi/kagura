@@ -99,9 +99,11 @@ pub fn normalize_gamepad(pad : @core.Any) -> @core.Any {
     ("profile", @core.any("victrix-pro-bfg-ps5-mac")),
     (
       "axes",
-      @core.any([0, 1, 2, 5].map(fn(i) { pad_axis(axes._get_by_index(i)) })),
+      @interop.array_to_js(
+        [0, 1, 2, 5].map(fn(i) { pad_axis(axes._get_by_index(i)) }),
+      ),
     ),
-    ("buttons", @core.any(buttons)),
+    ("buttons", @interop.array_to_js(buttons)),
   ])
 }
 
@@ -110,7 +112,7 @@ priv struct GamepadState {
   dead_zone : Double
   mut identity : String?
   mut armed : Bool
-  mut previous : Array[Int]
+  mut previous : Array[Int32]
   mut previous_axes : Array[Double]
   mut direction : String?
   mut next_repeat : Double
@@ -231,7 +233,7 @@ fn GamepadState::step(
     self.armed = true
   }
   let ready = supported && enabled && self.armed
-  let down : Array[Int] = []
+  let down : Array[Int32] = []
   if ready {
     for i = 0; i < buttons.length(); i = i + 1 {
       if buttons[i] {
@@ -338,9 +340,9 @@ fn GamepadState::step(
         @interop.vector(0, 0)
       },
     ),
-    ("down", @core.any(down)),
-    ("pressed", @core.any(pressed)),
-    ("released", @core.any(released)),
+    ("down", @interop.array_to_js(down)),
+    ("pressed", @interop.array_to_js(pressed)),
+    ("released", @interop.array_to_js(released)),
     ("activity", @core.any(activity)),
     (
       "navigation",

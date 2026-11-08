@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 pub(all) struct AABB2D {
   min : @vector.Vec2
   max : @vector.Vec2
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AABB2D with fn output(self, logger) {

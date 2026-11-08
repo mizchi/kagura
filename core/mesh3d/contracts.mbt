@@ -2,9 +2,10 @@
 /// 3D mesh data with configurable vertex layout.
 
 ///|
-pub let vertex3d_stride : Int = 8
+pub let vertex3d_stride : Int32 = 8
 
 ///|
+#derive(Debug)
 pub struct MeshBounds3D {
   min_x : Double
   min_y : Double
@@ -12,7 +13,7 @@ pub struct MeshBounds3D {
   max_x : Double
   max_y : Double
   max_z : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for MeshBounds3D with fn output(self, logger) {
@@ -20,12 +21,13 @@ pub impl Show for MeshBounds3D with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct Mesh3D {
   vertex_data : Array[Double]
-  indices : Array[Int]
+  indices : Array[Int32]
   bounds : MeshBounds3D
   format : VertexFormat
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Mesh3D with fn output(self, logger) {
@@ -34,7 +36,10 @@ pub impl Show for Mesh3D with fn output(self, logger) {
 
 ///|
 /// Create a Mesh3D with standard_3d format (stride 8).
-pub fn Mesh3D::new(vertex_data : Array[Double], indices : Array[Int]) -> Mesh3D {
+pub fn Mesh3D::new(
+  vertex_data : Array[Double],
+  indices : Array[Int32],
+) -> Mesh3D {
   let format = VertexFormat::standard_3d()
   {
     vertex_data,
@@ -48,7 +53,7 @@ pub fn Mesh3D::new(vertex_data : Array[Double], indices : Array[Int]) -> Mesh3D 
 /// Create a Mesh3D with an explicit vertex format.
 pub fn Mesh3D::new_with_format(
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   format : VertexFormat,
 ) -> Mesh3D {
   {
@@ -60,12 +65,12 @@ pub fn Mesh3D::new_with_format(
 }
 
 ///|
-pub fn Mesh3D::vertex_count(self : Mesh3D) -> Int {
+pub fn Mesh3D::vertex_count(self : Mesh3D) -> Int32 {
   self.vertex_data.length() / self.format.stride()
 }
 
 ///|
-pub fn Mesh3D::triangle_count(self : Mesh3D) -> Int {
+pub fn Mesh3D::triangle_count(self : Mesh3D) -> Int32 {
   self.indices.length() / 3
 }
 
@@ -77,7 +82,7 @@ pub fn Mesh3D::bounds(self : Mesh3D) -> MeshBounds3D {
 ///|
 fn compute_mesh_bounds(
   vertex_data : Array[Double],
-  stride : Int,
+  stride : Int32,
 ) -> MeshBounds3D {
   let vertex_count = vertex_data.length() / stride
   if vertex_count == 0 {
@@ -150,7 +155,7 @@ pub fn push_vertex(
 pub fn Mesh3D::cube(size : Double) -> Mesh3D {
   let h = size / 2.0
   let data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut base = 0
   // +Z face (front)
   push_vertex(data, -h, -h, h, 0.0, 0.0, 1.0, 0.0, 1.0)
@@ -231,13 +236,13 @@ pub fn Mesh3D::cube(size : Double) -> Mesh3D {
 pub fn Mesh3D::plane(
   width : Double,
   depth : Double,
-  subdivisions? : Int = 4,
+  subdivisions~ : Int32 = 4,
 ) -> Mesh3D {
   let hw = width / 2.0
   let hd = depth / 2.0
   let n = subdivisions
   let data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   // Generate (n+1)×(n+1) grid of vertices
   for row in 0..<=n {
     let t = row.to_double() / n.to_double()
@@ -273,9 +278,13 @@ pub fn Mesh3D::plane(
 
 ///|
 /// UV sphere with given radius, number of horizontal segments, and vertical rings.
-pub fn Mesh3D::sphere(radius : Double, segments : Int, rings : Int) -> Mesh3D {
+pub fn Mesh3D::sphere(
+  radius : Double,
+  segments : Int32,
+  rings : Int32,
+) -> Mesh3D {
   let data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for ring in 0..<=rings {
     let phi = @math.PI * ring.to_double() / rings.to_double()
     let sin_phi = @math.sin(phi)
@@ -311,7 +320,7 @@ pub fn Mesh3D::sphere(radius : Double, segments : Int, rings : Int) -> Mesh3D {
 ///|
 /// Push two triangles (a quad) from 4 consecutive vertices starting at `base`.
 /// Winding: base, base+1, base+2, base+2, base+3, base.
-pub fn push_quad(indices : Array[Int], base : Int) -> Unit {
+pub fn push_quad(indices : Array[Int32], base : Int32) -> Unit {
   indices.push(base)
   indices.push(base + 1)
   indices.push(base + 2)
@@ -327,7 +336,7 @@ pub fn Mesh3D::box(width : Double, height : Double, depth : Double) -> Mesh3D {
   let hw = width / 2.0
   let hd = depth / 2.0
   let data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut base = 0
   // +Z face (front)
   push_vertex(data, -hw, 0.0, hd, 0.0, 0.0, 1.0, 0.0, 1.0)

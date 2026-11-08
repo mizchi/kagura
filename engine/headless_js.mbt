@@ -14,7 +14,7 @@
 /// Number of update ticks requested, or -1 when no headless render was asked
 /// for. A request without an explicit `frames` renders one tick, which is
 /// what "just show me the first frame" means.
-extern "js" fn js_headless_frames() -> Int =
+extern "js" fn js_headless_frames() -> Int32 =
   #| () => {
   #|   const request = globalThis.__kaguraHeadless;
   #|   if (request == null || typeof request !== "object") return -1;
@@ -24,7 +24,7 @@ extern "js" fn js_headless_frames() -> Int =
   #| }
 
 ///|
-extern "js" fn js_headless_int(key : String, fallback : Int) -> Int =
+extern "js" fn js_headless_int(key : String, fallback : Int32) -> Int32 =
   #| (key, fallback) => {
   #|   const request = globalThis.__kaguraHeadless;
   #|   if (request == null) return fallback;
@@ -56,13 +56,13 @@ extern "js" fn js_headless_string(key : String) -> String =
 /// representation; it is normalized to a `Uint8Array` here so the caller can
 /// write it out without knowing anything about the MoonBit ABI.
 extern "js" fn js_publish_headless_frame(
-  width : Int,
-  height : Int,
-  frames : Int,
+  width : Int32,
+  height : Int32,
+  frames : Int32,
   png : Bytes,
-  skipped_commands : Int,
-  drawn_triangles : Int,
-  draw_commands : Int,
+  skipped_commands : Int32,
+  drawn_triangles : Int32,
+  draw_commands : Int32,
   initial_state : String,
 ) -> Unit =
   #| (width, height, frames, png, skipped_commands, drawn_triangles, draw_commands, initial_state) => {
@@ -84,7 +84,10 @@ extern "js" fn js_publish_headless_frame(
 /// `document.querySelector("canvas").getBoundingClientRect()` to scale cursor
 /// coordinates, so a host stub reporting a different size silently misplaces
 /// every pointer -- publishing the resolved size is what keeps the two agreed.
-extern "js" fn js_publish_headless_viewport(width : Int, height : Int) -> Unit =
+extern "js" fn js_publish_headless_viewport(
+  width : Int32,
+  height : Int32,
+) -> Unit =
   #| (width, height) => { globalThis.__kaguraHeadlessViewport = { width, height }; }
 
 ///|
@@ -96,18 +99,21 @@ extern "js" fn js_publish_headless_failure(reason : String) -> Unit =
 /// its assets. See `publish_source_image_for_headless` in
 /// `platform_web/runtime_hooks`: the pixels cross on a global because the
 /// dependency order forbids a direct call.
-extern "js" fn js_headless_texture_count() -> Int =
+extern "js" fn js_headless_texture_count() -> Int32 =
   #| () => (globalThis.__kaguraSourceImages?.length ?? 0)
 
 ///|
-extern "js" fn js_headless_texture_field(index : Int, field : String) -> Int =
+extern "js" fn js_headless_texture_field(
+  index : Int32,
+  field : String,
+) -> Int32 =
   #| (index, field) => {
   #|   const value = globalThis.__kaguraSourceImages?.[index]?.[field];
   #|   return Number.isFinite(value) ? Math.floor(value) : 0;
   #| }
 
 ///|
-extern "js" fn js_headless_texture_pixels(index : Int) -> Bytes =
+extern "js" fn js_headless_texture_pixels(index : Int32) -> Bytes =
   #| (index) => {
   #|   const pixels = globalThis.__kaguraSourceImages?.[index]?.pixels;
   #|   return pixels instanceof Uint8Array ? pixels : new Uint8Array(0);
@@ -123,7 +129,7 @@ fn collect_headless_textures() -> Array[HeadlessTexture] {
     if width <= 0 || height <= 0 || bytes.length() < width * height * 4 {
       continue
     }
-    let pixels : Array[Int] = []
+    let pixels : Array[Int32] = []
     for i in 0..<bytes.length() {
       pixels.push(bytes[i].to_int())
     }
@@ -144,8 +150,8 @@ fn try_run_headless(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
   on_frame? : () -> Unit,
-  width~ : Int,
-  height~ : Int,
+  width~ : Int32,
+  height~ : Int32,
 ) -> Bool {
   let frames = js_headless_frames()
   if frames < 0 {
@@ -194,7 +200,7 @@ fn try_run_headless(
 }
 
 ///|
-extern "js" fn js_headless_input_step(tick : Int) -> String =
+extern "js" fn js_headless_input_step(tick : Int32) -> String =
   #| tick => {
   #|   const inputs = globalThis.__kaguraHeadless?.inputs;
   #|   if (inputs === undefined) return '';
@@ -203,7 +209,7 @@ extern "js" fn js_headless_input_step(tick : Int) -> String =
 
 ///|
 fn headless_sequence_input(
-  tick : Int,
+  tick : Int32,
   fallback : HeadlessInput,
 ) -> @core.InputSnapshot {
   let json = js_headless_input_step(tick)
@@ -217,7 +223,7 @@ fn headless_sequence_input(
 }
 
 ///|
-pub fn capture_viewport(width : Int, height : Int) -> (Int, Int) {
+pub fn capture_viewport(width : Int32, height : Int32) -> (Int32, Int32) {
   (js_headless_int("width", width), js_headless_int("height", height))
 }
 

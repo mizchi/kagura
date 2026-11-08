@@ -1,7 +1,7 @@
 ///|
-pub fn lock_candidates(g : Game, frame : CombatFrame) -> Array[Int] {
+pub fn lock_candidates(g : Game, frame : CombatFrame) -> Array[Int32] {
   let direction = frame.aim.sub(frame.eye).normalize()
-  let candidates : Array[(Int, Double)] = []
+  let candidates : Array[(Int32, Double)] = []
   for e in g.units {
     let ray = e.position.add(vec(0.0, 3.8, 0.0)).sub(frame.eye)
     let score = ray.normalize().dot(direction)
@@ -21,7 +21,7 @@ pub fn lock_candidates(g : Game, frame : CombatFrame) -> Array[Int] {
       0
     }
   })
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   for i in 0..<candidates.length() {
     if i < 3 {
       result.push(candidates[i].0)
@@ -33,11 +33,11 @@ pub fn lock_candidates(g : Game, frame : CombatFrame) -> Array[Int] {
 ///|
 pub fn spawn_projectile(
   g : Game,
-  kind : Int,
+  kind : Int32,
   position : @math3d.Vec3,
   velocity : @math3d.Vec3,
-  target : Int,
-  owner? : Int = -1,
+  target : Int32,
+  owner~ : Int32 = -1,
 ) -> Unit {
   g.projectiles.push({
     id: g.next_id,

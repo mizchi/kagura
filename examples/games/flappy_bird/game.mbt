@@ -1,14 +1,15 @@
 ///|
+#derive(FromJson, ToJson)
 struct Pipe {
   mut x : Double
   gap_y : Double
-} derive(FromJson, ToJson)
+}
 
 ///|
-let screen_w : Int = 320
+let screen_w : Int32 = 320
 
 ///|
-let screen_h : Int = 240
+let screen_h : Int32 = 240
 
 ///|
 let gravity : Double = 0.25
@@ -26,7 +27,7 @@ let pipe_gap : Double = 70.0
 let pipe_speed : Double = 1.5
 
 ///|
-let pipe_interval : Int = 120
+let pipe_interval : Int32 = 120
 
 ///|
 // Input is replaced at debugger boundaries, compiled out in release.
@@ -36,20 +37,20 @@ struct Game {
   mut layout : @scene2d.Document
   mut bird : @scene2d.Element
   mut ground : @scene2d.Element
-  game_mode : @signals.Signal[Int]
-  score : @signals.Signal[Int]
+  game_mode : @signals.Signal[Int32]
+  score : @signals.Signal[Int32]
   bird_y : @signals.Signal[Double]
-  frame_count : @signals.Signal[Int]
+  frame_count : @signals.Signal[Int32]
   pipes : @signals.Signal[Array[Pipe]]
   mut velocity : Double
-  mut pipe_timer : Int
+  mut pipe_timer : Int32
   mut input : @inpututil.InputHelper
-  mut screen_w : Int
-  mut screen_h : Int
+  mut screen_w : Int32
+  mut screen_h : Int32
 }
 
 ///|
-fn pseudo_random(seed : Int) -> Double {
+fn pseudo_random(seed : Int32) -> Double {
   let x = seed * 1103515245 + 12345
   let normalized = ((x >> 16) & 0x7FFF).to_double() / 32767.0
   normalized
@@ -84,7 +85,7 @@ fn Game::new() -> Game {
 }
 
 ///|
-fn Game::set_viewport(self : Game, width : Int, height : Int) -> Unit {
+fn Game::set_viewport(self : Game, width : Int32, height : Int32) -> Unit {
   self.screen_w = width
   self.screen_h = height
 }

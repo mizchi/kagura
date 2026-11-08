@@ -11,13 +11,13 @@ pub(all) struct HudContext {
 
 ///|
 /// Convert hex color (0xRRGGBB) to @gfx.Color.
-pub fn hex_color(hex : Int, alpha? : Double = 1.0) -> @gfx.Color {
+pub fn hex_color(hex : Int32, alpha~ : Double = 1.0) -> @gfx.Color {
   @renderer2d.color_from_hex_alpha(hex, alpha)
 }
 
 ///|
 /// Convert hex color to uniform dwords [R, G, B, A].
-fn hex_to_uniform(hex : Int, alpha? : Int = 255) -> Array[Int] {
+fn hex_to_uniform(hex : Int32, alpha~ : Int32 = 255) -> Array[Int32] {
   [(hex >> 16) & 0xFF, (hex >> 8) & 0xFF, hex & 0xFF, alpha]
 }
 
@@ -36,7 +36,7 @@ fn HudContext::render_frame(self : HudContext) -> @renderer2d.RenderFrame2D {
 pub fn HudContext::append_rect_batch_geometry(
   self : HudContext,
   vertices : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   x : Double,
   y : Double,
   w : Double,
@@ -56,7 +56,7 @@ pub fn HudContext::push_rect_batch_command(
   self : HudContext,
   cmds : Array[@gfx.DrawTrianglesCommand],
   vertices : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   color : @gfx.Color,
 ) -> Unit {
   if indices.is_empty() {
@@ -99,7 +99,7 @@ pub fn HudContext::draw_text(
   size : Double,
   x : Double,
   y : Double,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
   match self.text_renderer {
     Some(tr) => {
@@ -119,7 +119,7 @@ pub fn HudContext::draw_text(
       }
     }
     None => {
-      let chars : Array[Int] = []
+      let chars : Array[Int32] = []
       for ch in text {
         let c = ch.to_int()
         // Auto-uppercase: a-z (97-122) → A-Z (65-90)
@@ -162,7 +162,7 @@ pub fn HudContext::draw_text_centered(
   size : Double,
   cx : Double,
   cy : Double,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
   match self.text_renderer {
     Some(tr) => {
@@ -185,7 +185,7 @@ pub fn HudContext::draw_text_centered(
       }
     }
     None => {
-      let chars : Array[Int] = []
+      let chars : Array[Int32] = []
       for ch in text {
         let c = ch.to_int()
         let c = if c >= 97 && c <= 122 { c - 32 } else { c }

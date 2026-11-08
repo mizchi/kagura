@@ -10,8 +10,8 @@
 /// Shadow params: bias, 1/map_size, viewport_height (WebGL screen origin), disabled.
 /// Pass viewport_height to the draw command for the source PCF sample rotation.
 pub fn shader3d_standard_wgsl(
-  linear_output? : Bool = false,
-  srgb_texture? : Bool = false,
+  linear_output~ : Bool = false,
+  srgb_texture~ : Bool = false,
 ) -> String {
   "const STANDARD_TEXTURE_SRGB = \{srgb_texture};\n" +
   "const STANDARD_LINEAR_OUTPUT = \{linear_output};\n" +
@@ -27,9 +27,9 @@ pub fn shader3d_standard_wgsl(
 /// Display output for basic/unlit surfaces. Same 104-dword uniform contract;
 /// only base-color texture/sampler bindings 1/2 are used. No lighting textures.
 pub fn shader3d_standard_unlit_wgsl(
-  tonemapped? : Bool = true,
-  fog? : Bool = true,
-  srgb_texture? : Bool = false,
+  tonemapped~ : Bool = true,
+  fog~ : Bool = true,
+  srgb_texture~ : Bool = false,
 ) -> String {
   "const STANDARD_TEXTURE_SRGB = \{srgb_texture};\n" +
   "const STANDARD_TONEMAPPED = \{tonemapped};\n" +

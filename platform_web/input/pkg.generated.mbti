@@ -2,17 +2,17 @@
 package "mizchi/kagura_platform_web/input"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn create_control_input(@core.Any) -> @core.Any
+pub fn create_control_input(@js_core.Any) -> @js_core.Any
 
-pub fn create_gamepad_reader(@core.Any) -> @core.Any
+pub fn create_gamepad_reader(@js_core.Any) -> @js_core.Any
 
-pub fn normalize_gamepad(@core.Any) -> @core.Any
+pub fn normalize_gamepad(@js_core.Any) -> @js_core.Any
 
-pub fn stick_vector(@core.Any, @core.Any, @core.Any, @core.Any) -> @core.Any
+pub fn stick_vector(@js_core.Any, @js_core.Any, @js_core.Any, @js_core.Any) -> @js_core.Any
 
 // Errors
 

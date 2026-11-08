@@ -41,7 +41,7 @@ fn state_with_all_effects_enabled() -> GameState {
 fn count_matching_commands(
   commands : Array[@gfx.DrawTrianglesCommand],
   pred : (@gfx.DrawTrianglesCommand) -> Bool,
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for cmd in commands {
     if pred(cmd) {
@@ -55,7 +55,7 @@ fn count_matching_commands(
 fn find_first_command_index(
   commands : Array[@gfx.DrawTrianglesCommand],
   pred : (@gfx.DrawTrianglesCommand) -> Bool,
-) -> Int? {
+) -> Int32? {
   for i, cmd in commands {
     if pred(cmd) {
       return Some(i)
@@ -68,8 +68,8 @@ fn find_first_command_index(
 fn find_last_command_index(
   commands : Array[@gfx.DrawTrianglesCommand],
   pred : (@gfx.DrawTrianglesCommand) -> Bool,
-) -> Int? {
-  let mut out : Int? = None
+) -> Int32? {
+  let mut out : Int32? = None
   for i, cmd in commands {
     if pred(cmd) {
       out = Some(i)
@@ -1187,19 +1187,19 @@ test "entity subpass helpers emit one instanced command each from scratch" {
   // truncating variant. Inline the same encoding here for an exact-match check.
   assert_eq(
     cmds[0].uniform_dwords[56],
-    (0.0 : Double).to_float().reinterpret_as_int(),
+    @float.Float::from_double(0.0).reinterpret_as_int(),
   )
   assert_eq(
     cmds[0].uniform_dwords[57],
-    (1.0 : Double).to_float().reinterpret_as_int(),
+    @float.Float::from_double(1.0).reinterpret_as_int(),
   )
   assert_eq(
     cmds[0].uniform_dwords[58],
-    (0.4 : Double).to_float().reinterpret_as_int(),
+    @float.Float::from_double(0.4).reinterpret_as_int(),
   )
   assert_eq(
     cmds[0].uniform_dwords[59],
-    (1.0 : Double).to_float().reinterpret_as_int(),
+    @float.Float::from_double(1.0).reinterpret_as_int(),
   )
 }
 

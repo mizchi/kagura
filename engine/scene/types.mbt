@@ -1,9 +1,11 @@
 ///|
+#derive(Debug)
 pub enum SceneAttrValue {
-  SceneInt(Int)
+  SceneInt(Int32)
   SceneDouble(Double)
   SceneText(String)
-} derive(Debug)
+  SceneInteraction(@kagura_ui.UIInteractionState)
+}
 
 ///|
 pub impl Show for SceneAttrValue with fn output(self, logger) {

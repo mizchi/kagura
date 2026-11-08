@@ -17,8 +17,10 @@ import {
 
 warnings = "-1-2-29"
 
-supported_targets = "js+native"
+supported_targets = "js"
 
 pkgtype(kind: "executable")
 
-options(targets: { "main_js.mbt": [ "js" ] })
+options(
+  targets: { "main_js.mbt": [ "js" ] },
+)

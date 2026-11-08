@@ -661,8 +661,8 @@ pub fn compute_loss(metrics : SimMetrics, t : BalanceTargets) -> Double {
 pub fn compute_loss_averaged(
   params : @game.BalanceParams,
   targets : BalanceTargets,
-  seeds : Array[Int],
-  max_frames : Int,
+  seeds : Array[Int32],
+  max_frames : Int32,
 ) -> (Double, SimMetrics) {
   let mut total_loss = 0.0
   let mut total_survival = 0
@@ -758,8 +758,8 @@ pub(all) struct AveragedMetrics {
 pub fn compute_loss_averaged_full(
   params : @game.BalanceParams,
   targets : BalanceTargets,
-  seeds : Array[Int],
-  max_frames : Int,
+  seeds : Array[Int32],
+  max_frames : Int32,
 ) -> (Double, AveragedMetrics) {
   let mut total_loss = 0.0
   let mut total_survival = 0

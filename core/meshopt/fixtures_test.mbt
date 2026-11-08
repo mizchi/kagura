@@ -6,8 +6,8 @@
 priv struct Fixture {
   name : String
   kind : String
-  count : Int
-  stride : Int
+  count : Int32
+  stride : Int32
   source : String
   expected : String
 }

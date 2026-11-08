@@ -53,7 +53,7 @@ pub fn fxaa_wgsl() -> String {
 
 ///|
 /// Encode FXAA uniform as 4 dwords (vec4 alignment).
-pub fn fxaa_uniform_dwords(texel_w : Double, texel_h : Double) -> Array[Int] {
+pub fn fxaa_uniform_dwords(texel_w : Double, texel_h : Double) -> Array[Int32] {
   [f32(texel_w), f32(texel_h), 0, 0]
 }
 
@@ -62,9 +62,9 @@ pub fn fxaa_uniform_dwords(texel_w : Double, texel_h : Double) -> Array[Int] {
 pub fn new_fxaa_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  src_image_id : Int,
-  screen_w : Int,
-  screen_h : Int,
+  src_image_id : Int32,
+  screen_w : Int32,
+  screen_h : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let texel_w = 1.0 / screen_w.to_double()
   let texel_h = 1.0 / screen_h.to_double()

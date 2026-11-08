@@ -10,7 +10,7 @@ pub fn new_js_fetcher() -> JsFetcher
 
 // Types and methods
 pub struct JsFetcher {
-  mut next_id : Int
+  mut next_id : Int32
 }
 pub fn JsFetcher::cancel(Self, @mizchi/kagura_platform/fetch.FetchHandle) -> Unit
 pub fn JsFetcher::fetch(Self, String, (@mizchi/kagura_platform/fetch.FetchProgress) -> Unit, (Bytes?) -> Unit) -> @mizchi/kagura_platform/fetch.FetchHandle

@@ -7,13 +7,14 @@ pub(all) struct SpriteInput {
 
 ///|
 /// A sprite placed in the packed atlas.
+#derive(Debug)
 pub(all) struct PackedSprite {
   key : String
-  x : Int
-  y : Int
-  width : Int
-  height : Int
-} derive(Debug)
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
+}
 
 ///|
 pub impl Show for PackedSprite with fn output(self, logger) {
@@ -22,11 +23,12 @@ pub impl Show for PackedSprite with fn output(self, logger) {
 
 ///|
 /// Result of packing sprites into an atlas.
+#derive(Debug)
 pub(all) struct PackResult {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   sprites : Array[PackedSprite]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for PackResult with fn output(self, logger) {
@@ -35,12 +37,13 @@ pub impl Show for PackResult with fn output(self, logger) {
 
 ///|
 /// Configuration for sprite packing.
+#derive(Debug)
 pub(all) struct PackerConfig {
-  max_width : Int
-  max_height : Int
-  padding : Int
+  max_width : Int32
+  max_height : Int32
+  padding : Int32
   power_of_two : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for PackerConfig with fn output(self, logger) {

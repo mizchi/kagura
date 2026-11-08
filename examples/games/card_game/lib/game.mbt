@@ -1,20 +1,21 @@
 ///|
-pub let screen_w : Int = 960
+pub let screen_w : Int32 = 960
 
 ///|
-pub let screen_h : Int = 640
+pub let screen_h : Int32 = 640
 
 ///|
-let hand_size : Int = 5
+let hand_size : Int32 = 5
 
 ///|
 /// Battle phase
+#derive(Debug, Eq)
 pub(all) enum BattlePhase {
   PlayerTurn
   EnemyTurn
   Victory
   Defeat
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for BattlePhase with fn output(self, logger) {
@@ -23,13 +24,14 @@ pub impl Show for BattlePhase with fn output(self, logger) {
 
 ///|
 /// Action result from playing a card
+#derive(Debug, Eq)
 pub(all) enum ActionResult {
   Ok
   NotEnoughEnergy
   InvalidTarget
   InvalidCard
   NotPlayerTurn
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for ActionResult with fn output(self, logger) {
@@ -41,16 +43,17 @@ pub impl Show for ActionResult with fn output(self, logger) {
 
 ///|
 /// Persistent power effects (from Power cards)
+#derive(Debug)
 pub(all) struct PowerState {
-  mut metallicize : Int // Block gained at end of turn
-  mut demon_form : Int // Strength gained at start of turn
+  mut metallicize : Int32 // Block gained at end of turn
+  mut demon_form : Int32 // Strength gained at start of turn
   mut barricade : Bool // Block persists between turns
-  mut feel_no_pain : Int // Block gained on exhaust
-  mut flex_loss : Int // Strength to lose at end of turn
-  mut rampage_bonus : Int // Accumulated Rampage damage bonus
+  mut feel_no_pain : Int32 // Block gained on exhaust
+  mut flex_loss : Int32 // Strength to lose at end of turn
+  mut rampage_bonus : Int32 // Accumulated Rampage damage bonus
   mut corruption : Bool // Skills cost 0 and exhaust
-  mut regen : Int // HP healed at end of turn (decrements)
-} derive(Debug)
+  mut regen : Int32 // HP healed at end of turn (decrements)
+}
 
 ///|
 pub impl Show for PowerState with fn output(self, logger) {
@@ -72,6 +75,7 @@ fn PowerState::new() -> PowerState {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct BattleState {
   player : Fighter
   enemies : Array[Enemy]
@@ -82,11 +86,11 @@ pub(all) struct BattleState {
   hand : Array[CardId]
   discard_pile : Array[CardId]
   exhaust_pile : Array[CardId]
-  mut turn : Int
+  mut turn : Int32
   mut phase : BattlePhase
   logs : Array[String]
-  mut rng_seed : Int
-} derive(Debug)
+  mut rng_seed : Int32
+}
 
 ///|
 pub impl Show for BattleState with fn output(self, logger) {
@@ -95,7 +99,7 @@ pub impl Show for BattleState with fn output(self, logger) {
 
 ///|
 /// Simple pseudo-random number generator
-fn next_random(state : BattleState) -> Int {
+fn next_random(state : BattleState) -> Int32 {
   state.rng_seed = state.rng_seed * 1103515245 + 12345
   (state.rng_seed >> 16) & 0x7FFF
 }
@@ -117,8 +121,8 @@ fn shuffle(state : BattleState, cards : Array[CardId]) -> Unit {
 /// Create a new battle with given enemies
 pub fn BattleState::new(
   enemy_ids : Array[EnemyId],
-  seed? : Int = 42,
-  relics? : Array[RelicId] = [],
+  seed~ : Int32 = 42,
+  relics~ : Array[RelicId] = [],
 ) -> BattleState {
   let enemies : Array[Enemy] = []
   for id in enemy_ids {
@@ -131,8 +135,8 @@ pub fn BattleState::new(
 /// Create battle from encounter preset
 pub fn BattleState::from_encounter(
   encounter : EncounterId,
-  seed? : Int = 42,
-  relics? : Array[RelicId] = [],
+  seed~ : Int32 = 42,
+  relics~ : Array[RelicId] = [],
 ) -> BattleState {
   BattleState::new(encounter_enemies(encounter), seed~, relics~)
 }
@@ -140,7 +144,7 @@ pub fn BattleState::from_encounter(
 ///|
 fn BattleState::init(
   enemies : Array[Enemy],
-  seed : Int,
+  seed : Int32,
   relics : Array[RelicId],
 ) -> BattleState {
   let deck = starter_deck()
@@ -190,7 +194,7 @@ fn BattleState::init(
 
 ///|
 /// Draw N cards from draw pile to hand
-fn draw_cards(state : BattleState, count : Int) -> Unit {
+fn draw_cards(state : BattleState, count : Int32) -> Unit {
   let mut drawn = 0
   while drawn < count {
     if state.draw_pile.length() == 0 {
@@ -220,8 +224,8 @@ fn draw_cards(state : BattleState, count : Int) -> Unit {
 /// Play a card from hand
 pub fn play_card(
   state : BattleState,
-  hand_index : Int,
-  target_index : Int,
+  hand_index : Int32,
+  target_index : Int32,
 ) -> ActionResult {
   if state.phase != PlayerTurn {
     return NotPlayerTurn
@@ -272,7 +276,7 @@ pub fn play_card(
 
 ///|
 /// One cost contract for the rules, hand styling and interaction validation.
-pub fn card_play_cost(state : BattleState, card_id : CardId) -> Int {
+pub fn card_play_cost(state : BattleState, card_id : CardId) -> Int32 {
   let def = card_def(card_id)
   if state.powers.corruption && def.card_type == Skill {
     0
@@ -284,7 +288,7 @@ pub fn card_play_cost(state : BattleState, card_id : CardId) -> Int {
 }
 
 ///|
-fn can_play_card(state : BattleState, index : Int) -> Bool {
+fn can_play_card(state : BattleState, index : Int32) -> Bool {
   state.phase == PlayerTurn &&
   index >= 0 &&
   index < state.hand.length() &&
@@ -347,7 +351,7 @@ fn card_needs_target(id : CardId) -> Bool {
 }
 
 ///|
-fn remove_at(arr : Array[CardId], index : Int) -> CardId {
+fn remove_at(arr : Array[CardId], index : Int32) -> CardId {
   let card = arr[index]
   let mut i = index
   while i < arr.length() - 1 {
@@ -364,9 +368,9 @@ fn remove_at(arr : Array[CardId], index : Int) -> CardId {
 /// Apply attack damage with relic modifiers
 fn apply_attack_with_relics(
   state : BattleState,
-  base_damage : Int,
+  base_damage : Int32,
   target : Fighter,
-) -> Int {
+) -> Int32 {
   let damage = calculate_attack_damage(base_damage, state.player)
   let (modified, relic_logs) = relics_on_attack(
     state.relics,
@@ -389,7 +393,7 @@ fn apply_attack_with_relics(
 fn execute_card(
   state : BattleState,
   card_id : CardId,
-  target_index : Int,
+  target_index : Int32,
 ) -> Unit {
   match card_effects(card_id) {
     Some(effects) => {
@@ -407,7 +411,7 @@ fn execute_card(
 fn execute_card_legacy(
   state : BattleState,
   card_id : CardId,
-  target_index : Int,
+  target_index : Int32,
 ) -> Unit {
   let def = card_def(card_id)
   match card_id {
@@ -958,7 +962,7 @@ fn begin_enemy_turn(state : BattleState) -> Unit {
 
 ///|
 /// Execute exactly one living enemy. The presentation layer controls pacing.
-fn execute_enemy_action(state : BattleState, index : Int) -> Unit {
+fn execute_enemy_action(state : BattleState, index : Int32) -> Unit {
   if state.phase != EnemyTurn || index < 0 || index >= state.enemies.length() {
     return
   }
@@ -1057,7 +1061,7 @@ fn check_battle_end(state : BattleState) -> Unit {
 
 ///|
 /// Get the first alive enemy index (for default targeting)
-fn first_alive_enemy(state : BattleState) -> Int {
+fn first_alive_enemy(state : BattleState) -> Int32 {
   let mut i = 0
   while i < state.enemies.length() {
     if !state.enemies[i].fighter.is_dead() {
@@ -1070,7 +1074,7 @@ fn first_alive_enemy(state : BattleState) -> Int {
 
 ///|
 /// Count alive enemies
-fn alive_enemy_count(state : BattleState) -> Int {
+fn alive_enemy_count(state : BattleState) -> Int32 {
   let mut count = 0
   for enemy in state.enemies {
     if !enemy.fighter.is_dead() {

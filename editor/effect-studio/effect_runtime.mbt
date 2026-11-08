@@ -12,7 +12,7 @@ pub struct EffectRuntimePlan {
   preview_time : Double
   normalized_time : Double
   active_track_ids : Array[String]
-  total_particles : Int
+  total_particles : Int32
   scheduled_bursts : Array[ScheduledEffectBurst]
 }
 
@@ -33,7 +33,7 @@ pub fn new_effect_placement(
 }
 
 ///|
-fn hash_u32(seed : Int) -> Int {
+fn hash_u32(seed : Int32) -> Int32 {
   let mut h = seed
   h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
@@ -44,12 +44,12 @@ fn hash_u32(seed : Int) -> Int {
 }
 
 ///|
-fn hash_to_double(seed : Int) -> Double {
+fn hash_to_double(seed : Int32) -> Double {
   hash_u32(seed).to_double() / 2147483647.0
 }
 
 ///|
-fn hash_lerp(seed : Int, min : Double, max : Double) -> Double {
+fn hash_lerp(seed : Int32, min : Double, max : Double) -> Double {
   min + hash_to_double(seed) * (max - min)
 }
 
@@ -63,7 +63,7 @@ fn max_double(a : Double, b : Double) -> Double {
 }
 
 ///|
-fn line_burst_ratio(track : EffectTrack, burst_index : Int) -> Double {
+fn line_burst_ratio(track : EffectTrack, burst_index : Int32) -> Double {
   let interval = max_double(track.burst_interval, 0.000001)
   let burst_count = @cmp.maximum(1, (track.duration / interval).to_int() + 1)
   if burst_count <= 1 {
@@ -74,7 +74,7 @@ fn line_burst_ratio(track : EffectTrack, burst_index : Int) -> Double {
 }
 
 ///|
-fn burst_origin(track : EffectTrack, burst_index : Int) -> @math3d.Vec3 {
+fn burst_origin(track : EffectTrack, burst_index : Int32) -> @math3d.Vec3 {
   match track.pattern {
     Point => track.origin
     Ring => {
@@ -119,7 +119,10 @@ fn burst_origin(track : EffectTrack, burst_index : Int) -> @math3d.Vec3 {
 }
 
 ///|
-fn emitter_velocity_min(track : EffectTrack, burst_index : Int) -> @math3d.Vec3 {
+fn emitter_velocity_min(
+  track : EffectTrack,
+  burst_index : Int32,
+) -> @math3d.Vec3 {
   match track.pattern {
     Ring => {
       let angle = burst_index.to_double() * 2.399963229728653
@@ -131,7 +134,10 @@ fn emitter_velocity_min(track : EffectTrack, burst_index : Int) -> @math3d.Vec3 
 }
 
 ///|
-fn emitter_velocity_max(track : EffectTrack, burst_index : Int) -> @math3d.Vec3 {
+fn emitter_velocity_max(
+  track : EffectTrack,
+  burst_index : Int32,
+) -> @math3d.Vec3 {
   match track.pattern {
     Ring => {
       let angle = burst_index.to_double() * 2.399963229728653
@@ -147,7 +153,7 @@ fn emitter_velocity_max(track : EffectTrack, burst_index : Int) -> @math3d.Vec3 
 ///|
 fn scheduled_burst_config(
   track : EffectTrack,
-  burst_index : Int,
+  burst_index : Int32,
 ) -> @particle3d.EmitterConfig {
   {
     position: burst_origin(track, burst_index),

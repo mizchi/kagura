@@ -13,8 +13,8 @@ pub(all) struct TelegraphMarker {
   y : Double // center Y in game world
   radius : Double // radius for Circle, width for Line
   shape : TelegraphShape
-  mut frames_remaining : Int // countdown to execution
-  total_frames : Int // original cast time
+  mut frames_remaining : Int32 // countdown to execution
+  total_frames : Int32 // original cast time
   // For Line shape: direction endpoint
   end_x : Double
   end_y : Double
@@ -37,7 +37,7 @@ pub fn add_telegraph_circle(
   x : Double,
   y : Double,
   radius : Double,
-  cast_frames : Int,
+  cast_frames : Int32,
 ) -> Unit {
   world.telegraph_markers.push({
     x,
@@ -59,7 +59,7 @@ pub fn add_telegraph_line(
   end_x : Double,
   end_y : Double,
   width : Double,
-  cast_frames : Int,
+  cast_frames : Int32,
 ) -> Unit {
   world.telegraph_markers.push({
     x: start_x,

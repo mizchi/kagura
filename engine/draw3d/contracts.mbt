@@ -10,14 +10,14 @@
 // int64 ops and is the dominant cost of uniform construction on the JS
 // target. Bit patterns differ from gfx's by at most 1 ULP (gfx truncates
 // the mantissa, this rounds correctly); shader-side math is unaffected.
-fn f32(v : Double) -> Int {
+fn f32(v : Double) -> Int32 {
   Float::from_double(v).reinterpret_as_int()
 }
 
 ///|
 /// Encode a Mat4 as 16 f32 dwords for uniform buffer.
-pub fn mat4_to_uniform_dwords(m : @math3d.Mat4) -> Array[Int] {
-  let dwords : Array[Int] = Array::make(16, 0)
+pub fn mat4_to_uniform_dwords(m : @math3d.Mat4) -> Array[Int32] {
+  let dwords : Array[Int32] = Array::make(16, 0)
   for i in 0..<16 {
     dwords[i] = f32(m.elements[i])
   }
@@ -28,8 +28,8 @@ pub fn mat4_to_uniform_dwords(m : @math3d.Mat4) -> Array[Int] {
 // Write into caller-owned, zero-initialized uniform storage. Keeping the final
 // size avoids repeated Array growth and explicit per-bone padding in hot paths.
 fn write_mat4_uniform_dwords(
-  dwords : Array[Int],
-  offset : Int,
+  dwords : Array[Int32],
+  offset : Int32,
   matrix : @math3d.Mat4,
 ) -> Unit {
   for i in 0..<16 {
@@ -42,7 +42,7 @@ fn write_mat4_uniform_dwords(
 pub fn mvp_uniform_dwords(
   model : @math3d.Mat4,
   view_projection : @math3d.Mat4,
-) -> Array[Int] {
+) -> Array[Int32] {
   let mvp = view_projection.multiply(model)
   mat4_to_uniform_dwords(mvp)
 }
@@ -53,14 +53,14 @@ pub fn new_mesh_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
   view_projection : @math3d.Mat4,
-  src_image_ids : Array[Int],
+  src_image_ids : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = mvp_uniform_dwords(model_matrix, view_projection)
   @gfx.new_draw_triangles_command(
@@ -232,10 +232,10 @@ pub fn shader3d_lit_colored_wgsl() -> String {
 fn lit_uniform_dwords_with_light_dwords(
   model : @math3d.Mat4,
   view_projection : @math3d.Mat4,
-  light_dwords : Array[Int],
-  dword_count? : Int = 56,
-  storage? : Array[Int]? = None,
-) -> Array[Int] {
+  light_dwords : Array[Int32],
+  dword_count~ : Int32 = 56,
+  storage~ : Array[Int32]? = None,
+) -> Array[Int32] {
   let mvp = view_projection.multiply(model)
   let dwords = match storage {
     Some(values) => {
@@ -268,7 +268,7 @@ pub fn lit_uniform_dwords(
   model : @math3d.Mat4,
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
-) -> Array[Int] {
+) -> Array[Int32] {
   let light_dw = @light3d.light_uniform_dwords(lighting)
   lit_uniform_dwords_with_light_dwords(model, view_projection, light_dw)
 }
@@ -281,7 +281,7 @@ pub fn lit_colored_uniform_dwords(
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   base_color : @math3d.Vec4,
-) -> Array[Int] {
+) -> Array[Int32] {
   let dwords = lit_uniform_dwords(model, view_projection, lighting)
   dwords.push(f32(base_color.x))
   dwords.push(f32(base_color.y))
@@ -296,15 +296,15 @@ pub fn new_lit_mesh_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
-  src_image_ids : Array[Int],
+  src_image_ids : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let light_dwords = @light3d.light_uniform_dwords(lighting)
   new_lit_mesh_draw_command_with_light_dwords(
@@ -319,15 +319,15 @@ pub fn new_lit_mesh_draw_command_with_light_dwords(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
   view_projection : @math3d.Mat4,
-  light_dwords : Array[Int],
-  src_image_ids : Array[Int],
+  light_dwords : Array[Int32],
+  src_image_ids : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = lit_uniform_dwords_with_light_dwords(
     model_matrix, view_projection, light_dwords,
@@ -354,16 +354,16 @@ pub fn new_lit_colored_mesh_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   base_color : @math3d.Vec4,
-  src_image_ids : Array[Int],
+  src_image_ids : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = lit_colored_uniform_dwords(
     model_matrix, view_projection, lighting, base_color,
@@ -455,16 +455,16 @@ pub fn new_lit_normalmap_mesh_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
-  diffuse_image_id : Int,
-  normal_map_image_id : Int,
+  diffuse_image_id : Int32,
+  normal_map_image_id : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = lit_uniform_dwords(
     model_matrix, view_projection, lighting,
@@ -490,13 +490,13 @@ pub fn new_lit_normalmap_mesh_draw_command(
 // ============================================================
 
 ///|
-let max_bones : Int = 64
+let max_bones : Int32 = 64
 
 ///|
-let max_skinned_instances : Int = 64
+let max_skinned_instances : Int32 = 64
 
 ///|
-pub fn skinned_instanced_max_instances() -> Int {
+pub fn skinned_instanced_max_instances() -> Int32 {
   max_skinned_instances
 }
 
@@ -704,7 +704,7 @@ pub fn shader3d_lit_skinned_instanced_monochrome_wgsl() -> String {
 ///|
 /// Compute uniform dwords count for skinned lit shader.
 /// 56 (base lit) + 4 (num_bones padded) + MAX_BONES * 16 (bone matrices).
-pub fn skinned_lit_uniform_dwords() -> Int {
+pub fn skinned_lit_uniform_dwords() -> Int32 {
   56 + 4 + max_bones * 16
 }
 
@@ -715,7 +715,7 @@ pub fn skinned_instanced_lit_uniform_dwords(
   skinning_matrices : Array[@math3d.Mat4],
   instance_matrices : Array[@math3d.Mat4],
   instance_colors : Array[@math3d.Vec4],
-) -> Array[Int] {
+) -> Array[Int32] {
   let dwords = mat4_to_uniform_dwords(view_projection)
   let light_dw = @light3d.light_uniform_dwords(lighting)
   for i in 0..<light_dw.length() {
@@ -780,7 +780,7 @@ pub fn skinned_instanced_monochrome_lit_uniform_dwords(
   skinning_matrices : Array[@math3d.Mat4],
   instance_matrices : Array[@math3d.Mat4],
   base_color : @math3d.Vec4,
-) -> Array[Int] {
+) -> Array[Int32] {
   // vp(16), light(12), bone count(4), palette(64x16), instance count(4),
   // color(4), models(64x16). Unused entries and vec4 padding stay zero.
   let palette_offset = 32
@@ -824,17 +824,17 @@ pub fn new_skinned_lit_mesh_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   model_matrix : @math3d.Mat4,
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   skinning_matrices : Array[@math3d.Mat4],
-  src_image_ids : Array[Int],
+  src_image_ids : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let dwords = lit_uniform_dwords_with_light_dwords(
     model_matrix,
@@ -871,13 +871,13 @@ pub fn new_skinned_instanced_lit_mesh_draw_command(
   dst_region : @gfx.DstRegion,
   blend : @gfx.BlendMode,
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   skinning_matrices : Array[@math3d.Mat4],
   instance_matrices : Array[@math3d.Mat4],
   instance_colors : Array[@math3d.Vec4],
-  src_image_ids? : Array[Int] = [],
+  src_image_ids~ : Array[Int32] = [],
 ) -> @gfx.DrawTrianglesCommand {
   let count = if instance_matrices.length() < instance_colors.length() {
     instance_matrices.length()
@@ -916,13 +916,13 @@ pub fn new_skinned_instanced_monochrome_lit_mesh_draw_command(
   dst_region : @gfx.DstRegion,
   blend : @gfx.BlendMode,
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   skinning_matrices : Array[@math3d.Mat4],
   instance_matrices : Array[@math3d.Mat4],
   base_color : @math3d.Vec4,
-  src_image_ids? : Array[Int] = [],
+  src_image_ids~ : Array[Int32] = [],
 ) -> @gfx.DrawTrianglesCommand {
   let count = if instance_matrices.length() < max_skinned_instances {
     instance_matrices.length()
@@ -956,9 +956,9 @@ pub fn new_skinned_lit_mesh_draw_command_from_skin(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   skin : @skeleton3d.SkinData,
@@ -966,7 +966,7 @@ pub fn new_skinned_lit_mesh_draw_command_from_skin(
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   skinning_matrices : Array[@math3d.Mat4],
-  src_image_ids : Array[Int],
+  src_image_ids : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(mesh, skin)
   new_skinned_lit_mesh_draw_command(
@@ -1095,10 +1095,10 @@ fn pbr_fragment_body_wgsl(
 /// shadow adds PbrShadow (20 dwords). Pass matching options to the draw builder.
 /// Source images are ordered base-color (if textured), environment, shadow.
 pub fn shader3d_pbr_wgsl(
-  texture_srgb? : Bool = false,
-  unlit? : Bool = false,
-  environment? : Bool = false,
-  shadow? : Bool = false,
+  texture_srgb~ : Bool = false,
+  unlit~ : Bool = false,
+  environment~ : Bool = false,
+  shadow~ : Bool = false,
 ) -> String {
   pbr_uniform_struct_wgsl(environment, shadow) +
   pbr_brdf_functions_wgsl() +
@@ -1146,9 +1146,9 @@ pub fn shader3d_pbr_wgsl(
 /// Base uniform struct: 72 dwords, then optional environment (12) and shadow (20).
 /// Source images are ordered environment, shadow when enabled.
 pub fn shader3d_pbr_untextured_wgsl(
-  unlit? : Bool = false,
-  environment? : Bool = false,
-  shadow? : Bool = false,
+  unlit~ : Bool = false,
+  environment~ : Bool = false,
+  shadow~ : Bool = false,
 ) -> String {
   pbr_uniform_struct_wgsl(environment, shadow) +
   pbr_brdf_functions_wgsl() +
@@ -1200,12 +1200,12 @@ pub fn pbr_uniform_dwords(
   base_color : @math3d.Vec4,
   emissive : @math3d.Vec3,
   camera_pos : @math3d.Vec3,
-  environment? : PbrEnvironment? = None,
-  shadow? : PbrShadow? = None,
-  viewport_height? : Double = 0.0,
-  receive_shadow? : Bool = true,
-  storage? : Array[Int]? = None,
-) -> Array[Int] {
+  environment~ : PbrEnvironment? = None,
+  shadow~ : PbrShadow? = None,
+  viewport_height~ : Double = 0.0,
+  receive_shadow~ : Bool = true,
+  storage~ : Array[Int32]? = None,
+) -> Array[Int32] {
   // Allocate the complete layout once. Growing a 56-element JS array to 104
   // for every draw otherwise allocates and copies multiple backing stores.
   let environment_size = if environment is Some(_) { 12 } else { 0 }
@@ -1286,7 +1286,7 @@ pub fn shader3d_particle_wgsl() -> String {
 
 ///|
 /// Encode particle uniform data as 16 dwords (MVP only).
-pub fn particle_uniform_dwords(vp : @math3d.Mat4) -> Array[Int] {
+pub fn particle_uniform_dwords(vp : @math3d.Mat4) -> Array[Int32] {
   mat4_to_uniform_dwords(vp)
 }
 
@@ -1296,14 +1296,14 @@ pub fn new_particle_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   view_projection : @math3d.Mat4,
-  src_image_ids : Array[Int],
+  src_image_ids : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = particle_uniform_dwords(view_projection)
   @gfx.new_draw_triangles_command(
@@ -1328,9 +1328,9 @@ pub fn new_pbr_mesh_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
@@ -1341,12 +1341,12 @@ pub fn new_pbr_mesh_draw_command(
   base_color : @math3d.Vec4,
   emissive : @math3d.Vec3,
   camera_pos : @math3d.Vec3,
-  src_image_ids : Array[Int],
-  environment? : PbrEnvironment? = None,
-  shadow? : PbrShadow? = None,
-  viewport_height? : Double = 0.0,
-  receive_shadow? : Bool = true,
-  storage? : Array[Int]? = None,
+  src_image_ids : Array[Int32],
+  environment~ : PbrEnvironment? = None,
+  shadow~ : PbrShadow? = None,
+  viewport_height~ : Double = 0.0,
+  receive_shadow~ : Bool = true,
+  storage~ : Array[Int32]? = None,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = pbr_uniform_dwords(
     model_matrix,
@@ -1384,13 +1384,13 @@ pub fn new_pbr_mesh_draw_command(
 // ============================================================
 
 ///|
-let max_instances : Int = 256
+let max_instances : Int32 = 256
 
 ///|
-let max_monochrome_instances : Int = 64
+let max_monochrome_instances : Int32 = 64
 
 ///|
-pub fn instanced_monochrome_max_instances() -> Int {
+pub fn instanced_monochrome_max_instances() -> Int32 {
   max_monochrome_instances
 }
 
@@ -1495,7 +1495,7 @@ pub fn instanced_lit_uniform_dwords(
   lighting : @light3d.LightingEnvironment,
   instance_matrices : Array[@math3d.Mat4],
   instance_colors : Array[@math3d.Vec4],
-) -> Array[Int] {
+) -> Array[Int32] {
   let dwords = mat4_to_uniform_dwords(view_projection)
   // Light data (12 dwords)
   let light_dw = @light3d.light_uniform_dwords(lighting)
@@ -1537,7 +1537,7 @@ pub fn instanced_monochrome_lit_uniform_dwords(
   lighting : @light3d.LightingEnvironment,
   instance_matrices : Array[@math3d.Mat4],
   base_color : @math3d.Vec4,
-) -> Array[Int] {
+) -> Array[Int32] {
   let dwords = mat4_to_uniform_dwords(view_projection)
   let light_dw = @light3d.light_uniform_dwords(lighting)
   for i in 0..<light_dw.length() {
@@ -1582,7 +1582,7 @@ pub fn new_instanced_lit_mesh_draw_command(
   lighting : @light3d.LightingEnvironment,
   instance_matrices : Array[@math3d.Mat4],
   instance_colors : Array[@math3d.Vec4],
-  src_image_ids? : Array[Int] = [],
+  src_image_ids~ : Array[Int32] = [],
 ) -> @gfx.DrawTrianglesCommand {
   let count = if instance_matrices.length() < max_instances {
     instance_matrices.length()
@@ -1621,7 +1621,7 @@ pub fn new_instanced_monochrome_lit_mesh_draw_command(
   lighting : @light3d.LightingEnvironment,
   instance_matrices : Array[@math3d.Mat4],
   base_color : @math3d.Vec4,
-  src_image_ids? : Array[Int] = [],
+  src_image_ids~ : Array[Int32] = [],
 ) -> @gfx.DrawTrianglesCommand {
   let count = if instance_matrices.length() < max_monochrome_instances {
     instance_matrices.length()

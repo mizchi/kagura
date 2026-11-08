@@ -2,27 +2,27 @@
 
 ///|
 pub(all) struct PlayerStats {
-  max_hp : Int
-  atk : Int
-  attack_power : Int
-  spell_power : Int
-  ranged_power : Int
-  def : Int
-  strength : Int
-  intelligence : Int
-  dexterity : Int
-  dash_cooldown : Int
+  max_hp : Int32
+  atk : Int32
+  attack_power : Int32
+  spell_power : Int32
+  ranged_power : Int32
+  def : Int32
+  strength : Int32
+  intelligence : Int32
+  dexterity : Int32
+  dash_cooldown : Int32
   crit_chance : Double
   life_steal : Double
   speed_bonus : Double // total movement speed bonus from equipment
   cooldown_reduction : Double // total attack cooldown reduction from equipment
   spell_damage_pct : Double // total +% spell damage (legacy)
-  chain_bonus : Int // total +chain targets (legacy)
+  chain_bonus : Int32 // total +chain targets (legacy)
   tag_bonuses : Array[TagBonus] // per-tag bonuses (indexed by skill_tag_to_int)
 }
 
 ///|
-fn stat_scaling_progress(stat : Int) -> Double {
+fn stat_scaling_progress(stat : Int32) -> Double {
   let extra = @cmp.maximum(0, stat - 10).to_double()
   let tier1 = @cmp.minimum(extra, 10.0) * 0.04
   let tier2 = @cmp.minimum(@cmp.maximum(0.0, extra - 10.0), 20.0) * 0.02
@@ -33,10 +33,10 @@ fn stat_scaling_progress(stat : Int) -> Double {
 
 ///|
 pub fn soulslike_scaled_damage(
-  base_damage : Int,
-  stat : Int,
+  base_damage : Int32,
+  stat : Int32,
   scaling : Double,
-) -> Int {
+) -> Int32 {
   if base_damage <= 0 {
     return 0
   }
@@ -49,7 +49,7 @@ pub fn soulslike_scaled_damage(
 pub fn player_basic_attack_damage(
   stats : PlayerStats,
   archetype : CharacterArchetype,
-) -> Int {
+) -> Int32 {
   @cmp.maximum(
     1,
     (stats.ranged_power.to_double() * archetype.basic_attack_multiplier()).to_int(),
@@ -57,7 +57,7 @@ pub fn player_basic_attack_damage(
 }
 
 ///|
-pub fn skill_level_damage_multiplier(id : SkillId, level : Int) -> Double {
+pub fn skill_level_damage_multiplier(id : SkillId, level : Int32) -> Double {
   if level <= 0 {
     return 1.0
   }
@@ -76,7 +76,7 @@ pub fn skill_level_damage_multiplier(id : SkillId, level : Int) -> Double {
 }
 
 ///|
-pub fn chain_lightning_targets_for_level(level : Int) -> Int {
+pub fn chain_lightning_targets_for_level(level : Int32) -> Int32 {
   @cmp.maximum(1, level + 1)
 }
 
@@ -125,7 +125,7 @@ pub fn effective_aoe_radius(
 pub fn effective_extra_chain_targets(
   stats : PlayerStats,
   skill : SkillId,
-) -> Int {
+) -> Int32 {
   let tags = skill_tags(skill)
   let mut total = stats.chain_bonus // legacy
   for tag in tags {
@@ -143,8 +143,8 @@ pub fn player_spell_damage(
   params : BalanceParams,
   archetype : CharacterArchetype,
   skill : SkillId,
-  skill_level? : Int = 1,
-) -> Int {
+  skill_level~ : Int32 = 1,
+) -> Int32 {
   let base_damage = match skill {
     ChainLightning => stats.spell_power + 2
     SplittingFireball => stats.spell_power + 2
@@ -168,8 +168,8 @@ pub fn player_spell_damage(
 pub fn compute_player_stats(
   equipment : Equipment,
   skills : SkillTree,
-  base_hp? : Int = 8,
-  archetype? : CharacterArchetype? = infer_character_archetype_from_skills(
+  base_hp~ : Int32 = 8,
+  archetype~ : CharacterArchetype? = infer_character_archetype_from_skills(
     skills,
   ),
 ) -> PlayerStats {
@@ -260,7 +260,7 @@ pub fn compute_player_stats(
   // Convert legacy spell_damage_pct/chain_bonus into tag bonuses
   // (legacy spell_damage_pct stays on PlayerStats for backward compat)
   // Mastery skill bonuses
-  let mastery_skills : Array[(SkillId, Int)] = [
+  let mastery_skills : Array[(SkillId, Int32)] = [
     (LightningMastery, skill_tag_to_int(Lightning)),
     (FireMastery, skill_tag_to_int(Fire)),
     (ColdMastery, skill_tag_to_int(Cold)),
@@ -325,16 +325,16 @@ pub fn compute_player_stats(
 ///|
 pub(all) struct SkillDpsInfo {
   skill_id : SkillId
-  damage_per_hit : Int
-  hits_per_cast : Int
-  cooldown_frames : Int
+  damage_per_hit : Int32
+  hits_per_cast : Int32
+  cooldown_frames : Int32
   dps : Double
 }
 
 ///|
 pub fn compute_skill_dps(
   skill_id : SkillId,
-  level : Int,
+  level : Int32,
   stats : PlayerStats,
   params : BalanceParams,
   archetype : CharacterArchetype,

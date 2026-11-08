@@ -40,7 +40,7 @@ fn make_pillar_mesh(radius : Double, height : Double) -> @mesh3d.Mesh3D {
 ///|
 fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   let data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let hl = length / 2.0
   let t = thickness
   let head_w = t * 2.5 // wider arrowhead
@@ -211,7 +211,7 @@ fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
 fn make_loot_beam_mesh(width : Double, height : Double) -> @mesh3d.Mesh3D {
   let hw = width / 2.0
   let data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   // Two crossed vertical planes for visibility from any angle
   // Plane 1: aligned with X axis
   @mesh3d.push_vertex(data, -hw, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0)

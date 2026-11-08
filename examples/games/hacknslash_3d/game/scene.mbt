@@ -1,39 +1,51 @@
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct SceneRectangle {
   id : String
   kind : String
-  x : Int
-  z : Int
-  width : Int
-  depth : Int
-} derive(FromJson, ToJson)
+  x : Int32
+  z : Int32
+  width : Int32
+  depth : Int32
+}
+
 ///|
 pub extend SceneRectangle with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
 pub extend SceneRectangle with ToJson::{to_json}
+
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct SceneEnemy {
   id : String
   x : Double
   z : Double
   kind : String
-  hp : Int
-} derive(FromJson, ToJson)
+  hp : Int32
+}
+
 ///|
 pub extend SceneEnemy with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
 pub extend SceneEnemy with ToJson::{to_json}
+
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct AuthoredScene {
-  version : Int
+  version : Int32
   rectangles : Array[SceneRectangle]
   spawn : Array[Double]
   enemies : Array[SceneEnemy]
-} derive(FromJson, ToJson)
+}
+
 ///|
 pub extend AuthoredScene with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
 pub extend AuthoredScene with ToJson::{to_json}
+
 ///|
 fn scene_enemy_kind(name : String) -> EnemyKind {
   match name {
@@ -187,9 +199,9 @@ pub fn GameWorld::scene_snapshot_json(self : GameWorld) -> String {
   }
   let result : Json = {
     "scene": scene,
-    "player": [self.player.x / tile_size, self.player.y / tile_size].to_json(),
-    "enemyCount": self.enemies.length().to_json(),
-    "tiles": self.dungeon.grid.width.to_json(),
+    "player": Json([self.player.x / tile_size, self.player.y / tile_size]),
+    "enemyCount": Json(self.enemies.length()),
+    "tiles": Json(self.dungeon.grid.width),
   }
   result.stringify()
 }

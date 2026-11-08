@@ -16,7 +16,7 @@
 pub(all) struct HeadlessInput {
   cursor_x : Double
   cursor_y : Double
-  pressed_keys : Array[Int]
+  pressed_keys : Array[Int32]
 }
 
 ///|
@@ -33,35 +33,35 @@ pub fn default_headless_input() -> HeadlessInput {
 /// hooks to the GPU. Without them a textured quad samples the unbound white
 /// texture, which is why a sprite used to render as a flat white rectangle.
 pub(all) struct HeadlessTexture {
-  id : Int
-  width : Int
-  height : Int
+  id : Int32
+  width : Int32
+  height : Int32
   /// RGBA8, `width * height * 4` entries, each 0-255.
-  pixels : Array[Int]
+  pixels : Array[Int32]
 }
 
 ///|
 /// A rendered frame plus what the rasterizer had to say about the command
 /// stream that produced it.
 pub(all) struct HeadlessFrame {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   /// How many update ticks ran before the captured draw.
-  frames : Int
+  frames : Int32
   /// RGBA8, `width * height * 4` entries.
-  pixels : Array[Int]
+  pixels : Array[Int32]
   /// Draw commands the CPU rasterizer declined (3D geometry). A non-zero
   /// count means the PNG is missing part of the scene, so callers must
   /// surface it rather than treat the frame as complete.
-  skipped_commands : Int
-  drawn_triangles : Int
+  skipped_commands : Int32
+  drawn_triangles : Int32
   /// How many commands the draw callback produced, skipped ones included.
   ///
   /// Reported separately from `drawn_triangles` because the two move
   /// independently: batching a text run collapses ten commands into one
   /// without changing a single triangle, and a renderer that starts emitting a
   /// command per quad again would show up here and nowhere else.
-  draw_commands : Int
+  draw_commands : Int32
 }
 
 ///|
@@ -72,11 +72,11 @@ pub(all) struct HeadlessFrame {
 pub fn render_headless_frame(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
-  width~ : Int,
-  height~ : Int,
-  frames~ : Int,
+  width~ : Int32,
+  height~ : Int32,
+  frames~ : Int32,
   input? : HeadlessInput,
-  input_at? : (Int) -> @core.InputSnapshot,
+  input_at? : (Int32) -> @core.InputSnapshot,
   on_frame? : () -> Unit,
   textures? : Array[HeadlessTexture],
   textures_at? : () -> Array[HeadlessTexture],
@@ -164,8 +164,8 @@ fn headless_input_snapshot(input : HeadlessInput) -> @core.InputSnapshot {
 /// Parse the comma-separated key-code list the headless request carries
 /// (`"9,32"`). Anything that is not an integer is skipped rather than
 /// aborting the render -- a malformed key list should not cost the frame.
-pub fn parse_headless_keys(text : String) -> Array[Int] {
-  let keys : Array[Int] = []
+pub fn parse_headless_keys(text : String) -> Array[Int32] {
+  let keys : Array[Int32] = []
   let mut value = 0
   let mut digits = 0
   let mut negative = false

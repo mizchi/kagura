@@ -15,7 +15,7 @@ pub fn percentile(values : Array[Double], p : Double) -> Double {
 
 ///|
 pub(all) struct IntervalSummary {
-  frames : Int
+  frames : Int32
   elapsed_ms : Double
   fps : Double
   p50_ms : Double

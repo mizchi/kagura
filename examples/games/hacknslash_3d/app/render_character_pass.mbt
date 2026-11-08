@@ -55,7 +55,7 @@ fn enemy_facing_model_matrix(
   ez : Double,
   dx : Double,
   dy : Double,
-  scale? : Double = 1.0,
+  scale~ : Double = 1.0,
 ) -> @math3d.Mat4 {
   let len_sq = dx * dx + dy * dy
   let (c, s) = if len_sq <= 1.0e-9 {
@@ -235,8 +235,8 @@ fn GameState::push_character_commands(
   vis_region : VisibleRegion,
   camera : @camera3d.Camera3D,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let view_projection = camera.view_projection_matrix()
@@ -257,8 +257,8 @@ fn GameState::push_enemy_character_commands(
   vis_region : VisibleRegion,
   camera : @camera3d.Camera3D,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   self.push_enemy_character_commands_with_view_projection(
@@ -277,8 +277,8 @@ fn GameState::push_enemy_character_commands_with_view_projection(
   vis_region : VisibleRegion,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let enemy_skinning = self.enemy_models.compute_skinning()
@@ -340,10 +340,10 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
   enemy_skinning : Array[@math3d.Mat4],
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  gpu_pose? : Bool = false,
+  gpu_pose~ : Bool = false,
 ) -> Unit {
   fn push_enemy_group(
     mesh_data : EnemyMeshData,
@@ -450,8 +450,8 @@ fn GameState::push_player_character_commands(
   self : GameState,
   camera : @camera3d.Camera3D,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   self.push_player_character_commands_with_view_projection(
@@ -468,8 +468,8 @@ fn GameState::push_player_character_commands_with_view_projection(
   self : GameState,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let px = self.world.player.x / tile_size

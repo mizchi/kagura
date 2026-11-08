@@ -13,16 +13,16 @@ let zombie_baked_clips : Array[@scene3d.BakedSkinningClip] = zombie_clips.map(cl
 })
 
 ///|
-let zombie_pose_stride : Int = (@game.zombie_pounce_anticipation +
+let zombie_pose_stride : Int32 = (@game.zombie_pounce_anticipation +
   @game.zombie_pounce_flight +
   @game.zombie_pounce_recovery).max(72) +
   1
 
 ///|
 /// In-place poses: simulation owns horizontal movement and contact timing.
-fn zombie_pose(kind : Int, t : Double) -> Array[@transform3d.Transform3D] {
+fn zombie_pose(kind : Int32, t : Double) -> Array[@transform3d.Transform3D] {
   let poses = shared_enemy_skeleton.bones.map(b => b.local_transform)
-  fn rotate(joint : Int, x : Double, y : Double, z : Double) -> Unit {
+  fn rotate(joint : Int32, x : Double, y : Double, z : Double) -> Unit {
     poses[joint] = poses[joint].with_rotation(
       @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), y)
       .multiply(@math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_x(), x))
@@ -102,7 +102,7 @@ fn zombie_pose(kind : Int, t : Double) -> Array[@transform3d.Transform3D] {
 }
 
 ///|
-fn build_zombie_clip(kind : Int) -> @animation3d.AnimationClip {
+fn build_zombie_clip(kind : Int32) -> @animation3d.AnimationClip {
   let frames = if kind == 2 {
     @game.zombie_pounce_anticipation +
     @game.zombie_pounce_flight +
@@ -149,7 +149,7 @@ fn build_zombie_clip(kind : Int) -> @animation3d.AnimationClip {
 }
 
 ///|
-fn zombie_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
+fn zombie_pose_key(enemy : @game.Enemy, frame~ : Int32 = 0) -> Int32 {
   if enemy.attack_motion == @game.Pounce {
     return 2 * zombie_pose_stride +
       zombie_baked_clips[2].frame_index(
@@ -169,7 +169,7 @@ fn zombie_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
 }
 
 ///|
-fn zombie_skinning_for_key(key : Int) -> Array[@math3d.Mat4] {
+fn zombie_skinning_for_key(key : Int32) -> Array[@math3d.Mat4] {
   if key < 0 {
     return zombie_rest_clip.matrices(-key - 1)
   }

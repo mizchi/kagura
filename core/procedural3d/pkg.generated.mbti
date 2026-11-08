@@ -9,7 +9,7 @@ import {
 }
 
 // Values
-pub fn append_box_segment(Array[Double], Array[Int], Array[Int], Array[Double], @ref.Ref[Int], Double, Double, Double, Double, Double, Double, Int, Int) -> Unit
+pub fn append_box_segment(Array[Double], Array[Int32], Array[Int32], Array[Double], @ref.Ref[Int32], Double, Double, Double, Double, Double, Double, Int32, Int32) -> Unit
 
 pub fn build_biped_base(BipedProportions) -> BipedBase
 
@@ -56,20 +56,20 @@ pub(all) struct QuadrupedProportions {
 
 pub struct RigidGeometry {
   vertices : Array[Double]
-  indices : Array[Int]
-  joints : Array[Int]
+  indices : Array[Int32]
+  joints : Array[Int32]
   weights : Array[Double]
 }
 pub fn RigidGeometry::append(Self, Self) -> Unit
-pub fn RigidGeometry::append_joint(Self, @mesh3d.Mesh3D, @skeleton3d.SkinData, Int, Int) -> Unit
-pub fn RigidGeometry::box(Self, Double, Double, Double, Double, Double, Double, Int) -> Unit
+pub fn RigidGeometry::append_joint(Self, @mesh3d.Mesh3D, @skeleton3d.SkinData, Int32, Int32) -> Unit
+pub fn RigidGeometry::box(Self, Double, Double, Double, Double, Double, Double, Int32) -> Unit
 pub fn RigidGeometry::build_mesh(Self) -> @mesh3d.Mesh3D
 pub fn RigidGeometry::build_skin(Self) -> @skeleton3d.SkinData
-pub fn RigidGeometry::loft(Self, Double, Double, Array[(Double, Double, Double)], Int, Int) -> Unit
+pub fn RigidGeometry::loft(Self, Double, Double, Array[(Double, Double, Double)], Int32, Int32) -> Unit
 pub fn RigidGeometry::new() -> Self
-pub fn RigidGeometry::quad(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
-pub fn RigidGeometry::segment(Self, @math3d.Vec3, @math3d.Vec3, Double, Double, Int, Int) -> Unit
-pub fn RigidGeometry::triangle(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
+pub fn RigidGeometry::quad(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int32) -> Unit
+pub fn RigidGeometry::segment(Self, @math3d.Vec3, @math3d.Vec3, Double, Double, Int32, Int32) -> Unit
+pub fn RigidGeometry::triangle(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int32) -> Unit
 
 // Type aliases
 

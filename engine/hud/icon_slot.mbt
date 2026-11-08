@@ -4,16 +4,16 @@ pub(all) struct IconSlot {
   x : Double
   y : Double
   size : Double
-  bg_color : Int // hex
-  border_color : Int // hex
+  bg_color : Int32 // hex
+  border_color : Int32 // hex
   border_width : Double
   cooldown_ratio : Double // 0.0=ready, 1.0=full cooldown
-  cooldown_color : Int // hex
+  cooldown_color : Int32 // hex
   label : String // hotkey display "1", "Q"
   label_size : Double
-  label_color : Int // hex
+  label_color : Int32 // hex
   selected : Bool
-  selected_color : Int // hex
+  selected_color : Int32 // hex
 }
 
 ///|

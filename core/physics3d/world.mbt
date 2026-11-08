@@ -2,7 +2,7 @@
 pub fn PhysicsWorld::new(
   gravity : @math3d.Vec3,
   broadphase_cell_size : Double,
-  solver_config? : SolverConfig3D = SolverConfig3D::default(),
+  solver_config~ : SolverConfig3D = SolverConfig3D::default(),
 ) -> PhysicsWorld {
   {
     bodies: [],
@@ -23,7 +23,7 @@ pub fn PhysicsWorld::add_body(self : PhysicsWorld, body : RigidBody) -> Unit {
 }
 
 ///|
-pub fn PhysicsWorld::get_body(self : PhysicsWorld, id : Int) -> RigidBody? {
+pub fn PhysicsWorld::get_body(self : PhysicsWorld, id : Int32) -> RigidBody? {
   self.body_index.ensure(self.bodies)
   let index = self.body_index.find(id)
   if index < 0 {
@@ -34,14 +34,14 @@ pub fn PhysicsWorld::get_body(self : PhysicsWorld, id : Int) -> RigidBody? {
 }
 
 ///|
-pub fn PhysicsWorld::body_count(self : PhysicsWorld) -> Int {
+pub fn PhysicsWorld::body_count(self : PhysicsWorld) -> Int32 {
   self.bodies.length()
 }
 
 ///|
 pub fn PhysicsWorld::apply_force(
   self : PhysicsWorld,
-  body_id : Int,
+  body_id : Int32,
   force : @math3d.Vec3,
 ) -> Unit {
   for i = 0; i < self.bodies.length(); i = i + 1 {
@@ -55,7 +55,7 @@ pub fn PhysicsWorld::apply_force(
 ///|
 pub fn PhysicsWorld::apply_impulse(
   self : PhysicsWorld,
-  body_id : Int,
+  body_id : Int32,
   impulse : @math3d.Vec3,
 ) -> Unit {
   for i = 0; i < self.bodies.length(); i = i + 1 {
@@ -134,7 +134,7 @@ fn body_sleep_velocity3d(body : RigidBody) -> Double {
 let sleep_time_threshold3d : Double = 0.5
 
 ///|
-fn uf_find3d(parent : Array[Int], i : Int) -> Int {
+fn uf_find3d(parent : Array[Int32], i : Int32) -> Int32 {
   let mut x = i
   for ;; {
     if parent[x] == x {
@@ -146,7 +146,12 @@ fn uf_find3d(parent : Array[Int], i : Int) -> Int {
 }
 
 ///|
-fn uf_union3d(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit {
+fn uf_union3d(
+  parent : Array[Int32],
+  rank : Array[Int32],
+  a : Int32,
+  b : Int32,
+) -> Unit {
   let ra = uf_find3d(parent, a)
   let rb = uf_find3d(parent, b)
   if ra == rb {
@@ -168,7 +173,7 @@ fn uf_union3d(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit 
 ///
 /// `step` and `world_bench.mbt` both call this, so the benchmark can never
 /// drift away from the shipped pipeline.
-fn PhysicsWorld::phase_broadphase_pairs(self : PhysicsWorld) -> Int {
+fn PhysicsWorld::phase_broadphase_pairs(self : PhysicsWorld) -> Int32 {
   let body_count = self.bodies.length()
   self.broadphase.clear()
   for i = 0; i < body_count; i = i + 1 {
@@ -189,7 +194,7 @@ fn PhysicsWorld::phase_broadphase_pairs(self : PhysicsWorld) -> Int {
 /// world as well as returning the constraints.
 fn PhysicsWorld::phase_contact_constraints(
   self : PhysicsWorld,
-  pair_count : Int,
+  pair_count : Int32,
   sub_dt : Double,
 ) -> Array[ContactConstraintRuntime3D] {
   let config = self.solver_config
@@ -400,8 +405,8 @@ fn PhysicsWorld::phase_solve_velocities(
   dist_constraints : Array[DistanceJointConstraint3D],
   ball_constraints : Array[BallJointConstraint3D],
   vel : VelocityState3D,
-  iterations : Int,
-  use_bias? : Bool = true,
+  iterations : Int32,
+  use_bias~ : Bool = true,
 ) -> Unit {
   // Velocities live in `vel` for the whole substep loop, so this pass neither
   // loads nor stores -- it allocates nothing at all. Positions and masses are
@@ -613,8 +618,8 @@ fn PhysicsWorld::phase_update_sleep(
   if !has_sleeping_body && !has_sleep_candidate {
     return
   }
-  let parent : Array[Int] = Array::make(n, 0)
-  let rank : Array[Int] = Array::make(n, 0)
+  let parent : Array[Int32] = Array::make(n, 0)
+  let rank : Array[Int32] = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {
     parent[i] = i
   }

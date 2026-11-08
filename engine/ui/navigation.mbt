@@ -1,27 +1,29 @@
 ///|
+#derive(Debug, Eq)
 pub(all) enum UINavigationDirection {
   Left
   Right
   Up
   Down
-} derive(Debug, Eq)
+}
 
 ///|
 /// Standard gamepad mapping: A confirms, B cancels; X/Y/LB/RB/Start remain
 /// application-owned auxiliary actions. Arrow keys use the same contract.
+#derive(Debug, Eq)
 pub(all) enum UINavigationEvent {
   Move(UINavigationDirection)
   Confirm
   Cancel
-  Auxiliary(Int)
-} derive(Debug, Eq)
+  Auxiliary(Int32)
+}
 
 ///|
 pub struct UINavigationInputAdapter {
   priv mut direction : UINavigationDirection?
   priv mut held_ms : Double
   priv mut next_repeat_ms : Double
-  priv mut held_actions : Array[Int]
+  priv mut held_actions : Array[Int32]
 }
 
 ///|
@@ -35,7 +37,7 @@ pub fn UINavigationInputAdapter::new() -> UINavigationInputAdapter {
 pub fn UINavigationInputAdapter::update(
   self : UINavigationInputAdapter,
   snapshot : @core.InputSnapshot,
-  elapsed_ms? : Double = 1000.0 / 60.0,
+  elapsed_ms~ : Double = 1000.0 / 60.0,
 ) -> Array[UINavigationEvent] {
   let keys = snapshot.pressed_keys
   let buttons = snapshot.gamepads
@@ -78,7 +80,7 @@ pub fn UINavigationInputAdapter::update(
       self.next_repeat_ms = self.held_ms + 120.0
     }
   }
-  let actions : Array[Int] = []
+  let actions : Array[Int32] = []
   if buttons.contains(0) ||
     keys.contains(13) ||
     keys.contains(257) ||

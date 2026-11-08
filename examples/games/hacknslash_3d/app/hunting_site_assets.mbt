@@ -1,5 +1,5 @@
 ///|
-fn make_ruin_wall(variant : Int) -> HuntingAsset {
+fn make_ruin_wall(variant : Int32) -> HuntingAsset {
   let stone = @procedural3d.RigidGeometry::new()
   let pale = @procedural3d.RigidGeometry::new()
   let moss = @procedural3d.RigidGeometry::new()
@@ -60,7 +60,7 @@ fn make_ruin_column() -> HuntingAsset {
 }
 
 ///|
-fn make_camp_tent(canvas? : Int = 15) -> HuntingAsset {
+fn make_camp_tent(canvas~ : Int32 = 15) -> HuntingAsset {
   let cloth = @procedural3d.RigidGeometry::new()
   let trim = @procedural3d.RigidGeometry::new()
   let poles = @procedural3d.RigidGeometry::new()

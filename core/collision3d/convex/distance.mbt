@@ -9,6 +9,7 @@
 /// `distance` is accurate to a relative 1e-12. On a curved surface (sphere,
 /// capsule, cylinder, cone) the closest points are blends of support points
 /// and sit within about 1e-6 of the true ones, so compare points loosely.
+#derive(Debug)
 pub(all) struct Distance {
   distance : Double
   intersecting : Bool
@@ -16,7 +17,7 @@ pub(all) struct Distance {
   point_b : @math3d.Vec3
   /// False when the iteration limit was hit; `distance` is then an upper bound.
   converged : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Distance with fn output(self, logger) {
@@ -38,7 +39,7 @@ priv struct MinkowskiVertex {
 priv struct SimplexHit {
   point : @math3d.Vec3
   length_squared : Double
-  indices : Array[Int]
+  indices : Array[Int32]
   weights : Array[Double]
 }
 
@@ -154,7 +155,11 @@ fn blend(
 /// )
 /// // d.distance == 1.0, d.point_a == (1, 0, 0), d.point_b == (2, 0, 0)
 /// ```
-pub fn distance(a : Shape, b : Shape, max_iterations? : Int = 128) -> Distance {
+pub fn distance(
+  a : Shape,
+  b : Shape,
+  max_iterations~ : Int32 = 128,
+) -> Distance {
   let vertex = (dir : @math3d.Vec3) => {
     let on_a = a.support(dir)
     let on_b = b.support(dir.scale(-1.0))
@@ -226,7 +231,7 @@ pub fn distance(a : Shape, b : Shape, max_iterations? : Int = 128) -> Distance {
 pub fn distance_between_unions(
   a : Array[Shape],
   b : Array[Shape],
-  max_iterations? : Int = 128,
+  max_iterations~ : Int32 = 128,
 ) -> Distance {
   let mut best : Distance? = None
   for pa in a {

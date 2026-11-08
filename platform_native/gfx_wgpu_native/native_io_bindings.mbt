@@ -4,10 +4,10 @@
 
 ///|
 #borrow(path)
-extern "C" fn moonbit_read_file_all(path : Bytes, path_len : Int) -> Int = "moonbit_read_file_all"
+extern "C" fn moonbit_read_file_all(path : Bytes, path_len : Int32) -> Int32 = "moonbit_read_file_all"
 
 ///|
-extern "C" fn moonbit_file_buf_byte_at(offset : Int) -> Int = "moonbit_file_buf_byte_at"
+extern "C" fn moonbit_file_buf_byte_at(offset : Int32) -> Int32 = "moonbit_file_buf_byte_at"
 
 ///|
 extern "C" fn moonbit_file_buf_release() = "moonbit_file_buf_release"
@@ -31,10 +31,10 @@ pub fn read_file_bytes(path : String) -> Bytes? {
 #borrow(path, data)
 extern "C" fn moonbit_write_file_all(
   path : Bytes,
-  path_len : Int,
+  path_len : Int32,
   data : Bytes,
-  data_len : Int,
-) -> Int = "moonbit_write_file_all"
+  data_len : Int32,
+) -> Int32 = "moonbit_write_file_all"
 
 ///|
 pub fn write_file_bytes(path : String, data : Bytes) -> Bool {
@@ -72,10 +72,10 @@ pub fn write_file_text(path : String, text : String) -> Bool {
 
 ///|
 #borrow(path)
-extern "C" fn moonbit_load_font_file(path : Bytes, path_len : Int) -> Int = "moonbit_load_font_file"
+extern "C" fn moonbit_load_font_file(path : Bytes, path_len : Int32) -> Int32 = "moonbit_load_font_file"
 
 ///|
-extern "C" fn moonbit_font_file_byte_at(offset : Int) -> Int = "moonbit_font_file_byte_at"
+extern "C" fn moonbit_font_file_byte_at(offset : Int32) -> Int32 = "moonbit_font_file_byte_at"
 
 ///|
 extern "C" fn moonbit_font_file_release() = "moonbit_font_file_release"
@@ -109,13 +109,13 @@ fn string_to_utf8_fixed_array(s : String) -> FixedArray[Byte] {
 }
 
 ///|
-pub fn load_font_file(path : String) -> Int {
+pub fn load_font_file(path : String) -> Int32 {
   let utf8 = Bytes::from_array(string_to_utf8_fixed_array(path))
   moonbit_load_font_file(utf8, utf8.length())
 }
 
 ///|
-pub fn font_file_byte_at(offset : Int) -> Int {
+pub fn font_file_byte_at(offset : Int32) -> Int32 {
   moonbit_font_file_byte_at(offset)
 }
 
@@ -130,25 +130,25 @@ pub fn font_file_release() -> Unit {
 
 ///|
 extern "C" fn moonbit_audio_try_initialize(
-  sample_rate : Int,
-  channels : Int,
-) -> Int = "moonbit_audio_try_initialize"
+  sample_rate : Int32,
+  channels : Int32,
+) -> Int32 = "moonbit_audio_try_initialize"
 
 ///|
 extern "C" fn moonbit_audio_write_sample(
-  pos : Int,
-  channel : Int,
+  pos : Int32,
+  channel : Int32,
   value : Float,
 ) = "moonbit_audio_write_sample"
 
 ///|
-extern "C" fn moonbit_audio_get_write_pos() -> Int = "moonbit_audio_get_write_pos"
+extern "C" fn moonbit_audio_get_write_pos() -> Int32 = "moonbit_audio_get_write_pos"
 
 ///|
-extern "C" fn moonbit_audio_advance_write(frames : Int) = "moonbit_audio_advance_write"
+extern "C" fn moonbit_audio_advance_write(frames : Int32) = "moonbit_audio_advance_write"
 
 ///|
-extern "C" fn moonbit_audio_is_initialized() -> Int = "moonbit_audio_is_initialized"
+extern "C" fn moonbit_audio_is_initialized() -> Int32 = "moonbit_audio_is_initialized"
 
 ///|
 extern "C" fn moonbit_audio_suspend() = "moonbit_audio_suspend"

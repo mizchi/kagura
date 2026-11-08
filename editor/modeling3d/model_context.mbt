@@ -335,7 +335,7 @@ fn json_escape(text : String) -> String {
 }
 
 ///|
-fn hex6(value : Int) -> String {
+fn hex6(value : Int32) -> String {
   let buf = StringBuilder()
   let digits : Array[Char] = [
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',

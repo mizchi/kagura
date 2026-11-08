@@ -8,7 +8,7 @@ pub(all) struct Timeline {
 }
 
 ///|
-pub fn Timeline::new(playing? : Bool = false) -> Timeline {
+pub fn Timeline::new(playing~ : Bool = false) -> Timeline {
   { time: 0, playing, speed: 1, looping: true, }
 }
 
@@ -19,8 +19,8 @@ pub fn Timeline::advance(
   self : Timeline,
   delta : Double,
   duration : Double,
-  stop_at_end? : Bool = true,
-  subtract_wrap? : Bool = false,
+  stop_at_end~ : Bool = true,
+  subtract_wrap~ : Bool = false,
 ) -> Unit {
   if !self.playing {
     return
@@ -59,7 +59,7 @@ pub fn Timeline::pause(self : Timeline) -> Unit {
 pub fn Timeline::play(
   self : Timeline,
   duration : Double,
-  restart_at_end? : Bool = true,
+  restart_at_end~ : Bool = true,
 ) -> Unit {
   if restart_at_end && self.time >= duration {
     self.time = 0

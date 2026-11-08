@@ -2,6 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { spawnSync } from "node:child_process"
+import { pathToFileURL } from "node:url"
 
 function read_stdin() {
   return new Promise((resolve, reject) => {
@@ -15,28 +16,18 @@ function read_stdin() {
   })
 }
 
-function read_json(file_path) {
-  return JSON.parse(fs.readFileSync(file_path, "utf8"))
-}
-
-function resolve_v8_module_root(module_root) {
-  const moon_mod_path = path.join(module_root, "moon.mod.json")
-  if (fs.existsSync(moon_mod_path)) {
-    const moon_mod = read_json(moon_mod_path)
-    const dep_path = moon_mod.deps?.["mizchi/v8"]?.path
-    if (typeof dep_path === "string" && dep_path !== "") {
-      return path.resolve(module_root, dep_path)
+export function resolveV8ModuleRoot(module_root) {
+  let root = path.resolve(module_root)
+  for (;;) {
+    const candidate = path.join(root, ".mooncakes", "mizchi", "v8")
+    if (["moon.mod", "moon.mod.json"].some(name => fs.existsSync(path.join(candidate, name)))) {
+      return candidate
     }
+    const parent = path.dirname(root)
+    if (parent === root) break
+    root = parent
   }
-
-  const mooncakes_root = path.join(module_root, ".mooncakes", "mizchi", "v8")
-  if (fs.existsSync(path.join(mooncakes_root, "moon.mod.json"))) {
-    return mooncakes_root
-  }
-
-  throw new Error(
-    "failed to locate mizchi/v8; expected a local path dependency or .mooncakes/mizchi/v8",
-  )
+  throw new Error("failed to locate mizchi/v8 in the workspace dependency cache")
 }
 
 function platform_link_flags(platform, module_root) {
@@ -59,10 +50,11 @@ function platform_link_flags(platform, module_root) {
   }
 }
 
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
 const raw_input = await read_stdin()
 const input = raw_input.trim() === "" ? {} : JSON.parse(raw_input)
 const module_root = input.paths?.module_root ?? process.cwd()
-const v8_root = resolve_v8_module_root(module_root)
+const v8_root = resolveV8ModuleRoot(module_root)
 const build_script = path.join(v8_root, "src", "scripts", "build-rusty-v8.sh")
 const stamp_path = path.join(v8_root, "src", "build-stamps", "rusty_v8_build.stamp")
 
@@ -83,3 +75,5 @@ process.stdout.write(
     },
   }),
 )
+
+}

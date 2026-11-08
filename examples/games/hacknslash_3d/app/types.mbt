@@ -18,13 +18,14 @@ struct Meshes3D {
 }
 
 ///|
+#derive(Eq, Debug)
 enum DungeonSurfaceKind {
   Floor
   Corridor
   Door
   Wall
   Pillar
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for DungeonSurfaceKind with fn output(self, logger) {
@@ -38,7 +39,7 @@ struct DungeonMeshGroup {
   mesh : @mesh3d.Mesh3D
   color : @math3d.Vec4
   surface_kind : DungeonSurfaceKind
-  index_offset : Int
+  index_offset : Int32
   dst_region : @gfx.DstRegion
 }
 
@@ -67,7 +68,7 @@ type GeneratedPropPickupEffect = @interactable2d.InteractablePickupEffect
 ///|
 struct GeneratedPropPlacement {
   source_path : String
-  floor : Int
+  floor : Int32
   anchor : GeneratedPropAnchor
   role : GeneratedPropRole
   pickup_effect : GeneratedPropPickupEffect
@@ -98,9 +99,9 @@ struct ActiveEffectInstance {
 struct DamagePopup {
   x : Double
   y : Double
-  amount : Int
-  color_hex : Int
-  mut ttl : Int
+  amount : Int32
+  color_hex : Int32
+  mut ttl : Int32
   mut rise : Double
 }
 
@@ -108,7 +109,7 @@ struct DamagePopup {
 struct GameState {
   hud_publisher : @ui.JsonObjectPublisher
   mut world : @game.GameWorld
-  mut active_save_slot : Int
+  mut active_save_slot : Int32
   mut save_slots : Array[SaveSlotView]
   mut save_notice : String
   mut pending_save_deletion : SaveDeletion?
@@ -152,13 +153,13 @@ struct GameState {
   mut dungeon_chunks : Array[DungeonChunk]
   mut dungeon_tinted_lighting_cache : Array[@light3d.LightingEnvironment]
   mut visible_chunks_cache : Array[DungeonChunk]
-  mut visible_chunk_cache_player_tile_x : Int
-  mut visible_chunk_cache_player_tile_z : Int
-  mut visible_chunk_cache_builds : Int
+  mut visible_chunk_cache_player_tile_x : Int32
+  mut visible_chunk_cache_player_tile_z : Int32
+  mut visible_chunk_cache_builds : Int32
   mut visible_dungeon_mesh_cache : VisibleDungeonMeshCache
-  mut visible_dungeon_mesh_cache_player_tile_x : Int
-  mut visible_dungeon_mesh_cache_player_tile_z : Int
-  mut visible_dungeon_mesh_cache_builds : Int
+  mut visible_dungeon_mesh_cache_player_tile_x : Int32
+  mut visible_dungeon_mesh_cache_player_tile_z : Int32
+  mut visible_dungeon_mesh_cache_builds : Int32
   mut generated_props : Array[GeneratedPropState]
   mut active_effects : Array[ActiveEffectInstance]
   mut damage_popups : Array[DamagePopup]
@@ -167,8 +168,8 @@ struct GameState {
   audio_failed_paths : Array[String]
   mut audio_last_played_cue : String
   mut audio_last_played_state : String
-  mut dungeon_floor_texture_image_id : Int?
-  mut dungeon_wall_texture_image_id : Int?
+  mut dungeon_floor_texture_image_id : Int32?
+  mut dungeon_wall_texture_image_id : Int32?
   // PostFX pipeline
   mut pipeline : @render_pipeline3d.RenderPipeline3D
   fog_sh : @gfx.ShaderHandle
@@ -182,29 +183,29 @@ struct GameState {
   entity_instance_scratch : EntityInstanceScratch
   // HUD minimap cache
   mut minimap_static_cmds : Array[@gfx.DrawTrianglesCommand]
-  mut minimap_cache_player_tile_x : Int
-  mut minimap_cache_player_tile_y : Int
-  mut minimap_cache_floor : Int
-  mut minimap_cache_dst_id : Int
-  mut minimap_cache_shader_id : Int
-  mut minimap_cache_discovery_version : Int
-  mut minimap_cache_builds : Int
+  mut minimap_cache_player_tile_x : Int32
+  mut minimap_cache_player_tile_y : Int32
+  mut minimap_cache_floor : Int32
+  mut minimap_cache_dst_id : Int32
+  mut minimap_cache_shader_id : Int32
+  mut minimap_cache_discovery_version : Int32
+  mut minimap_cache_builds : Int32
   // HUD static text cache
   mut hud_static_cmds : Array[@gfx.DrawTrianglesCommand]
-  mut hud_static_cache_floor : Int
-  mut hud_static_cache_dst_id : Int
-  mut hud_static_cache_shader_id : Int
-  mut hud_static_cache_text_mode : Int
-  mut hud_static_cache_builds : Int
+  mut hud_static_cache_floor : Int32
+  mut hud_static_cache_dst_id : Int32
+  mut hud_static_cache_shader_id : Int32
+  mut hud_static_cache_text_mode : Int32
+  mut hud_static_cache_builds : Int32
   mut pause_return_ui : @game.UIMode
-  mut pause_return_cursor : Int
+  mut pause_return_cursor : Int32
   region_meshes : Array[RegionMeshCache?]
-  mut region_mesh_stamp : Int
+  mut region_mesh_stamp : Int32
   mut region_prepare_max_ms : Double
   mut region_chunk_max_ms : Double
   mut region_batch_max_ms : Double
   initial_map_ms : Double
-  mut region_chunks_built : Int
+  mut region_chunks_built : Int32
   mut inventory_notice : String
   mut paused : Bool
   mut ground_targeting : Bool

@@ -1,7 +1,7 @@
 ///|
 /// Find the keyframe index for the given time using binary search.
 /// Returns the index of the last keyframe <= time.
-fn find_keyframe(times : Array[Double], time : Double) -> Int {
+fn find_keyframe(times : Array[Double], time : Double) -> Int32 {
   let len = times.length()
   if len == 0 {
     return 0

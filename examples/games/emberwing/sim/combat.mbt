@@ -46,7 +46,7 @@ fn damage(g : Game, enemy : Enemy, amount : Double) -> Unit {
 }
 
 ///|
-fn hurt(g : Game, amount? : Int = 1) -> Unit {
+fn hurt(g : Game, amount~ : Int32 = 1) -> Unit {
   if g.hit_timer > 0 {
     return
   }

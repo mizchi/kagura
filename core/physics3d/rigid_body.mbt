@@ -30,7 +30,7 @@ fn compute_inv_inertia(mass : Double, collider : ColliderShape) -> Double {
 
 ///|
 pub fn RigidBody::new_dynamic(
-  id : Int,
+  id : Int32,
   position : @math3d.Vec3,
   mass : Double,
   collider : ColliderShape,
@@ -60,7 +60,7 @@ pub fn RigidBody::new_dynamic(
 
 ///|
 pub fn RigidBody::new_static(
-  id : Int,
+  id : Int32,
   position : @math3d.Vec3,
   collider : ColliderShape,
 ) -> RigidBody {
@@ -89,7 +89,7 @@ pub fn RigidBody::new_static(
 
 ///|
 pub fn RigidBody::new_kinematic(
-  id : Int,
+  id : Int32,
   position : @math3d.Vec3,
   collider : ColliderShape,
 ) -> RigidBody {

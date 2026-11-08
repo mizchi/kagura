@@ -20,9 +20,9 @@ pub fn build_billboard_vertices(
   emitter : ParticleEmitter,
   camera_right : @math3d.Vec3,
   camera_up : @math3d.Vec3,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let vertex_data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   append_billboard_vertices(
     emitter, camera_right, camera_up, vertex_data, indices,
   )
@@ -35,7 +35,7 @@ fn append_billboard_vertices(
   camera_right : @math3d.Vec3,
   camera_up : @math3d.Vec3,
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Unit {
   let cs = emitter.config.color_start
   let ce = emitter.config.color_end

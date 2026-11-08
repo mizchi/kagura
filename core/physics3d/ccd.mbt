@@ -149,7 +149,7 @@ pub fn sweep_sphere_aabb(
 /// Positions still come from the bodies, and are read as the loop has mutated
 /// them so far, which is the behaviour this had before the buffer existed.
 pub fn ccd_sweep_body3d(
-  bullet_idx : Int,
+  bullet_idx : Int32,
   bodies : Array[RigidBody],
   vel : VelocityState3D,
   dt : Double,

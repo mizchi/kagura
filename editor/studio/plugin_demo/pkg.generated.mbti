@@ -1,0 +1,15 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_studio/plugin_demo"
+
+// Values
+pub fn invoke(String) -> String
+
+pub fn manifest() -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

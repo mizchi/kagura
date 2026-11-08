@@ -57,7 +57,7 @@ test "initial state names reject duplicates and unknown names before constructio
 
 ///|
 test "initial state registry supports 64 scenarios and rejects the 65th" {
-  let named : Array[(String, (Int, Int) -> Int)] = []
+  let named : Array[(String, (Int32, Int32) -> Int32)] = []
   for i in 0..<64 {
     named.push(("state_\{i}", (w, h) => w + h))
   }

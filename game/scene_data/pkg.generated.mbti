@@ -11,38 +11,42 @@ import {
 // Errors
 
 // Types and methods
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Definition {
-  version : Int
+  version : Int32
   entities : Array[Entity]
-} derive(ToJson, @json.FromJson)
+}
 pub fn Definition::blocked(Self, Double, Double, Double) -> Bool
-pub fn Definition::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn Definition::to_json(Self) -> Json
+pub fn Definition::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Definition::to_json(Self) -> @json.Json
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Entity {
   id : String
   kind : String
   position : Array[Double]
   scale : Array[Double]
-  color : Int
+  color : Int32
   target : String
-} derive(ToJson, @json.FromJson)
-pub fn Entity::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn Entity::to_json(Self) -> Json
+}
+pub fn Entity::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Entity::to_json(Self) -> @json.Json
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Entry {
   id : String
   data : Definition
-} derive(ToJson, @json.FromJson)
-pub fn Entry::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn Entry::to_json(Self) -> Json
+}
+pub fn Entry::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Entry::to_json(Self) -> @json.Json
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Project {
   entry : String
   scenes : Array[Entry]
-} derive(ToJson, @json.FromJson)
-pub fn Project::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn Project::to_json(Self) -> Json
+}
+pub fn Project::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Project::to_json(Self) -> @json.Json
 
 pub struct Session {
   project : Project

@@ -1,8 +1,8 @@
 ///|
-let screen_w : Int = 720
+let screen_w : Int32 = 720
 
 ///|
-let screen_h : Int = 540
+let screen_h : Int32 = 540
 
 ///|
 struct ViewerState {
@@ -11,15 +11,15 @@ struct ViewerState {
   lighting : @light3d.LightingEnvironment
   shader3d : @gfx.ShaderHandle
   shader3d_textured : @gfx.ShaderHandle
-  node_count : Int
-  mesh_node_count : Int
+  node_count : Int32
+  mesh_node_count : Int32
   show_hud : Bool
 }
 
 ///|
 fn ViewerState::new(
   graph : @scene3d.SceneGraph,
-  show_hud? : Bool = true,
+  show_hud~ : Bool = true,
 ) -> ViewerState {
   let node_count = graph.nodes.length()
   let mut mesh_count = 0

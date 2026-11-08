@@ -40,60 +40,60 @@ pub fn is_any_action_just_pressed(
 // ============================================================
 
 ///|
-pub let key_w : Int = 87
+pub let key_w : Int32 = 87
 
 ///|
-pub let key_a : Int = 65
+pub let key_a : Int32 = 65
 
 ///|
-pub let key_s : Int = 83
+pub let key_s : Int32 = 83
 
 ///|
-pub let key_d : Int = 68
+pub let key_d : Int32 = 68
 
 ///|
-pub let key_up_web : Int = 38
+pub let key_up_web : Int32 = 38
 
 ///|
-pub let key_down_web : Int = 40
+pub let key_down_web : Int32 = 40
 
 ///|
-pub let key_left_web : Int = 37
+pub let key_left_web : Int32 = 37
 
 ///|
-pub let key_right_web : Int = 39
+pub let key_right_web : Int32 = 39
 
 ///|
-pub let key_up_glfw : Int = 265
+pub let key_up_glfw : Int32 = 265
 
 ///|
-pub let key_down_glfw : Int = 264
+pub let key_down_glfw : Int32 = 264
 
 ///|
-pub let key_left_glfw : Int = 263
+pub let key_left_glfw : Int32 = 263
 
 ///|
-pub let key_right_glfw : Int = 262
+pub let key_right_glfw : Int32 = 262
 
 // Additional physical keys, available for application-specific bindings.
 
 ///|
-pub let key_comma : Int = 188
+pub let key_comma : Int32 = 188
 
 ///|
-pub let key_o : Int = 79
+pub let key_o : Int32 = 79
 
 ///|
-pub let key_e : Int = 69
+pub let key_e : Int32 = 69
 
 ///|
-pub let key_space : Int = 32
+pub let key_space : Int32 = 32
 
 ///|
-pub let key_enter_web : Int = 13
+pub let key_enter_web : Int32 = 13
 
 ///|
-pub let key_enter_glfw : Int = 257
+pub let key_enter_glfw : Int32 = 257
 
 // ============================================================
 // Direction helpers (WASD + Arrow keys for web + GLFW)

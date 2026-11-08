@@ -10,13 +10,13 @@ let woodland_field : @terrain3d.WarpedDensityField = {
 }
 
 ///|
-pub fn woodland_density(x : Double, z : Double, seed : Int) -> Double {
+pub fn woodland_density(x : Double, z : Double, seed : Int32) -> Double {
   woodland_field.sample(x, z, phase=(seed % 719).to_double() * 0.013)
 }
 
 ///|
 /// Local priority thinning gives a one-tile clearance without grid-aligned rows.
-fn woodland_tree_cell(x : Int, z : Int, seed : Int) -> Bool {
+fn woodland_tree_cell(x : Int32, z : Int32, seed : Int32) -> Bool {
   @terrain3d.priority_scatter_cell(
     x,
     z,

@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub fn find_first_circular_pickup_index(Array[CircularInteractable], Double, Double, Double) -> Int?
+pub fn find_first_circular_pickup_index(Array[CircularInteractable], Double, Double, Double) -> Int32?
 
 pub fn interactable_role_blocks_movement(InteractableRole) -> Bool
 
@@ -37,10 +37,10 @@ pub fn stamp_circular_blockers_on_grid(@types.Grid2D, Array[CircularInteractable
 pub(all) struct AnchorCandidate {
   center_x : Double
   center_y : Double
-  area : Int
+  area : Int32
   is_start : Bool
 }
-pub fn AnchorCandidate::new(Double, Double, Int, Bool) -> Self
+pub fn AnchorCandidate::new(Double, Double, Int32, Bool) -> Self
 
 pub(all) struct CircularInteractable {
   x : Double
@@ -53,15 +53,16 @@ pub fn CircularInteractable::new(Double, Double, Double, InteractableRole) -> Se
 pub(all) struct CircularInteractionFrame {
   actor_x : Double
   actor_y : Double
-  pickup_contact_index : Int?
+  pickup_contact_index : Int32?
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum InteractableAnchor {
   StartRoomCenter
   LargestNonStartRoomCenter
   BossRoomCenter
   TreasureRoomCenter
-} derive(Eq, @debug.Debug)
+}
 pub fn InteractableAnchor::equal(Self, Self) -> Bool
 pub fn InteractableAnchor::not_equal(Self, Self) -> Bool
 pub fn InteractableAnchor::output(Self, &Logger) -> Unit
@@ -69,11 +70,12 @@ pub fn InteractableAnchor::to_repr(Self) -> @debug.Repr
 pub fn InteractableAnchor::to_string(Self) -> String
 pub impl Show for InteractableAnchor
 
+#derive(Eq, @debug.Debug)
 pub(all) enum InteractablePickupEffect {
   ScorePickup
   HealthPickup
   EquipmentPickup
-} derive(Eq, @debug.Debug)
+}
 pub fn InteractablePickupEffect::equal(Self, Self) -> Bool
 pub fn InteractablePickupEffect::not_equal(Self, Self) -> Bool
 pub fn InteractablePickupEffect::output(Self, &Logger) -> Unit
@@ -81,11 +83,12 @@ pub fn InteractablePickupEffect::to_repr(Self) -> @debug.Repr
 pub fn InteractablePickupEffect::to_string(Self) -> String
 pub impl Show for InteractablePickupEffect
 
+#derive(Eq, @debug.Debug)
 pub(all) enum InteractableRole {
   Decoration
   Blocking
   Pickup
-} derive(Eq, @debug.Debug)
+}
 pub fn InteractableRole::equal(Self, Self) -> Bool
 pub fn InteractableRole::not_equal(Self, Self) -> Bool
 pub fn InteractableRole::output(Self, &Logger) -> Unit

@@ -1,6 +1,6 @@
 ///|
 /// Parse a Double from chars[start..end], supporting scientific notation (e.g. -3.41e-003).
-fn parse_obj_double(chars : Array[Int], start : Int, end : Int) -> Double {
+fn parse_obj_double(chars : Array[Int32], start : Int32, end : Int32) -> Double {
   if start >= end {
     return 0.0
   }
@@ -81,7 +81,7 @@ fn parse_obj_double(chars : Array[Int], start : Int, end : Int) -> Double {
 
 ///|
 /// Parse an Int from chars[start..end].
-fn parse_obj_int(chars : Array[Int], start : Int, end : Int) -> Int {
+fn parse_obj_int(chars : Array[Int32], start : Int32, end : Int32) -> Int32 {
   if start >= end {
     return 0
   }
@@ -110,7 +110,7 @@ fn parse_obj_int(chars : Array[Int], start : Int, end : Int) -> Int {
 
 ///|
 /// Skip whitespace (space/tab) and return the new position.
-fn skip_ws(chars : Array[Int], start : Int, end : Int) -> Int {
+fn skip_ws(chars : Array[Int32], start : Int32, end : Int32) -> Int32 {
   let mut i = start
   while i < end && (chars[i] == 32 || chars[i] == 9) {
     i = i + 1
@@ -120,7 +120,7 @@ fn skip_ws(chars : Array[Int], start : Int, end : Int) -> Int {
 
 ///|
 /// Find the next whitespace or end.
-fn find_ws(chars : Array[Int], start : Int, end : Int) -> Int {
+fn find_ws(chars : Array[Int32], start : Int32, end : Int32) -> Int32 {
   let mut i = start
   while i < end && chars[i] != 32 && chars[i] != 9 {
     i = i + 1
@@ -130,7 +130,12 @@ fn find_ws(chars : Array[Int], start : Int, end : Int) -> Int {
 
 ///|
 /// Find the next occurrence of char code or end.
-fn find_char(chars : Array[Int], ch : Int, start : Int, end : Int) -> Int {
+fn find_char(
+  chars : Array[Int32],
+  ch : Int32,
+  start : Int32,
+  end : Int32,
+) -> Int32 {
   let mut i = start
   while i < end && chars[i] != ch {
     i = i + 1
@@ -142,10 +147,10 @@ fn find_char(chars : Array[Int], ch : Int, start : Int, end : Int) -> Int {
 /// Parse an OBJ face vertex index component: "v", "v/vt", "v/vt/vn", or "v//vn".
 /// Returns (vertex_index, texcoord_index, normal_index) as 1-based or 0 if absent.
 fn parse_face_vertex(
-  chars : Array[Int],
-  start : Int,
-  end : Int,
-) -> (Int, Int, Int) {
+  chars : Array[Int32],
+  start : Int32,
+  end : Int32,
+) -> (Int32, Int32, Int32) {
   // Find first '/'
   let slash1 = find_char(chars, 47, start, end) // '/'
   if slash1 >= end {
@@ -177,7 +182,7 @@ fn parse_face_vertex(
 /// Supports v, vn, vt, f directives.
 /// Handles scientific notation, N-gon triangulation, negative indices, and flat normal generation.
 pub fn Mesh3D::from_obj(source : String) -> Mesh3D {
-  let chars : Array[Int] = []
+  let chars : Array[Int32] = []
   for ch in source {
     chars.push(ch.to_int())
   }
@@ -188,13 +193,13 @@ pub fn Mesh3D::from_obj(source : String) -> Mesh3D {
   let texcoords : Array[Double] = [] // u,v pairs
   // Output mesh data
   let vertex_data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut vertex_count = 0
   // Track whether any normals were provided
   let mut has_normals = false
   // For flat-normal post-processing: store face start indices
-  let face_starts : Array[Int] = [] // index into indices array where each face's triangles start
-  let face_tri_counts : Array[Int] = [] // number of triangles per face
+  let face_starts : Array[Int32] = [] // index into indices array where each face's triangles start
+  let face_tri_counts : Array[Int32] = [] // number of triangles per face
   // Parse line by line
   let mut pos = 0
   while pos < len {
@@ -253,7 +258,7 @@ pub fn Mesh3D::from_obj(source : String) -> Mesh3D {
         line_start + 1 < line_end &&
         (chars[line_start + 1] == 32 || chars[line_start + 1] == 9) {
         // "f " - face
-        let face_verts : Array[(Int, Int, Int)] = [] // (vi, vti, vni)
+        let face_verts : Array[(Int32, Int32, Int32)] = [] // (vi, vti, vni)
         let mut p = skip_ws(chars, line_start + 1, line_end)
         while p < line_end {
           let tok_end = find_ws(chars, p, line_end)

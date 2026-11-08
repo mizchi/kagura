@@ -4,7 +4,7 @@
 /// do not get swallowed by full-pipeline benches in kagura_engine.
 
 ///|
-fn bench_atlas_draw_source(page_image_id : Int) -> @atlas.AtlasDrawSource {
+fn bench_atlas_draw_source(page_image_id : Int32) -> @atlas.AtlasDrawSource {
   let repo = @atlas.new_simple_atlas_image_repository(8, 8, page_image_id)
   let key = @atlas.new_asset_key("renderer2d/bench/source")
   let _ = @atlas.create_atlas_image(repo, key, @atlas.default_image_spec(2, 2))

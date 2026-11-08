@@ -6,13 +6,13 @@ pub(all) struct StatusBar {
   width : Double
   height : Double
   ratio : Double // 0.0 .. 1.0
-  fill_color : Int // hex
-  bg_color : Int // hex
-  border_color : Int? // None = no border
+  fill_color : Int32 // hex
+  bg_color : Int32 // hex
+  border_color : Int32? // None = no border
   border_width : Double
   label : String // "" = no label
   label_size : Double
-  label_color : Int // hex
+  label_color : Int32 // hex
 }
 
 ///|

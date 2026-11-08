@@ -1,18 +1,22 @@
 // Appearance is a value derived from equipment. It owns no combat or animation state.
 
 ///|
+#derive(Eq, Debug)
 enum CharacterSpecies {
   Human
   Goblin
   Kobold
   Skeleton
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend CharacterSpecies with Eq::{not_equal, equal}
+
 ///|
 pub extend CharacterSpecies with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
-fn CharacterSpecies::index(self : CharacterSpecies) -> Int {
+fn CharacterSpecies::index(self : CharacterSpecies) -> Int32 {
   match self {
     Human => 0
     Goblin => 1
@@ -32,18 +36,22 @@ fn CharacterSpecies::id(self : CharacterSpecies) -> String {
 }
 
 ///|
+#derive(Eq, Debug)
 enum GearStyle {
   Worn
   Leather
   Plate
   Occult
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend GearStyle with Eq::{not_equal, equal}
+
 ///|
 pub extend GearStyle with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
-fn GearStyle::index(self : GearStyle) -> Int {
+fn GearStyle::index(self : GearStyle) -> Int32 {
   match self {
     Worn => 0
     Leather => 1
@@ -53,13 +61,17 @@ fn GearStyle::index(self : GearStyle) -> Int {
 }
 
 ///|
+#derive(Eq, Debug)
 struct CharacterOutfit {
   slots : Array[GearStyle?]
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend CharacterOutfit with Eq::{not_equal, equal}
+
 ///|
 pub extend CharacterOutfit with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 fn CharacterOutfit::empty() -> CharacterOutfit {
   { slots: Array::make(8, None), }
@@ -103,7 +115,7 @@ fn CharacterOutfit::style(
 }
 
 ///|
-fn CharacterOutfit::key(self : CharacterOutfit) -> Int {
+fn CharacterOutfit::key(self : CharacterOutfit) -> Int32 {
   let mut key = 0
   for style in self.slots {
     key = key * 5 +
@@ -193,7 +205,7 @@ fn character_outfit_preset(style : GearStyle?) -> CharacterOutfit {
 let character_equipment_slots : Array[@game.EquipSlot] = @game.equipment_slots()
 
 ///|
-fn equipment_appearance_key(equipment : @game.Equipment) -> Int {
+fn equipment_appearance_key(equipment : @game.Equipment) -> Int32 {
   let mut key = 0
   for slot in character_equipment_slots {
     let code = match equipment.item_for_slot(slot) {

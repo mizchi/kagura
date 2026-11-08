@@ -1,3 +1,4 @@
+import { createWasmHost } from "../../../../../assets/web/kagura-wasm-host.js";
 import { initWebGPU } from "../../../../../assets/web/kagura-init.js";
 import {
   ensureGpuPipeline,
@@ -59,9 +60,12 @@ async function loadWasm(
   onGuestLog: (message: string) => void,
 ): Promise<GameExports> {
   const response = await fetch(url);
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const host = createWasmHost(bytes, {write: onGuestLog});
   let currentMemory: WebAssembly.Memory | null = null;
   const assets = await loadHostAssets(["/guest-title.txt"], onGuestLog);
   const importObject = {
+    ...host.imports,
     kagura_host: {
       log_i32_utf8(level: number, ptr: number, len: number) {
         if (!currentMemory) {
@@ -95,7 +99,8 @@ async function loadWasm(
       },
     },
   };
-  const { instance } = await WebAssembly.instantiateStreaming(response, importObject);
+  const { instance } = await WebAssembly.instantiate(bytes, importObject);
+  host.bind(instance);
   const exports = instance.exports as unknown as Record<string, unknown>;
   assertSemanticAbi(exports);
   currentMemory = exports.memory;
@@ -218,7 +223,7 @@ async function main() {
 
         // Count vertices and estimate draw data size
         for (const cmd of commands) {
-          vertexCount += cmd.vertexData.length / 8;
+          vertexCount += cmd.vertexData.length / 4;
           drawBytes += cmd.vertexData.byteLength + cmd.indices.byteLength;
         }
 

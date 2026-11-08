@@ -3,25 +3,25 @@
 /// All functions use extern "js" arrow functions which have implicit returns.
 
 // --- GPU Usage Constants ---
-pub const TEXTURE_USAGE_COPY_DST : Int = 2
+pub const TEXTURE_USAGE_COPY_DST : Int32 = 2
 
 ///|
-pub const TEXTURE_USAGE_TEXTURE_BINDING : Int = 4
+pub const TEXTURE_USAGE_TEXTURE_BINDING : Int32 = 4
 
 ///|
-pub const TEXTURE_USAGE_RENDER_ATTACHMENT : Int = 16
+pub const TEXTURE_USAGE_RENDER_ATTACHMENT : Int32 = 16
 
 ///|
-pub const BUFFER_USAGE_COPY_DST : Int = 8
+pub const BUFFER_USAGE_COPY_DST : Int32 = 8
 
 ///|
-pub const BUFFER_USAGE_INDEX : Int = 16
+pub const BUFFER_USAGE_INDEX : Int32 = 16
 
 ///|
-pub const BUFFER_USAGE_VERTEX : Int = 32
+pub const BUFFER_USAGE_VERTEX : Int32 = 32
 
 ///|
-pub const BUFFER_USAGE_UNIFORM : Int = 64
+pub const BUFFER_USAGE_UNIFORM : Int32 = 64
 
 // --- Device property access ---
 
@@ -119,7 +119,7 @@ extern "js" fn ffi_finish(encoder : @core.Any) -> @core.Any =
 ///|
 extern "js" fn ffi_get_bind_group_layout(
   pipeline : @core.Any,
-  index : Int,
+  index : Int32,
 ) -> @core.Any =
   #| (p, i) => p.getBindGroupLayout(i)
 
@@ -132,5 +132,5 @@ extern "js" fn ffi_submit_one(queue : @core.Any, cmd_buf : @core.Any) -> Unit =
 // --- GPUExtent3D creation (bypasses %identity tail-position bug) ---
 
 ///|
-extern "js" fn make_extent3d(width : Int, height : Int) -> @core.Any =
+extern "js" fn make_extent3d(width : Int32, height : Int32) -> @core.Any =
   #| (w, h) => ({ width: w, height: h })

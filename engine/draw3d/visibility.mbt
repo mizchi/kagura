@@ -20,7 +20,7 @@ pub(all) struct CameraOcclusion {
 /// This adds no draw pass, geometry update or alpha sorting.
 pub fn CameraOcclusion::append_uniform_dwords(
   self : CameraOcclusion,
-  words : Array[Int],
+  words : Array[Int32],
 ) -> Unit {
   for
     v in [

@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 pub(all) struct Ray {
   origin : @math3d.Vec3
   direction : @math3d.Vec3
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Ray with fn output(self, logger) {
@@ -10,11 +11,12 @@ pub impl Show for Ray with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct HitResult {
   hit : Bool
   distance : Double
   point : @math3d.Vec3
-} derive(Debug)
+}
 
 ///|
 pub impl Show for HitResult with fn output(self, logger) {

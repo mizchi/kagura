@@ -24,7 +24,7 @@ fn enqueue_stub_fetch(
 }
 
 ///|
-fn success_spec(seed : Int) -> @atlas.ImageSpec {
+fn success_spec(seed : Int32) -> @atlas.ImageSpec {
   if seed % 2 == 0 {
     @atlas.image_spec_with_rgba8(2, 2, [
       255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255,

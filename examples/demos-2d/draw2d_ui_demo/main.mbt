@@ -1,8 +1,8 @@
 ///|
-let screen_w : Int = 480
+let screen_w : Int32 = 480
 
 ///|
-let screen_h : Int = 360
+let screen_h : Int32 = 360
 
 ///|
 fn main {
@@ -178,9 +178,9 @@ fn push_dot_text(
   text : String,
   x : Double,
   y : Double,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
-  let chars : Array[Int] = []
+  let chars : Array[Int32] = []
   for ch in text {
     chars.push(ch.to_int())
   }
@@ -218,8 +218,8 @@ fn make_cmd(
   ctx : @engine.EngineContext,
   scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
-  indices : Array[Int],
-  color_hex : Int,
+  indices : Array[Int32],
+  color_hex : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let sc = scissor.current()
   @gfx.new_draw_triangles_command(
@@ -248,7 +248,7 @@ fn push_filled_rect(
   y : Double,
   w : Double,
   h : Double,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
   if !scissor.is_visible() {
     return
@@ -269,7 +269,7 @@ fn push_border(
   w : Double,
   h : Double,
   border : @widget2d.BorderWidths,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
   if !scissor.is_visible() || !border.has_any() {
     return

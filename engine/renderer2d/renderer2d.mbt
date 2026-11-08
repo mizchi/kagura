@@ -2,10 +2,10 @@
 pub(all) struct RenderFrame2D {
   dst : @gfx.ImageHandle
   shader : @gfx.ShaderHandle
-  screen_w : Int
-  screen_h : Int
-  pipeline_id : Int
-  uniform_hash : Int
+  screen_w : Int32
+  screen_h : Int32
+  pipeline_id : Int32
+  uniform_hash : Int32
   blend : @gfx.BlendMode
 }
 
@@ -13,11 +13,11 @@ pub(all) struct RenderFrame2D {
 pub fn RenderFrame2D::new(
   dst~ : @gfx.ImageHandle,
   shader~ : @gfx.ShaderHandle,
-  screen_w~ : Int,
-  screen_h~ : Int,
-  pipeline_id? : Int = 0,
-  uniform_hash? : Int = 0,
-  blend? : @gfx.BlendMode = @gfx.BlendMode::from_int(1),
+  screen_w~ : Int32,
+  screen_h~ : Int32,
+  pipeline_id~ : Int32 = 0,
+  uniform_hash~ : Int32 = 0,
+  blend~ : @gfx.BlendMode = @gfx.BlendMode::from_int(1),
 ) -> RenderFrame2D {
   { dst, shader, screen_w, screen_h, pipeline_id, uniform_hash, blend, }
 }

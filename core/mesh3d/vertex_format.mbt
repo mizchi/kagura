@@ -1,5 +1,6 @@
 ///|
 /// Vertex attribute types for 3D mesh data.
+#derive(Eq, Debug)
 pub enum VertexAttribute {
   Position3 // 3 floats: x, y, z
   Normal3 // 3 floats: nx, ny, nz
@@ -8,7 +9,7 @@ pub enum VertexAttribute {
   Weights4 // 4 floats: bone weights
   Tangent4 // 4 floats: tx, ty, tz, sign
   Color4 // 4 floats: r, g, b, a
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for VertexAttribute with fn output(self, logger) {
@@ -17,7 +18,7 @@ pub impl Show for VertexAttribute with fn output(self, logger) {
 
 ///|
 /// Number of float components for a vertex attribute.
-pub fn VertexAttribute::size(self : VertexAttribute) -> Int {
+pub fn VertexAttribute::size(self : VertexAttribute) -> Int32 {
   match self {
     Position3 => 3
     Normal3 => 3
@@ -31,9 +32,10 @@ pub fn VertexAttribute::size(self : VertexAttribute) -> Int {
 
 ///|
 /// Describes the layout of vertex data as an ordered list of attributes.
+#derive(Debug)
 pub struct VertexFormat {
   attributes : Array[VertexAttribute]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for VertexFormat with fn output(self, logger) {
@@ -42,7 +44,7 @@ pub impl Show for VertexFormat with fn output(self, logger) {
 
 ///|
 /// Total number of floats per vertex.
-pub fn VertexFormat::stride(self : VertexFormat) -> Int {
+pub fn VertexFormat::stride(self : VertexFormat) -> Int32 {
   let mut s = 0
   for attr in self.attributes {
     s += attr.size()
@@ -56,7 +58,7 @@ pub fn VertexFormat::stride(self : VertexFormat) -> Int {
 pub fn VertexFormat::offset_of(
   self : VertexFormat,
   target : VertexAttribute,
-) -> Int {
+) -> Int32 {
   let mut off = 0
   for attr in self.attributes {
     if attr == target {

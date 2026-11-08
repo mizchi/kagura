@@ -5,7 +5,7 @@
 /// - Ebiten ebitenutil package (DebugPrint, DrawLine, DrawRect, etc.)
 
 ///|
-pub fn color_from_hex(hex : Int) -> @gfx.Color {
+pub fn color_from_hex(hex : Int32) -> @gfx.Color {
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0
   let b = (hex & 0xFF).to_double() / 255.0
@@ -13,7 +13,7 @@ pub fn color_from_hex(hex : Int) -> @gfx.Color {
 }
 
 ///|
-pub fn color_from_hex_alpha(hex : Int, alpha : Double) -> @gfx.Color {
+pub fn color_from_hex_alpha(hex : Int32, alpha : Double) -> @gfx.Color {
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0
   let b = (hex & 0xFF).to_double() / 255.0
@@ -56,7 +56,7 @@ pub fn color_transparent() -> @gfx.Color {
 }
 
 ///|
-pub fn color_to_uniform_dwords(color : @gfx.Color) -> Array[Int] {
+pub fn color_to_uniform_dwords(color : @gfx.Color) -> Array[Int32] {
   [
     (color.r * 255.0).to_int(),
     (color.g * 255.0).to_int(),
@@ -74,7 +74,7 @@ pub fn line_vertices(
   x1 : Double,
   y1 : Double,
   width : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let dx = x1 - x0
   let dy = y1 - y0
   let dir = @vector.Vec2::new(dx, dy).normalize()
@@ -110,9 +110,9 @@ pub fn rect_outline_vertices(
   w : Double,
   h : Double,
   line_width : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let all_vertices : Array[Double] = []
-  let all_indices : Array[Int] = []
+  let all_indices : Array[Int32] = []
   let lines = [
     (x, y, x + w, y), // top
     (x + w, y, x + w, y + h), // right
@@ -141,7 +141,7 @@ pub fn rect_fill_vertices(
   y : Double,
   w : Double,
   h : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let vertices = [
     x,
     y,
@@ -174,7 +174,7 @@ pub fn new_rect_fill_command(
   w : Double,
   h : Double,
   color : @gfx.Color,
-  pipeline_id : Int,
+  pipeline_id : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let (vertices, indices) = rect_fill_vertices(x, y, w, h)
   let uniform = color_to_uniform_dwords(color)
@@ -205,7 +205,7 @@ pub fn build_input_debug_overlay(
   snapshot : @core.InputSnapshot,
   key_state : @inputstate.KeyInputState,
   mouse_state : @inputstate.MouseButtonInputState,
-  pipeline_id : Int,
+  pipeline_id : Int32,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   // Cursor crosshair (2 lines)
@@ -269,7 +269,7 @@ pub fn build_input_debug_overlay(
 }
 
 ///|
-fn contains_int_arr(arr : Array[Int], value : Int) -> Bool {
+fn contains_int_arr(arr : Array[Int32], value : Int32) -> Bool {
   for item in arr {
     if item == value {
       return true
@@ -289,7 +289,7 @@ pub fn new_line_command(
   y1 : Double,
   width : Double,
   color : @gfx.Color,
-  pipeline_id : Int,
+  pipeline_id : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let (vertices, indices) = line_vertices(x0, y0, x1, y1, width)
   let uniform = color_to_uniform_dwords(color)
@@ -329,7 +329,7 @@ pub fn ndc_rect_fill_vertices(
   ph : Double,
   screen_w : Double,
   screen_h : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let x0 = px / screen_w * 2.0 - 1.0
   let y0 = 1.0 - py / screen_h * 2.0
   let x1 = (px + pw) / screen_w * 2.0 - 1.0
@@ -353,7 +353,7 @@ pub fn new_ndc_rect_fill_command(
   screen_w : Double,
   screen_h : Double,
   color : @gfx.Color,
-  pipeline_id : Int,
+  pipeline_id : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let (vertices, indices) = ndc_rect_fill_vertices(
     px, py, pw, ph, screen_w, screen_h,
@@ -379,7 +379,7 @@ pub fn new_ndc_rect_fill_command(
 // ============================================================
 
 ///|
-pub fn glyph_pattern(ch : Int) -> Array[Int] {
+pub fn glyph_pattern(ch : Int32) -> Array[Int32] {
   match ch {
     // Digit values (for draw_number)
     0 | 48 => [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1]
@@ -471,7 +471,7 @@ pub fn draw_dot_text(
   cmds : Array[@gfx.DrawTrianglesCommand],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  chars : Array[Int],
+  chars : Array[Int32],
   cx : Double,
   cy : Double,
   sw : Double,
@@ -511,7 +511,7 @@ pub fn draw_number(
   cmds : Array[@gfx.DrawTrianglesCommand],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  number : Int,
+  number : Int32,
   ox : Double,
   oy : Double,
   sw : Double,
@@ -519,7 +519,7 @@ pub fn draw_number(
   color : @gfx.Color,
   scale : Double,
 ) -> Unit {
-  let digits : Array[Int] = []
+  let digits : Array[Int32] = []
   if number == 0 {
     digits.push(0)
   } else {
@@ -572,7 +572,7 @@ pub fn new_simple_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   vertices : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   color : @gfx.Color,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform = color_to_uniform_dwords(color)

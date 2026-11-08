@@ -13,7 +13,7 @@ fn drop_text(game : Game, id : String) -> String? {
 }
 
 ///|
-fn has_drop_zone(game : Game, value : Int) -> Bool {
+fn has_drop_zone(game : Game, value : Int32) -> Bool {
   drop_snapshot(game).nodes.any(n => n.id == "drop_zone_" + value.to_string())
 }
 

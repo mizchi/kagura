@@ -1,5 +1,5 @@
 ///|
-extern "js" fn browser_viewport() -> Array[Int] =
+extern "js" fn browser_viewport() -> FixedArray[Int32] =
   #| () => {
   #|   if (globalThis.__kaguraHeadless) return [960, 640];
   #|   if (globalThis.innerWidth <= 640) return [360, 640];
@@ -8,7 +8,7 @@ extern "js" fn browser_viewport() -> Array[Int] =
   #| }
 
 ///|
-fn default_viewport() -> (Int, Int) {
+fn default_viewport() -> (Int32, Int32) {
   let size = browser_viewport()
   (size[0], size[1])
 }

@@ -1,21 +1,26 @@
 // Camera preferences are independent of character/world saves and combat clocks.
 
 ///|
+#derive(ToJson, FromJson, Eq)
 struct HunterCameraTuning {
   tilt : Double
   distance : Double
   side : Double
   height : Double
   forward : Double
-} derive(ToJson, FromJson, Eq)
+}
+
 ///|
 pub extend HunterCameraTuning with ToJson::{to_json}
+
 ///|
 pub extend HunterCameraTuning with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
 pub extend HunterCameraTuning with Eq::{not_equal, equal}
+
 ///|
-fn hunter_camera_defaults(mode : Int) -> HunterCameraTuning {
+fn hunter_camera_defaults(mode : Int32) -> HunterCameraTuning {
   if mode == 1 {
     { tilt: 18.0, distance: 4.5, side: 0.55, height: 1.0, forward: 0.65, }
   } else {
@@ -32,7 +37,7 @@ fn hunter_camera_defaults(mode : Int) -> HunterCameraTuning {
 ///|
 fn HunterCameraTuning::clamped(
   self : HunterCameraTuning,
-  mode : Int,
+  mode : Int32,
 ) -> HunterCameraTuning {
   {
     tilt: self.tilt.clamp(
@@ -50,19 +55,25 @@ fn HunterCameraTuning::clamped(
 }
 
 ///|
+#derive(ToJson, FromJson)
 struct HunterCameraPreferences {
-  version : Int
-  mode : Int
+  version : Int32
+  mode : Int32
   quarter : HunterCameraTuning
   tps : HunterCameraTuning
-} derive(ToJson, FromJson)
+}
+
 ///|
 pub extend HunterCameraPreferences with ToJson::{to_json}
+
 ///|
-pub extend HunterCameraPreferences with @moonbitlang/core/json.FromJson::{from_json}
+pub extend HunterCameraPreferences with @moonbitlang/core/json.FromJson::{
+  from_json,
+}
+
 ///|
 struct HunterCameraSettings {
-  mut mode : Int
+  mut mode : Int32
   mut quarter : HunterCameraTuning
   mut tps : HunterCameraTuning
   mut editing : Bool
@@ -134,15 +145,18 @@ fn HunterCameraSettings::restore(
 }
 
 ///|
+#derive(ToJson)
 struct HunterCameraView {
   effective_distance : Double
-  mode : Int
+  mode : Int32
   editing : Bool
   tuning : HunterCameraTuning
   crosshair : Bool
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterCameraView with ToJson::{to_json}
+
 ///|
 fn GameState::hunter_camera_view(self : GameState) -> HunterCameraView {
   {

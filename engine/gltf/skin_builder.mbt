@@ -2,7 +2,7 @@
 /// Build a Skeleton from a glTF skin definition.
 fn skeleton_from_gltf(
   doc : GltfDocument,
-  skin_index : Int,
+  skin_index : Int32,
   buffers : Array[Bytes],
 ) -> @skeleton3d.Skeleton raise GltfError {
   let skin = doc.skins[skin_index]
@@ -50,7 +50,7 @@ fn skeleton_from_gltf(
   // Build bones from joint nodes
   let bones : Array[@skeleton3d.Bone] = []
   // Create a mapping from node index to joint index
-  let node_to_joint : Map[Int, Int] = Map([])
+  let node_to_joint : Map[Int32, Int32] = Map([])
   for i in 0..<joint_count {
     node_to_joint[skin.joints[i]] = i
   }
@@ -93,11 +93,11 @@ fn skeleton_from_gltf(
 /// Build SkinData from the first primitive of the first mesh that has skin attributes.
 fn skin_data_from_gltf(
   doc : GltfDocument,
-  skin_index : Int,
+  skin_index : Int32,
   buffers : Array[Bytes],
 ) -> @skeleton3d.SkinData? raise GltfError {
   // Find the mesh node that references this skin
-  let mut mesh_idx : Int? = None
+  let mut mesh_idx : Int32? = None
   for node in doc.nodes {
     match (node.skin, node.mesh) {
       (Some(si), Some(mi)) =>
@@ -137,12 +137,12 @@ fn skin_data_from_gltf(
 /// Build AnimationClips from all glTF animations.
 fn animations_from_gltf(
   doc : GltfDocument,
-  skin_index : Int,
+  skin_index : Int32,
   buffers : Array[Bytes],
 ) -> Array[@animation3d.AnimationClip] raise GltfError {
   let skin = doc.skins[skin_index]
   // Create node-to-joint mapping for this skin
-  let node_to_joint : Map[Int, Int] = Map([])
+  let node_to_joint : Map[Int32, Int32] = Map([])
   for i in 0..<skin.joints.length() {
     node_to_joint[skin.joints[i]] = i
   }

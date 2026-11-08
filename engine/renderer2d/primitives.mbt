@@ -24,7 +24,7 @@ fn pixel_to_ndc_vertices(
 fn new_primitive_command(
   frame : RenderFrame2D,
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   color : @gfx.Color,
 ) -> @gfx.DrawTrianglesCommand {
   @gfx.new_draw_triangles_command(
@@ -55,7 +55,7 @@ pub fn append_primitive_batch(
   commands : Array[@gfx.DrawTrianglesCommand],
   frame : RenderFrame2D,
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   color : @gfx.Color,
 ) -> Unit {
   commands.push(new_primitive_command(frame, vertex_data, indices, color))
@@ -91,7 +91,7 @@ pub fn RectFill2D::new(
 /// conversion hoists out of the loop and no `RectFill2D` is allocated per quad.
 fn push_rect_fill_geometry(
   vertices : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   screen_w : Double,
   screen_h : Double,
   x : Double,
@@ -135,7 +135,7 @@ fn push_rect_fill_geometry(
 ///|
 pub fn append_rect_fill_geometry(
   vertices : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   frame : RenderFrame2D,
   rect : RectFill2D,
 ) -> Unit {
@@ -158,7 +158,7 @@ pub fn append_rect_fill(
   rect : RectFill2D,
 ) -> Unit {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   append_rect_fill_geometry(vertices, indices, frame, rect)
   append_primitive_batch(commands, frame, vertices, indices, rect.color)
 }
@@ -179,7 +179,7 @@ pub fn Line2D::new(
   y0~ : Double,
   x1~ : Double,
   y1~ : Double,
-  width? : Double = 1.0,
+  width~ : Double = 1.0,
   color~ : @gfx.Color,
 ) -> Line2D {
   { x0, y0, x1, y1, width, color, }
@@ -228,7 +228,7 @@ pub fn RectOutline2D::new(
   y~ : Double,
   w~ : Double,
   h~ : Double,
-  line_width? : Double = 1.0,
+  line_width~ : Double = 1.0,
   color~ : @gfx.Color,
 ) -> RectOutline2D {
   { x, y, w, h, line_width, color, }

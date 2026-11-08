@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 pub(all) enum Interpolation {
   Step
   Linear
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Interpolation with fn output(self, logger) {
@@ -10,11 +11,12 @@ pub impl Show for Interpolation with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) enum ChannelTarget {
   Translation
   Rotation
   Scale
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ChannelTarget with fn output(self, logger) {
@@ -23,7 +25,7 @@ pub impl Show for ChannelTarget with fn output(self, logger) {
 
 ///|
 pub(all) struct AnimChannel {
-  node_index : Int
+  node_index : Int32
   target : ChannelTarget
   interpolation : Interpolation
   times : Array[Double]
@@ -39,7 +41,7 @@ pub(all) struct AnimationClip {
 
 ///|
 pub(all) struct NodePose {
-  node_index : Int
+  node_index : Int32
   translation : @math3d.Vec3?
   rotation : @math3d.Quaternion?
   scale : @math3d.Vec3?

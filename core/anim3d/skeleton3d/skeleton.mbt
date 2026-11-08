@@ -7,7 +7,7 @@ pub fn Skeleton::new(
 }
 
 ///|
-pub fn Skeleton::bone_count(self : Skeleton) -> Int {
+pub fn Skeleton::bone_count(self : Skeleton) -> Int32 {
   self.bones.length()
 }
 

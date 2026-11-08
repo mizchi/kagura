@@ -9,6 +9,7 @@
 
 ///|
 /// Node archetypes from the Machinations framework.
+#derive(Eq)
 pub(all) enum NodeKind {
   Pool // stores resources
   Source // infinite generator
@@ -19,50 +20,55 @@ pub(all) enum NodeKind {
   Delay // holds a resource for N steps, then releases
   Queue // FIFO release at a rate
   Register // holds a numeric value (no resource flow; feeds state edges)
-} derive(Eq)
+}
 
 ///|
 /// When a node fires.
+#derive(Eq)
 pub(all) enum Activation {
   Passive // only reacts when pulled/pushed by others
   Automatic // fires every step
   Interactive // fires on user interaction
   OnTrigger // fires when triggered via a state edge
   Start // fires once, on the first step
-} derive(Eq)
+}
 
 ///|
 /// Direction a node drives resource flow.
+#derive(Eq)
 pub(all) enum Flow {
   Pull // pulls resources along incoming edges
   PullAll // pulls only if every incoming edge is fully satisfiable (atomic)
   Push // pushes resources along outgoing edges
-} derive(Eq)
+}
 
 ///|
 /// How a Gate distributes incoming resources across its outgoing edges.
+#derive(Eq)
 pub(all) enum GateMode {
   Deterministic // split by edge weight ratios
   Probabilistic // pick an edge weighted-randomly
-} derive(Eq)
+}
 
 ///|
 /// Flow-rate label on a resource connection.
+#derive(Eq)
 pub(all) enum Rate {
-  Fixed(Int) // a constant amount per activation
-  Dice(Int, Int) // roll `count` dice of `sides` and sum
-  Interval(Int) // emit 1 every N steps
+  Fixed(Int32) // a constant amount per activation
+  Dice(Int32, Int32) // roll `count` dice of `sides` and sum
+  Interval(Int32) // emit 1 every N steps
   All // move everything available
-} derive(Eq)
+}
 
 ///|
 /// Kind of a state (non-resource) connection.
+#derive(Eq)
 pub(all) enum StateKind {
   Modifier // source value adjusts a target rate / value
   Trigger // a full flow on the source activates the target
   Activator // a condition on the source enables/disables the target
   RateLabel // source value overrides a connection's rate label
-} derive(Eq)
+}
 
 ///|
 /// A diagram node. Position (x, y) is layout metadata; the engine ignores it.
@@ -71,10 +77,10 @@ pub(all) struct Node {
   label : String
   activation : Activation
   flow : Flow
-  capacity : Int? // None = unlimited
-  initial : Int // initial pool count / register value
+  capacity : Int32? // None = unlimited
+  initial : Int32 // initial pool count / register value
   gate_mode : GateMode
-  param : Int // Delay: steps to hold; Queue: release rate per step; else unused
+  param : Int32 // Delay: steps to hold; Queue: release rate per step; else unused
   x : Double
   y : Double
 }
@@ -83,8 +89,8 @@ pub(all) struct Node {
 /// A resource connection: moves resources from `from` to `to` at `rate`.
 /// `weight` is used for gate distribution (deterministic ratio / random weight).
 pub(all) struct ResourceEdge {
-  from : Int
-  to : Int
+  from : Int32
+  to : Int32
   rate : Rate
   weight : Double
 }
@@ -93,9 +99,9 @@ pub(all) struct ResourceEdge {
 /// A state connection: alters a target node or resource edge from a source
 /// node's state. `to_node` / `to_edge` select the target (exactly one is set).
 pub(all) struct StateEdge {
-  from : Int
-  to_node : Int?
-  to_edge : Int?
+  from : Int32
+  to_node : Int32?
+  to_edge : Int32?
   kind : StateKind
   factor : Double
 }
@@ -112,12 +118,12 @@ pub(all) struct Diagram {
 ///|
 /// Mutable simulation state, advanced one step at a time by `step`.
 pub(all) struct SimState {
-  mut values : Array[Int] // per-node resource count / register value
-  mut step : Int // completed-step counter
+  mut values : Array[Int32] // per-node resource count / register value
+  mut step : Int32 // completed-step counter
   mut rng : UInt64 // deterministic RNG state
-  mut last_flows : Array[Int] // amount moved per resource edge last step (for viz)
+  mut last_flows : Array[Int32] // amount moved per resource edge last step (for viz)
   mut pending : Array[Bool] // interactive activations queued for the next step
-  mut buffers : Array[Array[Int]] // per-node time buffers (Delay line / Queue store)
+  mut buffers : Array[Array[Int32]] // per-node time buffers (Delay line / Queue store)
 }
 
 ///|

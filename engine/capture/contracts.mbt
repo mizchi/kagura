@@ -25,10 +25,11 @@ pub let capture_config_filename : String = "kagura_native_capture_config.txt"
 ///
 /// `Cpu` is the portable 2D path (no window, no GPU). `Gpu` drives the real
 /// wgpu pipeline and can draw 3D commands the CPU rasterizer skips.
+#derive(Eq, Debug)
 pub(all) enum CaptureBackend {
   Cpu
   Gpu
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CaptureBackend with Eq::{equal, not_equal}
@@ -37,6 +38,7 @@ pub extend CaptureBackend with Eq::{equal, not_equal}
 pub extend CaptureBackend with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub(all) struct CaptureConfig {
   /// Where the frame PNG goes.
   screenshot_path : String
@@ -49,7 +51,7 @@ pub(all) struct CaptureConfig {
   binarize : Bool
   /// Pixel source. Missing `backend=` is CPU, so existing configs keep working.
   backend : CaptureBackend
-} derive(Debug)
+}
 
 ///|
 pub extend CaptureConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -180,7 +182,7 @@ pub fn parse_capture_config(text : String) -> CaptureConfig? {
 
 ///|
 /// Rec. 601 luma threshold at mid-grey, in integer arithmetic.
-pub fn binarize_luma(r : Int, g : Int, b : Int) -> Int {
+pub fn binarize_luma(r : Int32, g : Int32, b : Int32) -> Int32 {
   if r * 30 + g * 59 + b * 11 >= 12800 {
     255
   } else {
@@ -190,7 +192,7 @@ pub fn binarize_luma(r : Int, g : Int, b : Int) -> Int {
 
 ///|
 /// Reduce an RGBA8 buffer to black and white in place, leaving alpha alone.
-pub fn binarize_rgba8(pixels : Array[Int]) -> Unit {
+pub fn binarize_rgba8(pixels : Array[Int32]) -> Unit {
   let mut i = 0
   while i + 3 < pixels.length() {
     let v = binarize_luma(pixels[i], pixels[i + 1], pixels[i + 2])
@@ -204,9 +206,9 @@ pub fn binarize_rgba8(pixels : Array[Int]) -> Unit {
 ///|
 /// Encode an RGBA8 buffer as PNG, or `None` when the encoder rejects it.
 pub fn encode_rgba8_png(
-  width : Int,
-  height : Int,
-  pixels : Array[Int],
+  width : Int32,
+  height : Int32,
+  pixels : Array[Int32],
 ) -> Bytes? {
   Some(
     @atlas.encode_png_image_spec(

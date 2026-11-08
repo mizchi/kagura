@@ -7,10 +7,10 @@ pub(all) struct EnemyTypeConfig {
   hp_param : Double // which BalanceParams HP value to use (direct value)
   speed_param : Double // base speed multiplier
   size : Double // collision/render size
-  spawn_weight : Int // relative spawn weight (higher = more common)
-  xp_reward : Int // XP given on death
-  drop_chance : Int // percent chance to drop item (0-100)
-  drop_count_max : Int // max items dropped
+  spawn_weight : Int32 // relative spawn weight (higher = more common)
+  xp_reward : Int32 // XP given on death
+  drop_chance : Int32 // percent chance to drop item (0-100)
+  drop_count_max : Int32 // max items dropped
 }
 
 ///|
@@ -170,16 +170,16 @@ pub let berserker_rage_max_mult : Double = 1.5 // velocity multiplier at 0% HP
 pub let teleporter_blink_distance : Double = 30.0
 
 ///|
-pub let teleporter_blink_cooldown : Int = 180 // 3 seconds
+pub let teleporter_blink_cooldown : Int32 = 180 // 3 seconds
 
 ///|
 pub let teleporter_angle_offset : Double = 0.3
 
 ///|
-pub let summoner_cooldown : Int = 240 // 4 seconds
+pub let summoner_cooldown : Int32 = 240 // 4 seconds
 
 ///|
-pub let summoner_spawn_offset : Int = 10 // ±pixels from summoner
+pub let summoner_spawn_offset : Int32 = 10 // ±pixels from summoner
 
 ///|
 pub let summoner_minion_speed_mult : Double = 1.2
@@ -194,22 +194,22 @@ pub let ranged_min_distance_sq : Double = 3600.0 // 60^2
 pub let ranged_retreat_speed : Double = 0.3
 
 ///|
-pub let ranged_meteor_chance : Int = 25 // percent
+pub let ranged_meteor_chance : Int32 = 25 // percent
 
 ///|
 pub let caster_min_distance_sq : Double = 900.0 // 30^2
 
 ///|
-pub let exploder_damage_mult : Int = 3
+pub let exploder_damage_mult : Int32 = 3
 
 ///|
 pub let exploder_radius_mult : Double = 1.5
 
 ///|
-pub let spawn_safe_distance : Int = 8
+pub let spawn_safe_distance : Int32 = 8
 
 ///|
-pub let spawn_area_divisor : Int = 15
+pub let spawn_area_divisor : Int32 = 15
 
 ///|
-pub let spawn_base_count_max : Int = 5
+pub let spawn_base_count_max : Int32 = 5

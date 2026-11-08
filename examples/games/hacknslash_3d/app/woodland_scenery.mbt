@@ -1,5 +1,5 @@
 ///|
-fn woodland_asset_kind(biome : Int, hash : Int) -> Int {
+fn woodland_asset_kind(biome : Int32, hash : Int32) -> Int32 {
   if biome == 1 {
     return [1, 2, 6, 1, 2, 5][hash % 6]
   }
@@ -12,8 +12,8 @@ fn woodland_asset_kind(biome : Int, hash : Int) -> Int {
 ///|
 fn woodland_grass_allowed(
   dungeon : @game.DungeonData,
-  x : Int,
-  z : Int,
+  x : Int32,
+  z : Int32,
 ) -> Bool {
   if dungeon.grid.get(x, z) != @terrain.Floor {
     return false
@@ -42,7 +42,7 @@ fn woodland_grass_allowed(
 
 ///|
 /// Broadleaf oak, wind-bent birch and a shattered stump share existing materials.
-fn make_woodland_tree(kind : Int) -> HuntingAsset {
+fn make_woodland_tree(kind : Int32) -> HuntingAsset {
   let bark = @procedural3d.RigidGeometry::new()
   let leaves = @procedural3d.RigidGeometry::new()
   let tips = @procedural3d.RigidGeometry::new()
@@ -101,7 +101,7 @@ fn make_woodland_tree(kind : Int) -> HuntingAsset {
 
 ///|
 /// Small authored silhouettes placed on existing masonry footprints.
-fn make_wayside_relic(kind : Int) -> HuntingAsset {
+fn make_wayside_relic(kind : Int32) -> HuntingAsset {
   let stone = @procedural3d.RigidGeometry::new()
   let dark = @procedural3d.RigidGeometry::new()
   stone.box(0.0, 0.07, 0.0, 0.96, 0.14, 0.92, 0)

@@ -1,14 +1,14 @@
 ///|
 struct SceneryRegion {
-  region : Int
+  region : Int32
   mesh : @mesh3d.Mesh3D
   // Contiguous index spans, in the same order as the detailed region chunks.
-  ranges : Array[(Int, Int)]
+  ranges : Array[(Int32, Int32)]
 }
 
 ///|
 struct SceneryCache {
-  seed : Int
+  seed : Int32
   plains_relief : Double
   regions : Array[SceneryRegion]
   backdrop : @mesh3d.Mesh3D
@@ -19,9 +19,9 @@ struct SceneryCache {
 /// one static vertex/index buffer and one inexpensive shader, without textures.
 fn scenery_color(
   g : @procedural3d.RigidGeometry,
-  start : Int,
-  hex : Int,
-  material? : Int = -1,
+  start : Int32,
+  hex : Int32,
+  material~ : Int32 = -1,
 ) -> Unit {
   for i in (start / 8)..<(g.vertices.length() / 8) {
     g.vertices[i * 8 + 6] = if material >= 0 {
@@ -36,7 +36,7 @@ fn scenery_color(
 ///|
 fn build_scenery_region(land : @game.Landscape) -> SceneryRegion {
   let g = @procedural3d.RigidGeometry::new()
-  let ranges : Array[(Int, Int)] = []
+  let ranges : Array[(Int32, Int32)] = []
   let field = land.bed
   let grass = [0x1B2C21, 0x403126, 0x1B3030, 0x302C35][land.region]
   for cz in 0..<4 {
@@ -202,7 +202,7 @@ fn build_scenery_backdrop() -> @mesh3d.Mesh3D {
       for x = x0; x < x1; x = x + 16 {
         let ex = (x + 16).min(x1)
         let ez = (z + 16).min(z1)
-        fn p(x : Int, z : Int) -> @math3d.Vec3 {
+        fn p(x : Int32, z : Int32) -> @math3d.Vec3 {
           @math3d.Vec3::new(
             x.to_double(),
             scenery_horizon_height(x.to_double(), z.to_double()),
@@ -283,10 +283,10 @@ fn build_scenery_cache(world : @game.GameWorld) -> SceneryCache? {
 
 ///|
 fn scenery_index_runs(
-  ranges : Array[(Int, Int)],
+  ranges : Array[(Int32, Int32)],
   visible : Array[Bool],
-) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = []
+) -> Array[(Int32, Int32)] {
+  let result : Array[(Int32, Int32)] = []
   let mut offset = 0
   let mut count = 0
   for i, r in ranges {
@@ -336,7 +336,7 @@ fn GameState::push_scenery_commands(
     mesh : @mesh3d.Mesh3D,
     ox : Double,
     oz : Double,
-    runs : Array[(Int, Int)],
+    runs : Array[(Int32, Int32)],
   ) -> Unit {
     @web_hooks.register_static_geometry(mesh.vertex_data, mesh.indices)
     let model = @transform3d.Transform3D::from_position(

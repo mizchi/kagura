@@ -1,7 +1,7 @@
 ///|
 pub(all) struct LevelUpConfig {
-  xp_base : Int
-  xp_growth : Int
+  xp_base : Int32
+  xp_growth : Int32
 }
 
 ///|
@@ -11,15 +11,15 @@ pub fn LevelUpConfig::default() -> LevelUpConfig {
 
 ///|
 pub(all) struct LevelProgression {
-  mut level : Int
-  mut xp : Int
-  mut next_level_xp : Int
-  mut pending_choices : Int
+  mut level : Int32
+  mut xp : Int32
+  mut next_level_xp : Int32
+  mut pending_choices : Int32
 }
 
 ///|
 pub fn LevelProgression::new(
-  config? : LevelUpConfig = LevelUpConfig::default(),
+  config~ : LevelUpConfig = LevelUpConfig::default(),
 ) -> LevelProgression {
   {
     level: 1,
@@ -30,14 +30,14 @@ pub fn LevelProgression::new(
 }
 
 ///|
-pub fn xp_required_for_level(level : Int, config : LevelUpConfig) -> Int {
+pub fn xp_required_for_level(level : Int32, config : LevelUpConfig) -> Int32 {
   @cmp.maximum(1, config.xp_base + (level - 1) * config.xp_growth)
 }
 
 ///|
 pub fn LevelProgression::add_xp(
   self : LevelProgression,
-  gained_xp : Int,
+  gained_xp : Int32,
   config : LevelUpConfig,
 ) -> Bool {
   if gained_xp <= 0 {
@@ -82,7 +82,7 @@ pub fn TierCurve::new(base : Double, per_floor : Double) -> TierCurve {
 }
 
 ///|
-pub fn evaluate_tier_curve(curve : TierCurve, floor : Int) -> Double {
+pub fn evaluate_tier_curve(curve : TierCurve, floor : Int32) -> Double {
   curve.base + @cmp.maximum(0, floor - 1).to_double() * curve.per_floor
 }
 
@@ -97,9 +97,9 @@ pub(all) enum LootRarity {
 ///|
 pub(all) struct LootRarityRollConfig {
   rarity_bonus_per_floor : Double
-  common_max : Int
-  uncommon_max : Int
-  rare_max : Int
+  common_max : Int32
+  uncommon_max : Int32
+  rare_max : Int32
 }
 
 ///|
@@ -113,7 +113,7 @@ pub fn LootRarityRollConfig::default() -> LootRarityRollConfig {
 }
 
 ///|
-pub fn loot_rarity_rank(rarity : LootRarity) -> Int {
+pub fn loot_rarity_rank(rarity : LootRarity) -> Int32 {
   match rarity {
     LootCommon => 0
     LootUncommon => 1
@@ -123,7 +123,7 @@ pub fn loot_rarity_rank(rarity : LootRarity) -> Int {
 }
 
 ///|
-pub fn loot_rarity_multiplier(rarity : LootRarity) -> Int {
+pub fn loot_rarity_multiplier(rarity : LootRarity) -> Int32 {
   match rarity {
     LootCommon => 1
     LootUncommon => 2
@@ -134,9 +134,9 @@ pub fn loot_rarity_multiplier(rarity : LootRarity) -> Int {
 
 ///|
 pub fn sample_loot_rarity(
-  seed : Int,
-  floor : Int,
-  config? : LootRarityRollConfig = LootRarityRollConfig::default(),
+  seed : Int32,
+  floor : Int32,
+  config~ : LootRarityRollConfig = LootRarityRollConfig::default(),
 ) -> LootRarity {
   let base_roll = (seed / 3 % 100 + 100) % 100
   let bonus = @cmp.maximum(
@@ -156,7 +156,7 @@ pub fn sample_loot_rarity(
 }
 
 ///|
-pub fn pick_weighted_index(seed : Int, weights : Array[Int]) -> Int {
+pub fn pick_weighted_index(seed : Int32, weights : Array[Int32]) -> Int32 {
   let mut total_weight = 0
   for weight in weights {
     total_weight = total_weight + @cmp.maximum(0, weight)
@@ -178,11 +178,11 @@ pub fn pick_weighted_index(seed : Int, weights : Array[Int]) -> Int {
 
 ///|
 pub fn scale_loot_stat(
-  base_value : Int,
+  base_value : Int32,
   tier_value : Double,
-  rarity_multiplier : Int,
+  rarity_multiplier : Int32,
   modifier_tier : Double,
-) -> Int {
+) -> Int32 {
   let multiplier = 1.0 + tier_value * 0.35 + modifier_tier * 0.2
   @cmp.maximum(
     1,

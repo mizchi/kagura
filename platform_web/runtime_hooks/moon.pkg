@@ -9,10 +9,10 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx",
-  "mizchi/atlas",
   "mizchi/renderer2d",
   "mizchi/kagura_platform" @platform,
   "mizchi/text",
+  "mizchi/kagura_ui" @ui,
 }
 
 warnings = "-1-29"
@@ -21,6 +21,9 @@ supported_targets = "js+native+wasm+wasm-gc+llvm"
 
 options(
   targets: {
+    "pointer_js.mbt": [ "js" ],
+    "pointer_js_wbtest.mbt": [ "js" ],
+    "pointer_other.mbt": [ "not", "js" ],
     "geometry_js.mbt": [ "js" ],
     "geometry_other.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],
     "hooks_js.mbt": [ "js" ],

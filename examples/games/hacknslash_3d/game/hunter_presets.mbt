@@ -1,21 +1,25 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum HunterPreset {
   BladePreset
   StormPreset
   MarksmanPreset
   SummonerPreset
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend HunterPreset with Eq::{not_equal, equal}
+
 ///|
 pub extend HunterPreset with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 pub(all) struct HunterPresetProfile {
   id : String
   name : String
   weapon : PlayerWeaponKind
   // Existing action command IDs, shared by keyboard, touch and pad adapters.
-  keys : Array[Int]
+  keys : Array[Int32]
 }
 
 ///|
@@ -47,7 +51,7 @@ pub let hunter_presets : Array[HunterPresetProfile] = [
 ]
 
 ///|
-pub fn HunterPreset::index(self : HunterPreset) -> Int {
+pub fn HunterPreset::index(self : HunterPreset) -> Int32 {
   match self {
     BladePreset => 0
     StormPreset => 1

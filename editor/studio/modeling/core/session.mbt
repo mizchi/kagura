@@ -3,22 +3,22 @@ struct Modal {
   before : ModelDocument
   base : MeshNode
   kind : String
-  indices : Array[Int]
+  indices : Array[Int32]
   normal : Array[Double]
 }
 
 ///|
 pub struct ModelEditor {
   mut document : ModelDocument
-  mut revision : Int
+  mut revision : Int32
   mut selected : String
   mut mode : String
-  mut indices : Array[Int]
-  mut face : Int
+  mut indices : Array[Int32]
+  mut face : Int32
   mut modal : Modal?
   past : Array[ModelDocument]
   future : Array[ModelDocument]
-  mut serial : Int
+  mut serial : Int32
   mut expression_edit : ExpressionEdit?
   mut weights : Map[String, Double]
 }
@@ -42,7 +42,7 @@ pub fn ModelEditor::new() -> ModelEditor {
 }
 
 ///|
-fn ModelEditor::node_index(self : ModelEditor) -> Int raise ModelError {
+fn ModelEditor::node_index(self : ModelEditor) -> Int32 raise ModelError {
   for i = 0; i < self.document.nodes.length(); i = i + 1 {
     if self.document.nodes[i].id == self.selected {
       return i
@@ -142,12 +142,12 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
     "vertices" => {
       keys(req, ["op", "indices"])
       let n = self.document.nodes[self.node_index()]
-      let indices : Array[Int] = @json.from_json(field(req, "indices"))
+      let indices : Array[Int32] = @json.from_json(field(req, "indices"))
       require(
         self.mode == "vertex" && indices.length() <= n.vertices.length(),
         "Vertex selection requires edit mode",
       )
-      let seen : Map[Int, Bool] = Map([])
+      let seen : Map[Int32, Bool] = Map([])
       for i in indices {
         require(
           i >= 0 && i < n.vertices.length() && !seen.contains(i),
@@ -160,7 +160,7 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
     "face" => {
       keys(req, ["op", "index"])
       let n = self.document.nodes[self.node_index()]
-      let i : Int = @json.from_json(field(req, "index"))
+      let i : Int32 = @json.from_json(field(req, "index"))
       require(
         self.mode == "face" && i >= 0 && i < n.faces.length(),
         "Select an existing face in face mode",
@@ -338,7 +338,7 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
     "material" => {
       keys(req, ["op", "color"])
       let index = self.node_index()
-      let color : Int = @json.from_json(field(req, "color"))
+      let color : Int32 = @json.from_json(field(req, "color"))
       self.commit(
         self.document,
         replace_node(self.document, index, {
@@ -367,27 +367,29 @@ fn ModelEditor::handle(self : ModelEditor, req : Json) -> Unit raise {
 pub fn ModelEditor::snapshot(self : ModelEditor) -> Json {
   {
     "document": ToJson::to_json(self.document),
-    "revision": self.revision.to_json(),
-    "selected": self.selected.to_json(),
-    "mode": self.mode.to_json(),
-    "vertices": self.indices.to_json(),
-    "face": self.face.to_json(),
-    "canUndo": (!self.past.is_empty()).to_json(),
-    "canRedo": (!self.future.is_empty()).to_json(),
+    "revision": Json(self.revision),
+    "selected": Json(self.selected),
+    "mode": Json(self.mode),
+    "vertices": Json(self.indices),
+    "face": Json(self.face),
+    "canUndo": Json(!self.past.is_empty()),
+    "canRedo": Json(!self.future.is_empty()),
     "modal": match self.modal {
       None => Json::null()
-      Some(m) => { "kind": m.kind.to_json(), "normal": m.normal.to_json() }
+      Some(m) => { "kind": Json(m.kind), "normal": Json(m.normal) }
     },
-    "weights": self.weights.to_json(),
+    "weights": Json(self.weights),
     "expressionEdit": match self.expression_edit {
       None => Json::null()
-      Some(edit) => { "id": edit.id.to_json(), "name": edit.name.to_json() }
+      Some(edit) => { "id": Json(edit.id), "name": Json(edit.name) }
     },
-    "previewNodes": (if self.weights.values().any(w => w > 0) {
-      (try! evaluate_expressions(self.document, self.weights)).nodes
-    } else {
-      self.document.nodes
-    }).to_json(),
+    "previewNodes": Json(
+      if self.weights.values().any(w => w > 0) {
+        (try! evaluate_expressions(self.document, self.weights)).nodes
+      } else {
+        self.document.nodes
+      },
+    ),
   }
 }
 
@@ -399,7 +401,7 @@ pub fn ModelEditor::request(self : ModelEditor, source : String) -> String {
     ({ "ok": true, "snapshot": self.snapshot() } : Json).stringify()
   } catch {
     Invalid(message) =>
-      ({ "ok": false, "error": message.to_json() } : Json).stringify()
+      ({ "ok": false, "error": Json(message) } : Json).stringify()
     _ => "{\"ok\":false,\"error\":\"Malformed modeling request\"}"
   }
 }

@@ -1,7 +1,8 @@
 ///|
 /// Editable scene source. Game behavior stays in game-owned code; data is compiled by its adapter.
+#derive(FromJson, ToJson)
 pub(all) struct Document {
-  version : Int
+  version : Int32
   name : String
   units : String
   up : String
@@ -9,7 +10,7 @@ pub(all) struct Document {
   nodes : Array[Node]
   action : Action
   resources : Array[Resource]
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Document with @moonbitlang/core/json.FromJson::{from_json}
@@ -18,6 +19,7 @@ pub extend Document with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Document with ToJson::{to_json}
 
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct Node {
   id : String
   name : String
@@ -26,8 +28,8 @@ pub(all) struct Node {
   position : Array[Double]
   rotation : Array[Double]
   scale : Array[Double]
-  color : Int
-} derive(FromJson, ToJson)
+  color : Int32
+}
 
 ///|
 pub extend Node with @moonbitlang/core/json.FromJson::{from_json}
@@ -36,13 +38,14 @@ pub extend Node with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Node with ToJson::{to_json}
 
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct Action {
   target : String
   duration : Double
   flashDuration : Double
   recoilDuration : Double
   recoilStrength : Double
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Action with @moonbitlang/core/json.FromJson::{from_json}
@@ -51,12 +54,13 @@ pub extend Action with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Action with ToJson::{to_json}
 
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct Resource {
   id : String
   kind : String
-  version : Int
+  version : Int32
   data : Json
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Resource with @moonbitlang/core/json.FromJson::{from_json}
@@ -65,28 +69,31 @@ pub extend Resource with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Resource with ToJson::{to_json}
 
 ///|
+#derive(FromJson)
 struct Binding {
   node : String
   component : String
   properties : Json
-} derive(FromJson)
+}
 
 ///|
 pub extend Binding with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
+#derive(FromJson)
 struct Bindings {
   game : String
   bindings : Array[Binding]
-} derive(FromJson)
+}
 
 ///|
 pub extend Bindings with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
+#derive(FromJson)
 struct Destination {
   target : String
-} derive(FromJson)
+}
 
 ///|
 pub extend Destination with @moonbitlang/core/json.FromJson::{from_json}

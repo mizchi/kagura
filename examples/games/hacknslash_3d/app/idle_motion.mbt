@@ -1,7 +1,7 @@
 ///|
 /// Forty-eight shared palettes cover standing, seated breathing and getting up.
 /// Quantized poses retain instancing; only the upper body breathes while idle.
-fn enemy_rest_key(enemy : @game.Enemy, frame : Int) -> Int {
+fn enemy_rest_key(enemy : @game.Enemy, frame : Int32) -> Int32 {
   let camp = enemy.camp
   let resting = camp.map(c => c.awareness != @game.Alert).or(false)
   let seated = resting && camp.unwrap().pose == @game.Sitting
@@ -14,7 +14,7 @@ fn enemy_rest_key(enemy : @game.Enemy, frame : Int) -> Int {
 }
 
 ///|
-fn rest_pose_parameters(index : Int) -> (Double, Double) {
+fn rest_pose_parameters(index : Int32) -> (Double, Double) {
   let phase = index % 24
   let seated = if index >= 24 {
     if phase < 8 {
@@ -36,12 +36,12 @@ fn rest_pose_parameters(index : Int) -> (Double, Double) {
 
 ///|
 fn biped_rest_pose(
-  index : Int,
+  index : Int32,
   zombie : Bool,
 ) -> Array[@transform3d.Transform3D] {
   let poses = shared_enemy_skeleton.bones.map(b => b.local_transform)
   let (sit, breath) = rest_pose_parameters(index)
-  fn rotate(joint : Int, x : Double, y : Double, z : Double) -> Unit {
+  fn rotate(joint : Int32, x : Double, y : Double, z : Double) -> Unit {
     poses[joint] = poses[joint].with_rotation(
       @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), y)
       .multiply(@math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_x(), x))
@@ -76,10 +76,10 @@ fn biped_rest_pose(
 }
 
 ///|
-fn wolf_camp_pose(index : Int) -> Array[@transform3d.Transform3D] {
+fn wolf_camp_pose(index : Int32) -> Array[@transform3d.Transform3D] {
   let poses = wolf_skeleton.bones.map(b => b.local_transform)
   let (lie, breath) = rest_pose_parameters(index)
-  fn rotate(joint : Int, x : Double, z : Double) -> Unit {
+  fn rotate(joint : Int32, x : Double, z : Double) -> Unit {
     poses[joint] = poses[joint].with_rotation(
       @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_x(), x).multiply(
         @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_z(), z),

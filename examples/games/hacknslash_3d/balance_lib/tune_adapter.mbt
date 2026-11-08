@@ -92,10 +92,10 @@ pub fn SimMetrics::to_dec_metrics(self : SimMetrics) -> @dec.Metrics {
 /// Create a simulation function compatible with @dec.tune()
 /// affix_profile and max_frames are captured in the closure
 pub fn make_sim(
-  affix_profile : Int,
-  max_frames : Int,
-) -> (Array[Double], Int) -> @dec.Metrics {
-  fn(params : Array[Double], seed : Int) -> @dec.Metrics {
+  affix_profile : Int32,
+  max_frames : Int32,
+) -> (Array[Double], Int32) -> @dec.Metrics {
+  fn(params : Array[Double], seed : Int32) -> @dec.Metrics {
     let bp = {
       ..@game.BalanceParams::from_array(params).clamp(),
       affix_profile,
@@ -107,13 +107,13 @@ pub fn make_sim(
 
 ///|
 pub fn make_autoplay_rebalance_sim(
-  affix_profile : Int,
-  max_frames : Int,
-  start_floor : Int,
+  affix_profile : Int32,
+  max_frames : Int32,
+  start_floor : Int32,
   archetype : @game.CharacterArchetype,
   build_policy : @game.ArchetypeBuildPolicy,
-) -> (Array[Double], Int) -> @dec.Metrics {
-  fn(params : Array[Double], seed : Int) -> @dec.Metrics {
+) -> (Array[Double], Int32) -> @dec.Metrics {
+  fn(params : Array[Double], seed : Int32) -> @dec.Metrics {
     let bp = {
       ..@game.BalanceParams::from_array(params).clamp(),
       affix_profile,

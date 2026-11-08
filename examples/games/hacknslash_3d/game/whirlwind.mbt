@@ -2,18 +2,18 @@
 /// One channel, independent of the equipped weapon's normal attack clip.
 pub(all) struct WhirlwindChannel {
   mut active : Bool
-  mut frame : Int
+  mut frame : Int32
   mut interrupted : Bool
 }
 
 ///|
-pub let whirlwind_cycle_frames : Int = 24
+pub let whirlwind_cycle_frames : Int32 = 24
 
 ///|
-pub let whirlwind_contact_frame : Int = 6
+pub let whirlwind_contact_frame : Int32 = 6
 
 ///|
-pub let whirlwind_recovery_frames : Int = 12
+pub let whirlwind_recovery_frames : Int32 = 12
 
 ///|
 pub fn GameWorld::whirlwind_radius(self : GameWorld) -> Double {
@@ -40,7 +40,7 @@ pub fn GameWorld::stop_whirlwind(self : GameWorld) -> Unit {
 pub fn GameWorld::set_whirlwind(
   self : GameWorld,
   held : Bool,
-  pressed? : Bool = false,
+  pressed~ : Bool = false,
 ) -> Unit {
   let channel = self.arts.whirlwind
   // The browser retains press edges, including release/re-press within one tick.

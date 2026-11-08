@@ -17,14 +17,14 @@ fn GameLayout::map_panel(self : GameLayout) -> UiRect {
 }
 
 ///|
-fn GameLayout::map_rows(self : GameLayout) -> Int {
+fn GameLayout::map_rows(self : GameLayout) -> Int32 {
   ui_max(3, ui_min(7, (self.map_panel().h / 64.0).to_int()))
 }
 
 ///|
 /// Keep node positions stable within a page; do not recenter after every room.
 /// Adjacent pages overlap by one floor and keep the next choices in view.
-fn Game::map_base_floor(self : Game) -> Int {
+fn Game::map_base_floor(self : Game) -> Int32 {
   let run = self.run.get()
   let act = run.route.unwrap().act
   let start = (act - 1) * 15 + 1
@@ -34,7 +34,7 @@ fn Game::map_base_floor(self : Game) -> Int {
 }
 
 ///|
-fn Game::map_first_floor(self : Game) -> Int {
+fn Game::map_first_floor(self : Game) -> Int32 {
   let start = (self.run.get().route.unwrap().act - 1) * 15 + 1
   let base = self.map_base_floor()
   ui_min(start + 15 - self.layout.map_rows(), base + self.room_page)
@@ -64,8 +64,8 @@ fn map_browse_rect(l : GameLayout, forward : Bool) -> UiRect {
 ///|
 fn GameLayout::room_list_rect(
   self : GameLayout,
-  index : Int,
-  count : Int,
+  index : Int32,
+  count : Int32,
 ) -> UiRect {
   let width = ui_min(760.0, self.w - 32.0)
   let height = ui_min(
@@ -81,7 +81,11 @@ fn GameLayout::room_list_rect(
 }
 
 ///|
-fn GameLayout::shop_rect(self : GameLayout, index : Int, count : Int) -> UiRect {
+fn GameLayout::shop_rect(
+  self : GameLayout,
+  index : Int32,
+  count : Int32,
+) -> UiRect {
   let cols = if self.w >= 600.0 { 3 } else { 2 }
   let rows = (count + cols - 1) / cols
   let width = ui_min(1000.0, self.w - 32.0)
@@ -111,7 +115,7 @@ fn GameLayout::room_footer_rect(self : GameLayout, right : Bool) -> UiRect {
 }
 
 ///|
-fn Game::removal_page_size(self : Game) -> Int {
+fn Game::removal_page_size(self : Game) -> Int32 {
   if self.layout.w >= 720.0 {
     6
   } else {

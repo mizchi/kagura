@@ -4,7 +4,10 @@
 /// kagura's perspective without touching the mizchi/gfx package.
 
 ///|
-fn bench_queue_command(i : Int, alt_state : Bool) -> @gfx.DrawTrianglesCommand {
+fn bench_queue_command(
+  i : Int32,
+  alt_state : Bool,
+) -> @gfx.DrawTrianglesCommand {
   let dst = @gfx.new_image_handle(1, 1920, 1080)
   let shader_id = if alt_state { 2 + i % 4 } else { 2 }
   let shader = @gfx.new_shader_handle(shader_id, "queue_bench")

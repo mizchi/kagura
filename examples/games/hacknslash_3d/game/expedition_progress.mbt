@@ -18,7 +18,10 @@ pub fn GameWorld::near_expedition_anchor(self : GameWorld) -> Bool {
 }
 
 ///|
-pub fn GameWorld::travel_to_expedition_site(self : GameWorld, id : Int) -> Bool {
+pub fn GameWorld::travel_to_expedition_site(
+  self : GameWorld,
+  id : Int32,
+) -> Bool {
   guard self.atlas is Some(atlas) else { return false }
   if atlas.generator_version < 2 ||
     self.mode != Playing ||

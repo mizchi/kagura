@@ -18,7 +18,7 @@ pub fn resolve(view : SceneNode) -> ResolvedScene raise {
     node : SceneNode,
     parent : String,
     generated : Bool,
-    depth : Int,
+    depth : Int32,
     outline : Array[@hierarchy.Node],
   ) -> SceneNode raise {
     count += 1

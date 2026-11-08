@@ -9,7 +9,7 @@ pub fn render_text(
   y : Double,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  color_hex : Int,
+  color_hex : Int32,
   screen_w : Double,
   screen_h : Double,
 ) -> Array[@gfx.DrawTrianglesCommand] {

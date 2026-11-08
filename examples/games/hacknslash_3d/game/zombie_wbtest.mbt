@@ -80,14 +80,14 @@ test "zombies appear in ruins and scene authoring, with durable population migra
   for region in regions {
     guard region is Object(region) else { continue }
     guard region["enemies"] is Array(enemies) else { continue }
-    region["enemies"] = enemies
-      .filter(enemy => {
+    region["enemies"] = Json(
+      enemies.filter(enemy => {
         match enemy {
           Object(e) => e["kind"] != EnemyKind::Zombie.to_json()
           _ => true
         }
-      })
-      .to_json()
+      }),
+    )
   }
   assert_true(w.restore_world_progress(old.stringify()))
   let zombies = w.enemies.filter(e => e.kind == Zombie)

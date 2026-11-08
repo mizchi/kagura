@@ -1,6 +1,10 @@
 ///|
 test "death confirmation retains growth and equipment and resumes at the checkpoint" {
-  let s = GameState::new_with_params(seed=42, @game.BalanceParams::default(), hunting_grounds=true)
+  let s = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
   s.world.mode = @game.GameOver
   s.world.player.hp = 0
   s.world.score = 777
@@ -18,7 +22,11 @@ test "death confirmation retains growth and equipment and resumes at the checkpo
 
 ///|
 test "an empty save slot creates a clean character without carrying the previous session" {
-  let s = GameState::new_with_params(seed=42, @game.BalanceParams::default(), hunting_grounds=true)
+  let s = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
   s.world.score = 999
   s.world.level_progress.level = 12
   s.world.skills.skill_points = 40
@@ -36,7 +44,11 @@ test "an empty save slot creates a clean character without carrying the previous
 
 ///|
 test "save codec restores the oath, inventory and checkpoint after death" {
-  let s = GameState::new_with_params(seed=42, @game.BalanceParams::default(), hunting_grounds=true)
+  let s = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
   s.world.apply_archetype(@game.Mage)
   s.world.mode = @game.Playing
   assert_true(s.world.prepare_region(1))
@@ -49,7 +61,11 @@ test "save codec restores the oath, inventory and checkpoint after death" {
   s.world.player.hp = 0
   s.world.mode = @game.GameOver
   let data = s.serialize_save()
-  let restored = GameState::new_with_params(seed=9, @game.BalanceParams::default(), hunting_grounds=true)
+  let restored = GameState::new_with_params(
+    seed=9,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
   assert_true(restored.restore_save(data))
   assert_true(restored.world.archetype is @game.Mage)
   assert_eq(restored.world.level_progress.level, 7)
@@ -60,5 +76,8 @@ test "save codec restores the oath, inventory and checkpoint after death" {
   assert_eq((restored.world.player.x, restored.world.player.y), (x, y))
   assert_eq(restored.world.atlas.unwrap().last_waypoint, 1)
   assert_true(restored.world.mode == @game.Playing)
-  assert_eq(serialize_opt_item(restored.world.equipment.armor), serialize_opt_item(s.world.equipment.armor))
+  assert_eq(
+    serialize_opt_item(restored.world.equipment.armor),
+    serialize_opt_item(s.world.equipment.armor),
+  )
 }

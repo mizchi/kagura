@@ -10,7 +10,7 @@ fn Game::resolved_view(self : Game) -> @scene.SceneNode {
 
 ///|
 fn Game::scene_hierarchy(self : Game) -> String {
-  self._inspection.hierarchy.to_json().stringify()
+  Json(self._inspection.hierarchy).stringify()
 }
 
 ///|

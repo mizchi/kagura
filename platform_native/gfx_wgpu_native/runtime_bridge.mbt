@@ -21,46 +21,46 @@ let planned_clear_b : Ref[Double] = Ref(0.3)
 let planned_clear_a : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_draw_calls : Ref[Int] = Ref(0)
+let planned_draw_calls : Ref[Int32] = Ref(0)
 
 ///|
-let planned_command_count : Ref[Int] = Ref(0)
+let planned_command_count : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_pipeline_id : Ref[Int] = Ref(0)
+let planned_last_pipeline_id : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_uniform_hash : Ref[Int] = Ref(0)
+let planned_last_uniform_hash : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_blend_mode : Ref[Int] = Ref(1)
+let planned_last_blend_mode : Ref[Int32] = Ref(1)
 
 ///|
-let planned_last_dst_image_id : Ref[Int] = Ref(0)
+let planned_last_dst_image_id : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_shader_id : Ref[Int] = Ref(0)
+let planned_last_shader_id : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_index_offset : Ref[Int] = Ref(0)
+let planned_last_index_offset : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_region_count : Ref[Int] = Ref(0)
+let planned_last_region_count : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_total_index_count : Ref[Int] = Ref(0)
+let planned_last_total_index_count : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_vertex_float_count : Ref[Int] = Ref(0)
+let planned_last_vertex_float_count : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_index_count : Ref[Int] = Ref(0)
+let planned_last_index_count : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_src_image_count : Ref[Int] = Ref(0)
+let planned_last_src_image_count : Ref[Int32] = Ref(0)
 
 ///|
-let planned_last_uniform_dword_count : Ref[Int] = Ref(0)
+let planned_last_uniform_dword_count : Ref[Int32] = Ref(0)
 
 ///|
 let planned_has_triangle_payload : Ref[Bool] = Ref(false)
@@ -114,11 +114,11 @@ let planned_uniform_b : Ref[Double] = Ref(1.0)
 let planned_uniform_a : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_texture_seed : Ref[Int] = Ref(0)
+let planned_texture_seed : Ref[Int32] = Ref(0)
 
 ///|
 priv struct PlannedDrawCommand {
-  draw_calls : Int
+  draw_calls : Int32
   has_triangle_payload : Bool
   ax : Double
   ay : Double
@@ -136,12 +136,12 @@ priv struct PlannedDrawCommand {
   uniform_g : Double
   uniform_b : Double
   uniform_a : Double
-  texture_seed : Int
-  dst_image_id : Int
+  texture_seed : Int32
+  dst_image_id : Int32
 }
 
 ///|
-fn default_planned_draw_command(draw_calls : Int) -> PlannedDrawCommand {
+fn default_planned_draw_command(draw_calls : Int32) -> PlannedDrawCommand {
   {
     draw_calls: if draw_calls <= 0 {
       1
@@ -171,7 +171,7 @@ fn default_planned_draw_command(draw_calls : Int) -> PlannedDrawCommand {
 }
 
 ///|
-fn planned_draw_command_at(index : Int) -> PlannedDrawCommand? {
+fn planned_draw_command_at(index : Int32) -> PlannedDrawCommand? {
   if index < 0 || index >= planned_draw_commands.val.length() {
     None
   } else {
@@ -183,10 +183,10 @@ fn planned_draw_command_at(index : Int) -> PlannedDrawCommand? {
 let planned_draw_commands : Ref[Array[PlannedDrawCommand]] = Ref([])
 
 ///|
-let configured_surface_width : Ref[Int] = Ref(0)
+let configured_surface_width : Ref[Int32] = Ref(0)
 
 ///|
-let configured_surface_height : Ref[Int] = Ref(0)
+let configured_surface_height : Ref[Int32] = Ref(0)
 
 ///|
 let runtime_vsync_enabled : Ref[Bool] = Ref(true)
@@ -195,7 +195,10 @@ let runtime_vsync_enabled : Ref[Bool] = Ref(true)
 let runtime_device_scale_override : Ref[Double] = Ref(0.0)
 
 ///|
-pub fn clamp_runtime_render_size(width : Int, height : Int) -> (Int, Int) {
+pub fn clamp_runtime_render_size(
+  width : Int32,
+  height : Int32,
+) -> (Int32, Int32) {
   let w = if width <= 0 { 1 } else { width }
   let h = if height <= 0 { 1 } else { height }
   (w, h)
@@ -204,9 +207,9 @@ pub fn clamp_runtime_render_size(width : Int, height : Int) -> (Int, Int) {
 ///|
 fn ensure_runtime_surface_size(
   ctx : TriangleContext,
-  requested_width : Int,
-  requested_height : Int,
-) -> (Int, Int) {
+  requested_width : Int32,
+  requested_height : Int32,
+) -> (Int32, Int32) {
   let (w, h) = clamp_runtime_render_size(requested_width, requested_height)
   if configured_surface_width.val != w || configured_surface_height.val != h {
     reconfigure_triangle_surface(ctx, w, h)
@@ -226,8 +229,8 @@ pub fn has_runtime_context() -> Bool {
 
 ///|
 pub fn ensure_runtime_context(
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   title : String,
 ) -> Bool {
   if has_runtime_context() {
@@ -249,7 +252,7 @@ pub fn ensure_runtime_context(
 
 ///|
 /// Initialize a headless runtime context (hidden window, no display).
-pub fn ensure_headless_runtime_context(width : Int, height : Int) -> Bool {
+pub fn ensure_headless_runtime_context(width : Int32, height : Int32) -> Bool {
   if has_runtime_context() {
     true
   } else {
@@ -284,9 +287,9 @@ pub fn runtime_should_close() -> Bool {
 
 ///|
 pub fn runtime_window_size(
-  fallback_width : Int,
-  fallback_height : Int,
-) -> (Int, Int) {
+  fallback_width : Int32,
+  fallback_height : Int32,
+) -> (Int32, Int32) {
   match runtime_context.val {
     Some(ctx) => {
       let size = @glfw.get_window_size(ctx.window)
@@ -297,7 +300,7 @@ pub fn runtime_window_size(
 }
 
 ///|
-pub fn runtime_resize_surface(width : Int, height : Int) -> (Int, Int) {
+pub fn runtime_resize_surface(width : Int32, height : Int32) -> (Int32, Int32) {
   match runtime_context.val {
     Some(ctx) => ensure_runtime_surface_size(ctx, width, height)
     None => clamp_runtime_render_size(width, height)
@@ -321,7 +324,7 @@ pub fn runtime_is_fullscreen() -> Bool {
 }
 
 ///|
-pub fn runtime_set_cursor_mode(mode : Int) -> Int {
+pub fn runtime_set_cursor_mode(mode : Int32) -> Int32 {
   let safe_mode = if mode < 0 || mode > 2 { 0 } else { mode }
   match runtime_context.val {
     Some(ctx) => @glfw.set_cursor_mode(ctx.window, safe_mode)
@@ -330,7 +333,7 @@ pub fn runtime_set_cursor_mode(mode : Int) -> Int {
 }
 
 ///|
-pub fn runtime_cursor_mode() -> Int {
+pub fn runtime_cursor_mode() -> Int32 {
   match runtime_context.val {
     Some(ctx) => @glfw.get_cursor_mode(ctx.window)
     None => 0
@@ -370,7 +373,7 @@ pub fn runtime_take_wheel_y() -> Double {
 }
 
 ///|
-pub fn runtime_pressed_key_count() -> Int {
+pub fn runtime_pressed_key_count() -> Int32 {
   match runtime_context.val {
     Some(ctx) => @glfw.pressed_key_count(ctx.window)
     None => 0
@@ -378,7 +381,7 @@ pub fn runtime_pressed_key_count() -> Int {
 }
 
 ///|
-pub fn runtime_pressed_key_at(index : Int) -> Int {
+pub fn runtime_pressed_key_at(index : Int32) -> Int32 {
   if index < 0 {
     -1
   } else {
@@ -390,7 +393,7 @@ pub fn runtime_pressed_key_at(index : Int) -> Int {
 }
 
 ///|
-pub fn runtime_pressed_mouse_button_count() -> Int {
+pub fn runtime_pressed_mouse_button_count() -> Int32 {
   match runtime_context.val {
     Some(ctx) => @glfw.pressed_mouse_button_count(ctx.window)
     None => 0
@@ -398,7 +401,7 @@ pub fn runtime_pressed_mouse_button_count() -> Int {
 }
 
 ///|
-pub fn runtime_pressed_mouse_button_at(index : Int) -> Int {
+pub fn runtime_pressed_mouse_button_at(index : Int32) -> Int32 {
   if index < 0 {
     -1
   } else {
@@ -410,7 +413,7 @@ pub fn runtime_pressed_mouse_button_at(index : Int) -> Int {
 }
 
 ///|
-pub fn runtime_touch_count() -> Int {
+pub fn runtime_touch_count() -> Int32 {
   match runtime_context.val {
     Some(ctx) => @glfw.touch_count(ctx.window)
     None => 0
@@ -418,7 +421,7 @@ pub fn runtime_touch_count() -> Int {
 }
 
 ///|
-pub fn runtime_touch_id_at(index : Int) -> Int {
+pub fn runtime_touch_id_at(index : Int32) -> Int32 {
   if index < 0 {
     -1
   } else {
@@ -430,7 +433,7 @@ pub fn runtime_touch_id_at(index : Int) -> Int {
 }
 
 ///|
-pub fn runtime_touch_x_at(index : Int) -> Double {
+pub fn runtime_touch_x_at(index : Int32) -> Double {
   if index < 0 {
     0.0
   } else {
@@ -442,7 +445,7 @@ pub fn runtime_touch_x_at(index : Int) -> Double {
 }
 
 ///|
-pub fn runtime_touch_y_at(index : Int) -> Double {
+pub fn runtime_touch_y_at(index : Int32) -> Double {
   if index < 0 {
     0.0
   } else {
@@ -454,7 +457,7 @@ pub fn runtime_touch_y_at(index : Int) -> Double {
 }
 
 ///|
-pub fn runtime_touch_type_at(index : Int) -> Int {
+pub fn runtime_touch_type_at(index : Int32) -> Int32 {
   if index < 0 {
     3 // Unknown
   } else {
@@ -466,7 +469,7 @@ pub fn runtime_touch_type_at(index : Int) -> Int {
 }
 
 ///|
-pub fn runtime_gamepad_count() -> Int {
+pub fn runtime_gamepad_count() -> Int32 {
   match runtime_context.val {
     Some(_) => @glfw.gamepad_count()
     None => 0
@@ -474,7 +477,7 @@ pub fn runtime_gamepad_count() -> Int {
 }
 
 ///|
-pub fn runtime_gamepad_id_at(index : Int) -> Int {
+pub fn runtime_gamepad_id_at(index : Int32) -> Int32 {
   if index < 0 {
     -1
   } else {
@@ -486,7 +489,7 @@ pub fn runtime_gamepad_id_at(index : Int) -> Int {
 }
 
 ///|
-pub fn runtime_gamepad_axis_count(index : Int) -> Int {
+pub fn runtime_gamepad_axis_count(index : Int32) -> Int32 {
   if index < 0 {
     0
   } else {
@@ -503,7 +506,10 @@ pub fn runtime_gamepad_axis_count(index : Int) -> Int {
 }
 
 ///|
-pub fn runtime_gamepad_axis_at(gamepad_index : Int, axis_index : Int) -> Double {
+pub fn runtime_gamepad_axis_at(
+  gamepad_index : Int32,
+  axis_index : Int32,
+) -> Double {
   if gamepad_index < 0 || axis_index < 0 {
     0.0
   } else {
@@ -520,7 +526,7 @@ pub fn runtime_gamepad_axis_at(gamepad_index : Int, axis_index : Int) -> Double 
 }
 
 ///|
-pub fn runtime_gamepad_pressed_button_count(index : Int) -> Int {
+pub fn runtime_gamepad_pressed_button_count(index : Int32) -> Int32 {
   if index < 0 {
     0
   } else {
@@ -538,9 +544,9 @@ pub fn runtime_gamepad_pressed_button_count(index : Int) -> Int {
 
 ///|
 pub fn runtime_gamepad_pressed_button_at(
-  gamepad_index : Int,
-  button_index : Int,
-) -> Int {
+  gamepad_index : Int32,
+  button_index : Int32,
+) -> Int32 {
   if gamepad_index < 0 || button_index < 0 {
     -1
   } else {
@@ -653,19 +659,19 @@ pub fn runtime_begin_frame(
 
 ///|
 pub fn runtime_record_draw_command(
-  draw_calls : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
-  blend_mode : Int,
-  dst_image_id : Int,
-  shader_id : Int,
-  index_offset : Int,
-  region_count : Int,
-  total_index_count : Int,
-  vertex_float_count : Int,
-  index_count : Int,
-  src_image_count : Int,
-  uniform_dword_count : Int,
+  draw_calls : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
+  blend_mode : Int32,
+  dst_image_id : Int32,
+  shader_id : Int32,
+  index_offset : Int32,
+  region_count : Int32,
+  total_index_count : Int32,
+  vertex_float_count : Int32,
+  index_count : Int32,
+  src_image_count : Int32,
+  uniform_dword_count : Int32,
 ) -> Unit {
   let count = if draw_calls <= 0 { 1 } else { draw_calls }
   let safe_blend_mode = if blend_mode < 0 || blend_mode > 3 {
@@ -717,7 +723,7 @@ pub fn runtime_record_draw_command(
 }
 
 ///|
-pub fn runtime_record_draw_region_count(region_count : Int) -> Unit {
+pub fn runtime_record_draw_region_count(region_count : Int32) -> Unit {
   let safe_region_count = if region_count <= 0 { 1 } else { region_count }
   runtime_record_draw_command(
     region_count,
@@ -754,7 +760,7 @@ pub fn runtime_record_draw_triangle_payload(
   uniform_g : Double,
   uniform_b : Double,
   uniform_a : Double,
-  texture_seed : Int,
+  texture_seed : Int32,
 ) -> Unit {
   let safe_texture_seed = if texture_seed < 0 { 0 } else { texture_seed }
   planned_has_triangle_payload.val = true
@@ -806,7 +812,7 @@ pub fn runtime_record_draw_triangle_payload(
 }
 
 ///|
-fn clamp_palette_channel(channel : Int) -> Int {
+fn clamp_palette_channel(channel : Int32) -> Int32 {
   if channel < 0 {
     0
   } else if channel > 255 {
@@ -818,23 +824,23 @@ fn clamp_palette_channel(channel : Int) -> Int {
 
 ///|
 pub fn runtime_register_source_image_palette(
-  source_image_id : Int,
-  p00_r : Int,
-  p00_g : Int,
-  p00_b : Int,
-  p00_a : Int,
-  p10_r : Int,
-  p10_g : Int,
-  p10_b : Int,
-  p10_a : Int,
-  p01_r : Int,
-  p01_g : Int,
-  p01_b : Int,
-  p01_a : Int,
-  p11_r : Int,
-  p11_g : Int,
-  p11_b : Int,
-  p11_a : Int,
+  source_image_id : Int32,
+  p00_r : Int32,
+  p00_g : Int32,
+  p00_b : Int32,
+  p00_a : Int32,
+  p10_r : Int32,
+  p10_g : Int32,
+  p10_b : Int32,
+  p10_a : Int32,
+  p01_r : Int32,
+  p01_g : Int32,
+  p01_b : Int32,
+  p01_a : Int32,
+  p11_r : Int32,
+  p11_g : Int32,
+  p11_b : Int32,
+  p11_a : Int32,
 ) -> Unit {
   if source_image_id >= 0 {
     register_planned_image_palette(
@@ -861,11 +867,11 @@ pub fn runtime_register_source_image_palette(
 
 ///|
 pub fn runtime_register_source_image_solid_color(
-  source_image_id : Int,
-  r : Int,
-  g : Int,
-  b : Int,
-  a : Int,
+  source_image_id : Int32,
+  r : Int32,
+  g : Int32,
+  b : Int32,
+  a : Int32,
 ) -> Unit {
   runtime_register_source_image_palette(
     source_image_id, r, g, b, a, r, g, b, a, r, g, b, a, r, g, b, a,
@@ -874,10 +880,10 @@ pub fn runtime_register_source_image_solid_color(
 
 ///|
 pub fn runtime_register_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Unit {
   if source_image_id < 0 {
     return
@@ -910,14 +916,14 @@ pub fn runtime_register_source_image_rgba8(
 
 ///|
 pub fn runtime_patch_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  dirty_x : Int,
-  dirty_y : Int,
-  dirty_width : Int,
-  dirty_height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  dirty_x : Int32,
+  dirty_y : Int32,
+  dirty_width : Int32,
+  dirty_height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Bool {
   if source_image_id < 0 {
     return false
@@ -985,42 +991,42 @@ pub fn runtime_clear_source_image_registry() -> Unit {
 }
 
 ///|
-pub fn runtime_source_image_palette_count() -> Int {
+pub fn runtime_source_image_palette_count() -> Int32 {
   planned_image_palette_registry_count()
 }
 
 ///|
-pub fn runtime_source_image_palette_generation(image_id : Int) -> Int {
+pub fn runtime_source_image_palette_generation(image_id : Int32) -> Int32 {
   planned_image_palette_generation(image_id)
 }
 
 ///|
-pub fn runtime_source_image_upload_count() -> Int {
+pub fn runtime_source_image_upload_count() -> Int32 {
   planned_source_image_registry_count()
 }
 
 ///|
-pub fn runtime_source_image_width(image_id : Int) -> Int {
+pub fn runtime_source_image_width(image_id : Int32) -> Int32 {
   planned_source_image_width(image_id)
 }
 
 ///|
-pub fn runtime_source_image_height(image_id : Int) -> Int {
+pub fn runtime_source_image_height(image_id : Int32) -> Int32 {
   planned_source_image_height(image_id)
 }
 
 ///|
-pub fn runtime_source_image_generation(image_id : Int) -> Int {
+pub fn runtime_source_image_generation(image_id : Int32) -> Int32 {
   planned_source_image_generation(image_id)
 }
 
 ///|
 pub fn runtime_source_image_pixel_channel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  channel_index : Int,
-) -> Int {
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  channel_index : Int32,
+) -> Int32 {
   planned_source_image_pixel_channel(image_id, x, y, channel_index)
 }
 
@@ -1110,22 +1116,22 @@ pub fn runtime_payload_uniform_a() -> Double {
 }
 
 ///|
-pub fn runtime_payload_texture_seed() -> Int {
+pub fn runtime_payload_texture_seed() -> Int32 {
   planned_texture_seed.val
 }
 
 ///|
-pub fn runtime_pending_draw_calls() -> Int {
+pub fn runtime_pending_draw_calls() -> Int32 {
   planned_draw_calls.val
 }
 
 ///|
-pub fn runtime_pending_command_count() -> Int {
+pub fn runtime_pending_command_count() -> Int32 {
   planned_command_count.val
 }
 
 ///|
-pub fn runtime_command_has_triangle_payload_at(index : Int) -> Bool {
+pub fn runtime_command_has_triangle_payload_at(index : Int32) -> Bool {
   match planned_draw_command_at(index) {
     Some(command) => command.has_triangle_payload
     None => false
@@ -1133,7 +1139,7 @@ pub fn runtime_command_has_triangle_payload_at(index : Int) -> Bool {
 }
 
 ///|
-pub fn runtime_command_payload_texture_seed_at(index : Int) -> Int {
+pub fn runtime_command_payload_texture_seed_at(index : Int32) -> Int32 {
   match planned_draw_command_at(index) {
     Some(command) => command.texture_seed
     None => 0
@@ -1141,62 +1147,62 @@ pub fn runtime_command_payload_texture_seed_at(index : Int) -> Int {
 }
 
 ///|
-pub fn runtime_last_pipeline_id() -> Int {
+pub fn runtime_last_pipeline_id() -> Int32 {
   planned_last_pipeline_id.val
 }
 
 ///|
-pub fn runtime_last_uniform_hash() -> Int {
+pub fn runtime_last_uniform_hash() -> Int32 {
   planned_last_uniform_hash.val
 }
 
 ///|
-pub fn runtime_last_blend_mode() -> Int {
+pub fn runtime_last_blend_mode() -> Int32 {
   planned_last_blend_mode.val
 }
 
 ///|
-pub fn runtime_last_dst_image_id() -> Int {
+pub fn runtime_last_dst_image_id() -> Int32 {
   planned_last_dst_image_id.val
 }
 
 ///|
-pub fn runtime_last_shader_id() -> Int {
+pub fn runtime_last_shader_id() -> Int32 {
   planned_last_shader_id.val
 }
 
 ///|
-pub fn runtime_last_index_offset() -> Int {
+pub fn runtime_last_index_offset() -> Int32 {
   planned_last_index_offset.val
 }
 
 ///|
-pub fn runtime_last_region_count() -> Int {
+pub fn runtime_last_region_count() -> Int32 {
   planned_last_region_count.val
 }
 
 ///|
-pub fn runtime_last_total_index_count() -> Int {
+pub fn runtime_last_total_index_count() -> Int32 {
   planned_last_total_index_count.val
 }
 
 ///|
-pub fn runtime_last_vertex_float_count() -> Int {
+pub fn runtime_last_vertex_float_count() -> Int32 {
   planned_last_vertex_float_count.val
 }
 
 ///|
-pub fn runtime_last_index_count() -> Int {
+pub fn runtime_last_index_count() -> Int32 {
   planned_last_index_count.val
 }
 
 ///|
-pub fn runtime_last_src_image_count() -> Int {
+pub fn runtime_last_src_image_count() -> Int32 {
   planned_last_src_image_count.val
 }
 
 ///|
-pub fn runtime_last_uniform_dword_count() -> Int {
+pub fn runtime_last_uniform_dword_count() -> Int32 {
   planned_last_uniform_dword_count.val
 }
 
@@ -1221,7 +1227,7 @@ pub fn runtime_render_frame_with_plan(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
-  draw_calls : Int,
+  draw_calls : Int32,
 ) -> Bool {
   match runtime_context.val {
     Some(ctx) => {
@@ -1327,7 +1333,12 @@ pub fn runtime_present_planned_frame() -> Bool {
 }
 
 ///|
-fn slice_readback_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
+fn slice_readback_pixels(
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
+) -> Array[Int32]? {
   if !read_pixels_available() {
     return None
   }
@@ -1346,7 +1357,7 @@ fn slice_readback_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
   if clamped_w <= 0 || clamped_h <= 0 {
     return None
   }
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   for row in safe_y..<(safe_y + clamped_h) {
     for col in safe_x..<(safe_x + clamped_w) {
       let offset = (row * fb_w + col) * 4
@@ -1360,18 +1371,23 @@ fn slice_readback_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
 }
 
 ///|
-pub fn runtime_read_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
+pub fn runtime_read_pixels(
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
+) -> Array[Int32]? {
   slice_readback_pixels(x, y, w, h)
 }
 
 ///|
 pub fn runtime_read_offscreen_pixels(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  w : Int,
-  h : Int,
-) -> Array[Int]? {
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
+) -> Array[Int32]? {
   if image_id <= 0 {
     return None
   }
@@ -1383,12 +1399,12 @@ pub fn runtime_read_offscreen_pixels(
 
 ///|
 /// Load font binary data from a file path. Returns Array[Int] of byte values, or None on failure.
-pub fn runtime_load_font_data(path : String) -> Array[Int]? {
+pub fn runtime_load_font_data(path : String) -> Array[Int32]? {
   let size = load_font_file(path)
   if size <= 0 {
     return None
   }
-  let data : Array[Int] = Array::make(size, 0)
+  let data : Array[Int32] = Array::make(size, 0)
   for i in 0..<size {
     data[i] = font_file_byte_at(i)
   }

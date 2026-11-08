@@ -1,7 +1,7 @@
 ///|
 test "draw_sprite_animation appends command when atlas key exists" {
   let atlas = @atlas.new_simple_atlas_image_repository(256, 256, 1)
-  let pixels : Array[Int] = Array::make(2 * 2 * 4, 255)
+  let pixels : Array[Int32] = Array::make(2 * 2 * 4, 255)
   let spec = @atlas.image_spec_with_rgba8(2, 2, pixels)
   let key = @atlas.new_asset_key("frame_0")
   let _ = @atlas.create_atlas_image(atlas, key, spec)

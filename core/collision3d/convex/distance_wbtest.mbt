@@ -1,7 +1,7 @@
 ///|
 /// Deterministic generator so failures reproduce.
 priv struct Lcg {
-  mut state : UInt
+  mut state : UInt32
 }
 
 ///|
@@ -60,7 +60,7 @@ fn Lcg::shape(self : Lcg) -> Shape {
 }
 
 ///|
-fn fibonacci_directions(n : Int) -> Array[@math3d.Vec3] {
+fn fibonacci_directions(n : Int32) -> Array[@math3d.Vec3] {
   let golden = 3.141592653589793 * (3.0 - 5.0.sqrt())
   Array::makei(n, i => {
     let y = 1.0 - 2.0 * (i.to_double() + 0.5) / n.to_double()

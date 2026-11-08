@@ -3,8 +3,8 @@
 pub struct Flow {
   ids : Array[String]
   mut scene : String
-  mut serial : Int
-  mut pending : (Int, String)?
+  mut serial : Int32
+  mut pending : (Int32, String)?
 }
 
 ///|
@@ -32,7 +32,7 @@ pub fn Flow::current(self : Flow) -> String {
 
 ///|
 /// Request a transition. Load and validate the destination before committing it.
-pub fn Flow::request(self : Flow, target : String) -> Int raise {
+pub fn Flow::request(self : Flow, target : String) -> Int32 raise {
   if !self.ids.contains(target) {
     fail("Unknown scene: \{target}")
   }
@@ -45,7 +45,7 @@ pub fn Flow::request(self : Flow, target : String) -> Int raise {
 }
 
 ///|
-pub fn Flow::commit(self : Flow, ticket : Int) -> Bool {
+pub fn Flow::commit(self : Flow, ticket : Int32) -> Bool {
   match self.pending {
     Some((id, target)) if id == ticket => {
       self.scene = target
@@ -57,7 +57,7 @@ pub fn Flow::commit(self : Flow, ticket : Int) -> Bool {
 }
 
 ///|
-pub fn Flow::cancel(self : Flow, ticket : Int) -> Bool {
+pub fn Flow::cancel(self : Flow, ticket : Int32) -> Bool {
   match self.pending {
     Some((id, _)) if id == ticket => {
       self.pending = None
@@ -69,12 +69,13 @@ pub fn Flow::cancel(self : Flow, ticket : Int) -> Bool {
 
 ///|
 /// A ground-plane trigger owned by gameplay, independent of the editor and GPU.
+#derive(FromJson, ToJson)
 pub(all) struct Portal {
   x : Double
   z : Double
   radius : Double
   target : String
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Portal with @moonbitlang/core/json.FromJson::{from_json}

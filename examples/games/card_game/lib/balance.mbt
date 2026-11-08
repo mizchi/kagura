@@ -12,13 +12,14 @@ pub(all) enum PlayStrategy {
 
 ///|
 /// Result of a simulated battle
+#derive(Debug)
 pub(all) struct SimResult {
   won : Bool
-  turns_taken : Int
-  hp_remaining : Int
-  max_hp : Int
-  cards_played : Int
-} derive(Debug)
+  turns_taken : Int32
+  hp_remaining : Int32
+  max_hp : Int32
+  cards_played : Int32
+}
 
 ///|
 pub impl Show for SimResult with fn output(self, logger) {
@@ -30,8 +31,8 @@ pub impl Show for SimResult with fn output(self, logger) {
 pub fn simulate_battle(
   encounter : EncounterId,
   strategy : PlayStrategy,
-  seed : Int,
-  relics? : Array[RelicId] = [],
+  seed : Int32,
+  relics~ : Array[RelicId] = [],
 ) -> SimResult {
   let enemy_ids = encounter_enemies(encounter)
   let state = BattleState::new(enemy_ids, seed~, relics~)
@@ -68,7 +69,7 @@ pub fn simulate_battle(
 
 ///|
 /// AI card selection
-fn pick_card(state : BattleState, strategy : PlayStrategy) -> (Int, Int)? {
+fn pick_card(state : BattleState, strategy : PlayStrategy) -> (Int32, Int32)? {
   let hand = state.hand
   if hand.length() == 0 {
     return None
@@ -85,7 +86,7 @@ fn pick_card(state : BattleState, strategy : PlayStrategy) -> (Int, Int)? {
 }
 
 ///|
-fn pick_aggressive(state : BattleState, target : Int) -> (Int, Int)? {
+fn pick_aggressive(state : BattleState, target : Int32) -> (Int32, Int32)? {
   // Play highest damage attack first, then skills
   let mut best_idx = -1
   let mut best_value = -1
@@ -125,7 +126,7 @@ fn pick_aggressive(state : BattleState, target : Int) -> (Int, Int)? {
 }
 
 ///|
-fn pick_defensive(state : BattleState, target : Int) -> (Int, Int)? {
+fn pick_defensive(state : BattleState, target : Int32) -> (Int32, Int32)? {
   let mut best_idx = -1
   let mut best_value = -1
   let mut i = 0
@@ -158,7 +159,7 @@ fn pick_defensive(state : BattleState, target : Int) -> (Int, Int)? {
 
 ///|
 /// Calculate total incoming damage from all enemy intents
-fn calc_incoming_damage(state : BattleState) -> Int {
+fn calc_incoming_damage(state : BattleState) -> Int32 {
   let mut total = 0
   for enemy in state.enemies {
     if !enemy.fighter.is_dead() {
@@ -191,7 +192,7 @@ fn has_nob(state : BattleState) -> Bool {
 
 ///|
 /// Find the best target (lowest HP alive enemy for faster kills)
-fn best_target(state : BattleState) -> Int {
+fn best_target(state : BattleState) -> Int32 {
   let mut best = -1
   let mut lowest_hp = 9999
   let mut i = 0
@@ -208,7 +209,7 @@ fn best_target(state : BattleState) -> Int {
 }
 
 ///|
-fn pick_smart(state : BattleState, _default_target : Int) -> (Int, Int)? {
+fn pick_smart(state : BattleState, _default_target : Int32) -> (Int32, Int32)? {
   let target = best_target(state)
   if target < 0 {
     return None
@@ -257,9 +258,9 @@ fn card_smart_value(
   def : CardDef,
   need_defense : Bool,
   nob_present : Bool,
-  unblocked_damage : Int,
+  unblocked_damage : Int32,
   state : BattleState,
-) -> Int {
+) -> Int32 {
   // Against Nob: heavily penalize Skills and Powers (they trigger Enrage)
   if nob_present && (def.card_type == Skill || def.card_type == Power) {
     // Only play Skills if we're about to die and need block
@@ -384,7 +385,7 @@ fn card_smart_value(
 }
 
 ///|
-fn effective_damage(def : CardDef) -> Int {
+fn effective_damage(def : CardDef) -> Int32 {
   match def.id {
     Twin_Strike => def.base_damage * 2
     Pommel_Strike => def.base_damage + 5 // bonus for draw
@@ -406,7 +407,10 @@ fn effective_damage(def : CardDef) -> Int {
 
 ///|
 /// AI potion usage: returns (potion_index, target) or None
-fn pick_potion(state : BattleState, potions : Array[PotionId]) -> (Int, Int)? {
+fn pick_potion(
+  state : BattleState,
+  potions : Array[PotionId],
+) -> (Int32, Int32)? {
   if potions.length() == 0 {
     return None
   }
@@ -487,7 +491,7 @@ fn pick_potion(state : BattleState, potions : Array[PotionId]) -> (Int, Int)? {
 
 ///|
 /// Use potions at start of player turn during simulation
-fn try_use_potions(state : BattleState, potions : Array[PotionId]) -> Int {
+fn try_use_potions(state : BattleState, potions : Array[PotionId]) -> Int32 {
   let mut used = 0
   let mut safety = 0
   while safety < 3 {
@@ -513,16 +517,17 @@ fn try_use_potions(state : BattleState, potions : Array[PotionId]) -> Int {
 
 ///|
 /// Run N simulations and return summary stats
+#derive(Debug)
 pub(all) struct SimSummary {
-  total : Int
-  wins : Int
-  losses : Int
-  avg_turns : Int
-  avg_hp_remaining : Int
-  avg_cards_played : Int
-  min_hp : Int
-  max_hp : Int
-} derive(Debug)
+  total : Int32
+  wins : Int32
+  losses : Int32
+  avg_turns : Int32
+  avg_hp_remaining : Int32
+  avg_cards_played : Int32
+  min_hp : Int32
+  max_hp : Int32
+}
 
 ///|
 pub impl Show for SimSummary with fn output(self, logger) {
@@ -533,8 +538,8 @@ pub impl Show for SimSummary with fn output(self, logger) {
 pub fn run_simulations(
   encounter : EncounterId,
   strategy : PlayStrategy,
-  count : Int,
-  relics? : Array[RelicId] = [],
+  count : Int32,
+  relics~ : Array[RelicId] = [],
 ) -> SimSummary {
   let mut wins = 0
   let mut total_turns = 0

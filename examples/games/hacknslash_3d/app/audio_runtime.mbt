@@ -1,4 +1,5 @@
 ///|
+#derive(Eq, Debug)
 enum GameSoundCue {
   SfxAttack
   SfxEnemyHit
@@ -15,7 +16,7 @@ enum GameSoundCue {
   SfxSpellIceNova
   SfxSpellHomingMissile
   SfxFloorComplete
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for GameSoundCue with fn output(self, logger) {
@@ -101,12 +102,12 @@ fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
 }
 
 ///|
-fn GameState::loaded_audio_player_count(self : GameState) -> Int {
+fn GameState::loaded_audio_player_count(self : GameState) -> Int32 {
   self.audio_bank.loaded_count()
 }
 
 ///|
-fn GameState::playing_audio_player_count(self : GameState) -> Int {
+fn GameState::playing_audio_player_count(self : GameState) -> Int32 {
   self.audio_bank.playing_count()
 }
 

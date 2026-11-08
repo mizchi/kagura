@@ -8,7 +8,7 @@ fn Game::view_app_scene(self : Game) -> @scene.SceneNode {
       ("CHOOSE YOUR CHARACTER", "A DIFFERENT DECK. A DIFFERENT WAY TO CLIMB.")
     Playing => ("", "")
   }
-  let items : Array[(String, String, Int)] = match self.scene {
+  let items : Array[(String, String, Int32)] = match self.scene {
     Title =>
       [
         ("BEGIN ASCENT", "CHOOSE A CHARACTER AND BEGIN THE CLIMB", gold),

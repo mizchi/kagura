@@ -13,7 +13,7 @@ pub fn find_path(
   grid : @terrain.Grid2D,
   start : @terrain.Point,
   goal : @terrain.Point,
-  walkable? : (@terrain.Tile) -> Bool = default_walkable,
+  walkable~ : (@terrain.Tile) -> Bool = default_walkable,
 ) -> Array[@terrain.Point]? {
   // Validate start and goal
   if !grid.in_bounds(start.x, start.y) || !grid.in_bounds(goal.x, goal.y) {
@@ -40,8 +40,8 @@ pub fn find_path(
   let open = PriorityQueue::new()
   open.push(start, manhattan(start, goal))
   // 4-directional movement
-  let dx : Array[Int] = [-1, 1, 0, 0]
-  let dy : Array[Int] = [0, 0, -1, 1]
+  let dx : Array[Int32] = [-1, 1, 0, 0]
+  let dy : Array[Int32] = [0, 0, -1, 1]
   while true {
     match open.pop() {
       None => return None
@@ -83,9 +83,9 @@ fn manhattan(a : @terrain.Point, b : @terrain.Point) -> Double {
 
 ///|
 fn reconstruct_path(
-  came_from : Array[Int],
-  width : Int,
-  goal_idx : Int,
+  came_from : Array[Int32],
+  width : Int32,
+  goal_idx : Int32,
 ) -> Array[@terrain.Point] {
   let path : Array[@terrain.Point] = []
   let mut idx = goal_idx

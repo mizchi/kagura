@@ -1,17 +1,20 @@
 ///|
+#derive(ToJson)
 pub(all) struct ExpeditionValidation {
-  unreachable_targets : Int
+  unreachable_targets : Int32
   max_walk_slope : Double
-  ground_triangles : Int
-  collision_tiles : Int
-} derive(ToJson)
+  ground_triangles : Int32
+  collision_tiles : Int32
+}
+
 ///|
 pub extend ExpeditionValidation with ToJson::{to_json}
+
 ///|
 /// Offline/authoring check. Never run graph searches in the frame loop.
 pub fn validate_expedition(
   dungeon : DungeonData,
-  region : Int,
+  region : Int32,
 ) -> ExpeditionValidation {
   let (wx, wz) = world_waypoint_position(region)
   let start : @terrain.Point = {

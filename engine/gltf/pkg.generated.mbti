@@ -15,9 +15,9 @@ pub fn meshes_from_gltf(String, Array[Bytes]) -> Array[@mesh3d.Mesh3D] raise Glt
 
 pub fn parse_glb(Bytes) -> (String, Array[Bytes]) raise GltfError
 
-pub fn scene_graph_from_gltf(String, Array[Bytes], scene_index? : Int) -> @scene3d.SceneGraph raise GltfError
+pub fn scene_graph_from_gltf(String, Array[Bytes], scene_index? : Int32) -> @scene3d.SceneGraph raise GltfError
 
-pub fn skinned_scene_from_gltf(String, Array[Bytes], scene_index? : Int) -> (@scene3d.SceneGraph, @skeleton3d.Skeleton?, Array[@animation3d.AnimationClip], @skeleton3d.SkinData?) raise GltfError
+pub fn skinned_scene_from_gltf(String, Array[Bytes], scene_index? : Int32) -> (@scene3d.SceneGraph, @skeleton3d.Skeleton?, Array[@animation3d.AnimationClip], @skeleton3d.SkinData?) raise GltfError
 
 // Errors
 type GltfError

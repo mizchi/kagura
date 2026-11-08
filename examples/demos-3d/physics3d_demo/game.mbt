@@ -5,10 +5,10 @@
 // Uses physics3d for simulation and scene3d for rendering.
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 // ============================================================
 // DemoState
@@ -24,13 +24,13 @@ struct DemoState {
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
   shader3d : @gfx.ShaderHandle
-  mut frame : Int
+  mut frame : Int32
 }
 
 // Body colors: index -> hex color
 
 ///|
-let body_colors : Array[Int] = [
+let body_colors : Array[Int32] = [
   0x888888, // 0: ground (gray)
    0xE04040, // 1: red cube
    0x40A0E0, // 2: blue sphere
@@ -187,7 +187,7 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
 // ============================================================
 
 ///|
-fn body_color(id : Int) -> @math3d.Vec4 {
+fn body_color(id : Int32) -> @math3d.Vec4 {
   let hex = if id < body_colors.length() { body_colors[id] } else { 0xAAAAAA }
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0

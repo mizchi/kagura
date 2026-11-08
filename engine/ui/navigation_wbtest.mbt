@@ -1,7 +1,7 @@
 ///|
 fn nav_input(
-  buttons : Array[Int],
-  axes? : Array[Double] = [],
+  buttons : Array[Int32],
+  axes~ : Array[Double] = [],
 ) -> @core.InputSnapshot {
   @core.new_input_snapshot_full(-1.0, -1.0, 0.0, 0.0, [], [], [], [
     @core.new_gamepad_snapshot(0, axes, buttons),

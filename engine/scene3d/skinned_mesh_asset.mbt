@@ -10,8 +10,8 @@ pub struct SkinnedMeshAsset {
   skin_data : @skeleton3d.SkinData
   packed_vertex_data : Array[Double]
   priv mut cached_mesh : @mesh3d.Mesh3D?
-  priv mut cached_revision : Int?
-  priv mut builds : Int
+  priv mut cached_revision : Int32?
+  priv mut builds : Int32
 }
 
 ///|
@@ -35,7 +35,7 @@ pub fn SkinnedMeshAsset::new(
 /// GPU callers can use packed_vertex_data without allocating a CPU mesh.
 pub fn SkinnedMeshAsset::skinned_mesh(
   self : SkinnedMeshAsset,
-  pose_revision : Int,
+  pose_revision : Int32,
   skinning : Array[@math3d.Mat4],
 ) -> @mesh3d.Mesh3D {
   if self.cached_revision == Some(pose_revision) {
@@ -61,6 +61,6 @@ pub fn SkinnedMeshAsset::skinned_mesh(
 }
 
 ///|
-pub fn SkinnedMeshAsset::cpu_skin_count(self : SkinnedMeshAsset) -> Int {
+pub fn SkinnedMeshAsset::cpu_skin_count(self : SkinnedMeshAsset) -> Int32 {
   self.builds
 }

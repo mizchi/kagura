@@ -1,7 +1,7 @@
 ///|
 
 ///|
-fn clamp_u8(value : Int) -> Int {
+fn clamp_u8(value : Int32) -> Int32 {
   if value < 0 {
     0
   } else if value > 255 {
@@ -12,7 +12,7 @@ fn clamp_u8(value : Int) -> Int {
 }
 
 ///|
-fn clamp_sample_coord(value : Int) -> Int {
+fn clamp_sample_coord(value : Int32) -> Int32 {
   if value < 0 {
     0
   } else if value >= 64 {
@@ -23,13 +23,13 @@ fn clamp_sample_coord(value : Int) -> Int {
 }
 
 ///|
-fn sample_pixel_x_from_ndc(x_ndc : Double) -> Int {
+fn sample_pixel_x_from_ndc(x_ndc : Double) -> Int32 {
   let x = ((x_ndc + 1.0) * 0.5 * 64.0).to_int()
   clamp_sample_coord(x)
 }
 
 ///|
-fn sample_pixel_y_from_ndc(y_ndc : Double) -> Int {
+fn sample_pixel_y_from_ndc(y_ndc : Double) -> Int32 {
   let y = ((1.0 - y_ndc) * 0.5 * 64.0).to_int()
   clamp_sample_coord(y)
 }
@@ -40,7 +40,7 @@ fn normalized_payload_color(
   payload_uniform_g : Double,
   payload_uniform_b : Double,
   payload_uniform_a : Double,
-  payload_texture_seed : Int,
+  payload_texture_seed : Int32,
 ) -> Array[Double] {
   let mut r = @renderer2d.clamp_unit(payload_uniform_r)
   let mut g = @renderer2d.clamp_unit(payload_uniform_g)
@@ -91,10 +91,10 @@ fn sample_predicted_web_pixel_rgba(
   payload_uniform_g : Double,
   payload_uniform_b : Double,
   payload_uniform_a : Double,
-  payload_texture_seed : Int,
-  px : Int,
-  py : Int,
-) -> Array[Int] {
+  payload_texture_seed : Int32,
+  px : Int32,
+  py : Int32,
+) -> Array[Int32] {
   let sample_w = 64
   let sample_h = 64
   let x_ndc = (px.to_double() + 0.5) / sample_w.to_double() * 2.0 - 1.0

@@ -2,7 +2,7 @@
 // independent 2D implementations, with seed-based coordinate hashes throughout.
 
 ///|
-fn terrain_hash(x : Int, z : Int, seed : Int) -> UInt {
+fn terrain_hash(x : Int32, z : Int32, seed : Int32) -> UInt32 {
   let mut h = (x.reinterpret_as_uint() * 0x9E3779B9U) ^
     (z.reinterpret_as_uint() * 0x85EBCA6BU) ^
     seed.reinterpret_as_uint()
@@ -12,7 +12,7 @@ fn terrain_hash(x : Int, z : Int, seed : Int) -> UInt {
 }
 
 ///|
-fn terrain_random(x : Int, z : Int, seed : Int) -> Double {
+fn terrain_random(x : Int32, z : Int32, seed : Int32) -> Double {
   (terrain_hash(x, z, seed) & 0xFFFFFFU).to_double() / 16777215.0
 }
 
@@ -28,9 +28,9 @@ fn noise_lerp(a : Double, b : Double, t : Double) -> Double {
 
 ///|
 fn perlin_gradient(
-  x : Int,
-  z : Int,
-  seed : Int,
+  x : Int32,
+  z : Int32,
+  seed : Int32,
   dx : Double,
   dz : Double,
 ) -> Double {
@@ -47,7 +47,7 @@ fn perlin_gradient(
 }
 
 ///|
-fn perlin_noise(x : Double, z : Double, seed : Int) -> Double {
+fn perlin_noise(x : Double, z : Double, seed : Int32) -> Double {
   let ix = @math.floor(x).to_int()
   let iz = @math.floor(z).to_int()
   let fx = x - ix.to_double()
@@ -73,7 +73,7 @@ fn perlin_noise(x : Double, z : Double, seed : Int) -> Double {
 fn fractal_perlin(
   x : Double,
   z : Double,
-  seed : Int,
+  seed : Int32,
   roughness : Double,
 ) -> Double {
   let mut value = 0.0
@@ -97,7 +97,7 @@ fn fractal_perlin(
 ///|
 /// F2-F1 is continuous across Voronoi cell boundaries but has sharp changes in
 /// slope. It produces raised cellular rocks without discontinuous walking steps.
-fn cellular_relief(x : Double, z : Double, seed : Int) -> Double {
+fn cellular_relief(x : Double, z : Double, seed : Int32) -> Double {
   let ix = @math.floor(x).to_int()
   let iz = @math.floor(z).to_int()
   let mut first = 1.0e9
@@ -122,8 +122,8 @@ fn cellular_relief(x : Double, z : Double, seed : Int) -> Double {
 
 ///|
 fn diamond_square_height_field(
-  cells_x : Int,
-  cells_z : Int,
+  cells_x : Int32,
+  cells_z : Int32,
   config : TerrainConfig,
 ) -> HeightField {
   let mut size = 1

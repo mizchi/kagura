@@ -5,6 +5,7 @@
 ///
 /// Non-convex solids are a union of these: pass an `Array[Shape]` to
 /// `distance_between_unions`.
+#derive(Debug)
 pub(all) enum Shape {
   /// A single point.
   Point(at~ : @math3d.Vec3)
@@ -27,7 +28,7 @@ pub(all) enum Shape {
   Cone(base_center~ : @math3d.Vec3, apex~ : @math3d.Vec3, radius~ : Double)
   /// Convex hull of `vertices` (a triangle, a tetrahedron, any polytope).
   Hull(vertices~ : Array[@math3d.Vec3])
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Shape with fn output(self, logger) {

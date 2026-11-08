@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { runWasm } from "../../assets/web/kagura-wasm-host.js";
+import { createWasmHost, runWasm } from "../../assets/web/kagura-wasm-host.js";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const EXAMPLE_DIR = join(REPO_ROOT, "examples", "smoke", "wasm_async_smoke");
@@ -52,4 +52,16 @@ test("shutdown completes instead of hanging on the sigwait worker", { skip: !rea
   // reaching this assertion at all is the regression test.
   const { output } = runWasm(readFileSync(WASM_PATH));
   assert.ok(output.endsWith("wasm_async_smoke: ok\n"), `unexpected tail: ${JSON.stringify(output.slice(-80))}`);
+});
+
+test("Wasm import decoding works without Node Buffer in a browser", {skip: !ready && "moon build --target wasm unavailable"}, () => {
+  const bytes = new Uint8Array(readFileSync(WASM_PATH));
+  const saved = globalThis.Buffer;
+  try {
+    globalThis.Buffer = undefined;
+    const host = createWasmHost(bytes, {write() {}});
+    assert.equal(typeof host.imports.wasi_snapshot_preview1.fd_write, "function");
+  } finally {
+    globalThis.Buffer = saved;
+  }
 });

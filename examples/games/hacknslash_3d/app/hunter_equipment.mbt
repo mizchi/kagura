@@ -19,7 +19,7 @@ let shared_hunter_weapon_sets : Array[HunterWeaponSet] = [
 ///|
 fn build_hunter_motion_weapon(
   kind : @game.PlayerWeaponKind,
-  source_index : Int,
+  source_index : Int32,
   clip : @animation3d.AnimationClip,
 ) -> HunterWeaponSet {
   let source = shared_enemy_skeleton

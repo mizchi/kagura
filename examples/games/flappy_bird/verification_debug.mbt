@@ -1,5 +1,5 @@
 ///|
-fn gameover_fixture(width : Int, height : Int) -> Game {
+fn gameover_fixture(width : Int32, height : Int32) -> Game {
   let game = Game::new()
   game.set_viewport(width, height)
   game.as_gameover()

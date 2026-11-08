@@ -2,12 +2,12 @@
 // presets only supply defaults. Legacy save IDs never become live commands.
 
 ///|
-pub let hunter_slot_actions : Array[Int] = [
+pub let hunter_slot_actions : Array[Int32] = [
   74, 50, 86, 70, 84, 51, 52, 53, 54, 56, 57, 48,
 ]
 
 ///|
-pub fn GameWorld::hunter_action_learned(self : GameWorld, key : Int) -> Bool {
+pub fn GameWorld::hunter_action_learned(self : GameWorld, key : Int32) -> Bool {
   match key {
     74 | 86 | 70 | 84 => true
     50 => self.skills.get_level(Whirlwind) > 0
@@ -25,8 +25,8 @@ pub fn GameWorld::hunter_action_learned(self : GameWorld, key : Int) -> Bool {
 ///|
 pub fn GameWorld::assign_hunter_slot(
   self : GameWorld,
-  slot : Int,
-  key : Int,
+  slot : Int32,
+  key : Int32,
 ) -> Bool {
   if !self.hunting_grounds ||
     slot < 0 ||
@@ -47,13 +47,13 @@ pub fn GameWorld::assign_hunter_slot(
 ///|
 pub fn GameWorld::restore_hunter_slots(
   self : GameWorld,
-  saved : Array[Int],
+  saved : Array[Int32],
 ) -> Unit {
   self.hunter_slots = self.hunter_preset.profile().keys.copy()
   if saved.length() != 4 {
     return
   }
-  let slots : Array[Int] = []
+  let slots : Array[Int32] = []
   for old in saved {
     let key = match old {
       49 => 74

@@ -4,7 +4,7 @@ pub fn equipment_slots() -> Array[EquipSlot] {
 }
 
 ///|
-pub fn EquipSlot::index(self : EquipSlot) -> Int {
+pub fn EquipSlot::index(self : EquipSlot) -> Int32 {
   match self {
     Weapon => 0
     Armor => 1
@@ -18,7 +18,7 @@ pub fn EquipSlot::index(self : EquipSlot) -> Int {
 }
 
 ///|
-pub fn equip_slot_from_index(index : Int) -> EquipSlot? {
+pub fn equip_slot_from_index(index : Int32) -> EquipSlot? {
   let slots = equipment_slots()
   if index >= 0 && index < slots.length() {
     Some(slots[index])
@@ -72,7 +72,7 @@ pub fn ItemData::footprint(self : ItemData) -> @inventory.GridFootprint {
 }
 
 ///|
-pub fn Inventory::new_grid(width : Int, height : Int) -> Inventory {
+pub fn Inventory::new_grid(width : Int32, height : Int32) -> Inventory {
   let inv = Inventory::new(width.max(0) * height.max(0))
   inv.grid = Some(@inventory.ItemGrid::new(width, height))
   inv
@@ -98,7 +98,7 @@ fn Inventory::clone(self : Inventory) -> Inventory {
 }
 
 ///|
-fn Inventory::free_index(self : Inventory) -> Int? {
+fn Inventory::free_index(self : Inventory) -> Int32? {
   for i in 0..<self.capacity {
     if self.items[i] is None {
       return Some(i)
@@ -110,7 +110,7 @@ fn Inventory::free_index(self : Inventory) -> Int? {
 ///|
 fn Inventory::put_item(
   self : Inventory,
-  index : Int,
+  index : Int32,
   item : ItemData,
   preferred : @inventory.GridPlacement?,
 ) -> Bool {
@@ -147,7 +147,7 @@ pub fn Inventory::repack(self : Inventory) -> Unit {
 ///|
 pub fn Inventory::restore_layout(
   self : Inventory,
-  positions : Array[(Int, Int, Bool)?],
+  positions : Array[(Int32, Int32, Bool)?],
 ) -> Unit {
   if self.grid is Some(grid) {
     grid.clear()
@@ -171,13 +171,13 @@ pub fn Inventory::restore_layout(
 
 ///|
 pub(all) enum InventorySource {
-  Bag(Int)
+  Bag(Int32)
   Equipped(EquipSlot)
 }
 
 ///|
 pub(all) enum InventoryTarget {
-  Cell(Int, Int, Bool)
+  Cell(Int32, Int32, Bool)
   Wear(EquipSlot)
   Ground
 }

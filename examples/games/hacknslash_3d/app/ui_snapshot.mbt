@@ -130,7 +130,7 @@ fn push_dot_label(
   cx : Double,
   cy : Double,
   scale : Double,
-  path? : String = "",
+  path~ : String = "",
 ) -> Unit {
   let n = text.iter().count().to_double()
   let tw = if n <= 0.0 { 0.0 } else { (12.0 * n - 3.0) * scale }

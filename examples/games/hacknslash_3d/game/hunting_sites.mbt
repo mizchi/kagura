@@ -1,20 +1,24 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum HuntingSiteKind {
   Ruins
   Encampment
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend HuntingSiteKind with Eq::{not_equal, equal}
+
 ///|
 pub extend HuntingSiteKind with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 pub(all) struct HuntingSite {
-  id : Int
+  id : Int32
   name : String
   kind : HuntingSiteKind
-  x : Int
-  z : Int
-  room : Int
+  x : Int32
+  z : Int32
+  room : Int32
 }
 
 ///|
@@ -40,6 +44,7 @@ pub let hunting_sites : Array[HuntingSite] = [
 ]
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum HuntingPropKind {
   RuinWall
   RuinColumn
@@ -49,26 +54,35 @@ pub(all) enum HuntingPropKind {
   SupplyCrate
   RoadSign
   BrokenCart
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend HuntingPropKind with Eq::{not_equal, equal}
+
 ///|
 pub extend HuntingPropKind with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 /// Tile-aligned occupied footprints are shared by navigation and visible geometry.
 pub(all) struct HuntingProp {
   kind : HuntingPropKind
-  x : Int
-  z : Int
-  width : Int
-  depth : Int
-  variant : Int
+  x : Int32
+  z : Int32
+  width : Int32
+  depth : Int32
+  variant : Int32
 }
 
 ///|
-pub fn hunting_site_props(seed : Int) -> Array[HuntingProp] {
+pub fn hunting_site_props(seed : Int32) -> Array[HuntingProp] {
   let props : Array[HuntingProp] = []
-  fn add(kind : HuntingPropKind, x : Int, z : Int, w : Int, d : Int) -> Unit {
+  fn add(
+    kind : HuntingPropKind,
+    x : Int32,
+    z : Int32,
+    w : Int32,
+    d : Int32,
+  ) -> Unit {
     props.push({
       kind,
       x,
@@ -127,7 +141,7 @@ pub fn hunting_site_props(seed : Int) -> Array[HuntingProp] {
 }
 
 ///|
-fn stamp_hunting_sites(grid : @terrain.Grid2D, seed : Int) -> Unit {
+fn stamp_hunting_sites(grid : @terrain.Grid2D, seed : Int32) -> Unit {
   for site in hunting_sites {
     for z in (site.z - 7)..<(site.z + 8) {
       for x in (site.x - 8)..<(site.x + 9) {
@@ -177,7 +191,7 @@ fn append_hunting_site_enemies(
   enemies : Array[Enemy],
   dungeon : DungeonData,
   params : BalanceParams,
-  floor : Int,
+  floor : Int32,
 ) -> Unit {
   for site in hunting_sites {
     for i, offset in [(-2, 1), (2, 1), (-2, -1), (0, 2)] {

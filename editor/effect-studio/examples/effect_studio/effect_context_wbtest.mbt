@@ -63,9 +63,7 @@ test "effect_studio_patch_bundle_json returns standalone ai bundle" {
   let doc = @effect.default_effect_document()
   let json = effect_studio_patch_bundle_json(doc, 0.5, false)
   assert_true(
-    json.has_prefix(
-      "{\"target_file\":\"editor/effect-studio/effect_doc.mbt\"",
-    ),
+    json.has_prefix("{\"target_file\":\"editor/effect-studio/effect_doc.mbt\""),
   )
   assert_true(json.contains("\"track_targets\":["))
   assert_true(json.contains("\"constraints\":["))

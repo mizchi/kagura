@@ -89,10 +89,10 @@ extern "js" fn js_publish_profiler_state(
   render_encode_cpu_ms : Double,
   render_submit_cpu_ms : Double,
   gpu_frame_ms : Double,
-  draw_calls : Int,
-  vertex_count : Int,
-  asset_inflight : Int,
-  world_frame : Int,
+  draw_calls : Int32,
+  vertex_count : Int32,
+  asset_inflight : Int32,
+  world_frame : Int32,
   fxaa_enabled : Bool,
   shadows_enabled : Bool,
   ssao_enabled : Bool,
@@ -164,11 +164,11 @@ extern "js" fn js_publish_profiler_state(
 
 ///|
 extern "js" fn js_publish_runtime_state(
-  frame : Int,
+  frame : Int32,
   mode : String,
-  enemy_count : Int,
-  active_effect_count : Int,
-  particle_emitter_count : Int,
+  enemy_count : Int32,
+  active_effect_count : Int32,
+  particle_emitter_count : Int32,
 ) -> Unit =
   #| (frame, mode, enemyCount, activeEffectCount, particleEmitterCount) => {
   #|   const runtime = globalThis.__hacknslash3dRuntime ?? {}
@@ -186,20 +186,20 @@ extern "js" fn js_publish_hunter_state(
   y : Double,
   facing : Double,
   animation : String,
-  attacks : Int,
-  dodges : Int,
+  attacks : Int32,
+  dodges : Int32,
   yaw : Double,
   pitch : Double,
   distance : Double,
-  hp : Int,
+  hp : Int32,
   paused : Bool,
-  bone_count : Int,
-  part_count : Int,
+  bone_count : Int32,
+  part_count : Int32,
   weapon : String,
-  attack_frame : Int,
-  player_projectiles : Int,
-  appearance_key : Int,
-  appearance_builds : Int,
+  attack_frame : Int32,
+  player_projectiles : Int32,
+  appearance_key : Int32,
+  appearance_builds : Int32,
   species : String,
   focus_x : Double,
   focus_y : Double,
@@ -211,9 +211,9 @@ extern "js" fn js_publish_hunter_state(
 
 ///|
 extern "js" fn js_publish_audio_debug_state(
-  loaded_count : Int,
-  playing_count : Int,
-  failed_count : Int,
+  loaded_count : Int32,
+  playing_count : Int32,
+  failed_count : Int32,
   last_played_cue : String,
   last_played_state : String,
   muted : Bool,
@@ -243,7 +243,7 @@ fn game_mode_name(mode : @game.GameMode) -> String {
 fn apply_initial_mode_overrides(
   state : GameState,
   snapshot_mode : String,
-  snapshot_frames : Int,
+  snapshot_frames : Int32,
   initial_autoplay_enabled : Bool,
 ) -> Unit {
   if snapshot_mode == "playing" {
@@ -376,7 +376,7 @@ fn apply_initial_audio_settings(
 ///|
 
 ///|
-extern "js" fn js_random_seed() -> Int =
+extern "js" fn js_random_seed() -> Int32 =
   #| () => {
   #|   const seed=new URLSearchParams(globalThis.location?.search??'').get('seed');
   #|   if(seed!==null && /^\d{1,9}$/.test(seed))return Number(seed);
@@ -471,13 +471,13 @@ fn install_web_runtime_js() -> Unit {
 }
 
 ///|
-let dungeon_floor_texture_image_id : Int = 920
+let dungeon_floor_texture_image_id : Int32 = 920
 
 ///|
-let dungeon_wall_texture_image_id : Int = 921
+let dungeon_wall_texture_image_id : Int32 = 921
 
 ///|
-fn sync_loaded_source_image(image_id : Int, spec : @atlas.ImageSpec) -> Unit {
+fn sync_loaded_source_image(image_id : Int32, spec : @atlas.ImageSpec) -> Unit {
   let binding = @atlas.new_source_image_binding(
     image_id,
     spec.width,
@@ -529,7 +529,7 @@ fn load_dungeon_textures_js(state : GameState) -> Unit {
 ///|
 fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
   let snapshot_tick = get_snapshot_tick()
-  let rendered_frames : Ref[Int] = Ref(0)
+  let rendered_frames : Ref[Int32] = Ref(0)
   // Fixed 60fps timestep accumulator
   let fixed_dt : Double = 1000.0 / 60.0 // 16.667ms
   let accum : Ref[Double] = Ref(0.0)
@@ -690,7 +690,7 @@ fn load_generated_prop_manifest_js(
   state : GameState,
   placements : Array[GeneratedPropPlacement],
   perf_capture_enabled : Bool,
-  index : Int,
+  index : Int32,
 ) -> Unit {
   if index >= placements.length() {
     run_game_js(state, perf_capture_enabled)

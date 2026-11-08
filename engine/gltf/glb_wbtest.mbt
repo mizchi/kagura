@@ -1,6 +1,6 @@
 ///|
 /// Helper: push a u32 LE value into a byte array
-fn push_u32_le(arr : Array[Byte], value : Int) -> Unit {
+fn push_u32_le(arr : Array[Byte], value : Int32) -> Unit {
   arr.push((value & 0xFF).to_byte())
   arr.push(((value >> 8) & 0xFF).to_byte())
   arr.push(((value >> 16) & 0xFF).to_byte())

@@ -170,7 +170,7 @@ test "a single arrow retains its material tint" {
   assert_eq(commands[0].uniform_dwords.length(), 60)
   assert_eq(
     commands[0].uniform_dwords[56],
-    (1.0 : Double).to_float().reinterpret_as_int(),
+    @float.Float::from_double(1.0).reinterpret_as_int(),
   )
   assert_eq(commands[0].uniform_dwords[57], 0)
   assert_eq(commands[0].uniform_dwords[58], 0)

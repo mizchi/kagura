@@ -153,14 +153,14 @@ test "binarize_rgba8 leaves a partial trailing pixel alone" {
   let pixels = [255, 255, 255, 1, 255, 255]
   binarize_rgba8(pixels)
   assert_eq(pixels, [255, 255, 255, 1, 255, 255])
-  let empty : Array[Int] = []
+  let empty : Array[Int32] = []
   binarize_rgba8(empty)
   assert_eq(empty.length(), 0)
 }
 
 ///|
 test "encode_rgba8_png produces a PNG signature" {
-  let pixels : Array[Int] = []
+  let pixels : Array[Int32] = []
   for _ in 0..<(2 * 2) {
     pixels.push(10)
     pixels.push(20)

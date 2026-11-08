@@ -6,7 +6,7 @@
 /// Accepts a single page's serialized data (Array[Int]).
 pub fn TextRenderer::load_atlas_cache(
   self : TextRenderer,
-  data : Array[Int],
+  data : Array[Int32],
 ) -> Bool {
   let loaded = self.inner.load_cache([data])
   loaded > 0

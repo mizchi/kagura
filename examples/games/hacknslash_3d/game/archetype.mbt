@@ -76,7 +76,7 @@ pub fn archetype_build_policy_from_string(
 }
 
 ///|
-pub fn CharacterArchetype::base_strength(self : CharacterArchetype) -> Int {
+pub fn CharacterArchetype::base_strength(self : CharacterArchetype) -> Int32 {
   match self {
     Melee => 14
     Mage => 8
@@ -86,7 +86,9 @@ pub fn CharacterArchetype::base_strength(self : CharacterArchetype) -> Int {
 }
 
 ///|
-pub fn CharacterArchetype::base_intelligence(self : CharacterArchetype) -> Int {
+pub fn CharacterArchetype::base_intelligence(
+  self : CharacterArchetype,
+) -> Int32 {
   match self {
     Melee => 8
     Mage => 12
@@ -96,7 +98,7 @@ pub fn CharacterArchetype::base_intelligence(self : CharacterArchetype) -> Int {
 }
 
 ///|
-pub fn CharacterArchetype::base_dexterity(self : CharacterArchetype) -> Int {
+pub fn CharacterArchetype::base_dexterity(self : CharacterArchetype) -> Int32 {
   match self {
     Melee => 8
     Mage => 8
@@ -106,7 +108,7 @@ pub fn CharacterArchetype::base_dexterity(self : CharacterArchetype) -> Int {
 }
 
 ///|
-pub fn CharacterArchetype::hp_modifier(self : CharacterArchetype) -> Int {
+pub fn CharacterArchetype::hp_modifier(self : CharacterArchetype) -> Int32 {
   match self {
     Melee => 2
     Mage => -3
@@ -212,7 +214,7 @@ pub fn CharacterArchetype::can_learn_skill(
 pub fn CharacterArchetype::offer_priority(
   self : CharacterArchetype,
   id : SkillId,
-) -> Int {
+) -> Int32 {
   match self {
     Melee =>
       match id {
@@ -291,7 +293,7 @@ pub fn CharacterArchetype::offer_priority_with_policy(
   self : CharacterArchetype,
   policy : ArchetypeBuildPolicy,
   id : SkillId,
-) -> Int {
+) -> Int32 {
   let aligned = self.offer_priority(id)
   match policy {
     ArchetypeAligned => aligned

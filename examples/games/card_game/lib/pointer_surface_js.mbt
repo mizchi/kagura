@@ -21,7 +21,7 @@ fn presentation_clock_ms() -> Double? {
 }
 
 ///|
-extern "js" fn host_reduced_motion() -> Int =
+extern "js" fn host_reduced_motion() -> Int32 =
   #| () => globalThis.matchMedia ? (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0) : -1
 
 ///|

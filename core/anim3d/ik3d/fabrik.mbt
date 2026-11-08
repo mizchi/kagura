@@ -2,16 +2,16 @@
 pub(all) struct FABRIKRequest {
   skeleton : @skeleton3d.Skeleton
   local_poses : Array[@transform3d.Transform3D]
-  chain : Array[Int]
+  chain : Array[Int32]
   target : @math3d.Vec3
   tolerance : Double
-  max_iterations : Int
+  max_iterations : Int32
 }
 
 ///|
 pub(all) struct FABRIKResult {
   success : Bool
-  iterations : Int
+  iterations : Int32
   local_poses : Array[@transform3d.Transform3D]
 }
 

@@ -1,7 +1,7 @@
 ///|
 /// Deterministic authoring fixture: ?snapshot=motions&frames=0..48. Uses the
 /// actual game rig, materials and rendering path. P resumes normal combat.
-fn apply_enemy_motion_preview(state : GameState, frame : Int) -> Unit {
+fn apply_enemy_motion_preview(state : GameState, frame : Int32) -> Unit {
   state.world.mode = @game.Playing
   state.world.enemies.clear()
   state.world.projectiles.clear()
@@ -30,7 +30,7 @@ fn apply_enemy_motion_preview(state : GameState, frame : Int) -> Unit {
 
 ///|
 /// Bow authoring fixture: ?snapshot=bow&frames=0..48, release at frame 24.
-fn apply_bow_motion_preview(state : GameState, frame : Int) -> Unit {
+fn apply_bow_motion_preview(state : GameState, frame : Int32) -> Unit {
   apply_enemy_motion_preview(state, frame)
   state.world.enemies.clear()
   let x = state.world.player.x
@@ -60,8 +60,8 @@ fn apply_bow_motion_preview(state : GameState, frame : Int) -> Unit {
 fn apply_hunter_motion_preview(
   state : GameState,
   kind : @game.PlayerWeaponKind,
-  frame : Int,
-  combo? : @game.CleaverComboStep = @game.Opening,
+  frame : Int32,
+  combo~ : @game.CleaverComboStep = @game.Opening,
 ) -> Unit {
   state.world.mode = @game.Playing
   state.world.enemies.clear()
@@ -89,7 +89,7 @@ fn apply_hunter_motion_preview(
 
 ///|
 /// Side-by-side in-engine authoring view: ?snapshot=charge&frames=0..42.
-fn apply_charge_motion_preview(state : GameState, frame : Int) -> Unit {
+fn apply_charge_motion_preview(state : GameState, frame : Int32) -> Unit {
   state.world.mode = @game.Playing
   state.world.enemies.clear()
   state.world.projectiles.clear()
@@ -179,7 +179,7 @@ fn apply_character_wardrobe_preview(state : GameState, outfit : String) -> Unit 
 fn apply_wolf_motion_preview(
   state : GameState,
   motion : String,
-  frame : Int,
+  frame : Int32,
 ) -> Unit {
   state.world.mode = @game.Playing
   state.world.enemies.clear()
@@ -218,7 +218,7 @@ fn apply_wolf_motion_preview(
 fn apply_zombie_motion_preview(
   state : GameState,
   motion : String,
-  frame : Int,
+  frame : Int32,
 ) -> Unit {
   state.world.mode = @game.Playing
   state.world.enemies.clear()

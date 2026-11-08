@@ -2,14 +2,14 @@
 // Spatial chunking: split dungeon into chunks for frustum culling
 
 ///|
-let chunk_size : Int = 24 // tiles per chunk side
+let chunk_size : Int32 = 24 // tiles per chunk side
 
 // Merge multiple positioned meshes into a single combined mesh.
 
 ///|
 fn merge_mesh_at(
   dst_verts : Array[Double],
-  dst_indices : Array[Int],
+  dst_indices : Array[Int32],
   src : @mesh3d.Mesh3D,
   ox : Double,
   oy : Double,
@@ -39,8 +39,8 @@ fn merge_mesh_at(
 
 ///|
 struct DungeonChunk {
-  cx : Int // chunk column index
-  cz : Int // chunk row index
+  cx : Int32 // chunk column index
+  cz : Int32 // chunk row index
   groups : Array[DungeonMeshGroup]
   wall_mesh : @mesh3d.Mesh3D
   all_mesh : @mesh3d.Mesh3D // all geometry merged for shadow depth pass
@@ -72,30 +72,30 @@ fn build_dungeon_chunks(
 fn build_single_chunk(
   dungeon : @game.DungeonData,
   meshes : Meshes3D,
-  cx : Int,
-  cz : Int,
-  w : Int,
-  h : Int,
+  cx : Int32,
+  cz : Int32,
+  w : Int32,
+  h : Int32,
 ) -> DungeonChunk {
   let floor_v : Array[Double] = []
-  let floor_i : Array[Int] = []
+  let floor_i : Array[Int32] = []
   let corridor_v : Array[Double] = []
-  let corridor_i : Array[Int] = []
+  let corridor_i : Array[Int32] = []
   let door_v : Array[Double] = []
-  let door_i : Array[Int] = []
+  let door_i : Array[Int32] = []
   let wall_v : Array[Double] = []
-  let wall_i : Array[Int] = []
+  let wall_i : Array[Int32] = []
   let pillar_v : Array[Double] = []
-  let pillar_i : Array[Int] = []
+  let pillar_i : Array[Int32] = []
   // Exterior ground for Empty/out-of-bounds tiles
   let exterior_v : Array[Double] = []
-  let exterior_i : Array[Int] = []
+  let exterior_i : Array[Int32] = []
   // Decorative objects (debris, crates in rooms)
   let decor_v : Array[Double] = []
-  let decor_i : Array[Int] = []
+  let decor_i : Array[Int32] = []
   // Combined mesh for shadow depth (all geometry merged)
   let all_v : Array[Double] = []
-  let all_i : Array[Int] = []
+  let all_i : Array[Int32] = []
   let start_col = cx * chunk_size
   let start_row = cz * chunk_size
   let end_col = @cmp.minimum(start_col + chunk_size, w)
@@ -159,7 +159,7 @@ fn build_single_chunk(
   let groups : Array[DungeonMeshGroup] = []
   fn add_group(
     verts : Array[Double],
-    indices : Array[Int],
+    indices : Array[Int32],
     color : @math3d.Vec4,
     surface_kind : DungeonSurfaceKind,
     groups : Array[DungeonMeshGroup],
@@ -198,9 +198,9 @@ fn build_single_chunk(
 ///|
 fn get_visible_chunks(
   chunks : Array[DungeonChunk],
-  player_tile_x : Int,
-  player_tile_z : Int,
-  radius : Int, // in chunks
+  player_tile_x : Int32,
+  player_tile_z : Int32,
+  radius : Int32, // in chunks
 ) -> Array[DungeonChunk] {
   let pcx = player_tile_x / chunk_size
   let pcz = player_tile_z / chunk_size
@@ -218,7 +218,11 @@ fn get_visible_chunks(
 // Check if a wall tile has at least one adjacent walkable tile
 
 ///|
-fn has_adjacent_walkable(grid : @terrain.Grid2D, col : Int, row : Int) -> Bool {
+fn has_adjacent_walkable(
+  grid : @terrain.Grid2D,
+  col : Int32,
+  row : Int32,
+) -> Bool {
   let dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
   for pair in dirs {
     let nx = col + pair.0

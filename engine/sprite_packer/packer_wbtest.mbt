@@ -1,6 +1,6 @@
 ///|
-fn make_test_sprite(key : String, w : Int, h : Int) -> SpriteInput {
-  let pixels : Array[Int] = Array::make(w * h * 4, 255)
+fn make_test_sprite(key : String, w : Int32, h : Int32) -> SpriteInput {
+  let pixels : Array[Int32] = Array::make(w * h * 4, 255)
   let spec = @atlas.image_spec_with_rgba8(w, h, pixels)
   { key, spec, }
 }
@@ -81,7 +81,7 @@ test "pack_sprites too large returns None" {
 ///|
 test "compose_packed_image pixel placement" {
   // Create a 2x2 red sprite
-  let red_pixels : Array[Int] = [
+  let red_pixels : Array[Int32] = [
     255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
   ]
   let red_spec = @atlas.image_spec_with_rgba8(2, 2, red_pixels)
@@ -140,7 +140,7 @@ test "split_sprite_sheet to pack_sprites pipeline" {
   // Create a 64x64 dummy sprite sheet (4x4 grid of 16x16 tiles)
   let sheet_w = 64
   let sheet_h = 64
-  let pixels : Array[Int] = Array::make(sheet_w * sheet_h * 4, 0)
+  let pixels : Array[Int32] = Array::make(sheet_w * sheet_h * 4, 0)
   // Fill each 16x16 tile with a distinct color based on tile index
   for row in 0..<4 {
     for col in 0..<4 {

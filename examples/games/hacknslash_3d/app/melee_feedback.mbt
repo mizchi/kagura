@@ -2,8 +2,8 @@
 
 ///|
 struct CombatFeedbackState {
-  mut hitstop : Int
-  mut impacts : Int
+  mut hitstop : Int32
+  mut impacts : Int32
   mut look_x : Double
   mut look_y : Double
 }
@@ -55,29 +55,35 @@ fn GameState::update_combat_camera(self : GameState) -> Unit {
 }
 
 ///|
+#derive(ToJson)
 struct HunterDamageView {
   x : Double
   y : Double
-  amount : Int
+  amount : Int32
   player : Bool
   alpha : Double
   scale : Double
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterDamageView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterCombatView {
   damage : Array[HunterDamageView]
-  hitstop : Int
-  impacts : Int
-  warnings : Int
+  hitstop : Int32
+  impacts : Int32
+  warnings : Int32
   locked : Bool
-  combo_step : Int
+  combo_step : Int32
   combo_active : Bool
   combo_recovery : Bool
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterCombatView with ToJson::{to_json}
+
 ///|
 fn GameState::hunter_combat_view(self : GameState) -> HunterCombatView {
   let damage : Array[HunterDamageView] = []

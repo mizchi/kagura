@@ -19,12 +19,16 @@ pub fn shutdown() -> Unit {
 }
 
 ///|
-pub fn initialize_context(_width : Int, _height : Int, _title : String) -> Bool {
+pub fn initialize_context(
+  _width : Int32,
+  _height : Int32,
+  _title : String,
+) -> Bool {
   false
 }
 
 ///|
-pub fn initialize_headless_context(_width : Int, _height : Int) -> Bool {
+pub fn initialize_headless_context(_width : Int32, _height : Int32) -> Bool {
   false
 }
 
@@ -45,7 +49,7 @@ pub fn render_frame() -> Bool {
 
 ///|
 pub fn register_source_image_palette(
-  _source_image_id : Int,
+  _source_image_id : Int32,
   _palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   ()
@@ -53,7 +57,7 @@ pub fn register_source_image_palette(
 
 ///|
 pub fn register_source_image_solid_color(
-  _source_image_id : Int,
+  _source_image_id : Int32,
   _color : @atlas.Rgba,
 ) -> Unit {
   ()
@@ -61,24 +65,24 @@ pub fn register_source_image_solid_color(
 
 ///|
 pub fn register_source_image_rgba8(
-  _source_image_id : Int,
-  _width : Int,
-  _height : Int,
-  _rgba8_channels : Array[Int],
+  _source_image_id : Int32,
+  _width : Int32,
+  _height : Int32,
+  _rgba8_channels : Array[Int32],
 ) -> Unit {
   ()
 }
 
 ///|
 pub fn patch_source_image_rgba8(
-  _source_image_id : Int,
-  _width : Int,
-  _height : Int,
-  _dirty_x : Int,
-  _dirty_y : Int,
-  _dirty_width : Int,
-  _dirty_height : Int,
-  _rgba8_channels : Array[Int],
+  _source_image_id : Int32,
+  _width : Int32,
+  _height : Int32,
+  _dirty_x : Int32,
+  _dirty_y : Int32,
+  _dirty_width : Int32,
+  _dirty_height : Int32,
+  _rgba8_channels : Array[Int32],
 ) -> Bool {
   false
 }
@@ -91,33 +95,33 @@ pub fn clear_source_image_palettes() -> Unit {
 ///|
 pub fn sync_source_image_palettes(
   bindings : Array[@atlas.ImagePaletteBinding],
-) -> Int {
+) -> Int32 {
   bindings.length()
 }
 
 ///|
 pub fn sync_source_image_palettes_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   @atlas.list_image_palette_bindings(repository).length()
 }
 
 ///|
-pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
+pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int32 {
   bindings.length()
 }
 
 ///|
 pub fn sync_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   @atlas.list_source_image_bindings(repository).length()
 }
 
 ///|
 pub fn sync_dirty_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   let count = @atlas.list_dirty_source_image_bindings(repository).length()
   let _ = @atlas.clear_source_image_dirty_flags(repository)
   count
@@ -126,7 +130,7 @@ pub fn sync_dirty_source_images_from_repository(
 ///|
 pub fn sync_dirty_atlas_pages_from_repository(
   repository : @atlas.SimpleAtlasImageRepository,
-) -> Int {
+) -> Int32 {
   let count = @atlas.list_dirty_atlas_page_bindings(repository).length()
   let _ = @atlas.clear_dirty_atlas_page_flags(repository)
   count

@@ -1,5 +1,5 @@
 ///|
-fn component_count(type_ : String) -> Int {
+fn component_count(type_ : String) -> Int32 {
   match type_ {
     "SCALAR" => 1
     "VEC2" => 2
@@ -19,8 +19,8 @@ fn component_count(type_ : String) -> Int {
 /// allows for attributes, are returned as-is.
 fn read_integer_component(
   buf : Bytes,
-  offset : Int,
-  component_type : Int,
+  offset : Int32,
+  component_type : Int32,
   normalized : Bool,
 ) -> Double {
   let (value, scale) = match component_type {
@@ -46,7 +46,7 @@ fn read_integer_component(
 /// quantizing exporters such as gltfpack emit.
 fn read_accessor_floats(
   doc : GltfDocument,
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes],
 ) -> Array[Double] raise GltfError {
   if accessor_index < 0 || accessor_index >= doc.accessors.length() {
@@ -98,9 +98,9 @@ fn read_accessor_floats(
 /// Read accessor as unsigned byte values (for JOINTS_0 with UNSIGNED_BYTE).
 fn read_accessor_ubytes(
   doc : GltfDocument,
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes],
-) -> Array[Int] raise GltfError {
+) -> Array[Int32] raise GltfError {
   if accessor_index < 0 || accessor_index >= doc.accessors.length() {
     raise GltfError::InvalidAccessor(
       "index out of range: " + accessor_index.to_string(),
@@ -119,7 +119,7 @@ fn read_accessor_ubytes(
   let buf = buffers[bv.buffer]
   let comp_count = component_count(acc.type_)
   let total = acc.count * comp_count
-  let result : Array[Int] = Array::make(total, 0)
+  let result : Array[Int32] = Array::make(total, 0)
   let base_offset = bv.byte_offset + acc.byte_offset
   let default_stride = comp_count * 1
   let stride = if bv.byte_stride > 0 { bv.byte_stride } else { default_stride }
@@ -136,9 +136,9 @@ fn read_accessor_ubytes(
 /// Read accessor as unsigned short values (for JOINTS_0 with UNSIGNED_SHORT).
 fn read_accessor_ushorts(
   doc : GltfDocument,
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes],
-) -> Array[Int] raise GltfError {
+) -> Array[Int32] raise GltfError {
   if accessor_index < 0 || accessor_index >= doc.accessors.length() {
     raise GltfError::InvalidAccessor(
       "index out of range: " + accessor_index.to_string(),
@@ -157,7 +157,7 @@ fn read_accessor_ushorts(
   let buf = buffers[bv.buffer]
   let comp_count = component_count(acc.type_)
   let total = acc.count * comp_count
-  let result : Array[Int] = Array::make(total, 0)
+  let result : Array[Int32] = Array::make(total, 0)
   let base_offset = bv.byte_offset + acc.byte_offset
   let default_stride = comp_count * 2
   let stride = if bv.byte_stride > 0 { bv.byte_stride } else { default_stride }
@@ -176,7 +176,7 @@ fn read_skin_joints_from_primitive(
   doc : GltfDocument,
   prim : GltfPrimitive,
   buffers : Array[Bytes],
-) -> Array[Int] raise GltfError {
+) -> Array[Int32] raise GltfError {
   let joints_idx = match prim.attributes.get("JOINTS_0") {
     Some(i) => i
     None => raise GltfError::MissingAttribute("JOINTS_0")
@@ -208,9 +208,9 @@ fn read_skin_weights_from_primitive(
 ///|
 fn read_accessor_indices(
   doc : GltfDocument,
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes],
-) -> Array[Int] raise GltfError {
+) -> Array[Int32] raise GltfError {
   if accessor_index < 0 || accessor_index >= doc.accessors.length() {
     raise GltfError::InvalidAccessor(
       "index out of range: " + accessor_index.to_string(),
@@ -227,7 +227,7 @@ fn read_accessor_indices(
     raise GltfError::BufferOutOfRange(bv.buffer)
   }
   let buf = buffers[bv.buffer]
-  let result : Array[Int] = Array::make(acc.count, 0)
+  let result : Array[Int32] = Array::make(acc.count, 0)
   let base_offset = bv.byte_offset + acc.byte_offset
   match acc.component_type {
     5123 => {
@@ -328,10 +328,10 @@ fn build_mesh_from_primitive(
     vertex_data.push(u)
     vertex_data.push(v)
   }
-  let indices : Array[Int] = match prim.indices {
+  let indices : Array[Int32] = match prim.indices {
     Some(idx) => read_accessor_indices(doc, idx, buffers)
     None => {
-      let arr : Array[Int] = []
+      let arr : Array[Int32] = []
       for i in 0..<vertex_count {
         arr.push(i)
       }
@@ -347,7 +347,7 @@ fn build_mesh_from_primitive(
 ///|
 fn compute_flat_normals(
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Unit {
   let tri_count = indices.length() / 3
   for t in 0..<tri_count {
@@ -391,7 +391,7 @@ fn compute_flat_normals(
 ///|
 fn build_mesh(
   doc : GltfDocument,
-  mesh_index : Int,
+  mesh_index : Int32,
   buffers : Array[Bytes],
 ) -> @mesh3d.Mesh3D raise GltfError {
   let mesh = doc.meshes[mesh_index]
@@ -399,7 +399,7 @@ fn build_mesh(
     return build_mesh_from_primitive(doc, mesh.primitives[0], buffers)
   }
   let all_vertex_data : Array[Double] = []
-  let all_indices : Array[Int] = []
+  let all_indices : Array[Int32] = []
   for prim in mesh.primitives {
     let m = build_mesh_from_primitive(doc, prim, buffers)
     let base = all_vertex_data.length() / @mesh3d.vertex3d_stride

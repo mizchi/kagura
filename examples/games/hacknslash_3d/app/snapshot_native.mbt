@@ -6,12 +6,12 @@ fn get_snapshot_mode() -> String {
 }
 
 ///|
-fn get_snapshot_frames() -> Int {
+fn get_snapshot_frames() -> Int32 {
   60
 }
 
 ///|
-fn get_snapshot_tick() -> Int {
+fn get_snapshot_tick() -> Int32 {
   0
 }
 
@@ -41,6 +41,6 @@ fn get_initial_ssao_enabled() -> Bool {
 }
 
 ///|
-fn js_set_snapshot_tick(_count : Int) -> Unit {
+fn js_set_snapshot_tick(_count : Int32) -> Unit {
 
 }

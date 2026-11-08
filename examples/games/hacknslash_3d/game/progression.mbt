@@ -3,16 +3,16 @@ pub type LevelUpConfig = @progression.LevelUpConfig
 
 ///|
 pub(all) struct LevelProgression {
-  mut level : Int
-  mut xp : Int
-  mut next_level_xp : Int
-  mut pending_choices : Int
+  mut level : Int32
+  mut xp : Int32
+  mut next_level_xp : Int32
+  mut pending_choices : Int32
   mut current_offers : Array[SkillId]
 }
 
 ///|
 pub fn LevelProgression::new(
-  config? : LevelUpConfig = LevelUpConfig::default(),
+  config~ : LevelUpConfig = LevelUpConfig::default(),
 ) -> LevelProgression {
   let core = @progression.LevelProgression::new(config~)
   {
@@ -25,7 +25,7 @@ pub fn LevelProgression::new(
 }
 
 ///|
-fn xp_required_for_level(level : Int, config : LevelUpConfig) -> Int {
+fn xp_required_for_level(level : Int32, config : LevelUpConfig) -> Int32 {
   @progression.xp_required_for_level(level, config)
 }
 
@@ -105,7 +105,7 @@ fn build_level_up_offers(
   skills : SkillTree,
   archetype : CharacterArchetype,
   build_policy : ArchetypeBuildPolicy,
-  offer_seed : Int,
+  offer_seed : Int32,
 ) -> Array[SkillId] {
   let all_available = skills.available_level_up_skill_ids()
   // Filter by archetype-allowed skills
@@ -146,8 +146,8 @@ pub fn LevelProgression::add_xp(
   skills : SkillTree,
   archetype : CharacterArchetype,
   build_policy : ArchetypeBuildPolicy,
-  gained_xp : Int,
-  offer_seed : Int,
+  gained_xp : Int32,
+  offer_seed : Int32,
   config : LevelUpConfig,
 ) -> Bool {
   let core = self.to_core()
@@ -175,8 +175,8 @@ pub fn LevelProgression::choose_offer(
   skills : SkillTree,
   archetype : CharacterArchetype,
   build_policy : ArchetypeBuildPolicy,
-  offer_index : Int,
-  offer_seed : Int,
+  offer_index : Int32,
+  offer_seed : Int32,
 ) -> Bool {
   if offer_index < 0 || offer_index >= self.current_offers.length() {
     return false

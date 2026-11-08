@@ -1,10 +1,11 @@
 ///|
 /// A logical subject can be referenced by several render nodes. No renderer handles.
+#derive(ToJson)
 pub(all) struct Subject {
   id : String
   name : String
   fields : Array[Field]
-} derive(ToJson)
+}
 
 ///|
 pub extend Subject with ToJson::{to_json}
@@ -20,9 +21,9 @@ pub(all) enum Field {
 pub fn number(
   id : String,
   value : Double,
-  label? : String = id,
-  unit? : String = "",
-  editable? : Bool = false,
+  label~ : String = id,
+  unit~ : String = "",
+  editable~ : Bool = false,
 ) -> Field {
   Number(id, label, value, unit, editable)
 }
@@ -31,11 +32,11 @@ pub fn number(
 pub impl ToJson for Field with fn to_json(self) {
   let (id, label, kind, value, unit, editable) = match self {
     Number(id, label, value, unit, editable) =>
-      (id, label, "number", value.to_json(), unit, editable)
+      (id, label, "number", Json(value), unit, editable)
     Text(id, label, value, editable) =>
-      (id, label, "string", value.to_json(), "", editable)
+      (id, label, "string", Json(value), "", editable)
     Boolean(id, label, value, editable) =>
-      (id, label, "boolean", value.to_json(), "", editable)
+      (id, label, "boolean", Json(value), "", editable)
   }
   {
     "id": id,

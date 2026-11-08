@@ -2,7 +2,7 @@
 /// Bone in a skeleton hierarchy.
 pub(all) struct Bone {
   name : String
-  parent : Int // -1 = root
+  parent : Int32 // -1 = root
   local_transform : @transform3d.Transform3D
 }
 
@@ -16,7 +16,7 @@ pub(all) struct Skeleton {
 ///|
 /// Per-vertex skinning data (4 joints + 4 weights per vertex).
 pub(all) struct SkinData {
-  joint_indices : Array[Int] // flat, 4 per vertex
+  joint_indices : Array[Int32] // flat, 4 per vertex
   weights : Array[Double] // flat, 4 per vertex
-  vertex_count : Int
+  vertex_count : Int32
 }

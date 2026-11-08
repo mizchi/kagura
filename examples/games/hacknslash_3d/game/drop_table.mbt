@@ -1,11 +1,11 @@
 ///|
 pub(all) struct DropTableConfig {
-  equipment_weight : Int
-  health_weight : Int
-  score_weight : Int
-  weapon_weight : Int
-  armor_weight : Int
-  accessory_weight : Int
+  equipment_weight : Int32
+  health_weight : Int32
+  score_weight : Int32
+  weapon_weight : Int32
+  armor_weight : Int32
+  accessory_weight : Int32
   rarity_bonus_per_floor : Double
   base_item_tier_base : Double
   base_item_tier_per_floor : Double
@@ -39,7 +39,7 @@ pub fn DropTableConfig::default() -> DropTableConfig {
 }
 
 ///|
-fn item_tier_value(base : Double, per_floor : Double, floor : Int) -> Double {
+fn item_tier_value(base : Double, per_floor : Double, floor : Int32) -> Double {
   @progression.evaluate_tier_curve(
     @progression.TierCurve::new(base, per_floor),
     floor,
@@ -48,11 +48,11 @@ fn item_tier_value(base : Double, per_floor : Double, floor : Int) -> Double {
 
 ///|
 fn scaled_base_item_stat(
-  base_value : Int,
+  base_value : Int32,
   tier_value : Double,
-  rarity_mult : Int,
+  rarity_mult : Int32,
   modifier_tier : Double,
-) -> Int {
+) -> Int32 {
   @progression.scale_loot_stat(
     base_value, tier_value, rarity_mult, modifier_tier,
   )
@@ -61,7 +61,7 @@ fn scaled_base_item_stat(
 ///|
 fn scale_affix_with_tier(
   affix : Affix,
-  floor : Int,
+  floor : Int32,
   tier_value : Double,
   modifier_tier : Double,
 ) -> Affix {
@@ -88,14 +88,14 @@ fn scale_affix_with_tier(
 }
 
 ///|
-pub fn item_rarity_rank(rarity : ItemRarity) -> Int {
+pub fn item_rarity_rank(rarity : ItemRarity) -> Int32 {
   @progression.loot_rarity_rank(item_rarity_to_loot_rarity(rarity))
 }
 
 ///|
 pub fn roll_item_rarity(
-  seed : Int,
-  floor : Int,
+  seed : Int32,
+  floor : Int32,
   config : DropTableConfig,
 ) -> ItemRarity {
   loot_rarity_to_item_rarity(
@@ -109,7 +109,7 @@ pub fn roll_item_rarity(
 }
 
 ///|
-fn weighted_slot_pick(seed : Int, config : DropTableConfig) -> EquipSlot {
+fn weighted_slot_pick(seed : Int32, config : DropTableConfig) -> EquipSlot {
   let index = @progression.pick_weighted_index(seed, [
     @cmp.maximum(0, config.weapon_weight),
     @cmp.maximum(0, config.armor_weight),
@@ -125,7 +125,7 @@ fn weighted_slot_pick(seed : Int, config : DropTableConfig) -> EquipSlot {
 }
 
 ///|
-fn equip_slot_icon_base(slot : EquipSlot) -> Int {
+fn equip_slot_icon_base(slot : EquipSlot) -> Int32 {
   match slot {
     Weapon => 0
     Armor | Helmet | Gloves | Boots | Offhand => 1
@@ -134,7 +134,7 @@ fn equip_slot_icon_base(slot : EquipSlot) -> Int {
 }
 
 ///|
-fn rarity_multiplier(rarity : ItemRarity) -> Int {
+fn rarity_multiplier(rarity : ItemRarity) -> Int32 {
   @progression.loot_rarity_multiplier(item_rarity_to_loot_rarity(rarity))
 }
 
@@ -160,11 +160,11 @@ fn loot_rarity_to_item_rarity(rarity : @progression.LootRarity) -> ItemRarity {
 
 ///|
 pub fn generate_item_with_profile_and_drop_config(
-  seed : Int,
-  floor : Int,
+  seed : Int32,
+  floor : Int32,
   profile : AffixProfile,
   config : DropTableConfig,
-  rarity? : ItemRarity = roll_item_rarity(seed & 0x7FFFFFFF, floor, config),
+  rarity~ : ItemRarity = roll_item_rarity(seed & 0x7FFFFFFF, floor, config),
 ) -> ItemData {
   let rng = seed & 0x7FFFFFFF
   let slot = weighted_slot_pick(rng, config)

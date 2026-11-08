@@ -97,7 +97,7 @@ fn event_option_enabled(run : RunState, option : EventOption) -> Bool {
 }
 
 ///|
-fn resolve_event(run : RunState, index : Int) -> Unit {
+fn resolve_event(run : RunState, index : Int32) -> Unit {
   let option = event_options(run.event.unwrap())[index]
   match option.effect {
     Heal(amount, cost) => {
@@ -200,7 +200,7 @@ fn shop_item_detail(item : ShopItem) -> String {
 }
 
 ///|
-fn shop_price(run : RunState, price : Int) -> Int {
+fn shop_price(run : RunState, price : Int32) -> Int32 {
   if run.relics.contains(MerchantCharm) {
     price * 80 / 100
   } else {
@@ -209,7 +209,7 @@ fn shop_price(run : RunState, price : Int) -> Int {
 }
 
 ///|
-fn card_removal_price(run : RunState) -> Int {
+fn card_removal_price(run : RunState) -> Int32 {
   shop_price(run, 50 + run.cards_removed * 25)
 }
 

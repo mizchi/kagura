@@ -48,7 +48,7 @@ pub fn parse_texture_bindings(source : String) -> @core.Any {
     "@binding\\((\\d+)\\)\\s+var\\s+\\w+\\s*:\\s*(texture_2d<f32>|texture_2d|sampler)",
     flags="g",
   )
-  let bindings : Array[(Int, String)] = []
+  let bindings : Array[(Int32, String)] = []
   while true {
     let matched = pattern.to_any()._call("exec", [@core.any(source)])
     if @core.is_nullish(matched) {
@@ -65,7 +65,7 @@ pub fn parse_texture_bindings(source : String) -> @core.Any {
     )
   }
   bindings.sort_by(fn(a, b) { a.0.compare(b.0) })
-  @core.any(
+  @interop.array_to_js(
     bindings.map(fn(binding) {
       @core.from_entries([
         ("binding", @core.any(binding.0)),
@@ -76,11 +76,11 @@ pub fn parse_texture_bindings(source : String) -> @core.Any {
 }
 
 ///|
-extern "js" fn to_i32(value : @core.Any) -> Int =
+extern "js" fn to_i32(value : @core.Any) -> Int32 =
   #| (value) => value | 0
 
 ///|
-pub fn get_instance_count(command : @core.Any) -> Int {
+pub fn get_instance_count(command : @core.Any) -> Int32 {
   let raw = @interop.fallback(
     @interop.field(command, "instanceCount"),
     @interop.field(command, "instance_count"),
@@ -93,7 +93,7 @@ pub fn get_instance_count(command : @core.Any) -> Int {
 }
 
 ///|
-pub fn get_resource_cache_key(command : @core.Any) -> Int {
+pub fn get_resource_cache_key(command : @core.Any) -> Int32 {
   let raw = @interop.fallback(
     @interop.field(command, "resourceCacheKey"),
     @interop.field(command, "resource_cache_key"),
@@ -119,7 +119,7 @@ pub fn equal_dwords(a : @core.Any, b : @core.Any, count : @core.Any) -> Bool {
     @interop.number(b._get("length")) < @interop.number(count) {
     return false
   }
-  let count : Int = count.cast()
+  let count : Int32 = count.cast()
   for i = 0; i < count; i = i + 1 {
     if !@core.equal(a._get_by_index(i), b._get_by_index(i)) {
       return false

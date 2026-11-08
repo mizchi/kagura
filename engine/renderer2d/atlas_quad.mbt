@@ -8,10 +8,10 @@
 // Shared, read-only quad-index pattern. The downstream gfx queue / merger
 // only reads `.length()` on indices, so reusing one Array per call saves an
 // allocation on every sprite draw. Do not mutate.
-let atlas_quad_indices_shared : Array[Int] = [0, 1, 2, 2, 3, 0]
+let atlas_quad_indices_shared : Array[Int32] = [0, 1, 2, 2, 3, 0]
 
 ///|
-pub fn atlas_quad_indices() -> Array[Int] {
+pub fn atlas_quad_indices() -> Array[Int32] {
   atlas_quad_indices_shared
 }
 
@@ -47,7 +47,7 @@ pub fn atlas_quad_vertex_data(
 // Kept local so we can hash inline without allocating a values array.
 
 ///|
-fn mix_cache_key(seed : Int, value : Int) -> Int {
+fn mix_cache_key(seed : Int32, value : Int32) -> Int32 {
   seed * 16777619 + value + 31
 }
 
@@ -58,7 +58,7 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // needs across the typical screen-coordinate range.
 
 ///|
-fn double_cache_bits(v : Double) -> Int {
+fn double_cache_bits(v : Double) -> Int32 {
   (v * 4096.0).to_int()
 }
 
@@ -73,8 +73,8 @@ fn atlas_quad_resource_cache_key(
   top : Double,
   right : Double,
   bottom : Double,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let mut hash = 0x41544C53
   hash = mix_cache_key(hash, dst.id)
   hash = mix_cache_key(hash, dst.width)
@@ -111,16 +111,16 @@ pub fn new_atlas_quad_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   source : @atlas.AtlasDrawSource,
   left : Double,
   top : Double,
   right : Double,
   bottom : Double,
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   @gfx.new_draw_triangles_command(
     dst,
@@ -154,8 +154,8 @@ fn atlas_quad_batch_resource_cache_key(
   blend : @gfx.BlendMode,
   source : @atlas.AtlasDrawSource,
   rects : Array[Double],
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let mut hash = 0x41514254 // "AQBT"
   hash = mix_cache_key(hash, dst.id)
   hash = mix_cache_key(hash, dst.width)
@@ -207,16 +207,16 @@ pub fn new_atlas_quad_batch_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   source : @atlas.AtlasDrawSource,
   rects : Array[Double],
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand {
   let quad_count = rects.length() / 4
   let vertex_data : Array[Double] = Array::make(quad_count * 16, 0.0)
-  let indices : Array[Int] = Array::make(quad_count * 6, 0)
+  let indices : Array[Int32] = Array::make(quad_count * 6, 0)
   let u0 = source.u0
   let v0 = source.v0
   let u1 = source.u1

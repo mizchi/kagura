@@ -1,7 +1,7 @@
 ///|
 // Append-based ABI oracle, independent of the production offset writer.
 fn append_test_matrices(
-  words : Array[Int],
+  words : Array[Int32],
   matrices : Array[@math3d.Mat4],
 ) -> Unit {
   for i in 0..<64 {
@@ -18,7 +18,7 @@ fn append_test_matrices(
 }
 
 ///|
-fn test_skin_matrices(count : Int) -> Array[@math3d.Mat4] {
+fn test_skin_matrices(count : Int32) -> Array[@math3d.Mat4] {
   Array::makei(count, i => {
     @math3d.Mat4::translation(i.to_double() * 0.037, -0.25, 1.7).multiply(
       @math3d.Mat4::scaling(0.6, 1.1, 1.3),

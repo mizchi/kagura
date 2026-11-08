@@ -11,8 +11,8 @@
 fn process_converters(
   diagram : Diagram,
   state : SimState,
-  work : Array[Int],
-  flows : Array[Int],
+  work : Array[Int32],
+  flows : Array[Int32],
 ) -> Unit {
   let edges = diagram.resources
   for ci in 0..<diagram.nodes.length() {
@@ -26,9 +26,9 @@ fn process_converters(
       continue
     }
     // Collect incoming requirements.
-    let in_idx : Array[Int] = []
-    let in_from : Array[Int] = []
-    let in_req : Array[Int] = []
+    let in_idx : Array[Int32] = []
+    let in_from : Array[Int32] = []
+    let in_req : Array[Int32] = []
     for ei in 0..<edges.length() {
       let e = edges[ei]
       if e.to != ci || edge_blocked(diagram, state, ei) {

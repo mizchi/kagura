@@ -15,7 +15,7 @@ struct CharacterPart {
 fn finish_hunter_part(
   geometry : @procedural3d.RigidGeometry,
   name : String,
-  color : Int,
+  color : Int32,
 ) -> CharacterPart {
   let mesh = geometry.build_mesh()
   let skin = geometry.build_skin()
@@ -128,7 +128,7 @@ fn build_hunter_parts() -> Array[CharacterPart] {
     1,
   )
   // Oversized tricorn: lobed brim with raised corners, thick edge and low crown.
-  fn brim(i : Int, inner : Bool, underside : Bool) -> @math3d.Vec3 {
+  fn brim(i : Int32, inner : Bool, underside : Bool) -> @math3d.Vec3 {
     let a = i.to_double() / 24.0 * @math.PI * 2.0
     let lobe = @math.cos(a * 3.0)
     let r = if inner { 0.245 } else { 0.54 + lobe * 0.13 }

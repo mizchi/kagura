@@ -37,12 +37,12 @@ pub fn equal_dwords(a0 : @core.Any, a1 : @core.Any, a2 : @core.Any) -> Bool {
 }
 
 ///|
-pub fn get_instance_count(a0 : @core.Any) -> Int {
+pub fn get_instance_count(a0 : @core.Any) -> Int32 {
   @render.get_instance_count(a0)
 }
 
 ///|
-pub fn get_resource_cache_key(a0 : @core.Any) -> Int {
+pub fn get_resource_cache_key(a0 : @core.Any) -> Int32 {
   @render.get_resource_cache_key(a0)
 }
 

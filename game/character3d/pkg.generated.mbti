@@ -15,7 +15,7 @@ pub fn sphere_ground_contact(@physics3d.RigidBody, Array[@physics3d.RigidBody], 
 
 // Types and methods
 pub(all) struct GroundContact {
-  body_id : Int
+  body_id : Int32
   normal : @math3d.Vec3
   velocity : @math3d.Vec3
 }

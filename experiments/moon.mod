@@ -11,7 +11,7 @@ repository = "https://github.com/mizchi/kagura"
 warnings = "-6-29-53-68"
 
 import {
-  "mizchi/js@0.12.2",
+  "mizchi/js_core@0.13.0",
 }
 
 preferred_target = "js"

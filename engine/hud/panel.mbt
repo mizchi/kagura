@@ -5,13 +5,13 @@ pub(all) struct Panel {
   y : Double
   width : Double
   height : Double
-  bg_color : Int // hex
-  border_color : Int // hex
+  bg_color : Int32 // hex
+  border_color : Int32 // hex
   border_width : Double
   title : String // "" = no title bar
   title_size : Double
-  title_color : Int // hex
-  title_bg_color : Int // hex
+  title_color : Int32 // hex
+  title_bg_color : Int32 // hex
 }
 
 ///|

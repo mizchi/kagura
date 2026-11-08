@@ -83,13 +83,13 @@ fn sync_js_textures(state : GpuState, gpu : @core.Any) -> Unit {
       break
     }
     let value = next._get("value")
-    let image_id : Int = value._get_by_index(0).cast()
+    let image_id : Int32 = value._get_by_index(0).cast()
     let js_entry = value._get_by_index(1)
     match state.textures.get(image_id) {
       Some(existing) => {
         let js_rev = js_entry._get("revision")
         if !@core.is_nullish(js_rev) {
-          let rev : Int = js_rev.cast()
+          let rev : Int32 = js_rev.cast()
           existing.revision = rev
         }
       }
@@ -97,8 +97,8 @@ fn sync_js_textures(state : GpuState, gpu : @core.Any) -> Unit {
         let texture = js_entry._get("texture")
         let view = js_entry._get("view")
         let sampler = js_entry._get("sampler")
-        let width : Int = js_entry._get("width").cast()
-        let height : Int = js_entry._get("height").cast()
+        let width : Int32 = js_entry._get("width").cast()
+        let height : Int32 = js_entry._get("height").cast()
         let rev_any = js_entry._get("revision")
         let revision = if @core.is_nullish(rev_any) {
           0

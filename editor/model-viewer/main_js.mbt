@@ -1,6 +1,6 @@
 ///|
 extern "js" fn register(
-  load : (String, String, Array[Bytes], String) -> String,
+  load : (String, String, FixedArray[Bytes], String) -> String,
   reset : () -> Unit,
 ) -> Unit =
   #| (load, reset) => { globalThis.kaguraModel = Object.freeze({apiVersion: 1, load: (...args) => JSON.parse(load(...args)), reset}); }
@@ -13,7 +13,12 @@ fn main {
   register(
     fn(format, json, buffers, text) {
       try {
-        let graph = model_graph(format, json, buffers, text)
+        let graph = model_graph(
+          format,
+          json,
+          Array::from_fixed_array(buffers),
+          text,
+        )
         let bounds = model_bounds(graph)
         if bounds.triangles == 0 {
           fail("Model contains no triangles")

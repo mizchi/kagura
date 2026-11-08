@@ -3,7 +3,7 @@
 /// Tags survive material batching, so visibility never rebuilds a mesh.
 fn tag_scenery_geometry(
   g : @procedural3d.RigidGeometry,
-  start : Int,
+  start : Int32,
   kind : Double,
 ) -> Unit {
   for i in (start / 8)..<(g.vertices.length() / 8) {
@@ -19,7 +19,7 @@ fn GameState::scenery_draw(
   mesh : @mesh3d.Mesh3D,
   model : @math3d.Mat4,
   vp : @math3d.Mat4,
-  offset? : Int = 0,
+  offset~ : Int32 = 0,
 ) -> @gfx.DrawTrianglesCommand {
   let cmd = @draw3d.new_lit_colored_mesh_draw_command(
     dst,

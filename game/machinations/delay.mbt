@@ -12,8 +12,8 @@
 fn process_time_nodes(
   diagram : Diagram,
   state : SimState,
-  work : Array[Int],
-  flows : Array[Int],
+  work : Array[Int32],
+  flows : Array[Int32],
 ) -> Unit {
   let edges = diagram.resources
   for ni in 0..<diagram.nodes.length() {
@@ -84,7 +84,7 @@ fn process_time_nodes(
       buf[0] = buf[0] - release
     }
     // Distribute the release across outgoing edges.
-    let out_idx : Array[Int] = []
+    let out_idx : Array[Int32] = []
     let weights : Array[Double] = []
     for ei in 0..<edges.length() {
       if edges[ei].from == ni && !edge_blocked(diagram, state, ei) {

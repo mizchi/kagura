@@ -6,7 +6,6 @@ import {
   "mizchi/renderer2d",
   "mizchi/widget2d",
   "mizchi/text",
-  "mizchi/atlas",
   "mizchi/font",
   "mizchi/crater-renderer/renderer",
   "mizchi/crater-painter/paint",

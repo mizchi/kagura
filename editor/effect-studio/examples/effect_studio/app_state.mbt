@@ -3,7 +3,7 @@ struct EffectStudioState {
   doc : @effect.EffectDocument
   mut preview_time : Double
   mut playing : Bool
-  mut frame_count : Int
+  mut frame_count : Int32
   mut camera : @camera3d.OrbitCamera
   mut prev_cursor_x : Double
   mut prev_cursor_y : Double

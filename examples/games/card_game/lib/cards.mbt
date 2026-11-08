@@ -1,5 +1,6 @@
 ///|
 /// Card identifiers
+#derive(Debug, Eq)
 pub(all) enum CardId {
   // Starter
   Strike
@@ -56,7 +57,7 @@ pub(all) enum CardId {
   Reaper // 2 cost: 4 dmg to ALL, heal for damage dealt
   Entrench // 2 cost: double current Block
   Pummel // 1 cost: 2 dmg × 4 hits (STR scaling)
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for CardId with fn output(self, logger) {
@@ -65,11 +66,12 @@ pub impl Show for CardId with fn output(self, logger) {
 
 ///|
 /// Card type determines behavior
+#derive(Debug, Eq)
 pub(all) enum CardType {
   Attack
   Skill
   Power
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for CardType with fn output(self, logger) {
@@ -78,16 +80,17 @@ pub impl Show for CardType with fn output(self, logger) {
 
 ///|
 /// Static card definition
+#derive(Debug)
 pub(all) struct CardDef {
   id : CardId
   name : String
-  cost : Int
+  cost : Int32
   card_type : CardType
-  base_damage : Int
-  base_block : Int
+  base_damage : Int32
+  base_block : Int32
   exhaust : Bool
   description : String
-} derive(Debug)
+}
 
 ///|
 pub impl Show for CardDef with fn output(self, logger) {
@@ -573,12 +576,13 @@ pub fn card_def(id : CardId) -> CardDef {
 
 ///|
 /// Card rarity affects reward distribution
+#derive(Debug, Eq)
 pub(all) enum CardRarity {
   Starter
   Common
   Uncommon
   Rare
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for CardRarity with fn output(self, logger) {

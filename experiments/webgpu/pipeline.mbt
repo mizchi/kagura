@@ -1,6 +1,6 @@
 ///|
 /// Build a blend state JS object for the given blend mode
-fn build_blend_state(blend_mode : Int) -> @core.Any? {
+fn build_blend_state(blend_mode : Int32) -> @core.Any? {
   if blend_mode == 0 {
     let blend = @core.new_object()
     let color = @core.new_object()
@@ -263,7 +263,7 @@ pub fn ensure_gpu_pipeline(
   let default_tex = ffi_create_texture(device, dtex_desc)
   // Write white pixel
   let white_pixel = @core.new(@core.global_this()._get("Uint8Array"), [
-    @core.any([255, 255, 255, 255]),
+    @core.any(([255, 255, 255, 255] : FixedArray[Int32])),
   ])
   let tex_dest = @core.new_object()
   tex_dest._set("texture", default_tex)
@@ -307,11 +307,11 @@ pub fn ensure_gpu_pipeline(
 pub fn get_or_create_custom_pipeline(
   state : GpuState,
   device : @core.Any,
-  shader_id : Int,
+  shader_id : Int32,
   shader_source : String,
-  blend_mode : Int,
+  blend_mode : Int32,
   format : String,
-  vertex_stride_hint? : Int = 0,
+  vertex_stride_hint~ : Int32 = 0,
 ) -> CustomPipelineEntry {
   let key = "\{shader_id}_\{format}_\{blend_mode}"
   match state.custom_pipelines.get(key) {

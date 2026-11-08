@@ -31,11 +31,11 @@
 /// and run. Perfectly symmetric lattices settle into degenerate solver paths,
 /// but `@random` would make the numbers unreproducible.
 priv struct BenchRng2D {
-  mut state : UInt
+  mut state : UInt32
 }
 
 ///|
-fn BenchRng2D::new(seed : UInt) -> BenchRng2D {
+fn BenchRng2D::new(seed : UInt32) -> BenchRng2D {
   { state: seed, }
 }
 
@@ -78,7 +78,7 @@ fn BenchFixture2D::reset(self : BenchFixture2D) -> Unit {
 ///|
 /// Grid column count for `count` bodies, so a pile is roughly as wide as it is
 /// tall.
-fn bench_grid_cols(count : Int) -> Int {
+fn bench_grid_cols(count : Int32) -> Int32 {
   let mut cols = 1
   while cols * cols < count {
     cols = cols + 1
@@ -92,7 +92,7 @@ fn bench_grid_cols(count : Int) -> Int {
 ///
 /// `warm_frames` must stay below `sleep_time_threshold / dt` (30 frames at
 /// 60Hz) or the pile falls asleep and the fixture stops pricing the solver.
-fn bench_pile_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
+fn bench_pile_fixture2d(count : Int32, warm_frames : Int32) -> BenchFixture2D {
   let world = PhysicsWorld2D::new(@vector.Vec2::new(0.0, -9.8), 1.0)
   let cols = bench_grid_cols(count)
   let span = cols.to_double() * bench_pile_spacing2d
@@ -151,7 +151,10 @@ fn bench_pile_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
 /// Circles spread far enough apart that the broadphase finds no pairs. Prices
 /// the per-body floor of a frame — AABB refresh, hash insert, integration,
 /// force clear, sleep bookkeeping — with the narrowphase and solver empty.
-fn bench_scatter_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
+fn bench_scatter_fixture2d(
+  count : Int32,
+  warm_frames : Int32,
+) -> BenchFixture2D {
   let world = PhysicsWorld2D::new(@vector.Vec2::new(0.0, -9.8), 1.0)
   let cols = bench_grid_cols(count)
   let rng = BenchRng2D::new(0x5EED_2D02)
@@ -181,7 +184,7 @@ fn bench_scatter_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
 /// A hanging rope: one static anchor and `count` links chained by distance
 /// joints. Prices `precompute_distance_joint` + `solve_distance_joint`, which
 /// no benchmark covered before.
-fn bench_rope_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
+fn bench_rope_fixture2d(count : Int32, warm_frames : Int32) -> BenchFixture2D {
   let world = PhysicsWorld2D::new(@vector.Vec2::new(0.0, -9.8), 1.0)
   bench_build_chain_bodies2d(world, count)
   for i = 0; i + 1 < count; i = i + 1 {
@@ -204,7 +207,7 @@ fn bench_rope_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
 ///|
 /// The same chain held by revolute joints instead, so the two joint solvers are
 /// tracked separately rather than averaged together.
-fn bench_hinge_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
+fn bench_hinge_fixture2d(count : Int32, warm_frames : Int32) -> BenchFixture2D {
   let world = PhysicsWorld2D::new(@vector.Vec2::new(0.0, -9.8), 1.0)
   bench_build_chain_bodies2d(world, count)
   for i = 0; i + 1 < count; i = i + 1 {
@@ -226,7 +229,7 @@ fn bench_hinge_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
 ///|
 /// Chain links: body 0 is the static anchor, the rest hang below it far enough
 /// apart that no contacts are generated, so a joint benchmark prices joints.
-fn bench_build_chain_bodies2d(world : PhysicsWorld2D, count : Int) -> Unit {
+fn bench_build_chain_bodies2d(world : PhysicsWorld2D, count : Int32) -> Unit {
   world.add_body(
     RigidBody2D::new_static(
       0,
@@ -258,7 +261,10 @@ fn bench_build_chain_bodies2d(world : PhysicsWorld2D, count : Int) -> Unit {
 /// body above the threshold keeps its whole island awake. A pile therefore
 /// cannot be warmed into a sleeping scene, and trying would have produced a
 /// benchmark named `settled` that measured a fully awake solver.
-fn bench_resting_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
+fn bench_resting_fixture2d(
+  count : Int32,
+  warm_frames : Int32,
+) -> BenchFixture2D {
   let world = PhysicsWorld2D::new(@vector.Vec2::new(0.0, -9.8), 1.0)
   let span = count.to_double() * bench_resting_spacing2d
   world.add_body(
@@ -292,7 +298,7 @@ fn bench_resting_fixture2d(count : Int, warm_frames : Int) -> BenchFixture2D {
 ///|
 /// Static bodies get ids well above the dynamic range so `contact_pair_key`
 /// never collides between a wall and a body.
-let bench_static_id_base2d : Int = 1_000_000
+let bench_static_id_base2d : Int32 = 1_000_000
 
 ///|
 let bench_pile_radius2d : Double = 0.5
@@ -320,7 +326,7 @@ let bench_dt2d : Double = 1.0 / 60.0
 ///|
 /// Below `sleep_time_threshold / bench_dt2d` (30), so a warmed pile is in
 /// contact and warm-started but still awake.
-let bench_warm_frames2d : Int = 8
+let bench_warm_frames2d : Int32 = 8
 
 ///|
 /// Two diameters, so a resting body touches the ground and nothing else.
@@ -329,4 +335,4 @@ let bench_resting_spacing2d : Double = 2.0
 ///|
 /// Past `sleep_time_threshold / bench_dt2d` (30) with margin, so the resting
 /// fixture is fully asleep.
-let bench_resting_frames2d : Int = 40
+let bench_resting_frames2d : Int32 = 40

@@ -69,7 +69,7 @@ fn load_native_capture() -> NativeCapture? {
 
 ///|
 /// Resolve the capture size before constructing game state and laying out UI.
-pub fn capture_viewport(width : Int, height : Int) -> (Int, Int) {
+pub fn capture_viewport(width : Int32, height : Int32) -> (Int32, Int32) {
   match load_native_capture() {
     Some({ request: Some(request), .. }) => (request.width, request.height)
     _ => (width, height)
@@ -90,8 +90,8 @@ fn try_run_native_capture(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
   on_frame? : () -> Unit,
-  width~ : Int,
-  height~ : Int,
+  width~ : Int32,
+  height~ : Int32,
 ) -> Bool {
   let capture = match load_native_capture() {
     None => return false
@@ -158,7 +158,7 @@ fn try_run_native_capture(
 }
 
 ///|
-fn draw_command_triangles(cmds : Array[@gfx.DrawTrianglesCommand]) -> Int {
+fn draw_command_triangles(cmds : Array[@gfx.DrawTrianglesCommand]) -> Int32 {
   let mut n = 0
   for cmd in cmds {
     n = n + cmd.indices.length() / 3
@@ -169,13 +169,13 @@ fn draw_command_triangles(cmds : Array[@gfx.DrawTrianglesCommand]) -> Int {
 ///|
 fn write_native_capture_png(
   capture : NativeCapture,
-  pixels : Array[Int],
-  width : Int,
-  height : Int,
-  frames : Int,
-  skipped_commands : Int,
-  drawn_triangles : Int,
-  draw_commands : Int,
+  pixels : Array[Int32],
+  width : Int32,
+  height : Int32,
+  frames : Int32,
+  skipped_commands : Int32,
+  drawn_triangles : Int32,
+  draw_commands : Int32,
   backend : String,
 ) -> Unit {
   if capture.config.binarize {
@@ -260,7 +260,7 @@ fn run_native_gpu_capture(
       overlay_cmds.push(cmd)
     }
   }
-  let mut rgba : Array[Int]? = None
+  let mut rgba : Array[Int32]? = None
   for _ in 0..<2 {
     if scene_cmds.length() > 0 {
       render_commands(graphics, scene_cmds) catch {

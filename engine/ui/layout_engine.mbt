@@ -31,7 +31,7 @@ priv struct ChildMeasure {
 ///|
 /// A flex line: a group of children that fit on one row/column.
 priv struct FlexLine {
-  items : Array[(Int, Double, Double)]
+  items : Array[(Int32, Double, Double)]
   main_size : Double
   cross_size : Double
 }
@@ -49,7 +49,7 @@ fn build_flex_lines(
   if measures.length() == 0 {
     return lines
   }
-  let mut current_items : Array[(Int, Double, Double)] = []
+  let mut current_items : Array[(Int32, Double, Double)] = []
   let mut current_main = 0.0
   let mut current_cross = 0.0
   for i, m in measures {

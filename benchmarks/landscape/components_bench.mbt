@@ -28,7 +28,7 @@ test "phase camera sweep 64 obstructed rays" (b : @bench.T) {
 test "build visibility uniform tails 128" (b : @bench.T) {
   let mask = fixture_mask()
   b.bench(name="landscape/build_visibility_tails_128", fn() {
-    let words : Array[Int] = []
+    let words : Array[Int32] = []
     for _ in 0..<128 {
       mask.append_uniform_dwords(words)
     }

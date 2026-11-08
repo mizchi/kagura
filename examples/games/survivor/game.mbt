@@ -6,8 +6,8 @@
 struct Player {
   mut x : Double
   mut y : Double
-  mut hp : Int
-  max_hp : Int
+  mut hp : Int32
+  max_hp : Int32
   speed : Double
   size : Double
 }
@@ -16,12 +16,12 @@ struct Player {
 struct Enemy {
   mut x : Double
   mut y : Double
-  mut hp : Int
+  mut hp : Int32
   speed : Double
   size : Double
-  kind : Int // 0=basic, 1=fast, 2=tank
+  kind : Int32 // 0=basic, 1=fast, 2=tank
   mut alive : Bool
-  mut hit_timer : Int
+  mut hit_timer : Int32
 }
 
 ///|
@@ -31,8 +31,8 @@ struct Projectile {
   vx : Double
   vy : Double
   mut alive : Bool
-  mut lifetime : Int
-  damage : Int
+  mut lifetime : Int32
+  damage : Int32
   size : Double
 }
 
@@ -42,25 +42,25 @@ struct OrbitWeapon {
   speed : Double
   radius : Double
   size : Double
-  damage : Int
+  damage : Int32
 }
 
 ///|
 struct AreaWeapon {
-  mut timer : Int
-  interval : Int
+  mut timer : Int32
+  interval : Int32
   mut radius : Double
-  mut damage : Int
-  mut active_frames : Int
+  mut damage : Int32
+  mut active_frames : Int32
 }
 
 ///|
 struct ProjectileWeapon {
-  mut timer : Int
-  mut interval : Int
-  mut damage : Int
+  mut timer : Int32
+  mut interval : Int32
+  mut damage : Int32
   speed : Double
-  lifetime : Int
+  lifetime : Int32
   size : Double
 }
 
@@ -69,7 +69,7 @@ struct Gem {
   x : Double
   y : Double
   mut alive : Bool
-  value : Int
+  value : Int32
 }
 
 ///|
@@ -82,18 +82,18 @@ struct SurvivorState {
   orbit_weapons : Array[OrbitWeapon]
   projectile_weapon : ProjectileWeapon
   area_weapon : AreaWeapon
-  mut game_mode : Int // 0=title, 1=play, 2=levelup, 3=gameover
-  mut frame_count : Int
-  mut score : Int
-  mut survival_time : Int
-  mut xp : Int
-  mut xp_to_next : Int
-  mut level : Int
-  mut spawn_timer : Int
-  mut difficulty_level : Int
-  mut upgrade_choices : Array[Int]
-  mut selected_upgrade : Int
-  mut random_seed : Int
+  mut game_mode : Int32 // 0=title, 1=play, 2=levelup, 3=gameover
+  mut frame_count : Int32
+  mut score : Int32
+  mut survival_time : Int32
+  mut xp : Int32
+  mut xp_to_next : Int32
+  mut level : Int32
+  mut spawn_timer : Int32
+  mut difficulty_level : Int32
+  mut upgrade_choices : Array[Int32]
+  mut selected_upgrade : Int32
+  mut random_seed : Int32
   input : @inpututil.InputHelper
   mut screen_w : Double
   mut screen_h : Double
@@ -106,7 +106,7 @@ struct SurvivorState {
 // ============================================================
 
 ///|
-let enemy_basic_hp : Int = 3
+let enemy_basic_hp : Int32 = 3
 
 ///|
 let enemy_basic_speed : Double = 0.6
@@ -115,7 +115,7 @@ let enemy_basic_speed : Double = 0.6
 let enemy_basic_size : Double = 10.0
 
 ///|
-let enemy_fast_hp : Int = 2
+let enemy_fast_hp : Int32 = 2
 
 ///|
 let enemy_fast_speed : Double = 1.2
@@ -124,7 +124,7 @@ let enemy_fast_speed : Double = 1.2
 let enemy_fast_size : Double = 8.0
 
 ///|
-let enemy_tank_hp : Int = 10
+let enemy_tank_hp : Int32 = 10
 
 ///|
 let enemy_tank_speed : Double = 0.3
@@ -133,7 +133,7 @@ let enemy_tank_speed : Double = 0.3
 let enemy_tank_size : Double = 16.0
 
 ///|
-let max_enemies : Int = 100
+let max_enemies : Int32 = 100
 
 ///|
 let gem_collect_dist : Double = 24.0
@@ -141,31 +141,31 @@ let gem_collect_dist : Double = 24.0
 // Upgrade type constants
 
 ///|
-let upgrade_proj_rate : Int = 0
+let upgrade_proj_rate : Int32 = 0
 
 ///|
-let upgrade_proj_dmg : Int = 1
+let upgrade_proj_dmg : Int32 = 1
 
 ///|
-let upgrade_orbit_add : Int = 2
+let upgrade_orbit_add : Int32 = 2
 
 ///|
-let upgrade_orbit_spd : Int = 3
+let upgrade_orbit_spd : Int32 = 3
 
 ///|
-let upgrade_area_rad : Int = 4
+let upgrade_area_rad : Int32 = 4
 
 ///|
-let upgrade_area_dmg : Int = 5
+let upgrade_area_dmg : Int32 = 5
 
 ///|
-let upgrade_hp_heal : Int = 6
+let upgrade_hp_heal : Int32 = 6
 
 ///|
-let upgrade_speed_up : Int = 7
+let upgrade_speed_up : Int32 = 7
 
 ///|
-let upgrade_count : Int = 8
+let upgrade_count : Int32 = 8
 
 // ============================================================
 // Constructor
@@ -220,8 +220,8 @@ fn SurvivorState::new() -> SurvivorState {
 ///|
 fn SurvivorState::set_viewport(
   self : SurvivorState,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   self.screen_w = width.to_double()
   self.screen_h = height.to_double()
@@ -277,18 +277,18 @@ fn SurvivorState::reset(self : SurvivorState) -> Unit {
 // ============================================================
 
 ///|
-fn pseudo_random(seed : Int) -> Int {
+fn pseudo_random(seed : Int32) -> Int32 {
   let x = seed * 1103515245 + 12345
   (x >> 16) & 0x7FFF
 }
 
 ///|
-fn pseudo_random_double(seed : Int) -> Double {
+fn pseudo_random_double(seed : Int32) -> Double {
   pseudo_random(seed).to_double() / 32767.0
 }
 
 ///|
-fn SurvivorState::next_random(self : SurvivorState) -> Int {
+fn SurvivorState::next_random(self : SurvivorState) -> Int32 {
   self.random_seed = pseudo_random(self.random_seed)
   self.random_seed
 }
@@ -744,7 +744,7 @@ fn SurvivorState::update_gems(self : SurvivorState) -> Unit {
 
 ///|
 fn SurvivorState::generate_upgrade_choices(self : SurvivorState) -> Unit {
-  let choices : Array[Int] = []
+  let choices : Array[Int32] = []
   while choices.length() < 3 {
     let c = self.next_random() % upgrade_count
     let mut dup = false
@@ -778,7 +778,7 @@ fn SurvivorState::update_levelup(self : SurvivorState) -> Unit {
 }
 
 ///|
-fn SurvivorState::apply_upgrade(self : SurvivorState, upgrade : Int) -> Unit {
+fn SurvivorState::apply_upgrade(self : SurvivorState, upgrade : Int32) -> Unit {
   match upgrade {
     0 =>
       // PROJ_RATE: decrease interval
@@ -850,7 +850,7 @@ fn SurvivorState::update_gameover(self : SurvivorState) -> Unit {
 // ============================================================
 
 ///|
-fn upgrade_name(upgrade : Int) -> String {
+fn upgrade_name(upgrade : Int32) -> String {
   match upgrade {
     0 => "RATE"
     1 => "DMG"
@@ -892,12 +892,7 @@ fn SurvivorState::view_title(self : SurvivorState) -> @scene.SceneNode {
       scale=2.0,
     ),
     @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
-      @scene.label(
-        key="prompt",
-        x=sw / 2.0,
-        y=sh / 2.0 + 30.0,
-        content="SPACE",
-      )
+      @scene.label(key="prompt", x=sw / 2.0, y=sh / 2.0 + 30.0, content="SPACE")
     }),
   ])
 }

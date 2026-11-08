@@ -1,8 +1,9 @@
 // Projected, read-only ground loot. Keep the web overlay bounded independently of world size.
 
 ///|
+#derive(ToJson)
 struct HunterLootView {
-  id : Int
+  id : Int32
   reachable : Bool
   nearest : Bool
   x : Double
@@ -10,9 +11,11 @@ struct HunterLootView {
   name : String
   rarity : String
   blocked : Bool
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterLootView with ToJson::{to_json}
+
 ///|
 fn rarity_name(rarity : @game.ItemRarity) -> String {
   match rarity {
@@ -65,10 +68,10 @@ fn GameState::hunter_loot_view(self : GameState) -> Array[HunterLootView] {
 }
 
 ///|
-let key_pickup_item : Int = 204
+let key_pickup_item : Int32 = 204
 
 ///|
-fn GameState::apply_loot_pickup(self : GameState, id : Int) -> Bool {
+fn GameState::apply_loot_pickup(self : GameState, id : Int32) -> Bool {
   if self.paused ||
     self.ground_targeting ||
     self.camera_settings.editing ||

@@ -1,9 +1,10 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum InteractableRole {
   Decoration
   Blocking
   Pickup
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for InteractableRole with fn output(self, logger) {
@@ -11,12 +12,13 @@ pub impl Show for InteractableRole with fn output(self, logger) {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum InteractableAnchor {
   StartRoomCenter
   LargestNonStartRoomCenter
   BossRoomCenter
   TreasureRoomCenter
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for InteractableAnchor with fn output(self, logger) {
@@ -24,11 +26,12 @@ pub impl Show for InteractableAnchor with fn output(self, logger) {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum InteractablePickupEffect {
   ScorePickup
   HealthPickup
   EquipmentPickup
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl Show for InteractablePickupEffect with fn output(self, logger) {

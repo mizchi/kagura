@@ -104,7 +104,7 @@ fn clone_grid(grid : @terrain.Grid2D) -> @terrain.Grid2D {
 }
 
 ///|
-fn furthest_room_index_from_player(world : GameWorld) -> Int {
+fn furthest_room_index_from_player(world : GameWorld) -> Int32 {
   let mut best_idx = 1
   let mut best_dist_sq = -1.0
   for i, room in world.dungeon.rooms {

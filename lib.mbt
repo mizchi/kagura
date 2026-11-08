@@ -33,8 +33,8 @@ pub fn default_fixed_step_config() -> FixedStepConfig {
 
 ///|
 pub fn new_fixed_step_config(
-  tps : Int,
-  max_updates_per_frame : Int,
+  tps : Int32,
+  max_updates_per_frame : Int32,
 ) -> FixedStepConfig {
   @core.new_fixed_step_config(tps, max_updates_per_frame)
 }
@@ -71,7 +71,7 @@ pub fn plan_fixed_updates(
 }
 
 ///|
-pub fn step_result_updates(result : StepResult) -> Int {
+pub fn step_result_updates(result : StepResult) -> Int32 {
   result.updates
 }
 

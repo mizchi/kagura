@@ -23,7 +23,7 @@ pub(all) struct EmitterConfig {
   color_start : @math3d.Vec4
   color_end : @math3d.Vec4
   gravity : @math3d.Vec3
-  max_particles : Int
+  max_particles : Int32
 }
 
 pub(all) struct Particle {
@@ -39,10 +39,10 @@ pub(all) struct ParticleEmitter {
   config : EmitterConfig
   mut particles : Array[Particle]
   mut spawn_accumulator : Double
-  mut frame_count : Int
+  mut frame_count : Int32
 }
 pub fn ParticleEmitter::new(EmitterConfig) -> Self
-pub fn ParticleEmitter::particle_count(Self) -> Int
+pub fn ParticleEmitter::particle_count(Self) -> Int32
 pub fn ParticleEmitter::update(Self, Double) -> Unit
 pub fn ParticleEmitter::update_physics_only(Self, Double) -> Unit
 

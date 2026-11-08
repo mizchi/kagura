@@ -12,13 +12,13 @@ fn shape(item : @core.Any) -> @inventory.GridFootprint {
 }
 
 ///|
-fn footprint(item : @core.Any, rotated : Bool) -> Array[(Int, Int)] {
+fn footprint(item : @core.Any, rotated : Bool) -> Array[(Int32, Int32)] {
   shape(item).cells(rotated~)
 }
 
 ///|
-fn cells_to_js(cells : Array[(Int, Int)]) -> @core.Any {
-  @core.any(cells.map(fn(cell) { [cell.0, cell.1] }))
+fn cells_to_js(cells : Array[(Int32, Int32)]) -> @core.Any {
+  array_to_js(cells.map(fn(cell) { ([cell.0, cell.1] : FixedArray[Int32]) }))
 }
 
 ///|
@@ -43,15 +43,15 @@ pub fn dimensions(item : @core.Any, rotated : @core.Any) -> @core.Any {
   let (width, height) = shape(item).size(
     rotated=truthy(argument(rotated, item._get("rotated"))),
   )
-  @core.any([width, height])
+  @core.any(([width, height] : FixedArray[Int32]))
 }
 
 ///|
 pub fn preview_placement(
   view : @core.Any,
   item : @core.Any,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   rotated : @core.Any,
 ) -> @core.Any {
   let result = @inventory.preview_placement(
@@ -109,7 +109,7 @@ pub fn comparison_rows(view : @core.Any, item : @core.Any) -> @core.Any {
       break
     }
   }
-  @core.any(
+  array_to_js(
     @inventory.compare_stats(stats(item), previous).map(fn(row) {
       @core.from_entries([
         ("label", @core.any(row.label)),
@@ -119,4 +119,9 @@ pub fn comparison_rows(view : @core.Any, item : @core.Any) -> @core.Any {
       ])
     }),
   )
+}
+
+///|
+fn[T] array_to_js(values : Array[T]) -> @core.Any {
+  @core.any(FixedArray::from_array(values[:]))
 }

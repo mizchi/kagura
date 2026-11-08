@@ -6,6 +6,7 @@
 /// - internal/graphicscommand/command.go
 
 ///|
+#derive(Debug)
 pub struct AtlasTileDrawSpec {
   atlas_key : @atlas.AssetKey
   dst_region : @gfx.DstRegion
@@ -13,8 +14,8 @@ pub struct AtlasTileDrawSpec {
   top : Double
   right : Double
   bottom : Double
-  uniform_dwords : Array[Int]
-} derive(Debug)
+  uniform_dwords : Array[Int32]
+}
 
 ///|
 pub impl Show for AtlasTileDrawSpec with fn output(self, logger) {
@@ -22,10 +23,11 @@ pub impl Show for AtlasTileDrawSpec with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct TileAtlasEntry {
-  tile_index : Int
+  tile_index : Int32
   atlas_key : @atlas.AssetKey
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TileAtlasEntry with fn output(self, logger) {
@@ -33,9 +35,10 @@ pub impl Show for TileAtlasEntry with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct TileAtlasTable {
   entries : Array[TileAtlasEntry]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TileAtlasTable with fn output(self, logger) {
@@ -43,12 +46,13 @@ pub impl Show for TileAtlasTable with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct TileChunkRect {
-  tile_x : Int
-  tile_y : Int
-  tile_width : Int
-  tile_height : Int
-} derive(Debug)
+  tile_x : Int32
+  tile_y : Int32
+  tile_width : Int32
+  tile_height : Int32
+}
 
 ///|
 pub impl Show for TileChunkRect with fn output(self, logger) {
@@ -57,16 +61,17 @@ pub impl Show for TileChunkRect with fn output(self, logger) {
 
 ///|
 pub(all) struct TileChunkBatchCache {
-  chunk_size : Int
-  mut previous_tile_indices : Array[Int]
+  chunk_size : Int32
+  mut previous_tile_indices : Array[Int32]
   mut previous_visible_chunk : TileChunkRect?
 }
 
 ///|
+#derive(Debug)
 struct TileChunkOrigin {
-  tile_x : Int
-  tile_y : Int
-} derive(Debug)
+  tile_x : Int32
+  tile_y : Int32
+}
 
 ///|
 pub impl Show for TileChunkOrigin with fn output(self, logger) {
@@ -81,14 +86,14 @@ pub fn new_atlas_tile_draw_spec(
   top : Double,
   right : Double,
   bottom : Double,
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> AtlasTileDrawSpec {
   { atlas_key, dst_region, left, top, right, bottom, uniform_dwords, }
 }
 
 ///|
 pub fn new_tile_atlas_entry(
-  tile_index : Int,
+  tile_index : Int32,
   atlas_key : @atlas.AssetKey,
 ) -> TileAtlasEntry {
   { tile_index, atlas_key, }
@@ -101,18 +106,18 @@ pub fn new_tile_atlas_table(entries : Array[TileAtlasEntry]) -> TileAtlasTable {
 
 ///|
 pub fn new_tile_chunk_rect(
-  tile_x : Int,
-  tile_y : Int,
-  tile_width : Int,
-  tile_height : Int,
+  tile_x : Int32,
+  tile_y : Int32,
+  tile_width : Int32,
+  tile_height : Int32,
 ) -> TileChunkRect {
   { tile_x, tile_y, tile_width, tile_height, }
 }
 
 ///|
 pub fn TileChunkBatchCache::new(
-  chunk_size : Int,
-  initial_tile_indices : Array[Int],
+  chunk_size : Int32,
+  initial_tile_indices : Array[Int32],
 ) -> TileChunkBatchCache {
   {
     chunk_size: normalized_positive_int(chunk_size),
@@ -122,7 +127,7 @@ pub fn TileChunkBatchCache::new(
 }
 
 ///|
-fn safe_chunk_end(start : Int, length : Int) -> Int {
+fn safe_chunk_end(start : Int32, length : Int32) -> Int32 {
   if length <= 0 {
     start
   } else {
@@ -173,7 +178,7 @@ pub fn clip_tile_chunks_to_visible(
 ///|
 pub fn resolve_tile_atlas_key(
   table : TileAtlasTable,
-  tile_index : Int,
+  tile_index : Int32,
 ) -> @atlas.AssetKey? {
   let mut out : @atlas.AssetKey? = None
   for entry in table.entries {
@@ -185,7 +190,7 @@ pub fn resolve_tile_atlas_key(
 }
 
 ///|
-fn floor_to_int(value : Double) -> Int {
+fn floor_to_int(value : Double) -> Int32 {
   let truncated = value.to_int()
   if value < truncated.to_double() {
     truncated - 1
@@ -196,8 +201,8 @@ fn floor_to_int(value : Double) -> Int {
 
 ///|
 pub fn estimate_visible_tile_chunk(
-  map_columns : Int,
-  map_rows : Int,
+  map_columns : Int32,
+  map_rows : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
@@ -206,7 +211,7 @@ pub fn estimate_visible_tile_chunk(
   view_top : Double,
   view_right : Double,
   view_bottom : Double,
-  margin_tiles : Int,
+  margin_tiles : Int32,
 ) -> TileChunkRect {
   let safe_columns = if map_columns <= 0 { 0 } else { map_columns }
   let safe_rows = if map_rows <= 0 { 0 } else { map_rows }
@@ -278,11 +283,11 @@ pub fn append_atlas_tilemap_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   specs : Array[AtlasTileDrawSpec],
-) -> Int {
+) -> Int32 {
   let mut appended = 0
   for spec in specs {
     let ok = @sprite2d.append_atlas_sprite_draw_command(
@@ -310,8 +315,9 @@ pub fn append_atlas_tilemap_draw_commands(
 }
 
 ///|
+#derive(Debug)
 struct ResolvedTileQuad {
-  page_image_id : Int
+  page_image_id : Int32
   left : Double
   top : Double
   right : Double
@@ -320,7 +326,7 @@ struct ResolvedTileQuad {
   v0 : Double
   u1 : Double
   v1 : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ResolvedTileQuad with fn output(self, logger) {
@@ -328,7 +334,7 @@ pub impl Show for ResolvedTileQuad with fn output(self, logger) {
 }
 
 ///|
-fn normalized_positive_int(value : Int) -> Int {
+fn normalized_positive_int(value : Int32) -> Int32 {
   if value <= 0 {
     1
   } else {
@@ -337,8 +343,8 @@ fn normalized_positive_int(value : Int) -> Int {
 }
 
 ///|
-fn copy_int_array(values : Array[Int]) -> Array[Int] {
-  let out : Array[Int] = []
+fn copy_int_array(values : Array[Int32]) -> Array[Int32] {
+  let out : Array[Int32] = []
   for value in values {
     out.push(value)
   }
@@ -357,7 +363,7 @@ fn tile_chunk_rect_eq(lhs : TileChunkRect, rhs : TileChunkRect) -> Bool {
 fn resolve_tile_quad(
   table : TileAtlasTable,
   atlas_repository : @atlas.SimpleAtlasImageRepository,
-  tile_index : Int,
+  tile_index : Int32,
   left : Double,
   top : Double,
   right : Double,
@@ -392,12 +398,12 @@ fn resolve_tile_quad(
 fn collect_chunk_tile_quads(
   table : TileAtlasTable,
   atlas_repository : @atlas.SimpleAtlasImageRepository,
-  tile_indices : Array[Int],
-  columns : Int,
-  chunk_x : Int,
-  chunk_y : Int,
-  chunk_width : Int,
-  chunk_height : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
+  chunk_x : Int32,
+  chunk_y : Int32,
+  chunk_width : Int32,
+  chunk_height : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
@@ -444,7 +450,7 @@ fn collect_chunk_tile_quads(
 ///|
 fn append_quad_payload(
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   quad : ResolvedTileQuad,
 ) -> Unit {
   let base = vertex_data.length() / 4
@@ -473,7 +479,7 @@ fn append_quad_payload(
 }
 
 ///|
-fn page_slot_of(page_ids : Array[Int], page_image_id : Int) -> Int {
+fn page_slot_of(page_ids : Array[Int32], page_image_id : Int32) -> Int32 {
   let mut out = -1
   for i in 0..<page_ids.length() {
     if page_ids[i] == page_image_id {
@@ -488,7 +494,7 @@ fn page_slot_of(page_ids : Array[Int], page_image_id : Int) -> Int {
 // renderer2d/atlas_quad.mbt for rationale.
 
 ///|
-fn mix_cache_key(seed : Int, value : Int) -> Int {
+fn mix_cache_key(seed : Int32, value : Int32) -> Int32 {
   seed * 16777619 + value + 31
 }
 
@@ -496,7 +502,7 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // metadata. Avoids the int64 round-trip in @gfx.double_to_f32_bits.
 
 ///|
-fn double_cache_bits(v : Double) -> Int {
+fn double_cache_bits(v : Double) -> Int32 {
   (v * 4096.0).to_int()
 }
 
@@ -506,11 +512,11 @@ fn tilemap_draw_resource_cache_key(
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
   blend : @gfx.BlendMode,
-  page_image_id : Int,
+  page_image_id : Int32,
   vertex_data : Array[Double],
-  indices : Array[Int],
-  uniform_dwords : Array[Int],
-) -> Int {
+  indices : Array[Int32],
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let mut hash = 0x54494C45
   hash = mix_cache_key(hash, dst.id)
   hash = mix_cache_key(hash, dst.width)
@@ -563,10 +569,10 @@ fn contains_tile_chunk_origin(
 
 ///|
 pub fn diff_tile_index_chunks(
-  previous_tile_indices : Array[Int],
-  next_tile_indices : Array[Int],
-  columns : Int,
-  chunk_size : Int,
+  previous_tile_indices : Array[Int32],
+  next_tile_indices : Array[Int32],
+  columns : Int32,
+  chunk_size : Int32,
 ) -> Array[TileChunkRect] {
   let safe_columns = normalized_positive_int(columns)
   let safe_chunk_size = normalized_positive_int(chunk_size)
@@ -635,10 +641,10 @@ pub fn diff_tile_index_chunks(
 
 ///|
 pub fn diff_visible_tile_index_chunks(
-  previous_tile_indices : Array[Int],
-  next_tile_indices : Array[Int],
-  columns : Int,
-  chunk_size : Int,
+  previous_tile_indices : Array[Int32],
+  next_tile_indices : Array[Int32],
+  columns : Int32,
+  chunk_size : Int32,
   visible_chunk : TileChunkRect,
 ) -> Array[TileChunkRect] {
   let chunks = diff_tile_index_chunks(
@@ -654,18 +660,18 @@ pub fn append_tile_indexed_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   dst_region : @gfx.DstRegion,
-  tile_indices : Array[Int],
-  columns : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
   tile_height : Double,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let safe_columns = normalized_positive_int(columns)
   let rows = (tile_indices.length() + safe_columns - 1) / safe_columns
   append_tile_indexed_chunk_draw_commands(
@@ -682,29 +688,29 @@ pub fn append_tile_indexed_chunk_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   dst_region : @gfx.DstRegion,
-  tile_indices : Array[Int],
-  columns : Int,
-  chunk_x : Int,
-  chunk_y : Int,
-  chunk_width : Int,
-  chunk_height : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
+  chunk_x : Int32,
+  chunk_y : Int32,
+  chunk_width : Int32,
+  chunk_height : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
   tile_height : Double,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let quads = collect_chunk_tile_quads(
     table, atlas_repository, tile_indices, columns, chunk_x, chunk_y, chunk_width,
     chunk_height, origin_left, origin_top, tile_width, tile_height,
   )
   for quad in quads {
     let vertex_data : Array[Double] = []
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     append_quad_payload(vertex_data, indices, quad)
     commands.push(
       @gfx.new_draw_triangles_command(
@@ -742,29 +748,29 @@ pub fn append_tile_indexed_chunk_batched_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   dst_region : @gfx.DstRegion,
-  tile_indices : Array[Int],
-  columns : Int,
-  chunk_x : Int,
-  chunk_y : Int,
-  chunk_width : Int,
-  chunk_height : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
+  chunk_x : Int32,
+  chunk_y : Int32,
+  chunk_width : Int32,
+  chunk_height : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
   tile_height : Double,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let quads = collect_chunk_tile_quads(
     table, atlas_repository, tile_indices, columns, chunk_x, chunk_y, chunk_width,
     chunk_height, origin_left, origin_top, tile_width, tile_height,
   )
-  let page_ids : Array[Int] = []
+  let page_ids : Array[Int32] = []
   let page_vertex_data : Array[Array[Double]] = []
-  let page_indices : Array[Array[Int]] = []
+  let page_indices : Array[Array[Int32]] = []
   for quad in quads {
     let mut slot = page_slot_of(page_ids, quad.page_image_id)
     if slot < 0 {
@@ -817,18 +823,18 @@ pub fn append_tile_indexed_dirty_chunk_batched_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   dst_region : @gfx.DstRegion,
-  tile_indices : Array[Int],
-  columns : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
   tile_height : Double,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let mut appended = 0
   for chunk in chunks {
     appended = appended +
@@ -871,19 +877,19 @@ pub fn TileChunkBatchCache::append_visible_dirty_chunk_batched_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   dst_region : @gfx.DstRegion,
-  tile_indices : Array[Int],
-  columns : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
   visible_chunk : TileChunkRect,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
   tile_height : Double,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let chunks : Array[TileChunkRect] = match self.previous_visible_chunk {
     Some(previous_visible_chunk) =>
       if tile_chunk_rect_eq(previous_visible_chunk, visible_chunk) {
@@ -914,8 +920,8 @@ pub fn atlas_tilemap_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   specs : Array[AtlasTileDrawSpec],
 ) -> Array[@gfx.DrawTrianglesCommand] {
@@ -932,21 +938,21 @@ pub fn tile_indexed_chunk_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   dst_region : @gfx.DstRegion,
-  tile_indices : Array[Int],
-  columns : Int,
-  chunk_x : Int,
-  chunk_y : Int,
-  chunk_width : Int,
-  chunk_height : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
+  chunk_x : Int32,
+  chunk_y : Int32,
+  chunk_width : Int32,
+  chunk_height : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
   tile_height : Double,
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let _ = append_tile_indexed_chunk_draw_commands(
@@ -963,21 +969,21 @@ pub fn tile_indexed_chunk_batched_draw_commands(
   atlas_repository : @atlas.SimpleAtlasImageRepository,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   dst_region : @gfx.DstRegion,
-  tile_indices : Array[Int],
-  columns : Int,
-  chunk_x : Int,
-  chunk_y : Int,
-  chunk_width : Int,
-  chunk_height : Int,
+  tile_indices : Array[Int32],
+  columns : Int32,
+  chunk_x : Int32,
+  chunk_y : Int32,
+  chunk_width : Int32,
+  chunk_height : Int32,
   origin_left : Double,
   origin_top : Double,
   tile_width : Double,
   tile_height : Double,
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let _ = append_tile_indexed_chunk_batched_draw_commands(

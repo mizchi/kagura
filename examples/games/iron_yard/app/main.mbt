@@ -29,8 +29,8 @@ priv struct App {
   mut lighting : @light3d.LightingEnvironment
   mut environment : @draw3d.PbrEnvironment
   shadow : @draw3d.PbrShadow
-  uniforms : Array[Array[Int]]
-  mut uniform_cursor : Int
+  uniforms : Array[Array[Int32]]
+  mut uniform_cursor : Int32
 }
 
 ///|
@@ -46,10 +46,10 @@ extern "js" fn publish(source : String, projection : String) -> Unit =
 
 ///|
 pub fn register_image(
-  id : Int,
-  width : Int,
-  height : Int,
-  rgba : Array[Int],
+  id : Int32,
+  width : Int32,
+  height : Int32,
+  rgba : Array[Int32],
 ) -> Unit {
   @hooks.install("#app")
   @hooks.register_source_image_rgba8(id, width, height, rgba)
@@ -258,7 +258,11 @@ fn camera(a : App) -> @camera3d.Camera3D {
     180.0,
     a.aspect,
     0.15,
-    if a.editing { 1000.0 } else { 260.0 },
+    if a.editing {
+      1000.0
+    } else {
+      260.0
+    },
   )
 }
 

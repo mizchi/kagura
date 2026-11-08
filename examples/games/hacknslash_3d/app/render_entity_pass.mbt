@@ -25,7 +25,7 @@ fn default_entity_instance_scratch() -> EntityInstanceScratch {
 }
 
 ///|
-fn is_tile_visible(region : VisibleRegion, col : Int, row : Int) -> Bool {
+fn is_tile_visible(region : VisibleRegion, col : Int32, row : Int32) -> Bool {
   col >= region.min_col &&
   col <= region.max_col &&
   row >= region.min_row &&
@@ -33,7 +33,11 @@ fn is_tile_visible(region : VisibleRegion, col : Int, row : Int) -> Bool {
 }
 
 ///|
-fn height_at_tile(dungeon : @game.DungeonData, col : Int, row : Int) -> Double {
+fn height_at_tile(
+  dungeon : @game.DungeonData,
+  col : Int32,
+  row : Int32,
+) -> Double {
   if col < 0 ||
     col >= dungeon.grid.width ||
     row < 0 ||
@@ -318,8 +322,8 @@ fn push_entity_instances_if_any(
   shader3d_colored : @gfx.ShaderHandle,
   shader3d_instanced : @gfx.ShaderHandle,
   shader3d_monochrome : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   @scene3d.push_instanced_instance_data_gpu_commands_with_color_optimization_and_view_projection(
@@ -333,8 +337,8 @@ fn push_item_instance_cmds(
   state : GameState,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let instances = state.entity_instance_scratch.item_instances
@@ -390,8 +394,8 @@ fn push_arrow_instance_cmds(
   state : GameState,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   push_entity_instances_if_any(
@@ -414,8 +418,8 @@ fn push_fireball_instance_cmds(
   state : GameState,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let instances = state.entity_instance_scratch.fireball_instances
@@ -470,8 +474,8 @@ fn push_enemy_projectile_instance_cmds(
   state : GameState,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   push_entity_instances_if_any(
@@ -494,8 +498,8 @@ fn push_homing_missile_instance_cmds(
   state : GameState,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let instances = state.entity_instance_scratch.homing_missile_instances
@@ -552,8 +556,8 @@ fn push_loot_beam_instance_cmds(
   state : GameState,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let instances = state.entity_instance_scratch.loot_beam_instances
@@ -594,8 +598,8 @@ fn push_entity_instanced_cmds(
   region : VisibleRegion,
   camera : @camera3d.Camera3D,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   state.rebuild_entity_instance_scratch(region)

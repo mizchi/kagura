@@ -10,7 +10,7 @@ pub fn HeightField::raycast(
   dx : Double,
   dy : Double,
   dz : Double,
-  max_distance? : Double = 256.0,
+  max_distance~ : Double = 256.0,
 ) -> (Double, Double, Double)? {
   if [ox, oy, oz, dx, dy, dz, max_distance].any(v => {
       v.is_nan() || v.abs() > 1.0e12

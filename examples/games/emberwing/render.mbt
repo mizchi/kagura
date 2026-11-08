@@ -12,7 +12,7 @@ fn batch(mesh : @mesh3d.Mesh3D) -> Batch {
 fn Batch::push(
   self : Batch,
   matrix : @math3d.Mat4,
-  hex? : Int = 0xffffff,
+  hex~ : Int32 = 0xffffff,
 ) -> Unit {
   self.instances.push(matrix, color=color(hex))
 }
@@ -22,8 +22,8 @@ fn Batch::put(
   self : Batch,
   p : @math3d.Vec3,
   scale : @math3d.Vec3,
-  hex? : Int = 0xffffff,
-  yaw? : Double = 0,
+  hex~ : Int32 = 0xffffff,
+  yaw~ : Double = 0,
 ) -> Unit {
   self.push(transform(p, scale, yaw~), hex~)
 }
@@ -347,7 +347,7 @@ fn Batch::segment(
   start : @math3d.Vec3,
   end : @math3d.Vec3,
   radius : Double,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
   ignore(self.instances.push_segment(start, end, radius, color=color(hex)))
 }

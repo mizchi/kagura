@@ -1,12 +1,12 @@
 ///|
 /// GPU shader stage constants
-pub const SHADER_STAGE_VERTEX : Int = 1
+pub const SHADER_STAGE_VERTEX : Int32 = 1
 
 ///|
-pub const SHADER_STAGE_FRAGMENT : Int = 2
+pub const SHADER_STAGE_FRAGMENT : Int32 = 2
 
 ///|
-pub const SHADER_STAGE_COMPUTE : Int = 4
+pub const SHADER_STAGE_COMPUTE : Int32 = 4
 
 ///|
 /// Default 2D shader WGSL source
@@ -18,15 +18,15 @@ pub(all) struct TextureEntry {
   texture : @core.Any
   view : @core.Any
   sampler : @core.Any
-  width : Int
-  height : Int
-  mut revision : Int
+  width : Int32
+  height : Int32
+  mut revision : Int32
 }
 
 ///|
 /// Buffer entry for resource caching
 pub(all) struct BufferEntry {
-  mut size : Int
+  mut size : Int32
   mut buffer : @core.Any
 }
 
@@ -39,8 +39,8 @@ pub(all) struct DrawResourceCache {
   uniform_bind_groups : Array[@core.Any?]
   uniform_bind_buffers : Array[@core.Any?]
   texture_bind_groups : Array[@core.Any?]
-  texture_bind_image_ids : Array[Int]
-  texture_bind_revisions : Array[Int]
+  texture_bind_image_ids : Array[Int32]
+  texture_bind_revisions : Array[Int32]
 }
 
 ///|
@@ -71,8 +71,8 @@ pub(all) struct CustomPipelineEntry {
 pub(all) struct RenderTargetEntry {
   texture : @core.Any
   view : @core.Any
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 }
 
 ///|
@@ -80,8 +80,8 @@ pub(all) struct RenderTargetEntry {
 pub(all) struct DepthTextureEntry {
   texture : @core.Any
   view : @core.Any
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 }
 
 ///|
@@ -101,13 +101,13 @@ pub(all) struct GpuState {
   // Caches
   mut draw_cache : DrawResourceCache?
   mut custom_pipelines : Map[String, CustomPipelineEntry]
-  mut render_targets : Map[Int, RenderTargetEntry]
+  mut render_targets : Map[Int32, RenderTargetEntry]
   mut depth_textures : Map[String, DepthTextureEntry]
   // Texture registry (imageId -> TextureEntry)
-  mut textures : Map[Int, TextureEntry]
+  mut textures : Map[Int32, TextureEntry]
   // Pending
   mut pending_buffer_cleanup : Array[@core.Any]
-  mut screen_target_id : Int
+  mut screen_target_id : Int32
 }
 
 ///|

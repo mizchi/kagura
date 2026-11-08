@@ -17,7 +17,7 @@ pub struct VelocityState2D {
   vx : Array[Double]
   vy : Array[Double]
   w : Array[Double]
-  mut count : Int
+  mut count : Int32
 }
 
 ///|

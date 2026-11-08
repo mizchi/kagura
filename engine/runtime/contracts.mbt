@@ -6,11 +6,12 @@
 /// - gameforui.go
 
 ///|
+#derive(Debug)
 pub struct RuntimeConfig {
-  max_skip_frames : Int
+  max_skip_frames : Int32
   enable_vsync : Bool
   clear_screen_every_frame : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RuntimeConfig with fn output(self, logger) {
@@ -18,10 +19,11 @@ pub impl Show for RuntimeConfig with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct FramePlan {
-  updates : Int
+  updates : Int32
   should_draw : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for FramePlan with fn output(self, logger) {
@@ -30,27 +32,30 @@ pub impl Show for FramePlan with fn output(self, logger) {
 
 ///|
 pub struct RuntimeHooks {
-  on_input_captured : (Int, @core.InputSnapshot) -> Unit
-  on_post_update : (Int, @core.FrameBudget) -> Unit
+  on_input_captured : (Int32, @core.InputSnapshot) -> Unit
+  on_post_update : (Int32, @core.FrameBudget) -> Unit
 }
 
 ///|
 pub fn new_runtime_hooks(
-  on_input_captured : (Int, @core.InputSnapshot) -> Unit,
+  on_input_captured : (Int32, @core.InputSnapshot) -> Unit,
 ) -> RuntimeHooks {
   { on_input_captured, on_post_update: fn(_tick, _frame) { () }, }
 }
 
 ///|
 pub fn new_runtime_hooks_full(
-  on_input_captured : (Int, @core.InputSnapshot) -> Unit,
-  on_post_update : (Int, @core.FrameBudget) -> Unit,
+  on_input_captured : (Int32, @core.InputSnapshot) -> Unit,
+  on_post_update : (Int32, @core.FrameBudget) -> Unit,
 ) -> RuntimeHooks {
   { on_input_captured, on_post_update, }
 }
 
 ///|
-fn default_on_input_captured(_tick : Int, _input : @core.InputSnapshot) -> Unit {
+fn default_on_input_captured(
+  _tick : Int32,
+  _input : @core.InputSnapshot,
+) -> Unit {
   ()
 }
 
@@ -66,15 +71,18 @@ pub fn default_runtime_config() -> RuntimeConfig {
 
 ///|
 pub fn new_runtime_config(
-  max_skip_frames? : Int = 5,
-  enable_vsync? : Bool = true,
-  clear_screen_every_frame? : Bool = true,
+  max_skip_frames~ : Int32 = 5,
+  enable_vsync~ : Bool = true,
+  clear_screen_every_frame~ : Bool = true,
 ) -> RuntimeConfig {
   { max_skip_frames, enable_vsync, clear_screen_every_frame, }
 }
 
 ///|
-pub fn plan_frame(fixed : @core.StepResult, max_skip_frames : Int) -> FramePlan {
+pub fn plan_frame(
+  fixed : @core.StepResult,
+  max_skip_frames : Int32,
+) -> FramePlan {
   let cap = if max_skip_frames <= 0 { 1 } else { max_skip_frames }
   let updates = if fixed.updates > cap { cap } else { fixed.updates }
   let should_draw = updates > 0 || fixed.alpha > 0.0

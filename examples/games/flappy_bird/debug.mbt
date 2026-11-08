@@ -1,15 +1,16 @@
 ///|
 /// Game-owned logical state. GPU resources and input edges are not checkpoint data.
+#derive(FromJson, ToJson)
 struct DebugState {
   layout : @scene2d.Document
-  mode : Int
-  score : Int
+  mode : Int32
+  score : Int32
   bird_y : Double
-  frame_count : Int
+  frame_count : Int32
   velocity : Double
-  pipe_timer : Int
+  pipe_timer : Int32
   pipes : Array[Pipe]
-} derive(FromJson, ToJson)
+}
 
 ///|
 extend DebugState with ToJson::{to_json}

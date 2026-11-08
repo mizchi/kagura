@@ -2,11 +2,11 @@
 package "mizchi/kagura_platform_web/playback"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn create_motion_player(@core.Any) -> @core.Any
+pub fn create_motion_player(@js_core.Any) -> @js_core.Any
 
 // Errors
 

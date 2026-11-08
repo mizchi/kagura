@@ -11,7 +11,7 @@
 /// without renumbering live ids (callers can keep dangling EntityId
 /// references safely - they just observe the entity as dead).
 pub struct World {
-  mut next_id : Int
+  mut next_id : Int32
   alive : Array[Bool]
   tags : Array[Array[Tag]?]
   transforms : Array[@transform3d.Transform3D?]
@@ -19,8 +19,8 @@ pub struct World {
   health : Array[Health?]
   sprites : Array[Sprite?]
   materials : Array[@scene3d.Material?]
-  physics_body_ids : Array[Int?]
-  scene_node_ids : Array[Int?]
+  physics_body_ids : Array[Int32?]
+  scene_node_ids : Array[Int32?]
   animation_players : Array[@animation3d.AnimationPlayer?]
 }
 
@@ -81,7 +81,7 @@ pub fn World::is_alive(self : World, eid : EntityId) -> Bool {
 }
 
 ///|
-pub fn World::entity_count(self : World) -> Int {
+pub fn World::entity_count(self : World) -> Int32 {
   let mut count = 0
   for v in self.alive {
     if v {
@@ -228,13 +228,13 @@ pub fn World::get_material(self : World, eid : EntityId) -> @scene3d.Material? {
 pub fn World::set_physics_body_id(
   self : World,
   eid : EntityId,
-  body_id : Int,
+  body_id : Int32,
 ) -> Unit {
   self.physics_body_ids[eid.value] = Some(body_id)
 }
 
 ///|
-pub fn World::get_physics_body_id(self : World, eid : EntityId) -> Int? {
+pub fn World::get_physics_body_id(self : World, eid : EntityId) -> Int32? {
   if eid.value >= 0 && eid.value < self.physics_body_ids.length() {
     self.physics_body_ids[eid.value]
   } else {
@@ -248,13 +248,13 @@ pub fn World::get_physics_body_id(self : World, eid : EntityId) -> Int? {
 pub fn World::set_scene_node_id(
   self : World,
   eid : EntityId,
-  node_id : Int,
+  node_id : Int32,
 ) -> Unit {
   self.scene_node_ids[eid.value] = Some(node_id)
 }
 
 ///|
-pub fn World::get_scene_node_id(self : World, eid : EntityId) -> Int? {
+pub fn World::get_scene_node_id(self : World, eid : EntityId) -> Int32? {
   if eid.value >= 0 && eid.value < self.scene_node_ids.length() {
     self.scene_node_ids[eid.value]
   } else {

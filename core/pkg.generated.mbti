@@ -12,167 +12,179 @@ pub fn empty_input_snapshot() -> InputSnapshot
 
 pub fn initial_fixed_step_state() -> FixedStepState
 
-pub fn new_fixed_step_config(Int, Int) -> FixedStepConfig
+pub fn new_fixed_step_config(Int32, Int32) -> FixedStepConfig
 
-pub fn new_frame_budget(Int, Double, Int) -> FrameBudget
+pub fn new_frame_budget(Int32, Double, Int32) -> FrameBudget
 
-pub fn new_gamepad_snapshot(Int, Array[Double], Array[Int]) -> GamepadSnapshot
+pub fn new_gamepad_snapshot(Int32, Array[Double], Array[Int32]) -> GamepadSnapshot
 
-pub fn new_input_snapshot(Double, Double, Double, Double, Array[Int]) -> InputSnapshot
+pub fn new_input_snapshot(Double, Double, Double, Double, Array[Int32]) -> InputSnapshot
 
-pub fn new_input_snapshot_full(Double, Double, Double, Double, Array[Int], Array[Int], Array[TouchPoint], Array[GamepadSnapshot]) -> InputSnapshot
+pub fn new_input_snapshot_full(Double, Double, Double, Double, Array[Int32], Array[Int32], Array[TouchPoint], Array[GamepadSnapshot]) -> InputSnapshot
 
-pub fn new_logical_size(Int, Int) -> LogicalSize
+pub fn new_logical_size(Int32, Int32) -> LogicalSize
 
 pub fn new_outside_size(Double, Double) -> OutsideSize
 
-pub fn new_touch_point(Int, Double, Double) -> TouchPoint
+pub fn new_touch_point(Int32, Double, Double) -> TouchPoint
 
-pub fn new_touch_point_ex(Int, Double, Double, TouchPhase) -> TouchPointEx
+pub fn new_touch_point_ex(Int32, Double, Double, TouchPhase) -> TouchPointEx
 
-pub fn new_touch_point_ex_full(Int, Double, Double, TouchPhase, Double, Double, Double) -> TouchPointEx
+pub fn new_touch_point_ex_full(Int32, Double, Double, TouchPhase, Double, Double, Double) -> TouchPointEx
 
-pub fn new_touch_point_with_source(Int, Double, Double, TouchSource) -> TouchPoint
+pub fn new_touch_point_with_source(Int32, Double, Double, TouchSource) -> TouchPoint
 
 pub fn step_fixed_timestep(FixedStepState, Double, FixedStepConfig) -> StepResult
 
-pub fn touch_phase_from_int(Int) -> TouchPhase
+pub fn touch_phase_from_int(Int32) -> TouchPhase
 
-pub fn touch_phase_to_int(TouchPhase) -> Int
+pub fn touch_phase_to_int(TouchPhase) -> Int32
 
 pub fn touch_point_from_ex(TouchPointEx) -> TouchPoint
 
-pub fn touch_source_from_int(Int) -> TouchSource
+pub fn touch_source_from_int(Int32) -> TouchSource
 
-pub fn touch_source_to_int(TouchSource) -> Int
+pub fn touch_source_to_int(TouchSource) -> Int32
 
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct FixedStepConfig {
-  tps : Int
-  max_updates_per_frame : Int
-} derive(@debug.Debug)
+  tps : Int32
+  max_updates_per_frame : Int32
+}
 pub fn FixedStepConfig::output(Self, &Logger) -> Unit
 pub fn FixedStepConfig::to_repr(Self) -> @debug.Repr
 pub fn FixedStepConfig::to_string(Self) -> String
 pub impl Show for FixedStepConfig
 
+#derive(@debug.Debug)
 pub struct FixedStepState {
   accumulator_ms : Double
-  tick : Int
-} derive(@debug.Debug)
+  tick : Int32
+}
 pub fn FixedStepState::output(Self, &Logger) -> Unit
 pub fn FixedStepState::to_repr(Self) -> @debug.Repr
 pub fn FixedStepState::to_string(Self) -> String
 pub impl Show for FixedStepState
 
+#derive(@debug.Debug)
 pub struct FrameBudget {
-  updates : Int
+  updates : Int32
   alpha : Double
-  tick : Int
-} derive(@debug.Debug)
+  tick : Int32
+}
 pub fn FrameBudget::output(Self, &Logger) -> Unit
 pub fn FrameBudget::to_repr(Self) -> @debug.Repr
 pub fn FrameBudget::to_string(Self) -> String
 pub impl Show for FrameBudget
 
+#derive(@debug.Debug)
 pub struct GamepadSnapshot {
-  id : Int
+  id : Int32
   axes : Array[Double]
-  pressed_buttons : Array[Int]
-} derive(@debug.Debug)
+  pressed_buttons : Array[Int32]
+}
 pub fn GamepadSnapshot::output(Self, &Logger) -> Unit
 pub fn GamepadSnapshot::to_repr(Self) -> @debug.Repr
 pub fn GamepadSnapshot::to_string(Self) -> String
 pub impl Show for GamepadSnapshot
 
+#derive(@debug.Debug)
 pub struct InputSnapshot {
   cursor_x : Double
   cursor_y : Double
   wheel_x : Double
   wheel_y : Double
-  pressed_keys : Array[Int]
-  pressed_mouse_buttons : Array[Int]
+  pressed_keys : Array[Int32]
+  pressed_mouse_buttons : Array[Int32]
   touches : Array[TouchPoint]
   gamepads : Array[GamepadSnapshot]
-} derive(@debug.Debug)
+}
 pub fn InputSnapshot::output(Self, &Logger) -> Unit
 pub fn InputSnapshot::to_repr(Self) -> @debug.Repr
 pub fn InputSnapshot::to_string(Self) -> String
 pub impl Show for InputSnapshot
 
+#derive(@debug.Debug)
 pub struct LogicalSize {
-  width : Int
-  height : Int
-} derive(@debug.Debug)
+  width : Int32
+  height : Int32
+}
 pub fn LogicalSize::output(Self, &Logger) -> Unit
 pub fn LogicalSize::to_repr(Self) -> @debug.Repr
 pub fn LogicalSize::to_string(Self) -> String
 pub impl Show for LogicalSize
 
+#derive(@debug.Debug)
 pub struct OutsideSize {
   width : Double
   height : Double
-} derive(@debug.Debug)
+}
 pub fn OutsideSize::output(Self, &Logger) -> Unit
 pub fn OutsideSize::to_repr(Self) -> @debug.Repr
 pub fn OutsideSize::to_string(Self) -> String
 pub impl Show for OutsideSize
 
+#derive(@debug.Debug)
 pub struct StepResult {
-  updates : Int
+  updates : Int32
   alpha : Double
   next_state : FixedStepState
-} derive(@debug.Debug)
+}
 pub fn StepResult::output(Self, &Logger) -> Unit
 pub fn StepResult::to_repr(Self) -> @debug.Repr
 pub fn StepResult::to_string(Self) -> String
 pub impl Show for StepResult
 
+#derive(@debug.Debug)
 pub enum TouchPhase {
   Began
   Moved
   Stationary
   Ended
   Cancelled
-} derive(@debug.Debug)
+}
 pub fn TouchPhase::output(Self, &Logger) -> Unit
 pub fn TouchPhase::to_repr(Self) -> @debug.Repr
 pub fn TouchPhase::to_string(Self) -> String
 pub impl Show for TouchPhase
 
+#derive(@debug.Debug)
 pub struct TouchPoint {
-  id : Int
+  id : Int32
   x : Double
   y : Double
   source : TouchSource
-} derive(@debug.Debug)
+}
 pub fn TouchPoint::output(Self, &Logger) -> Unit
 pub fn TouchPoint::to_repr(Self) -> @debug.Repr
 pub fn TouchPoint::to_string(Self) -> String
 pub impl Show for TouchPoint
 
+#derive(@debug.Debug)
 pub struct TouchPointEx {
-  id : Int
+  id : Int32
   x : Double
   y : Double
   phase : TouchPhase
   pressure : Double
   delta_x : Double
   delta_y : Double
-} derive(@debug.Debug)
+}
 pub fn TouchPointEx::output(Self, &Logger) -> Unit
 pub fn TouchPointEx::to_repr(Self) -> @debug.Repr
 pub fn TouchPointEx::to_string(Self) -> String
 pub impl Show for TouchPointEx
 
+#derive(@debug.Debug)
 pub enum TouchSource {
   Direct
   Indirect
   Mouse
   Unknown
-} derive(@debug.Debug)
+}
 pub fn TouchSource::output(Self, &Logger) -> Unit
 pub fn TouchSource::to_repr(Self) -> @debug.Repr
 pub fn TouchSource::to_string(Self) -> String

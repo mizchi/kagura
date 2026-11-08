@@ -475,11 +475,11 @@ test "mono_format creates correct format" {
 
 ///|
 test "audio output hooks can be set and reset" {
-  let init_calls : Ref[Int] = Ref(0)
-  let write_calls : Ref[Int] = Ref(0)
-  let suspend_calls : Ref[Int] = Ref(0)
-  let resume_calls : Ref[Int] = Ref(0)
-  let close_calls : Ref[Int] = Ref(0)
+  let init_calls : Ref[Int32] = Ref(0)
+  let write_calls : Ref[Int32] = Ref(0)
+  let suspend_calls : Ref[Int32] = Ref(0)
+  let resume_calls : Ref[Int32] = Ref(0)
+  let close_calls : Ref[Int32] = Ref(0)
   set_audio_output_hooks(
     new_audio_output_hooks(
       fn(_fmt) {
@@ -532,7 +532,7 @@ test "default_audio_output_stats" {
 
 ///|
 test "audio_render_and_write calls mixer and hooks" {
-  let written_ref : Ref[Int] = Ref(0)
+  let written_ref : Ref[Int32] = Ref(0)
   set_audio_output_hooks(
     new_audio_output_hooks(
       fn(_fmt) { true },

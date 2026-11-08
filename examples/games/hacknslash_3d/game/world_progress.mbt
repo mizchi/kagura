@@ -1,53 +1,65 @@
 // Durable progress: inactive areas keep their loot, slain enemies and one-time rewards.
 
 ///|
+#derive(ToJson, FromJson)
 struct RegionEnemyProgress {
   camp : EnemyCamp?
   kind : EnemyKind
   x : Double
   y : Double
-  hp : Int
-  max_hp : Int
+  hp : Int32
+  max_hp : Int32
   speed : Double
   size : Double
   alive : Bool
-  room : Int
-} derive(ToJson, FromJson)
+  room : Int32
+}
+
 ///|
 pub extend RegionEnemyProgress with ToJson::{to_json}
+
 ///|
 pub extend RegionEnemyProgress with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
+#derive(ToJson, FromJson)
 struct RegionProgress {
-  id : Int
+  id : Int32
   enemies : Array[RegionEnemyProgress]
   items : Array[ItemDrop]
   discovered : Array[Bool]
   rewarded : Array[Bool]
   cleared : Array[Bool]
-  opened_chests : Array[Int]?
-} derive(ToJson, FromJson)
+  opened_chests : Array[Int32]?
+}
+
 ///|
 pub extend RegionProgress with ToJson::{to_json}
+
 ///|
 pub extend RegionProgress with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
+#derive(ToJson, FromJson)
 struct WorldProgress {
-  version : Int
-  generator_version : Int?
+  version : Int32
+  generator_version : Int32?
   plains_relief : Double?
-  seed : Int
-  current : Int
-  last_waypoint : Int?
+  seed : Int32
+  current : Int32
+  last_waypoint : Int32?
   x : Double
   y : Double
   unlocked : Array[Bool]
   regions : Array[RegionProgress]
-} derive(ToJson, FromJson)
+}
+
 ///|
 pub extend WorldProgress with ToJson::{to_json}
+
 ///|
 pub extend WorldProgress with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
 pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
   guard self.atlas is Some(atlas) else { return "" }
@@ -123,7 +135,7 @@ fn parse_world_progress(source : String) -> WorldProgress? {
         return None
       }
     }
-    let ids : Array[Int] = []
+    let ids : Array[Int32] = []
     if progress.last_waypoint is Some(id) {
       if id < 0 || id >= 4 || !progress.unlocked[id] {
         return None
@@ -155,7 +167,7 @@ fn parse_world_progress(source : String) -> WorldProgress? {
         opened.length() > hunting_sites.length() {
         return None
       }
-      let seen : Array[Int] = []
+      let seen : Array[Int32] = []
       for id in opened {
         if id < 0 || id >= hunting_sites.length() || seen.contains(id) {
           return None

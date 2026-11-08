@@ -32,7 +32,7 @@ pub fn fog_uniform_dwords(
   fog_b : Double,
   fog_start : Double,
   fog_end : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   [f32(fog_r), f32(fog_g), f32(fog_b), f32(fog_start), f32(fog_end), 0, 0, 0]
 }
 
@@ -40,8 +40,8 @@ pub fn fog_uniform_dwords(
 pub fn new_fog_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  scene_image_id : Int,
-  depth_image_id : Int,
+  scene_image_id : Int32,
+  depth_image_id : Int32,
   fog_r : Double,
   fog_g : Double,
   fog_b : Double,

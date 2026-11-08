@@ -82,8 +82,8 @@ test "pile popup renders the actual draw and discard contents including emptines
 
 ///|
 fn controller_input(
-  buttons : Array[Int],
-  axes? : Array[Double] = [],
+  buttons : Array[Int32],
+  axes~ : Array[Double] = [],
 ) -> @core.InputSnapshot {
   @core.new_input_snapshot_full(-1.0, -1.0, 0.0, 0.0, [], [], [], [
     @core.new_gamepad_snapshot(0, axes, buttons),
@@ -91,7 +91,7 @@ fn controller_input(
 }
 
 ///|
-fn controller_press(game : Game, buttons : Array[Int]) -> Unit {
+fn controller_press(game : Game, buttons : Array[Int32]) -> Unit {
   game.update(controller_input([]))
   game.update(controller_input(buttons))
 }

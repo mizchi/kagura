@@ -5,7 +5,7 @@ priv struct ResolvedTouchPoints {
 }
 
 ///|
-fn has_left_mouse_button_pressed(pressed_mouse_buttons : Array[Int]) -> Bool {
+fn has_left_mouse_button_pressed(pressed_mouse_buttons : Array[Int32]) -> Bool {
   let mut found = false
   for button in pressed_mouse_buttons {
     if button == 0 {
@@ -18,7 +18,7 @@ fn has_left_mouse_button_pressed(pressed_mouse_buttons : Array[Int]) -> Bool {
 ///|
 fn resolve_touch_points_with_mouse_fallback(
   touches : Array[@core.TouchPoint],
-  pressed_mouse_buttons : Array[Int],
+  pressed_mouse_buttons : Array[Int32],
   cursor_x : Double,
   cursor_y : Double,
   saw_native_touch : Bool,

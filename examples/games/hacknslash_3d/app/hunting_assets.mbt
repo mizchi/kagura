@@ -4,7 +4,7 @@
 ///|
 struct HuntingAssetPart {
   mesh : @mesh3d.Mesh3D
-  material : Int
+  material : Int32
 }
 
 ///|
@@ -14,7 +14,7 @@ struct HuntingAsset {
 }
 
 ///|
-fn hunting_asset_variant(mesh : @mesh3d.Mesh3D, hash : Int) -> @mesh3d.Mesh3D {
+fn hunting_asset_variant(mesh : @mesh3d.Mesh3D, hash : Int32) -> @mesh3d.Mesh3D {
   let angle = (hash % 997).to_double() * @math.PI * 2.0 / 997.0
   let c = @math.cos(angle)
   let s = @math.sin(angle)
@@ -76,7 +76,7 @@ fn hunting_ground_shadow(
   rz : Double,
 ) -> Unit {
   for side in 0..<12 {
-    fn p(index : Int) -> @math3d.Vec3 {
+    fn p(index : Int32) -> @math3d.Vec3 {
       let angle = index.to_double() * @math.PI * 2.0 / 12.0
       @math3d.Vec3::new(
         x + @math.cos(angle) * rx,
@@ -91,7 +91,7 @@ fn hunting_ground_shadow(
 ///|
 fn hunting_part(
   g : @procedural3d.RigidGeometry,
-  material : Int,
+  material : Int32,
 ) -> HuntingAssetPart {
   { mesh: @mesh3d.Mesh3D::new(g.vertices, g.indices), material, }
 }
@@ -157,7 +157,7 @@ fn hunting_branch(
   for side in 0..<5 {
     fn ring(
       center : @math3d.Vec3,
-      index : Int,
+      index : Int32,
       scale : Double,
     ) -> @math3d.Vec3 {
       let angle = index.to_double() * @math.PI * 2.0 / 5.0
@@ -307,7 +307,7 @@ fn hunting_grass(
   g : @procedural3d.RigidGeometry,
   x : Double,
   z : Double,
-  seed : Int,
+  seed : Int32,
 ) -> Unit {
   let h = 0.18 + (seed % 7).to_double() * 0.03
   for d in [-0.12, 0.0, 0.12] {

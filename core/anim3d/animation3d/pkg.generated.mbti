@@ -23,7 +23,7 @@ pub fn sample_vec3(AnimChannel, Double) -> @math3d.Vec3
 
 // Types and methods
 pub(all) struct AnimChannel {
-  node_index : Int
+  node_index : Int32
   target : ChannelTarget
   interpolation : Interpolation
   times : Array[Double]
@@ -74,27 +74,29 @@ pub fn AnimationStateMachine3D::sample(Self) -> Array[NodePose]
 pub fn AnimationStateMachine3D::trigger(Self, String) -> Bool
 pub fn AnimationStateMachine3D::update(Self, Double) -> Unit
 
+#derive(@debug.Debug)
 pub(all) enum ChannelTarget {
   Translation
   Rotation
   Scale
-} derive(@debug.Debug)
+}
 pub fn ChannelTarget::output(Self, &Logger) -> Unit
 pub fn ChannelTarget::to_repr(Self) -> @debug.Repr
 pub fn ChannelTarget::to_string(Self) -> String
 pub impl Show for ChannelTarget
 
+#derive(@debug.Debug)
 pub(all) enum Interpolation {
   Step
   Linear
-} derive(@debug.Debug)
+}
 pub fn Interpolation::output(Self, &Logger) -> Unit
 pub fn Interpolation::to_repr(Self) -> @debug.Repr
 pub fn Interpolation::to_string(Self) -> String
 pub impl Show for Interpolation
 
 pub(all) struct NodePose {
-  node_index : Int
+  node_index : Int32
   translation : @math3d.Vec3?
   rotation : @math3d.Quaternion?
   scale : @math3d.Vec3?

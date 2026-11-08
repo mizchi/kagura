@@ -4,7 +4,7 @@
 
 ///|
 struct DeferredResult {
-  id : Int
+  id : Int32
   data : Bytes?
   on_progress : (@contract.FetchProgress) -> Unit
   on_complete : (Bytes?) -> Unit
@@ -14,7 +14,7 @@ struct DeferredResult {
 ///|
 pub struct NativeFetcher {
   read_file_fn : (String) -> Bytes?
-  mut next_id : Int
+  mut next_id : Int32
   deferred : Array[DeferredResult]
 }
 

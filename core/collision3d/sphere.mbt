@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 pub(all) struct Sphere {
   center : @math3d.Vec3
   radius : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Sphere with fn output(self, logger) {

@@ -3,10 +3,10 @@
 
 ///|
 struct VisibleRegion {
-  min_col : Int
-  max_col : Int
-  min_row : Int
-  max_row : Int
+  min_col : Int32
+  max_col : Int32
+  min_row : Int32
+  max_row : Int32
 }
 
 ///|
@@ -14,7 +14,7 @@ fn find_player_room(
   rooms : Array[@terrain.Room],
   player_x : Double,
   player_y : Double,
-) -> Int {
+) -> Int32 {
   let col = (player_x / tile_size).to_int()
   let row = (player_y / tile_size).to_int()
   for i, room in rooms {
@@ -31,8 +31,8 @@ fn compute_visible_region(
   rooms : Array[@terrain.Room],
   player_x : Double,
   player_y : Double,
-  grid_w : Int,
-  grid_h : Int,
+  grid_w : Int32,
+  grid_h : Int32,
 ) -> VisibleRegion {
   let pcol = (player_x / tile_size).to_int()
   let prow = (player_y / tile_size).to_int()

@@ -3,7 +3,7 @@
 /// actors with equal frame_index can share one instanced GPU draw. Sample zero
 /// and the final sample are both included; matrices are borrowed, never mutate.
 pub struct BakedSkinningClip {
-  frame_count : Int
+  frame_count : Int32
   priv frames : Array[Array[@math3d.Mat4]]
 }
 
@@ -11,7 +11,7 @@ pub struct BakedSkinningClip {
 pub fn BakedSkinningClip::new(
   skeleton : @skeleton3d.Skeleton,
   clip : @animation3d.AnimationClip,
-  frame_count : Int,
+  frame_count : Int32,
 ) -> BakedSkinningClip {
   let count = frame_count.max(2)
   let player = @animation3d.AnimationPlayer::new(clip)
@@ -32,8 +32,8 @@ pub fn BakedSkinningClip::new(
 /// Playback only selects cached matrices and never invokes the sampler again.
 pub fn BakedSkinningClip::from_pose_sampler(
   skeleton : @skeleton3d.Skeleton,
-  frame_count : Int,
-  sample : (Int) -> Array[@transform3d.Transform3D],
+  frame_count : Int32,
+  sample : (Int32) -> Array[@transform3d.Transform3D],
 ) -> BakedSkinningClip {
   let count = frame_count.max(1)
   let frames = Array::makei(count, index => {
@@ -49,14 +49,14 @@ pub fn BakedSkinningClip::from_pose_sampler(
 pub fn BakedSkinningClip::frame_index(
   self : BakedSkinningClip,
   phase : Double,
-) -> Int {
+) -> Int32 {
   (phase.max(0.0).min(1.0) * (self.frame_count - 1).to_double() + 0.5).to_int()
 }
 
 ///|
 pub fn BakedSkinningClip::matrices(
   self : BakedSkinningClip,
-  frame : Int,
+  frame : Int32,
 ) -> Array[@math3d.Mat4] {
   self.frames[frame.max(0).min(self.frame_count - 1)]
 }

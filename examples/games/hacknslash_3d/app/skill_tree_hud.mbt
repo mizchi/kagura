@@ -1,5 +1,5 @@
 ///|
-fn hunter_skill_branch(id : @game.SkillId) -> Int {
+fn hunter_skill_branch(id : @game.SkillId) -> Int32 {
   match id {
     PowerStrike
     | Whirlwind
@@ -51,7 +51,7 @@ fn hunter_skill_description(id : @game.SkillId) -> String {
 }
 
 ///|
-fn hunter_skill_effect(id : @game.SkillId, level : Int) -> String {
+fn hunter_skill_effect(id : @game.SkillId, level : Int32) -> String {
   match id {
     RaiseZombie =>
       "ゾンビ体力 +" +
@@ -166,7 +166,7 @@ fn GameState::hunter_extra_skills(
 }
 
 ///|
-fn hunter_frames_seconds(frames : Int) -> String {
+fn hunter_frames_seconds(frames : Int32) -> String {
   let hundredths = frames % 60 * 100 / 60
   (frames / 60).to_string() +
   "." +

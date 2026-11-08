@@ -1,14 +1,14 @@
 ///|
-let ink : Int = 0xF0EEE5
+let ink : Int32 = 0xF0EEE5
 
 ///|
-let muted_ink : Int = 0xBCC7D5
+let muted_ink : Int32 = 0xBCC7D5
 
 ///|
-let gold : Int = 0xFFD080
+let gold : Int32 = 0xFFD080
 
 ///|
-let cyan : Int = 0x7FE0D4
+let cyan : Int32 = 0x7FE0D4
 
 ///|
 fn ui_text(
@@ -16,8 +16,8 @@ fn ui_text(
   x : Double,
   y : Double,
   text : String,
-  scale? : Double = 0.75,
-  color? : Int = ink,
+  scale~ : Double = 0.75,
+  color~ : Int32 = ink,
 ) -> @scene.SceneNode {
   @scene.ui_key(
     key,
@@ -32,8 +32,8 @@ fn fit_text(
   y : Double,
   text : String,
   width : Double,
-  scale? : Double = 0.75,
-  color? : Int = ink,
+  scale~ : Double = 0.75,
+  color~ : Int32 = ink,
 ) -> @scene.SceneNode {
   let fitted = ui_min(
     scale,
@@ -43,7 +43,7 @@ fn fit_text(
 }
 
 ///|
-fn wrap_copy(text : String, max_chars : Int) -> Array[String] {
+fn wrap_copy(text : String, max_chars : Int32) -> Array[String] {
   let lines : Array[String] = []
   let mut current = ""
   for word in text.to_upper().split(" ") {
@@ -71,7 +71,7 @@ fn copy_lines(
   y : Double,
   width : Double,
   scale : Double,
-  color : Int,
+  color : Int32,
 ) -> @scene.SceneNode {
   let lines = wrap_copy(text, ui_max(4, (width / (12.0 * scale)).to_int()))
   let nodes : Array[@scene.SceneNode] = []
@@ -95,13 +95,13 @@ fn copy_lines(
 fn ui_panel(
   key : String,
   rect : UiRect,
-  fill : Int,
-  border : Int,
+  fill : Int32,
+  border : Int32,
   children : Array[@scene.SceneNode],
-  role? : String = "",
-  focused? : Bool = false,
-  focusable? : Bool = false,
-  focus_index? : Int = 0,
+  role~ : String = "",
+  focused~ : Bool = false,
+  focusable~ : Bool = false,
+  focus_index~ : Int32 = 0,
 ) -> @scene.SceneNode {
   let node = @scene.rect(
     key~,
@@ -133,10 +133,10 @@ fn ui_button(
   key : String,
   rect : UiRect,
   text : String,
-  accent? : Int = gold,
-  focused? : Bool = false,
-  focusable? : Bool = false,
-  focus_index? : Int = 0,
+  accent~ : Int32 = gold,
+  focused~ : Bool = false,
+  focusable~ : Bool = false,
+  focus_index~ : Int32 = 0,
 ) -> @scene.SceneNode {
   let children = [
     fit_text(
@@ -185,9 +185,9 @@ fn ui_meter(
   x : Double,
   y : Double,
   width : Double,
-  value : Int,
-  maximum : Int,
-  color : Int,
+  value : Int32,
+  maximum : Int32,
+  color : Int32,
 ) -> @scene.SceneNode {
   let ratio = ui_max(
     0.0,
@@ -208,7 +208,7 @@ fn ui_meter(
 }
 
 ///|
-fn card_accent(id : CardId) -> Int {
+fn card_accent(id : CardId) -> Int32 {
   match card_def(id).card_type {
     Attack => 0xFFA082
     Skill => cyan
@@ -231,7 +231,7 @@ fn card_icon(
   x : Double,
   y : Double,
   size : Double,
-  accent : Int,
+  accent : Int32,
 ) -> @scene.SceneNode {
   let px = size / 7.0
   let pattern = match card_def(card).card_type {
@@ -272,13 +272,13 @@ fn ui_card(
   key : String,
   rect : UiRect,
   id : CardId,
-  cost : Int,
+  cost : Int32,
   enabled : Bool,
   selected : Bool,
-  spine? : Bool = false,
-  detailed? : Bool = false,
-  interactive? : Bool = true,
-  focused? : Bool = false,
+  spine~ : Bool = false,
+  detailed~ : Bool = false,
+  interactive~ : Bool = true,
+  focused~ : Bool = false,
 ) -> @scene.SceneNode {
   let def = card_def(id)
   let accent = card_accent(id)

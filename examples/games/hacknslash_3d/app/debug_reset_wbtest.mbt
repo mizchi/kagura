@@ -2,8 +2,8 @@
 fn debug_reset_test_input(
   cursor_x : Double,
   cursor_y : Double,
-  pressed_keys : Array[Int],
-  pressed_mouse_buttons : Array[Int],
+  pressed_keys : Array[Int32],
+  pressed_mouse_buttons : Array[Int32],
 ) -> @core.InputSnapshot {
   @core.new_input_snapshot_full(
     cursor_x,

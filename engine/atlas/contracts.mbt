@@ -6,9 +6,10 @@
 /// - internal/atlas/shader.go
 
 ///|
+#derive(Debug)
 pub struct AssetKey {
   value : String
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AssetKey with fn output(self, logger) {
@@ -21,13 +22,14 @@ pub fn new_asset_key(value : String) -> AssetKey {
 }
 
 ///|
+#derive(Debug)
 pub struct ImageSpec {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   format : String
   palette : ImagePalette2x2
-  pixels_rgba8 : Array[Int]
-} derive(Debug)
+  pixels_rgba8 : Array[Int32]
+}
 
 ///|
 pub impl Show for ImageSpec with fn output(self, logger) {
@@ -35,10 +37,11 @@ pub impl Show for ImageSpec with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct ShaderSpec {
   debug_name : String
   source : String
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ShaderSpec with fn output(self, logger) {
@@ -46,12 +49,13 @@ pub impl Show for ShaderSpec with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct MaterialSpec {
   shader : AssetKey
   blend : @gfx.BlendMode
   filter : @gfx.FilterMode
   uniform_keys : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for MaterialSpec with fn output(self, logger) {
@@ -59,13 +63,14 @@ pub impl Show for MaterialSpec with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct AtlasRegion {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
-  atlas_id : Int
-} derive(Debug)
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
+  atlas_id : Int32
+}
 
 ///|
 pub impl Show for AtlasRegion with fn output(self, logger) {
@@ -74,20 +79,21 @@ pub impl Show for AtlasRegion with fn output(self, logger) {
 
 ///|
 pub fn new_atlas_region(
-  x : Int,
-  y : Int,
-  width : Int,
-  height : Int,
-  atlas_id : Int,
+  x : Int32,
+  y : Int32,
+  width : Int32,
+  height : Int32,
+  atlas_id : Int32,
 ) -> AtlasRegion {
   { x, y, width, height, atlas_id, }
 }
 
 ///|
+#derive(Debug)
 pub struct ImagePaletteBinding {
-  image_id : Int
+  image_id : Int32
   palette : ImagePalette2x2
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ImagePaletteBinding with fn output(self, logger) {
@@ -95,12 +101,13 @@ pub impl Show for ImagePaletteBinding with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct SourceImageDirtyRect {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
-} derive(Debug)
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
+}
 
 ///|
 pub impl Show for SourceImageDirtyRect with fn output(self, logger) {
@@ -108,15 +115,16 @@ pub impl Show for SourceImageDirtyRect with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct SourceImageBinding {
-  image_id : Int
-  width : Int
-  height : Int
-  generation : Int
+  image_id : Int32
+  width : Int32
+  height : Int32
+  generation : Int32
   dirty_rect : SourceImageDirtyRect?
   palette : ImagePalette2x2
-  pixels_rgba8 : Array[Int]
-} derive(Debug)
+  pixels_rgba8 : Array[Int32]
+}
 
 ///|
 pub impl Show for SourceImageBinding with fn output(self, logger) {
@@ -124,14 +132,15 @@ pub impl Show for SourceImageBinding with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct AtlasDrawSource {
-  page_image_id : Int
+  page_image_id : Int32
   region : AtlasRegion
   u0 : Double
   v0 : Double
   u1 : Double
   v1 : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AtlasDrawSource with fn output(self, logger) {
@@ -140,29 +149,29 @@ pub impl Show for AtlasDrawSource with fn output(self, logger) {
 
 ///|
 pub fn new_source_image_binding(
-  image_id : Int,
-  width : Int,
-  height : Int,
-  generation : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
+  generation : Int32,
   dirty_rect : SourceImageDirtyRect?,
   palette : ImagePalette2x2,
-  pixels_rgba8 : Array[Int],
+  pixels_rgba8 : Array[Int32],
 ) -> SourceImageBinding {
   { image_id, width, height, generation, dirty_rect, palette, pixels_rgba8, }
 }
 
 ///|
 pub fn new_source_image_dirty_rect(
-  x : Int,
-  y : Int,
-  width : Int,
-  height : Int,
+  x : Int32,
+  y : Int32,
+  width : Int32,
+  height : Int32,
 ) -> SourceImageDirtyRect {
   { x, y, width, height, }
 }
 
 ///|
-pub fn new_unmanaged_atlas_draw_source(image_id : Int) -> AtlasDrawSource {
+pub fn new_unmanaged_atlas_draw_source(image_id : Int32) -> AtlasDrawSource {
   let safe_image_id = if image_id < 0 { 0 } else { image_id }
   {
     page_image_id: safe_image_id,
@@ -196,12 +205,12 @@ pub trait MaterialRepository {
 
 ///|
 pub trait AtlasAllocator {
-  fn allocate(Self, width : Int, height : Int) -> AtlasRegion?
+  fn allocate(Self, width : Int32, height : Int32) -> AtlasRegion?
   fn release(Self, region : AtlasRegion) -> Unit
 }
 
 ///|
-pub fn default_image_spec(width : Int, height : Int) -> ImageSpec {
+pub fn default_image_spec(width : Int32, height : Int32) -> ImageSpec {
   let seed = if width > 0 && height > 0 { width * 65537 + height } else { 0 }
   {
     width,
@@ -214,15 +223,15 @@ pub fn default_image_spec(width : Int, height : Int) -> ImageSpec {
 
 ///|
 pub fn image_spec_with_palette(
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   palette : ImagePalette2x2,
 ) -> ImageSpec {
   { width, height, format: "rgba8unorm", palette, pixels_rgba8: [], }
 }
 
 ///|
-fn clamp_u8_channel(channel : Int) -> Int {
+fn clamp_u8_channel(channel : Int32) -> Int32 {
   if channel < 0 {
     0
   } else if channel > 255 {
@@ -234,14 +243,14 @@ fn clamp_u8_channel(channel : Int) -> Int {
 
 ///|
 fn normalized_rgba8_channels(
-  pixels_rgba8 : Array[Int],
-  width : Int,
-  height : Int,
-) -> Array[Int] {
+  pixels_rgba8 : Array[Int32],
+  width : Int32,
+  height : Int32,
+) -> Array[Int32] {
   let safe_width = if width <= 0 { 1 } else { width }
   let safe_height = if height <= 0 { 1 } else { height }
   let expected = safe_width * safe_height * 4
-  let normalized : Array[Int] = []
+  let normalized : Array[Int32] = []
   if expected <= 0 || pixels_rgba8.length() < expected {
     normalized
   } else {
@@ -254,12 +263,12 @@ fn normalized_rgba8_channels(
 
 ///|
 fn sample_rgba8_channel(
-  pixels_rgba8 : Array[Int],
-  width : Int,
-  x : Int,
-  y : Int,
-  channel_index : Int,
-) -> Int {
+  pixels_rgba8 : Array[Int32],
+  width : Int32,
+  x : Int32,
+  y : Int32,
+  channel_index : Int32,
+) -> Int32 {
   let base = (y * width + x) * 4 + channel_index
   if base < 0 || base >= pixels_rgba8.length() {
     0
@@ -270,9 +279,9 @@ fn sample_rgba8_channel(
 
 ///|
 fn palette_from_rgba8_channels(
-  width : Int,
-  height : Int,
-  pixels_rgba8 : Array[Int],
+  width : Int32,
+  height : Int32,
+  pixels_rgba8 : Array[Int32],
 ) -> ImagePalette2x2 {
   let safe_width = if width <= 0 { 1 } else { width }
   let safe_height = if height <= 0 { 1 } else { height }
@@ -313,9 +322,9 @@ fn palette_from_rgba8_channels(
 
 ///|
 pub fn image_spec_with_rgba8(
-  width : Int,
-  height : Int,
-  pixels_rgba8 : Array[Int],
+  width : Int32,
+  height : Int32,
+  pixels_rgba8 : Array[Int32],
 ) -> ImageSpec {
   let normalized = normalized_rgba8_channels(pixels_rgba8, width, height)
   {
@@ -328,7 +337,7 @@ pub fn image_spec_with_rgba8(
 }
 
 ///|
-fn expected_rgba8_channel_count(width : Int, height : Int) -> Int {
+fn expected_rgba8_channel_count(width : Int32, height : Int32) -> Int32 {
   let safe_width = if width <= 0 { 1 } else { width }
   let safe_height = if height <= 0 { 1 } else { height }
   safe_width * safe_height * 4
@@ -336,9 +345,9 @@ fn expected_rgba8_channel_count(width : Int, height : Int) -> Int {
 
 ///|
 fn has_valid_rgba8_payload(
-  pixels_rgba8 : Array[Int],
-  width : Int,
-  height : Int,
+  pixels_rgba8 : Array[Int32],
+  width : Int32,
+  height : Int32,
 ) -> Bool {
   let expected = expected_rgba8_channel_count(width, height)
   expected > 0 && pixels_rgba8.length() >= expected
@@ -360,10 +369,10 @@ fn image_palette_eq(lhs : ImagePalette2x2, rhs : ImagePalette2x2) -> Bool {
 
 ///|
 fn image_pixels_eq(
-  lhs : Array[Int],
-  rhs : Array[Int],
-  width : Int,
-  height : Int,
+  lhs : Array[Int32],
+  rhs : Array[Int32],
+  width : Int32,
+  height : Int32,
 ) -> Bool {
   if !has_valid_rgba8_payload(lhs, width, height) ||
     !has_valid_rgba8_payload(rhs, width, height) {
@@ -381,7 +390,10 @@ fn image_pixels_eq(
 }
 
 ///|
-fn source_dirty_rect_full(width : Int, height : Int) -> SourceImageDirtyRect {
+fn source_dirty_rect_full(
+  width : Int32,
+  height : Int32,
+) -> SourceImageDirtyRect {
   {
     x: 0,
     y: 0,
@@ -400,10 +412,10 @@ fn source_dirty_rect_full(width : Int, height : Int) -> SourceImageDirtyRect {
 
 ///|
 fn diff_dirty_rect_from_pixels(
-  old_pixels : Array[Int],
-  new_pixels : Array[Int],
-  width : Int,
-  height : Int,
+  old_pixels : Array[Int32],
+  new_pixels : Array[Int32],
+  width : Int32,
+  height : Int32,
 ) -> SourceImageDirtyRect? {
   if !has_valid_rgba8_payload(old_pixels, width, height) ||
     !has_valid_rgba8_payload(new_pixels, width, height) {
@@ -479,14 +491,15 @@ fn merge_dirty_rects(
 }
 
 ///|
+#derive(Debug)
 struct SimpleImageEntry {
   key : AssetKey
   handle : @gfx.ImageHandle
   palette : ImagePalette2x2
-  pixels_rgba8 : Array[Int]
-  generation : Int
+  pixels_rgba8 : Array[Int32]
+  generation : Int32
   dirty_rect : SourceImageDirtyRect?
-} derive(Debug)
+}
 
 ///|
 pub impl Show for SimpleImageEntry with fn output(self, logger) {
@@ -494,10 +507,11 @@ pub impl Show for SimpleImageEntry with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 struct SimpleShaderEntry {
   key : AssetKey
   handle : @gfx.ShaderHandle
-} derive(Debug)
+}
 
 ///|
 pub impl Show for SimpleShaderEntry with fn output(self, logger) {
@@ -505,10 +519,11 @@ pub impl Show for SimpleShaderEntry with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 struct SimpleMaterialEntry {
   key : AssetKey
   spec : MaterialSpec
-} derive(Debug)
+}
 
 ///|
 pub impl Show for SimpleMaterialEntry with fn output(self, logger) {
@@ -517,13 +532,13 @@ pub impl Show for SimpleMaterialEntry with fn output(self, logger) {
 
 ///|
 pub struct SimpleImageRepository {
-  mut next_image_id : Int
+  mut next_image_id : Int32
   mut images : Array[SimpleImageEntry]
 }
 
 ///|
 pub struct SimpleShaderRepository {
-  mut next_shader_id : Int
+  mut next_shader_id : Int32
   mut shaders : Array[SimpleShaderEntry]
 }
 
@@ -554,7 +569,7 @@ fn find_image_handle(
 ///|
 fn find_image_palette_by_id(
   images : Array[SimpleImageEntry],
-  image_id : Int,
+  image_id : Int32,
 ) -> ImagePalette2x2? {
   let mut out : ImagePalette2x2? = None
   for entry in images {
@@ -568,9 +583,9 @@ fn find_image_palette_by_id(
 ///|
 fn find_image_pixels_by_id(
   images : Array[SimpleImageEntry],
-  image_id : Int,
-) -> Array[Int]? {
-  let mut out : Array[Int]? = None
+  image_id : Int32,
+) -> Array[Int32]? {
+  let mut out : Array[Int32]? = None
   for entry in images {
     if entry.handle.id == image_id {
       out = Some(entry.pixels_rgba8)
@@ -582,9 +597,9 @@ fn find_image_pixels_by_id(
 ///|
 fn find_image_generation_by_id(
   images : Array[SimpleImageEntry],
-  image_id : Int,
-) -> Int? {
-  let mut out : Int? = None
+  image_id : Int32,
+) -> Int32? {
+  let mut out : Int32? = None
   for entry in images {
     if entry.handle.id == image_id {
       out = Some(entry.generation)
@@ -629,7 +644,7 @@ pub fn new_simple_image_repository() -> SimpleImageRepository {
 ///|
 pub fn get_image_palette_by_id(
   repo : SimpleImageRepository,
-  image_id : Int,
+  image_id : Int32,
 ) -> ImagePalette2x2? {
   find_image_palette_by_id(repo.images, image_id)
 }
@@ -648,16 +663,16 @@ pub fn list_image_palette_bindings(
 ///|
 pub fn get_image_pixels_by_id(
   repo : SimpleImageRepository,
-  image_id : Int,
-) -> Array[Int]? {
+  image_id : Int32,
+) -> Array[Int32]? {
   find_image_pixels_by_id(repo.images, image_id)
 }
 
 ///|
 pub fn get_image_generation_by_id(
   repo : SimpleImageRepository,
-  image_id : Int,
-) -> Int {
+  image_id : Int32,
+) -> Int32 {
   match find_image_generation_by_id(repo.images, image_id) {
     Some(generation) => if generation <= 0 { 1 } else { generation }
     None => 0
@@ -707,7 +722,7 @@ pub fn list_dirty_source_image_bindings(
 }
 
 ///|
-pub fn clear_source_image_dirty_flags(repo : SimpleImageRepository) -> Int {
+pub fn clear_source_image_dirty_flags(repo : SimpleImageRepository) -> Int32 {
   let next : Array[SimpleImageEntry] = []
   let mut cleared = 0
   for entry in repo.images {
@@ -731,7 +746,7 @@ pub fn clear_source_image_dirty_flags(repo : SimpleImageRepository) -> Int {
 }
 
 ///|
-fn next_image_generation(current : Int) -> Int {
+fn next_image_generation(current : Int32) -> Int32 {
   if current <= 0 {
     1
   } else {
@@ -943,12 +958,12 @@ pub impl MaterialRepository for SimpleMaterialRepository with fn get_material(
 
 ///|
 pub struct SimpleAtlasAllocator {
-  atlas_width : Int
-  atlas_height : Int
-  atlas_id : Int
-  mut cursor_x : Int
-  mut cursor_y : Int
-  mut row_height : Int
+  atlas_width : Int32
+  atlas_height : Int32
+  atlas_id : Int32
+  mut cursor_x : Int32
+  mut cursor_y : Int32
+  mut row_height : Int32
   mut allocated : Array[AtlasRegion]
 }
 
@@ -963,9 +978,9 @@ fn atlas_region_eq(lhs : AtlasRegion, rhs : AtlasRegion) -> Bool {
 
 ///|
 pub fn new_simple_atlas_allocator(
-  atlas_width : Int,
-  atlas_height : Int,
-  atlas_id : Int,
+  atlas_width : Int32,
+  atlas_height : Int32,
+  atlas_id : Int32,
 ) -> SimpleAtlasAllocator {
   {
     atlas_width: if atlas_width <= 0 {
@@ -1051,13 +1066,14 @@ pub fn atlas_allocator_reset_if_empty(allocator : SimpleAtlasAllocator) -> Bool 
 }
 
 ///|
+#derive(Debug)
 struct SimpleAtlasImageEntry {
   key : AssetKey
   handle : @gfx.ImageHandle
   region : AtlasRegion
   palette : ImagePalette2x2
-  pixels_rgba8 : Array[Int]
-} derive(Debug)
+  pixels_rgba8 : Array[Int32]
+}
 
 ///|
 pub impl Show for SimpleAtlasImageEntry with fn output(self, logger) {
@@ -1072,13 +1088,13 @@ pub impl Show for SimpleAtlasImageEntry with fn output(self, logger) {
 /// - internal/atlas/image.go
 /// - internal/atlas/image.go (writePixels / region updates)
 pub struct SimpleAtlasImageRepository {
-  atlas_width : Int
-  atlas_height : Int
-  atlas_id : Int
-  mut next_image_id : Int
+  atlas_width : Int32
+  atlas_height : Int32
+  atlas_id : Int32
+  mut next_image_id : Int32
   allocator : SimpleAtlasAllocator
   mut images : Array[SimpleAtlasImageEntry]
-  mut page_generation : Int
+  mut page_generation : Int32
   mut page_dirty_rect : SourceImageDirtyRect?
 }
 
@@ -1105,7 +1121,7 @@ fn atlas_local_dirty_to_page_dirty(
 }
 
 ///|
-fn clamp_atlas_coord(value : Int, bound : Int) -> Int {
+fn clamp_atlas_coord(value : Int32, bound : Int32) -> Int32 {
   if value < 0 {
     0
   } else if value > bound {
@@ -1118,8 +1134,8 @@ fn clamp_atlas_coord(value : Int, bound : Int) -> Int {
 ///|
 fn atlas_uv_from_region(
   region : AtlasRegion,
-  atlas_width : Int,
-  atlas_height : Int,
+  atlas_width : Int32,
+  atlas_height : Int32,
 ) -> AtlasDrawSource {
   let safe_width = if atlas_width <= 0 { 1 } else { atlas_width }
   let safe_height = if atlas_height <= 0 { 1 } else { atlas_height }
@@ -1153,9 +1169,9 @@ fn mark_atlas_page_dirty(
 
 ///|
 pub fn new_simple_atlas_image_repository(
-  atlas_width : Int,
-  atlas_height : Int,
-  atlas_id : Int,
+  atlas_width : Int32,
+  atlas_height : Int32,
+  atlas_id : Int32,
 ) -> SimpleAtlasImageRepository {
   let safe_width = if atlas_width <= 0 { 1 } else { atlas_width }
   let safe_height = if atlas_height <= 0 { 1 } else { atlas_height }
@@ -1356,10 +1372,10 @@ pub fn remove_atlas_image(
 }
 
 ///|
-fn new_blank_rgba8_channels(width : Int, height : Int) -> Array[Int] {
+fn new_blank_rgba8_channels(width : Int32, height : Int32) -> Array[Int32] {
   let safe_width = if width <= 0 { 1 } else { width }
   let safe_height = if height <= 0 { 1 } else { height }
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   for _ in 0..<(safe_width * safe_height * 4) {
     out.push(0)
   }
@@ -1368,9 +1384,9 @@ fn new_blank_rgba8_channels(width : Int, height : Int) -> Array[Int] {
 
 ///|
 fn fill_atlas_page_pixels_from_entry(
-  pixels_rgba8 : Array[Int],
-  atlas_width : Int,
-  atlas_height : Int,
+  pixels_rgba8 : Array[Int32],
+  atlas_width : Int32,
+  atlas_height : Int32,
   entry : SimpleAtlasImageEntry,
 ) -> Unit {
   let image_width = if entry.handle.width <= 0 { 1 } else { entry.handle.width }
@@ -1416,7 +1432,7 @@ fn fill_atlas_page_pixels_from_entry(
 }
 
 ///|
-fn compose_atlas_page_rgba8(repo : SimpleAtlasImageRepository) -> Array[Int] {
+fn compose_atlas_page_rgba8(repo : SimpleAtlasImageRepository) -> Array[Int32] {
   let pixels_rgba8 = new_blank_rgba8_channels(
     repo.atlas_width,
     repo.atlas_height,
@@ -1464,7 +1480,7 @@ pub fn list_dirty_atlas_page_bindings(
 }
 
 ///|
-pub fn clear_dirty_atlas_page_flags(repo : SimpleAtlasImageRepository) -> Int {
+pub fn clear_dirty_atlas_page_flags(repo : SimpleAtlasImageRepository) -> Int32 {
   match repo.page_dirty_rect {
     Some(_) => {
       repo.page_dirty_rect = None
@@ -1481,17 +1497,17 @@ pub fn clear_dirty_atlas_page_flags(repo : SimpleAtlasImageRepository) -> Int {
 /// Ebiten refs:
 /// - internal/atlas/image.go (multi-backend page management)
 pub struct MultiPageAtlasRepository {
-  page_width : Int
-  page_height : Int
-  mut next_page_id : Int
+  page_width : Int32
+  page_height : Int32
+  mut next_page_id : Int32
   pages : Array[SimpleAtlasImageRepository]
-  mut key_page_index : Array[(String, Int)]
+  mut key_page_index : Array[(String, Int32)]
 }
 
 ///|
 pub fn new_multi_page_atlas_repository(
-  page_width : Int,
-  page_height : Int,
+  page_width : Int32,
+  page_height : Int32,
 ) -> MultiPageAtlasRepository {
   let safe_width = if page_width <= 0 { 1 } else { page_width }
   let safe_height = if page_height <= 0 { 1 } else { page_height }
@@ -1505,12 +1521,12 @@ pub fn new_multi_page_atlas_repository(
 }
 
 ///|
-pub fn multi_page_count(repo : MultiPageAtlasRepository) -> Int {
+pub fn multi_page_count(repo : MultiPageAtlasRepository) -> Int32 {
   repo.pages.length()
 }
 
 ///|
-pub fn multi_page_image_count(repo : MultiPageAtlasRepository) -> Int {
+pub fn multi_page_image_count(repo : MultiPageAtlasRepository) -> Int32 {
   let mut total = 0
   for page in repo.pages {
     total = total + page.images.length()
@@ -1519,7 +1535,10 @@ pub fn multi_page_image_count(repo : MultiPageAtlasRepository) -> Int {
 }
 
 ///|
-fn find_key_page_index(index : Array[(String, Int)], key : AssetKey) -> Int? {
+fn find_key_page_index(
+  index : Array[(String, Int32)],
+  key : AssetKey,
+) -> Int32? {
   for entry in index {
     if entry.0 == key.value {
       return Some(entry.1)
@@ -1532,7 +1551,7 @@ fn find_key_page_index(index : Array[(String, Int)], key : AssetKey) -> Int? {
 fn add_key_page_index(
   repo : MultiPageAtlasRepository,
   key : AssetKey,
-  page_index : Int,
+  page_index : Int32,
 ) -> Unit {
   repo.key_page_index.push((key.value, page_index))
 }
@@ -1542,7 +1561,7 @@ fn remove_key_page_index(
   repo : MultiPageAtlasRepository,
   key : AssetKey,
 ) -> Unit {
-  let next : Array[(String, Int)] = []
+  let next : Array[(String, Int32)] = []
   for entry in repo.key_page_index {
     if entry.0 != key.value {
       next.push(entry)
@@ -1552,7 +1571,7 @@ fn remove_key_page_index(
 }
 
 ///|
-fn ensure_page(repo : MultiPageAtlasRepository) -> Int {
+fn ensure_page(repo : MultiPageAtlasRepository) -> Int32 {
   if repo.pages.length() == 0 {
     let page_id = repo.next_page_id
     repo.next_page_id = repo.next_page_id + 1
@@ -1568,7 +1587,7 @@ fn ensure_page(repo : MultiPageAtlasRepository) -> Int {
 }
 
 ///|
-fn add_new_page(repo : MultiPageAtlasRepository) -> Int {
+fn add_new_page(repo : MultiPageAtlasRepository) -> Int32 {
   let page_id = repo.next_page_id
   repo.next_page_id = repo.next_page_id + 1
   repo.pages.push(
@@ -1699,7 +1718,7 @@ pub fn multi_page_list_dirty_bindings(
 }
 
 ///|
-pub fn multi_page_clear_dirty_flags(repo : MultiPageAtlasRepository) -> Int {
+pub fn multi_page_clear_dirty_flags(repo : MultiPageAtlasRepository) -> Int32 {
   let mut cleared = 0
   for page in repo.pages {
     cleared = cleared + clear_dirty_atlas_page_flags(page)
@@ -1708,8 +1727,8 @@ pub fn multi_page_clear_dirty_flags(repo : MultiPageAtlasRepository) -> Int {
 }
 
 ///|
-pub fn multi_page_get_page_ids(repo : MultiPageAtlasRepository) -> Array[Int] {
-  let ids : Array[Int] = []
+pub fn multi_page_get_page_ids(repo : MultiPageAtlasRepository) -> Array[Int32] {
+  let ids : Array[Int32] = []
   for page in repo.pages {
     ids.push(page.atlas_id)
   }
@@ -1722,16 +1741,17 @@ pub fn atlas_page_is_empty(repo : SimpleAtlasImageRepository) -> Bool {
 }
 
 ///|
-pub fn atlas_page_image_count(repo : SimpleAtlasImageRepository) -> Int {
+pub fn atlas_page_image_count(repo : SimpleAtlasImageRepository) -> Int32 {
   repo.images.length()
 }
 
 ///|
+#derive(Debug)
 pub struct AtlasCompactResult {
-  removed_page_ids : Array[Int]
-  removed_page_count : Int
-  remaining_page_count : Int
-} derive(Debug)
+  removed_page_ids : Array[Int32]
+  removed_page_count : Int32
+  remaining_page_count : Int32
+}
 
 ///|
 pub impl Show for AtlasCompactResult with fn output(self, logger) {
@@ -1742,9 +1762,9 @@ pub impl Show for AtlasCompactResult with fn output(self, logger) {
 pub fn multi_page_compact(
   repo : MultiPageAtlasRepository,
 ) -> AtlasCompactResult {
-  let removed_page_ids : Array[Int] = []
+  let removed_page_ids : Array[Int32] = []
   // Collect indices of empty pages (reverse order for safe removal)
-  let empty_indices : Array[Int] = []
+  let empty_indices : Array[Int32] = []
   for i in 0..<repo.pages.length() {
     if repo.pages[i].images.length() == 0 {
       removed_page_ids.push(repo.pages[i].atlas_id)
@@ -1758,7 +1778,7 @@ pub fn multi_page_compact(
     i = i - 1
   }
   // Rebuild key_page_index
-  let next_index : Array[(String, Int)] = []
+  let next_index : Array[(String, Int32)] = []
   for page_idx in 0..<repo.pages.length() {
     let page = repo.pages[page_idx]
     for entry in page.images {
@@ -1774,14 +1794,15 @@ pub fn multi_page_compact(
 }
 
 ///|
+#derive(Debug)
 pub struct AtlasPageStats {
-  atlas_id : Int
-  image_count : Int
-  allocated_region_count : Int
-  atlas_width : Int
-  atlas_height : Int
+  atlas_id : Int32
+  image_count : Int32
+  allocated_region_count : Int32
+  atlas_width : Int32
+  atlas_height : Int32
   is_empty : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AtlasPageStats with fn output(self, logger) {

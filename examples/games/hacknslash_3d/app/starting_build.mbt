@@ -1,16 +1,19 @@
 ///|
+#derive(ToJson)
 struct StartingBuildView {
   id : String
-  index : Int
+  index : Int32
   name : String
   description : String
   glyph : String
   weapon : String
   equipment : Array[String]
   skills : Array[String]
-} derive(ToJson)
+}
+
 ///|
 pub extend StartingBuildView with ToJson::{to_json}
+
 ///|
 fn GameState::starting_build_views(
   self : GameState,

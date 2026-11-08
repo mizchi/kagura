@@ -1,21 +1,23 @@
 ///|
+#derive(FromJson)
 struct HeadlessGamepadStep {
-  id : Int
+  id : Int32
   axes : Array[Double]
-  buttons : Array[Int]
-} derive(FromJson)
+  buttons : Array[Int32]
+}
 
 ///|
 pub extend HeadlessGamepadStep with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
+#derive(FromJson)
 struct HeadlessInputStep {
   cursor_x : Double
   cursor_y : Double
-  keys : Array[Int]
-  mouse_buttons : Array[Int]
+  keys : Array[Int32]
+  mouse_buttons : Array[Int32]
   gamepads : Array[HeadlessGamepadStep]
-} derive(FromJson)
+}
 
 ///|
 pub extend HeadlessInputStep with @moonbitlang/core/json.FromJson::{from_json}

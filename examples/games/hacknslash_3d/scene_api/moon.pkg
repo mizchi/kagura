@@ -6,6 +6,9 @@ supported_targets = "js"
 
 options(
   link: {
-    "js": { "exports": [ "create", "snapshot", "blocked", "step" ], "format": "esm" },
+    "js": {
+      "exports": [ "create", "snapshot", "blocked", "step" ],
+      "format": "esm",
+    },
   },
 )

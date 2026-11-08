@@ -13,7 +13,7 @@ fn fixture_mask() -> @draw3d.CameraOcclusion {
 }
 
 ///|
-fn fixture_models(count : Int) -> Array[@math3d.Mat4] {
+fn fixture_models(count : Int32) -> Array[@math3d.Mat4] {
   Array::makei(count, i => {
     @math3d.Mat4::translation((i % 8).to_double(), 0.25, (i / 8).to_double())
   })
@@ -68,7 +68,7 @@ fn fixture_scenery_uniforms(
   vp : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   mask : @draw3d.CameraOcclusion,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   models.map(model => {
     let words = @draw3d.lit_colored_uniform_dwords(
       model,
@@ -82,7 +82,7 @@ fn fixture_scenery_uniforms(
 }
 
 ///|
-fn fixture_scatter(width : Int, height : Int) -> Array[Bool] {
+fn fixture_scatter(width : Int32, height : Int32) -> Array[Bool] {
   let density : @terrain3d.WarpedDensityField = {
     frequency_x: 0.16,
     frequency_z: 0.19,

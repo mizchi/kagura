@@ -3,11 +3,11 @@
 /// Each walkable tile becomes a floor quad, each wall becomes a raised block.
 pub fn grid_to_mesh3d(
   grid : @terrain.Grid2D,
-  tile_size? : Double = 1.0,
-  wall_height? : Double = 1.0,
+  tile_size~ : Double = 1.0,
+  wall_height~ : Double = 1.0,
 ) -> @mesh3d.Mesh3D {
   let vdata : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut vi = 0
   for y in 0..<grid.height {
     for x in 0..<grid.width {
@@ -63,13 +63,13 @@ fn push_vert(
 /// Add a floor quad (2 triangles) at the given position facing up (+Y).
 fn add_floor_quad(
   vdata : Array[Double],
-  indices : Array[Int],
-  vi : Int,
+  indices : Array[Int32],
+  vi : Int32,
   x : Double,
   y : Double,
   z : Double,
   size : Double,
-) -> Int {
+) -> Int32 {
   let x1 = x + size
   let z1 = z + size
   // Normal: up (+Y)
@@ -90,15 +90,15 @@ fn add_floor_quad(
 /// Add a box (6 faces, 24 vertices) at the given position.
 fn add_box(
   vdata : Array[Double],
-  indices : Array[Int],
-  vi : Int,
+  indices : Array[Int32],
+  vi : Int32,
   x : Double,
   y : Double,
   z : Double,
   sx : Double,
   sy : Double,
   sz : Double,
-) -> Int {
+) -> Int32 {
   let x1 = x + sx
   let y1 = y + sy
   let z1 = z + sz

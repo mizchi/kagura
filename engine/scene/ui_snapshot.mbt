@@ -10,8 +10,8 @@ pub fn ui_snapshot_from_scene(
   node : SceneNode,
   screen_width~ : Double,
   screen_height~ : Double,
-  frame? : Int = 0,
-  state? : String = "scene",
+  frame~ : Int32 = 0,
+  state~ : String = "scene",
 ) -> @kagura_ui.UISnapshot {
   let nodes : Array[@kagura_ui.UISnapshotNode] = []
   let mut label_seq = 0
@@ -166,6 +166,11 @@ fn push_keyed_box(
   let height = scene_attr_double(el.attrs, "h", 0.0)
   let path = join_snapshot_path(parent_path, key)
   let hit : @kagura_ui.UISnapshotRect = { left, top, width, height, }
+  let interaction = match scene_attr_value(el.attrs, "interaction") {
+    Some(SceneInteraction(state)) => Some(state)
+    _ => None
+  }
+  let available = interaction.map(state => state.available).unwrap_or(true)
   nodes.push({
     ..@kagura_ui.default_ui_snapshot_node(),
     path,
@@ -178,8 +183,9 @@ fn push_keyed_box(
     height,
     z: nodes.length(),
     hit: Some(hit),
-    focusable: scene_attr_double(el.attrs, "focusable", 0.0) != 0.0,
-    focused: scene_attr_double(el.attrs, "focused", 0.0) != 0.0,
+    interaction,
+    focusable: available && scene_attr_double(el.attrs, "focusable", 0.0) != 0.0,
+    focused: available && scene_attr_double(el.attrs, "focused", 0.0) != 0.0,
     focus_index: scene_attr_double(el.attrs, "focus_index", -1.0).to_int(),
   })
   path

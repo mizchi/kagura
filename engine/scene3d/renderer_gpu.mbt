@@ -13,15 +13,15 @@
 pub fn render_scene3d_graph_gpu(
   graph : SceneGraph,
   camera : @camera3d.Camera3D,
-  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  screen_w : Int32,
+  screen_h : Int32,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let vp = camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
@@ -55,22 +55,22 @@ pub fn render_scene3d_graph_gpu(
 ///|
 fn traverse_node_gpu(
   graph : SceneGraph,
-  node_id : Int,
+  node_id : Int32,
   parent_world : @math3d.Mat4,
   vp : @math3d.Mat4,
   frustum : Frustum,
   lighting : @light3d.LightingEnvironment,
-  light_dwords : Array[Int],
+  light_dwords : Array[Int32],
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
-  camera_pos? : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
+  camera_pos~ : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
 ) -> Unit {
   match graph.nodes.get(node_id) {
     None => ()
@@ -134,12 +134,12 @@ pub fn render_scene3d_gpu(
   scene : Scene3D,
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  screen_w : Int32,
+  screen_h : Int32,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   push_scene3d_gpu_commands(
@@ -166,13 +166,13 @@ pub fn push_scene3d_gpu_commands(
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> Unit {
   let vp = camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
@@ -240,13 +240,13 @@ pub fn push_object3d_gpu_commands(
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> Unit {
   push_scene3d_gpu_commands(
     [obj],
@@ -276,8 +276,8 @@ pub fn push_skinned_mesh_gpu_commands(
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
   shader3d_skinned_instanced : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let count = if instance_transforms.length() < instance_colors.length() {
@@ -308,8 +308,8 @@ pub fn push_skinned_mesh_gpu_commands_with_view_projection(
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
   shader3d_skinned_instanced : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let count = if instance_transforms.length() < instance_colors.length() {
@@ -343,8 +343,8 @@ pub fn push_skinned_mesh_gpu_commands_from_matrices_with_view_projection(
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
   shader3d_skinned_instanced : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let frustum = Frustum::from_vp(view_projection)
@@ -368,8 +368,8 @@ pub fn push_skinned_mesh_gpu_commands_from_matrices_with_uniform_color_and_view_
   shader3d_skinned : @gfx.ShaderHandle,
   _shader3d_skinned_instanced : @gfx.ShaderHandle,
   shader3d_skinned_instanced_monochrome : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let frustum = Frustum::from_vp(view_projection)
@@ -502,8 +502,8 @@ pub fn push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projectio
   shader3d_skinned : @gfx.ShaderHandle,
   shader3d_skinned_instanced : @gfx.ShaderHandle,
   shader3d_skinned_instanced_monochrome : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   match uniform_instance_color(instance_colors) {
@@ -532,8 +532,8 @@ fn push_instanced_mesh_gpu_commands_from_matrices_with_colors_and_view_projectio
   dst : @gfx.ImageHandle,
   shader3d_colored : @gfx.ShaderHandle,
   shader3d_instanced : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let count = if instance_matrices.length() < instance_colors.length() {
@@ -617,8 +617,8 @@ pub fn push_instanced_mesh_gpu_commands_with_color_optimization_and_view_project
   shader3d_colored : @gfx.ShaderHandle,
   shader3d_instanced : @gfx.ShaderHandle,
   shader3d_instanced_monochrome : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   match uniform_instance_color(instance_colors) {
@@ -645,8 +645,8 @@ pub fn push_instanced_instance_data_gpu_commands_with_color_optimization_and_vie
   shader3d_colored : @gfx.ShaderHandle,
   shader3d_instanced : @gfx.ShaderHandle,
   shader3d_instanced_monochrome : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   if instances.is_empty() {
@@ -674,8 +674,8 @@ pub fn push_instanced_mesh_gpu_commands_from_matrices_with_uniform_color_and_vie
   dst : @gfx.ImageHandle,
   shader3d_colored : @gfx.ShaderHandle,
   shader3d_instanced_monochrome : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let frustum = Frustum::from_vp(view_projection)
@@ -790,8 +790,8 @@ fn push_skinned_mesh_gpu_commands_from_matrices_with_frustum(
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
   shader3d_skinned_instanced : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let count = if instance_matrices.length() < instance_colors.length() {
@@ -910,8 +910,8 @@ fn push_single_skinned_mesh_gpu_command_from_matrix_with_frustum(
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(mesh)
@@ -952,8 +952,8 @@ pub fn push_single_skinned_mesh_gpu_command(
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let vp = camera.view_projection_matrix()
@@ -974,8 +974,8 @@ pub fn push_single_skinned_mesh_gpu_command_with_view_projection(
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let frustum = Frustum::from_vp(view_projection)
@@ -997,8 +997,8 @@ fn push_single_skinned_mesh_gpu_command_with_frustum(
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
   shader3d_skinned : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let model = transform.to_mat4()
@@ -1048,8 +1048,8 @@ fn has_nonzero_sort_bias_gpu(objects : Array[Object3D]) -> Bool {
 }
 
 ///|
-fn sort_object_indices_for_gpu(objects : Array[Object3D]) -> Array[Int] {
-  let ordered : Array[Int] = []
+fn sort_object_indices_for_gpu(objects : Array[Object3D]) -> Array[Int32] {
+  let ordered : Array[Int32] = []
   for i in 0..<objects.length() {
     ordered.push(i)
   }
@@ -1076,7 +1076,7 @@ fn has_identity_tint(color : @math3d.Vec4) -> Bool {
 let scene3d_alpha_blend_mode : @gfx.BlendMode = @gfx.BlendMode::from_int(1)
 
 ///|
-let scene3d_empty_src_image_ids : Array[Int] = []
+let scene3d_empty_src_image_ids : Array[Int32] = []
 
 ///|
 fn can_use_simple_untextured_gpu_path(
@@ -1131,17 +1131,17 @@ fn render_object_gpu(
   vp : @math3d.Mat4,
   frustum : Frustum,
   lighting : @light3d.LightingEnvironment,
-  light_dwords : Array[Int],
+  light_dwords : Array[Int32],
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
-  camera_pos? : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
+  camera_pos~ : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
 ) -> Unit {
   // Frustum culling
   let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(mesh)
@@ -1180,7 +1180,7 @@ fn render_object_gpu(
   }
   let has_texture = src_image_id >= 0
   let is_pbr = metallic > 0.0 || roughness != 0.5
-  let src_image_ids : Array[Int] = if has_texture {
+  let src_image_ids : Array[Int32] = if has_texture {
     [src_image_id]
   } else {
     scene3d_empty_src_image_ids
@@ -1283,11 +1283,11 @@ pub fn render_instanced_gpu(
   mesh : @mesh3d.Mesh3D,
   instances : Array[InstanceData],
   camera : @camera3d.Camera3D,
-  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
   dst : @gfx.ImageHandle,
   shader3d_instanced : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let vp = camera.view_projection_matrix()
   render_instanced_gpu_with_view_projection(
@@ -1303,8 +1303,8 @@ pub fn render_instanced_gpu_with_view_projection(
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
   shader3d_instanced : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let instance_matrices : Array[@math3d.Mat4] = []
   let instance_colors : Array[@math3d.Vec4] = []

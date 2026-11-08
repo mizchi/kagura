@@ -6,11 +6,12 @@
 /// - Web Audio API / native audio backends
 
 ///|
+#derive(Debug)
 pub struct AudioFormat {
-  sample_rate : Int
-  channels : Int
-  bits_per_sample : Int
-} derive(Debug)
+  sample_rate : Int32
+  channels : Int32
+  bits_per_sample : Int32
+}
 
 ///|
 pub impl Show for AudioFormat with fn output(self, logger) {
@@ -28,27 +29,27 @@ pub fn cd_quality_format() -> AudioFormat {
 }
 
 ///|
-pub fn mono_format(sample_rate : Int) -> AudioFormat {
+pub fn mono_format(sample_rate : Int32) -> AudioFormat {
   { sample_rate, channels: 1, bits_per_sample: 16, }
 }
 
 ///|
-pub fn pcm16_format(sample_rate : Int, channels : Int) -> AudioFormat {
+pub fn pcm16_format(sample_rate : Int32, channels : Int32) -> AudioFormat {
   { sample_rate, channels, bits_per_sample: 16, }
 }
 
 ///|
-pub fn bytes_per_sample(format : AudioFormat) -> Int {
+pub fn bytes_per_sample(format : AudioFormat) -> Int32 {
   format.bits_per_sample / 8 * format.channels
 }
 
 ///|
-pub fn samples_to_bytes(format : AudioFormat, sample_count : Int) -> Int {
+pub fn samples_to_bytes(format : AudioFormat, sample_count : Int32) -> Int32 {
   sample_count * bytes_per_sample(format)
 }
 
 ///|
-pub fn bytes_to_samples(format : AudioFormat, byte_count : Int) -> Int {
+pub fn bytes_to_samples(format : AudioFormat, byte_count : Int32) -> Int32 {
   let bps = bytes_per_sample(format)
   if bps <= 0 {
     0
@@ -58,12 +59,15 @@ pub fn bytes_to_samples(format : AudioFormat, byte_count : Int) -> Int {
 }
 
 ///|
-pub fn duration_to_samples(format : AudioFormat, seconds : Double) -> Int {
+pub fn duration_to_samples(format : AudioFormat, seconds : Double) -> Int32 {
   (format.sample_rate.to_double() * seconds).to_int()
 }
 
 ///|
-pub fn samples_to_duration(format : AudioFormat, sample_count : Int) -> Double {
+pub fn samples_to_duration(
+  format : AudioFormat,
+  sample_count : Int32,
+) -> Double {
   if format.sample_rate <= 0 {
     0.0
   } else {
@@ -72,11 +76,12 @@ pub fn samples_to_duration(format : AudioFormat, sample_count : Int) -> Double {
 }
 
 ///|
+#derive(Debug)
 pub enum PlayerState {
   Stopped
   Playing
   Paused
-} derive(Debug)
+}
 
 ///|
 pub impl Show for PlayerState with fn output(self, logger) {
@@ -84,9 +89,10 @@ pub impl Show for PlayerState with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct PlayerId {
-  value : Int
-} derive(Debug)
+  value : Int32
+}
 
 ///|
 pub impl Show for PlayerId with fn output(self, logger) {
@@ -94,11 +100,12 @@ pub impl Show for PlayerId with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct AudioClip {
   format : AudioFormat
   data : Bytes
   loop_ : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AudioClip with fn output(self, logger) {
@@ -115,7 +122,7 @@ pub fn new_audio_clip(
 }
 
 ///|
-pub fn clip_sample_count(clip : AudioClip) -> Int {
+pub fn clip_sample_count(clip : AudioClip) -> Int32 {
   bytes_to_samples(clip.format, clip.data.length())
 }
 
@@ -127,9 +134,9 @@ pub fn clip_duration(clip : AudioClip) -> Double {
 ///|
 pub trait AudioStream {
   /// Read PCM samples into the buffer. Returns number of bytes read.
-  fn read(Self, buf : FixedArray[Byte], length : Int) -> Int
+  fn read(Self, buf : FixedArray[Byte], length : Int32) -> Int32
   /// Total length in bytes, or -1 if unknown (e.g., streaming).
-  fn content_length(Self) -> Int
+  fn content_length(Self) -> Int32
 }
 
 ///|
@@ -162,13 +169,13 @@ pub struct SimpleAudioPlayer {
   clip : AudioClip
   mut state : PlayerState
   mut volume : Double
-  mut position_samples : Int
+  mut position_samples : Int32
 }
 
 ///|
 pub struct SimpleAudioContext {
   mut players : Array[SimpleAudioPlayer]
-  mut next_id : Int
+  mut next_id : Int32
   format : AudioFormat
 }
 
@@ -293,7 +300,7 @@ pub impl AudioContext for SimpleAudioContext with fn dispose(self, id) {
 /// Advance all playing players by the given number of samples.
 pub fn SimpleAudioContext::tick(
   self : SimpleAudioContext,
-  samples : Int,
+  samples : Int32,
 ) -> Unit {
   for player in self.players {
     match player.state {
@@ -315,7 +322,7 @@ pub fn SimpleAudioContext::tick(
 }
 
 ///|
-pub fn SimpleAudioContext::player_count(self : SimpleAudioContext) -> Int {
+pub fn SimpleAudioContext::player_count(self : SimpleAudioContext) -> Int32 {
   self.players.length()
 }
 
@@ -433,12 +440,12 @@ pub fn clip_to_audio_buffer(clip : AudioClip) -> @ma.AudioBuffer {
 // contract also supports Float32Array; PCM samples are already f32, so compact
 // storage preserves every sample while halving the backing-store size.
 #cfg(target="js")
-extern "js" fn new_pcm_samples(length : Int) -> FixedArray[Float] =
+extern "js" fn new_pcm_samples(length : Int32) -> FixedArray[Float] =
   #| length => new Float32Array(length)
 
 ///|
 #cfg(not(target="js"))
-fn new_pcm_samples(length : Int) -> FixedArray[Float] {
+fn new_pcm_samples(length : Int32) -> FixedArray[Float] {
   FixedArray::make(length, 0.0)
 }
 
@@ -446,7 +453,7 @@ fn new_pcm_samples(length : Int) -> FixedArray[Float] {
 /// Stream that reads sequentially from an AudioClip.
 pub struct AudioClipStream {
   clip : AudioClip
-  mut position : Int
+  mut position : Int32
 }
 
 ///|
@@ -460,7 +467,7 @@ pub fn AudioClipStream::reset(self : AudioClipStream) -> Unit {
 }
 
 ///|
-pub fn AudioClipStream::remaining(self : AudioClipStream) -> Int {
+pub fn AudioClipStream::remaining(self : AudioClipStream) -> Int32 {
   self.clip.data.length() - self.position
 }
 
@@ -493,11 +500,11 @@ pub impl AudioStream for AudioClipStream with fn content_length(self) {
 /// Useful for network streaming or progressive decoding.
 pub struct BufferedAudioStream {
   chunks : Array[Bytes]
-  mut total_bytes : Int
-  mut read_chunk_idx : Int
-  mut read_byte_idx : Int
+  mut total_bytes : Int32
+  mut read_chunk_idx : Int32
+  mut read_byte_idx : Int32
   mut finalized : Bool
-  mut final_length : Int
+  mut final_length : Int32
 }
 
 ///|
@@ -537,7 +544,7 @@ pub fn BufferedAudioStream::has_data(self : BufferedAudioStream) -> Bool {
 
 ///|
 /// Get the number of bytes available for reading.
-pub fn BufferedAudioStream::buffered_bytes(self : BufferedAudioStream) -> Int {
+pub fn BufferedAudioStream::buffered_bytes(self : BufferedAudioStream) -> Int32 {
   let mut read_pos = 0
   for i = 0; i < self.read_chunk_idx; i = i + 1 {
     read_pos = read_pos + self.chunks[i].length()
@@ -593,7 +600,7 @@ pub impl AudioStream for BufferedAudioStream with fn content_length(self) {
 pub struct MixerAudioContext {
   mixer : @ma.Mixer
   mut player_map : Array[(PlayerId, @ma.VoiceId)]
-  mut next_id : Int
+  mut next_id : Int32
   mut bgm_player_id : PlayerId?
   mut bgm_fade_target : Double
   mut bgm_fade_speed : Double
@@ -604,7 +611,7 @@ pub struct MixerAudioContext {
 }
 
 ///|
-pub fn MixerAudioContext::new(sample_rate : Int) -> MixerAudioContext {
+pub fn MixerAudioContext::new(sample_rate : Int32) -> MixerAudioContext {
   {
     mixer: @ma.new_mixer(sample_rate),
     player_map: [],
@@ -779,7 +786,7 @@ pub impl AudioContext for MixerAudioContext with fn dispose(self, id) {
 /// Render audio frames into an output buffer.
 pub fn MixerAudioContext::render(
   self : MixerAudioContext,
-  frames : Int,
+  frames : Int32,
   output : FixedArray[Float],
 ) -> Unit {
   @ma.tick(self.mixer, frames, output)
@@ -802,7 +809,7 @@ pub fn MixerAudioContext::render(
 pub fn MixerAudioContext::play_bgm(
   self : MixerAudioContext,
   clip : AudioClip,
-  volume? : Double = 1.0,
+  volume~ : Double = 1.0,
 ) -> Unit {
   // Stop existing BGM
   self.stop_bgm()
@@ -893,7 +900,7 @@ pub fn MixerAudioContext::fade_bgm(
 /// Call this once per audio tick from the engine loop.
 pub fn MixerAudioContext::tick_bgm(
   self : MixerAudioContext,
-  frames : Int,
+  frames : Int32,
 ) -> Unit {
   let sample_rate = self.mixer.sample_rate
   let dt = frames.to_double() / sample_rate.to_double()
@@ -973,7 +980,7 @@ pub fn MixerAudioContext::crossfade_bgm(
   self : MixerAudioContext,
   clip : AudioClip,
   duration_seconds : Double,
-  volume? : Double = 1.0,
+  volume~ : Double = 1.0,
 ) -> Unit {
   let target_vol = clamp_volume(volume)
   // If there's already an outgoing BGM, dispose it immediately
@@ -1028,7 +1035,7 @@ pub struct AudioOutputHooks {
   /// Initialize the audio output device with the given format. Returns true on success.
   try_initialize : (AudioFormat) -> Bool
   /// Write PCM frames to the output device. Returns number of frames written.
-  write_frames : (FixedArray[Float], Int) -> Int
+  write_frames : (FixedArray[Float], Int32) -> Int32
   /// Suspend audio output (e.g., tab hidden, app backgrounded).
   suspend : () -> Unit
   /// Resume audio output after suspend.
@@ -1042,7 +1049,7 @@ pub struct AudioOutputHooks {
 ///|
 pub fn new_audio_output_hooks(
   try_initialize : (AudioFormat) -> Bool,
-  write_frames : (FixedArray[Float], Int) -> Int,
+  write_frames : (FixedArray[Float], Int32) -> Int32,
   suspend : () -> Unit,
   resume_playback : () -> Unit,
   close : () -> Unit,
@@ -1060,7 +1067,7 @@ pub fn new_audio_output_hooks(
 ///|
 pub fn new_audio_output_hooks_full(
   try_initialize : (AudioFormat) -> Bool,
-  write_frames : (FixedArray[Float], Int) -> Int,
+  write_frames : (FixedArray[Float], Int32) -> Int32,
   suspend : () -> Unit,
   resume_playback : () -> Unit,
   close : () -> Unit,
@@ -1084,8 +1091,8 @@ fn default_audio_try_initialize(_format : AudioFormat) -> Bool {
 ///|
 fn default_audio_write_frames(
   _output : FixedArray[Float],
-  _frames : Int,
-) -> Int {
+  _frames : Int32,
+) -> Int32 {
   0
 }
 
@@ -1138,7 +1145,7 @@ pub fn audio_try_initialize(format : AudioFormat) -> Bool {
 }
 
 ///|
-pub fn audio_write_frames(output : FixedArray[Float], frames : Int) -> Int {
+pub fn audio_write_frames(output : FixedArray[Float], frames : Int32) -> Int32 {
   (audio_output_hooks.val.write_frames)(output, frames)
 }
 
@@ -1163,11 +1170,12 @@ pub fn audio_output_latency() -> Double {
 }
 
 ///|
+#derive(Debug)
 pub struct AudioOutputStats {
   initialized : Bool
-  frames_written : Int
+  frames_written : Int32
   suspended : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AudioOutputStats with fn output(self, logger) {
@@ -1177,7 +1185,10 @@ pub impl Show for AudioOutputStats with fn output(self, logger) {
 ///|
 /// Render audio from a MixerAudioContext and write to output hooks.
 /// Returns the number of frames actually written.
-pub fn audio_render_and_write(mixer : MixerAudioContext, frames : Int) -> Int {
+pub fn audio_render_and_write(
+  mixer : MixerAudioContext,
+  frames : Int32,
+) -> Int32 {
   let channels = 2 // stereo
   let buf : FixedArray[Float] = FixedArray::make(frames * channels, 0.0)
   mixer.render(frames, buf)

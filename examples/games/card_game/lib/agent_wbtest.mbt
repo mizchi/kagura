@@ -20,7 +20,7 @@ test "agent character choice starts the first act without a stage menu" {
   assert_eq(run.floor, 0)
   assert_eq(run.player_hp, 96)
   assert_true(run.deck.contains(Body_Slam))
-  assert_eq(agent_field(session.observe(), "revision"), Some((2).to_json()))
+  assert_eq(agent_field(session.observe(), "revision"), Some(Json(2)))
   assert_eq(session.step(2, "node:1"), Applied)
   assert_eq(run.battle.unwrap().player.block, 10)
 }
@@ -93,9 +93,9 @@ test "agent observations are detached and hide shuffle order and RNG internals" 
   assert_eq(session.observe(), before)
   assert_eq(b.rng_seed, rng)
   if before is Object(fields) {
-    fields["revision"] = (99).to_json()
+    fields["revision"] = Json(99)
   }
-  assert_eq(agent_field(session.observe(), "revision"), Some((0).to_json()))
+  assert_eq(agent_field(session.observe(), "revision"), Some(Json(0)))
   assert_false(session.observe().stringify().contains("rng_seed"))
   assert_false(session.observe().stringify().contains("pattern_index"))
 }
@@ -135,7 +135,7 @@ test "agent reward rest boss and terminal actions remain phase scoped" {
   assert_eq(boss.step(0, "continue"), Applied)
   assert_eq(boss.run.unwrap().phase, RunVictory)
   assert_true(boss.choices().is_empty())
-  assert_eq(agent_field(boss.observe(), "terminal"), Some(true.to_json()))
+  assert_eq(agent_field(boss.observe(), "terminal"), Some(Json(true)))
   assert_eq(boss.step(1, "end_turn"), Terminal)
 }
 
@@ -159,7 +159,10 @@ test "agent potions enumerate legal targets and consume exactly once" {
 }
 
 ///|
-fn agent_test_battle(character : CharacterId, seed? : Int = 42) -> AgentSession {
+fn agent_test_battle(
+  character : CharacterId,
+  seed~ : Int32 = 42,
+) -> AgentSession {
   let session = AgentSession::start(character, GuardianTrial, seed~)
   session.run = Some(RunState::start(character, Ascent, seed~))
   session

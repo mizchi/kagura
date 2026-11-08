@@ -8,7 +8,7 @@
 
 ///|
 /// Integer split of `total` across `weights` using the largest-remainder method.
-fn split_det(total : Int, weights : Array[Double]) -> Array[Int] {
+fn split_det(total : Int32, weights : Array[Double]) -> Array[Int32] {
   let k = weights.length()
   let result = Array::make(k, 0)
   if k == 0 || total <= 0 {
@@ -60,9 +60,9 @@ fn split_det(total : Int, weights : Array[Double]) -> Array[Int] {
 /// Distribute `total` units one at a time, each routed to a weighted-random edge.
 fn split_prob(
   state : SimState,
-  total : Int,
+  total : Int32,
   weights : Array[Double],
-) -> Array[Int] {
+) -> Array[Int32] {
   let k = weights.length()
   let result = Array::make(k, 0)
   if k == 0 || total <= 0 {
@@ -100,8 +100,8 @@ fn split_prob(
 fn process_gates(
   diagram : Diagram,
   state : SimState,
-  work : Array[Int],
-  flows : Array[Int],
+  work : Array[Int32],
+  flows : Array[Int32],
 ) -> Unit {
   let edges = diagram.resources
   for gi in 0..<diagram.nodes.length() {
@@ -144,7 +144,7 @@ fn process_gates(
       flows[ei] = amt
     }
     // Collect outgoing edges and their weights.
-    let out_idx : Array[Int] = []
+    let out_idx : Array[Int32] = []
     let weights : Array[Double] = []
     for ei in 0..<edges.length() {
       if edges[ei].from == gi {

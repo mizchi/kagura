@@ -1,5 +1,5 @@
 ///|
-let character_shields : Map[Int, Array[CharacterPart]] = Map::new()
+let character_shields : Map[Int32, Array[CharacterPart]] = Map::new()
 
 ///|
 fn is_stowed_shield(part : CharacterPart) -> Bool {

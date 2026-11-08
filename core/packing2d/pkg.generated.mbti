@@ -6,15 +6,16 @@ import {
 }
 
 // Values
-pub fn new_maxrects_allocator(Int, Int) -> MaxRectsAllocator
+pub fn new_maxrects_allocator(Int32, Int32) -> MaxRectsAllocator
 
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub(all) struct AllocResult {
-  x : Int
-  y : Int
-} derive(@debug.Debug)
+  x : Int32
+  y : Int32
+}
 pub fn AllocResult::output(Self, &Logger) -> Unit
 pub fn AllocResult::to_repr(Self) -> @debug.Repr
 pub fn AllocResult::to_string(Self) -> String
@@ -23,9 +24,10 @@ pub impl Show for AllocResult
 pub struct MaxRectsAllocator {
   free_rects : Array[Rect]
 }
-pub fn MaxRectsAllocator::insert(Self, Int, Int) -> AllocResult?
+pub fn MaxRectsAllocator::insert(Self, Int32, Int32) -> AllocResult?
 
-type Rect derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+type Rect
 pub fn Rect::equal(Self, Self) -> Bool
 pub fn Rect::not_equal(Self, Self) -> Bool
 pub fn Rect::output(Self, &Logger) -> Unit

@@ -13,7 +13,7 @@ fn room_symbol(kind : RoomKind) -> String {
 }
 
 ///|
-fn room_color(kind : RoomKind) -> Int {
+fn room_color(kind : RoomKind) -> Int32 {
   match kind {
     RoomElite | RoomBoss => 0xFFB0A5
     RoomUnique => 0xCAB2FF
@@ -38,7 +38,7 @@ fn room_option(
   detail : String,
   enabled : Bool,
   focused : Bool,
-  accent : Int,
+  accent : Int32,
 ) -> @scene.SceneNode {
   let color = if enabled { accent } else { 0xA0ADBF }
   let children = [

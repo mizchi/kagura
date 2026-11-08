@@ -3,10 +3,10 @@
 // ============================================================
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 // ============================================================
 // Menu Scene
@@ -14,7 +14,7 @@ let screen_h : Int = 480
 
 ///|
 struct MenuScene {
-  mut frame : Int
+  mut frame : Int32
 }
 
 ///|
@@ -32,7 +32,7 @@ impl @scene_manager.Scene for MenuScene with fn draw(self, ctx) {
   let _ = self
   // Draw a simple colored background quad as menu placeholder
   let vdata : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   // Full-screen quad using 3D lit shader (flat plane)
   let mesh = @mesh3d.Mesh3D::cube(1.0)
   let lighting = @light3d.LightingEnvironment::new(
@@ -316,7 +316,7 @@ impl @scene_manager.Scene for DungeonScene with fn draw(self, ctx) {
 ///|
 fn build_path_mesh(path : Array[@terrain.Point]) -> @mesh3d.Mesh3D {
   let vdata : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut vi = 0
   let y = 0.05
   let pad = 0.15

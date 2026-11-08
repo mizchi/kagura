@@ -1,5 +1,5 @@
 ///|
-fn stress_enemy_kind(index : Int) -> @game.EnemyKind {
+fn stress_enemy_kind(index : Int32) -> @game.EnemyKind {
   match index % 5 {
     0 => @game.Basic
     1 => @game.Fast
@@ -10,7 +10,7 @@ fn stress_enemy_kind(index : Int) -> @game.EnemyKind {
 }
 
 ///|
-fn stress_enemy_stats(kind : @game.EnemyKind) -> (Int, Double, Double) {
+fn stress_enemy_stats(kind : @game.EnemyKind) -> (Int32, Double, Double) {
   match kind {
     @game.Zombie => (5, 0.55, 11.0)
     @game.Wolf => (3, 1.6, 11.0)
@@ -23,7 +23,7 @@ fn stress_enemy_stats(kind : @game.EnemyKind) -> (Int, Double, Double) {
 }
 
 ///|
-fn enemy_stress_grid_side(count : Int) -> Int {
+fn enemy_stress_grid_side(count : Int32) -> Int32 {
   let mut side = 1
   while side * side < count {
     side = side + 1
@@ -32,7 +32,7 @@ fn enemy_stress_grid_side(count : Int) -> Int {
 }
 
 ///|
-fn apply_enemy_stress_scenario(world : @game.GameWorld, count : Int) -> Unit {
+fn apply_enemy_stress_scenario(world : @game.GameWorld, count : Int32) -> Unit {
   if count <= 0 {
     return
   }

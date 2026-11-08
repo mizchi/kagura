@@ -7,14 +7,15 @@
 /// - internal/inputstate/inputstate.go
 
 ///|
+#derive(Debug)
 pub struct WindowOptions {
   title : String
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   transparent : Bool
   resizable : Bool
   focused : Bool
-} derive(Debug)
+}
 
 ///|
 pub impl Show for WindowOptions with fn output(self, logger) {
@@ -22,12 +23,13 @@ pub impl Show for WindowOptions with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct MonitorInfo {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   device_scale_factor : Double
-  refresh_rate_hz : Int
-} derive(Debug)
+  refresh_rate_hz : Int32
+}
 
 ///|
 pub impl Show for MonitorInfo with fn output(self, logger) {
@@ -35,11 +37,12 @@ pub impl Show for MonitorInfo with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub enum FullscreenMode {
   Windowed
   Borderless
   Exclusive
-} derive(Debug)
+}
 
 ///|
 pub impl Show for FullscreenMode with fn output(self, logger) {
@@ -47,7 +50,7 @@ pub impl Show for FullscreenMode with fn output(self, logger) {
 }
 
 ///|
-pub fn fullscreen_mode_to_int(mode : FullscreenMode) -> Int {
+pub fn fullscreen_mode_to_int(mode : FullscreenMode) -> Int32 {
   match mode {
     FullscreenMode::Windowed => 0
     FullscreenMode::Borderless => 1
@@ -56,7 +59,7 @@ pub fn fullscreen_mode_to_int(mode : FullscreenMode) -> Int {
 }
 
 ///|
-pub fn fullscreen_mode_from_int(mode : Int) -> FullscreenMode {
+pub fn fullscreen_mode_from_int(mode : Int32) -> FullscreenMode {
   match mode {
     1 => FullscreenMode::Borderless
     2 => FullscreenMode::Exclusive
@@ -65,11 +68,12 @@ pub fn fullscreen_mode_from_int(mode : Int) -> FullscreenMode {
 }
 
 ///|
+#derive(Debug)
 pub enum CursorMode {
   Visible
   Hidden
   Captured
-} derive(Debug)
+}
 
 ///|
 pub impl Show for CursorMode with fn output(self, logger) {
@@ -77,7 +81,7 @@ pub impl Show for CursorMode with fn output(self, logger) {
 }
 
 ///|
-pub fn cursor_mode_to_int(mode : CursorMode) -> Int {
+pub fn cursor_mode_to_int(mode : CursorMode) -> Int32 {
   match mode {
     CursorMode::Visible => 0
     CursorMode::Hidden => 1
@@ -86,7 +90,7 @@ pub fn cursor_mode_to_int(mode : CursorMode) -> Int {
 }
 
 ///|
-pub fn cursor_mode_from_int(mode : Int) -> CursorMode {
+pub fn cursor_mode_from_int(mode : Int32) -> CursorMode {
   match mode {
     1 => CursorMode::Hidden
     2 => CursorMode::Captured
@@ -95,12 +99,13 @@ pub fn cursor_mode_from_int(mode : Int) -> CursorMode {
 }
 
 ///|
+#derive(Debug)
 pub enum AsyncRequestStatus {
   Idle
   Pending
   Confirmed
   Rejected
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AsyncRequestStatus with fn output(self, logger) {
@@ -108,7 +113,7 @@ pub impl Show for AsyncRequestStatus with fn output(self, logger) {
 }
 
 ///|
-pub fn async_request_status_to_int(status : AsyncRequestStatus) -> Int {
+pub fn async_request_status_to_int(status : AsyncRequestStatus) -> Int32 {
   match status {
     AsyncRequestStatus::Idle => 0
     AsyncRequestStatus::Pending => 1
@@ -118,7 +123,7 @@ pub fn async_request_status_to_int(status : AsyncRequestStatus) -> Int {
 }
 
 ///|
-pub fn async_request_status_from_int(status : Int) -> AsyncRequestStatus {
+pub fn async_request_status_from_int(status : Int32) -> AsyncRequestStatus {
   match status {
     1 => AsyncRequestStatus::Pending
     2 => AsyncRequestStatus::Confirmed
@@ -130,11 +135,11 @@ pub fn async_request_status_from_int(status : Int) -> AsyncRequestStatus {
 ///|
 pub fn new_window_options(
   title : String,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   transparent : Bool,
   resizable : Bool,
-  focused? : Bool = true,
+  focused~ : Bool = true,
 ) -> WindowOptions {
   { title, width, height, transparent, resizable, focused, }
 }
@@ -154,7 +159,7 @@ pub(open) trait PlatformDriver {
   fn outside_size(Self) -> @core.OutsideSize
 
   /// Ebiten ref: inputstate snapshot per tick
-  fn capture_input(Self, tick : Int) -> @core.InputSnapshot
+  fn capture_input(Self, tick : Int32) -> @core.InputSnapshot
 
   /// Ebiten ref: device scale factor paths in ui/context
   fn monitor_info(Self) -> MonitorInfo
@@ -191,8 +196,8 @@ pub(open) trait PlatformDriver {
 ///|
 pub struct DesktopGlfwPlatform {
   mut initialized : Bool
-  mut poll_count : Int
-  close_after_polls : Int
+  mut poll_count : Int32
+  close_after_polls : Int32
   mut native_active : Bool
   mut options : WindowOptions
   mut current_input : @core.InputSnapshot
@@ -201,7 +206,7 @@ pub struct DesktopGlfwPlatform {
   mut device_scale_factor : Double
   mut vsync_enabled : Bool
   mut close_requested : Bool
-  mut attention_requests : Int
+  mut attention_requests : Int32
   mut mouse_touch_fallback : Bool
   mut fullscreen_request_status : AsyncRequestStatus
   mut cursor_mode_request_status : AsyncRequestStatus
@@ -211,8 +216,8 @@ pub struct DesktopGlfwPlatform {
 pub struct WebCanvasPlatform {
   canvas_selector : String
   mut initialized : Bool
-  mut poll_count : Int
-  close_after_polls : Int
+  mut poll_count : Int32
+  close_after_polls : Int32
   mut web_active : Bool
   mut options : WindowOptions
   mut current_input : @core.InputSnapshot
@@ -221,7 +226,7 @@ pub struct WebCanvasPlatform {
   mut device_scale_factor : Double
   mut vsync_enabled : Bool
   mut close_requested : Bool
-  mut attention_requests : Int
+  mut attention_requests : Int32
   mut mouse_touch_fallback : Bool
   mut fullscreen_request_status : AsyncRequestStatus
   mut cursor_mode_request_status : AsyncRequestStatus

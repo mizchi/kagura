@@ -1,8 +1,8 @@
 ///|
-let native_tile_w : Int = 320
+let native_tile_w : Int32 = 320
 
 ///|
-let native_tile_h : Int = 240
+let native_tile_h : Int32 = 240
 
 ///|
 fn native_default_orbit_camera() -> @camera3d.OrbitCamera {
@@ -48,8 +48,8 @@ fn[T : @gfx.GraphicsDriver] render_view_pixels(
   shader3d : @gfx.ShaderHandle,
   lighting : @light3d.LightingEnvironment,
   camera : @camera3d.OrbitCamera,
-) -> Array[Int] {
-  let mut last_pixels : Array[Int]? = None
+) -> Array[Int32] {
+  let mut last_pixels : Array[Int32]? = None
   for _ in 0..<2 {
     let scene = @scene3d.scene3d(
       objects~,
@@ -92,12 +92,12 @@ fn[T : @gfx.GraphicsDriver] render_view_pixels(
 
 ///|
 fn copy_view_into_atlas(
-  atlas : Array[Int],
-  atlas_w : Int,
-  atlas_h : Int,
-  tile_pixels : Array[Int],
-  tile_x : Int,
-  tile_y : Int,
+  atlas : Array[Int32],
+  atlas_w : Int32,
+  atlas_h : Int32,
+  tile_pixels : Array[Int32],
+  tile_x : Int32,
+  tile_y : Int32,
   binarize : Bool,
 ) -> Unit {
   let _ = atlas_h
@@ -165,7 +165,7 @@ pub fn run_authoring_native(doc : @modeling3d.ModelDocument) -> Unit {
     _ => panic()
   }
   let lighting = native_capture_lighting()
-  let atlas : Array[Int] = Array::make(atlas_w * atlas_h * 4, 0)
+  let atlas : Array[Int32] = Array::make(atlas_w * atlas_h * 4, 0)
   let tiles = [
     ("angled", 0, 0),
     ("front", native_tile_w, 0),

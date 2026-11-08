@@ -1,7 +1,7 @@
 ///|
 pub fn read_native_capture_text(
   path : String,
-  config? : Bool = false,
+  config~ : Bool = false,
 ) -> String? {
   @services.read_file(
     path,

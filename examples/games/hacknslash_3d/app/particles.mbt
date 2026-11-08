@@ -164,7 +164,7 @@ fn spawn_ambient_dust(
   pm : @particle3d.ParticleManager,
   x : Double,
   y : Double,
-  frame : Int,
+  frame : Int32,
 ) -> Unit {
   // Pseudo-random offset around player using frame as seed
   let ox = ((frame * 73 + 17) % 200 - 100).to_double() / 100.0 * 3.0

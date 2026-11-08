@@ -248,6 +248,7 @@ iron-yard-gfx-test:
 # Luna-based integrated authoring workspace (independent MoonBit module).
 studio-install:
     pnpm install --frozen-lockfile
+    node scripts/prepare-moon-deps.mjs editor/studio
     cd editor/studio && moon check --target js
     cd editor/studio && pnpm install --frozen-lockfile
 
@@ -260,6 +261,7 @@ studio-examples-build *names:
     @node editor/studio/scripts/build-examples.mjs "$@"
 
 studio-check:
+    node scripts/prepare-moon-deps.mjs editor/studio
     cd editor/studio && pnpm exec tsc -p tsconfig.contracts.json
     cd editor/studio && moon check --target js --deny-warn
     cd editor/studio && moon test --target js
@@ -338,10 +340,15 @@ fmt:
     moon fmt
     for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon fmt); done
 
-check: check-workspace check-examples
+check: check-workspace check-examples check-extra-modules
+
+# Resolve registry dependencies and migrate legacy downloaded manifests.
+[positional-arguments]
+moon-deps *directories:
+    node scripts/prepare-moon-deps.mjs "$@"
 
 # The workspace itself, without the example projects.
-check-workspace:
+check-workspace: moon-deps
     moon check --deny-warn --target {{target}}
 
 # Every example/editor-example project that supports {{target}}.
@@ -351,7 +358,21 @@ check-workspace:
 # which shard is decided by scripts/example-projects.mjs, not here, so every
 # runner derives the same split.
 check-examples shard="1/1":
-    dirs=$(node scripts/example-projects.mjs --target {{target}} --mode check --shard {{shard}}) || { echo "::error title=example listing failed::scripts/example-projects.mjs"; exit 1; }; for dir in $dirs; do echo "check $dir"; (cd "$dir" && moon check --deny-warn --target {{target}}) || { echo "::error file=$dir/moon.mod,title=example check failed::$dir"; exit 1; }; done
+    dirs=$(node scripts/example-projects.mjs --target {{target}} --mode check --shard {{shard}}) || { echo "::error title=example listing failed::scripts/example-projects.mjs"; exit 1; }; for dir in $dirs; do echo "check $dir"; node scripts/prepare-moon-deps.mjs "$dir" && (cd "$dir" && moon check --deny-warn --target {{target}}) || { echo "::error file=$dir/moon.mod,title=example check failed::$dir"; exit 1; }; done
+
+
+# Independent editor modules, the Wasm guest and vendored native bindings.
+check-extra-modules:
+    node scripts/prepare-moon-deps.mjs editor/studio editor/model-viewer editor/modeling3d editor/effect-studio
+    for dir in editor/studio editor/model-viewer editor/modeling3d editor/effect-studio; do moon -C "$dir" check --target js --deny-warn || exit; done
+    for dir in editor/modeling3d editor/effect-studio; do moon -C "$dir" check --target native --deny-warn || exit; done
+    moon -C examples/experimental/wasm_game/guest/moonbit check --target wasm --deny-warn
+    moon -C assets/vendor/glfw check . --target native --deny-warn
+
+# Requires the sibling mizchi/crater checkout; check dependencies without editing it.
+check-external-examples:
+    node scripts/prepare-moon-deps.mjs examples/experimental/crater_paint examples/smoke/browser_headless
+    for dir in examples/experimental/crater_paint examples/smoke/browser_headless; do moon -C "$dir" check . --target native --deny-warn --no-mbti || exit; done
 
 modeling3d-check:
     for dir in editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
@@ -362,7 +383,7 @@ effect-studio-check:
 test: test-workspace test-examples
 
 # The workspace itself plus the JS-side unit tests, without the example projects.
-test-workspace:
+test-workspace: moon-deps
     if [ "{{target}}" = "js" ]; then just web-runtime-build; fi
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
     if [ "{{target}}" = "js" ] && ls platform_web/host/*.test.mjs >/dev/null 2>&1; then node --test platform_web/host/*.test.mjs || { echo "::error title=node test failed::platform_web/host/*.test.mjs"; exit 1; }; fi
@@ -372,7 +393,7 @@ test-workspace:
 # Far fewer projects than `check-examples` on native: anything that links
 # wgpu-native is check-only there. See `shard` on `check-examples`.
 test-examples shard="1/1":
-    dirs=$(node scripts/example-projects.mjs --target {{target}} --mode test --shard {{shard}}) || { echo "::error title=example listing failed::scripts/example-projects.mjs"; exit 1; }; for dir in $dirs; do echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod,title=example test failed::$dir"; exit 1; }; done
+    dirs=$(node scripts/example-projects.mjs --target {{target}} --mode test --shard {{shard}}) || { echo "::error title=example listing failed::scripts/example-projects.mjs"; exit 1; }; for dir in $dirs; do echo "test $dir"; node scripts/prepare-moon-deps.mjs "$dir" && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod,title=example test failed::$dir"; exit 1; }; done
 
 modeling3d-test:
     for dir in editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done

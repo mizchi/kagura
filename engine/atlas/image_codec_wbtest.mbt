@@ -14,7 +14,7 @@ test "detect_raster_image_format identifies png jpeg bmp" {
   assert_eq(detect_raster_image_format(png), Some(RasterImageFormat::Png))
   assert_eq(detect_raster_image_format(jpeg), Some(RasterImageFormat::Jpeg))
   assert_eq(detect_raster_image_format(bmp), Some(RasterImageFormat::Bmp))
-  let unknown = Bytes::from_array([Int::to_byte(1), Int::to_byte(2)])
+  let unknown = Bytes::from_array([Int32::to_byte(1), Int32::to_byte(2)])
   assert_eq(detect_raster_image_format(unknown), None)
 }
 
@@ -105,7 +105,7 @@ test "update_image_from_raster_bytes updates existing image generation" {
 test "create_image_from_raster_bytes returns none on unknown format" {
   let repo = new_simple_image_repository()
   let key = new_asset_key("codec/unknown")
-  let unknown = Bytes::from_array([Int::to_byte(1), Int::to_byte(2)])
+  let unknown = Bytes::from_array([Int32::to_byte(1), Int32::to_byte(2)])
   let created = create_image_from_raster_bytes(repo, key, unknown) catch {
     _ => panic()
   }

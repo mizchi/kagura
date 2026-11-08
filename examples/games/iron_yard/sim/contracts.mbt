@@ -12,14 +12,14 @@ pub(all) struct Input {
 
 ///|
 pub fn input(
-  forward? : Double = 0.0,
-  strafe? : Double = 0.0,
-  boost? : Bool = false,
-  jump? : Bool = false,
-  fire? : Bool = false,
-  lock? : Bool = false,
-  yaw? : Double = 0.0,
-  pitch? : Double = 0.25,
+  forward~ : Double = 0.0,
+  strafe~ : Double = 0.0,
+  boost~ : Bool = false,
+  jump~ : Bool = false,
+  fire~ : Bool = false,
+  lock~ : Bool = false,
+  yaw~ : Double = 0.0,
+  pitch~ : Double = 0.25,
 ) -> Input {
   { forward, strafe, boost, jump, fire, lock, yaw, pitch, }
 }
@@ -43,7 +43,7 @@ pub(all) struct Solid {
   kind : String
   center : @math3d.Vec3
   size : @math3d.Vec3
-  color : Int
+  color : Int32
 }
 
 ///|
@@ -66,8 +66,8 @@ pub fn solid(
   id : String,
   center : @math3d.Vec3,
   size : @math3d.Vec3,
-  color : Int,
-  kind? : String = "",
+  color : Int32,
+  kind~ : String = "",
 ) -> Solid {
   { id, kind, center, size, color, }
 }

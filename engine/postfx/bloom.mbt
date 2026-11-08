@@ -80,7 +80,7 @@ pub fn bloom_composite_wgsl() -> String {
 /// Flow: Scene->[threshold]->A->[hblur]->B->[vblur]->A->[composite(Scene+A)]->dst
 pub fn bloom_commands(
   dst : @gfx.ImageHandle,
-  scene_image_id : Int,
+  scene_image_id : Int32,
   bloom_a : @gfx.ImageHandle,
   bloom_b : @gfx.ImageHandle,
   threshold_shader : @gfx.ShaderHandle,
@@ -89,8 +89,8 @@ pub fn bloom_commands(
   composite_shader : @gfx.ShaderHandle,
   threshold : Double,
   intensity : Double,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let blur_w = if bloom_a.width > 0 { bloom_a.width } else { screen_w }
   let blur_h = if bloom_a.height > 0 { bloom_a.height } else { screen_h }

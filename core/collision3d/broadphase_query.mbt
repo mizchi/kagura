@@ -1,10 +1,10 @@
 ///|
 fn entry_overlap_start_mask(
   entry : BroadphaseEntry,
-  cx : Int,
-  cy : Int,
-  cz : Int,
-) -> Int {
+  cx : Int32,
+  cy : Int32,
+  cz : Int32,
+) -> Int32 {
   let mut mask = 0
   if entry.min_cx == cx {
     mask = mask | 1
@@ -19,7 +19,7 @@ fn entry_overlap_start_mask(
 }
 
 ///|
-fn bucket_mask_bits_can_emit_pairs(mask_bits : Int) -> Bool {
+fn bucket_mask_bits_can_emit_pairs(mask_bits : Int32) -> Bool {
   for lhs = 0; lhs < 8; lhs = lhs + 1 {
     if (mask_bits & (1 << lhs)) == 0 {
       continue
@@ -40,15 +40,15 @@ fn bucket_mask_bits_can_emit_pairs(mask_bits : Int) -> Bool {
 pub fn SpatialHashGrid::query_aabb(
   self : SpatialHashGrid,
   aabb : AABB,
-) -> Array[Int] {
+) -> Array[Int32] {
   let min_cx = floor_to_int(aabb.min.x * self.inv_cell_size)
   let min_cy = floor_to_int(aabb.min.y * self.inv_cell_size)
   let min_cz = floor_to_int(aabb.min.z * self.inv_cell_size)
   let max_cx = floor_to_int(aabb.max.x * self.inv_cell_size)
   let max_cy = floor_to_int(aabb.max.y * self.inv_cell_size)
   let max_cz = floor_to_int(aabb.max.z * self.inv_cell_size)
-  let seen : Map[Int, Unit] = Map([])
-  let result : Array[Int] = []
+  let seen : Map[Int32, Unit] = Map([])
+  let result : Array[Int32] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       for cz = min_cz; cz <= max_cz; cz = cz + 1 {
@@ -77,7 +77,7 @@ pub fn SpatialHashGrid::query_aabb(
 pub fn SpatialHashGrid::query_sphere(
   self : SpatialHashGrid,
   sphere : Sphere,
-) -> Array[Int] {
+) -> Array[Int32] {
   let sphere_aabb = AABB::new(
     @math3d.Vec3::new(
       sphere.center.x - sphere.radius,
@@ -96,8 +96,8 @@ pub fn SpatialHashGrid::query_sphere(
   let max_cx = floor_to_int(sphere_aabb.max.x * self.inv_cell_size)
   let max_cy = floor_to_int(sphere_aabb.max.y * self.inv_cell_size)
   let max_cz = floor_to_int(sphere_aabb.max.z * self.inv_cell_size)
-  let seen : Map[Int, Unit] = Map([])
-  let result : Array[Int] = []
+  let seen : Map[Int32, Unit] = Map([])
+  let result : Array[Int32] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       for cz = min_cz; cz <= max_cz; cz = cz + 1 {
@@ -127,7 +127,7 @@ pub fn SpatialHashGrid::query_ray(
   self : SpatialHashGrid,
   ray : Ray,
   max_distance : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   let end = ray.point_at(max_distance)
   let min_x = if ray.origin.x < end.x { ray.origin.x } else { end.x }
   let min_y = if ray.origin.y < end.y { ray.origin.y } else { end.y }
@@ -141,8 +141,8 @@ pub fn SpatialHashGrid::query_ray(
   let max_cx = floor_to_int(max_x * self.inv_cell_size)
   let max_cy = floor_to_int(max_y * self.inv_cell_size)
   let max_cz = floor_to_int(max_z * self.inv_cell_size)
-  let seen : Map[Int, Unit] = Map([])
-  let result : Array[Int] = []
+  let seen : Map[Int32, Unit] = Map([])
+  let result : Array[Int32] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       for cz = min_cz; cz <= max_cz; cz = cz + 1 {
@@ -180,7 +180,7 @@ pub fn SpatialHashGrid::query_ray(
 /// Cells are walked in first-touch order, which is the order the old
 /// `Map[Int64, _]` gave through `each` -- `Map` keeps an insertion-ordered
 /// linked list. Pair order reaches the solver, so this is load-bearing.
-pub fn SpatialHashGrid::get_pairs_into(self : SpatialHashGrid) -> Int {
+pub fn SpatialHashGrid::get_pairs_into(self : SpatialHashGrid) -> Int32 {
   let ids_a = self.pair_id_a
   let ids_b = self.pair_id_b
   let mut count = 0
@@ -237,9 +237,11 @@ pub fn SpatialHashGrid::get_pairs_into(self : SpatialHashGrid) -> Int {
 ///|
 /// Candidate pairs as tuples. Prefer `get_pairs_into` on a hot path: this adds
 /// one heap tuple per pair on top of it.
-pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
+pub fn SpatialHashGrid::get_pairs(
+  self : SpatialHashGrid,
+) -> Array[(Int32, Int32)] {
   let count = self.get_pairs_into()
-  let result : Array[(Int, Int)] = Array(capacity=count)
+  let result : Array[(Int32, Int32)] = Array(capacity=count)
   for p = 0; p < count; p = p + 1 {
     result.push((self.pair_id_a[p], self.pair_id_b[p]))
   }

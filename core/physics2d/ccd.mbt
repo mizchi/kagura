@@ -138,7 +138,7 @@ pub fn sweep_circle_aabb(
 /// Positions still come from the bodies, and are read as the loop has mutated
 /// them so far, which is what this did before the buffer existed.
 pub fn ccd_sweep_body(
-  bullet_idx : Int,
+  bullet_idx : Int32,
   bodies : Array[RigidBody2D],
   vel : VelocityState2D,
   dt : Double,

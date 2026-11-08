@@ -36,7 +36,7 @@ pub fn fullscreen_quad_vertex_data() -> Array[Double] {
 
 ///|
 /// Fullscreen quad indices: two triangles covering the screen.
-pub fn fullscreen_quad_indices() -> Array[Int] {
+pub fn fullscreen_quad_indices() -> Array[Int32] {
   [0, 1, 2, 2, 3, 0]
 }
 
@@ -44,7 +44,7 @@ pub fn fullscreen_quad_indices() -> Array[Int] {
 // without allocating a values array.
 
 ///|
-fn mix_cache_key(seed : Int, value : Int) -> Int {
+fn mix_cache_key(seed : Int32, value : Int32) -> Int32 {
   seed * 16777619 + value + 31
 }
 
@@ -57,7 +57,7 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // shader math is unaffected.
 
 ///|
-fn f32(v : Double) -> Int {
+fn f32(v : Double) -> Int32 {
   Float::from_double(v).reinterpret_as_int()
 }
 
@@ -65,10 +65,10 @@ fn f32(v : Double) -> Int {
 fn fullscreen_quad_resource_cache_key(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  src_image_ids : Array[Int],
-  uniform_dwords : Array[Int],
+  src_image_ids : Array[Int32],
+  uniform_dwords : Array[Int32],
   blend : @gfx.BlendMode,
-) -> Int {
+) -> Int32 {
   let mut hash = 0x504F5354
   hash = mix_cache_key(hash, dst.id)
   hash = mix_cache_key(hash, dst.width)
@@ -95,8 +95,8 @@ fn fullscreen_quad_resource_cache_key(
 pub fn new_fullscreen_quad_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  src_image_ids : Array[Int],
-  uniform_dwords : Array[Int],
+  src_image_ids : Array[Int32],
+  uniform_dwords : Array[Int32],
   blend : @gfx.BlendMode,
 ) -> @gfx.DrawTrianglesCommand {
   let dst_region = @gfx.new_dst_region(0, 0, dst.width, dst.height, 6)

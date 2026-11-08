@@ -60,7 +60,7 @@ pub fn JsonObjectPublisher::encode(
     return None
   }
   let patch : Json = {
-    "full": (!self.initialized).to_json(),
+    "full": Json(!self.initialized),
     "set": Json::object(changed),
     "remove": Json::array(removed),
   }

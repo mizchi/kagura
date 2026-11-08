@@ -1,10 +1,10 @@
 ///|
 struct BroadphaseEntry {
-  id : Int
+  id : Int32
   aabb : AABB
-  min_cx : Int
-  min_cy : Int
-  min_cz : Int
+  min_cx : Int32
+  min_cy : Int32
+  min_cz : Int32
 }
 
 ///|
@@ -44,25 +44,25 @@ pub struct SpatialHashGrid {
   cell_size : Double
   inv_cell_size : Double
   entries : Array[BroadphaseEntry]
-  cell_cx : Array[Int]
-  cell_cy : Array[Int]
-  cell_cz : Array[Int]
-  cell_items : Array[Array[Int]]
-  mut cell_count : Int
-  mut slots : FixedArray[Int]
-  mut slot_mask : Int
+  cell_cx : Array[Int32]
+  cell_cy : Array[Int32]
+  cell_cz : Array[Int32]
+  cell_items : Array[Array[Int32]]
+  mut cell_count : Int32
+  mut slots : FixedArray[Int32]
+  mut slot_mask : Int32
   /// Per-cell overlap masks, reused by `get_pairs` across cells and frames. It
   /// used to allocate one array per occupied cell per frame.
-  mut mask_scratch : FixedArray[Int]
+  mut mask_scratch : FixedArray[Int32]
   /// `get_pairs_into`'s output columns, pooled across calls.
-  pair_id_a : Array[Int]
-  pair_id_b : Array[Int]
+  pair_id_a : Array[Int32]
+  pair_id_b : Array[Int32]
 }
 
 ///|
 /// Initial slot count. Grows by doubling; a power of two so the slot index is a
 /// mask rather than a modulo.
-let initial_slot_capacity : Int = 64
+let initial_slot_capacity : Int32 = 64
 
 ///|
 pub fn SpatialHashGrid::new(cell_size : Double) -> SpatialHashGrid {
@@ -97,12 +97,12 @@ pub fn SpatialHashGrid::clear(self : SpatialHashGrid) -> Unit {
 }
 
 ///|
-pub fn SpatialHashGrid::count(self : SpatialHashGrid) -> Int {
+pub fn SpatialHashGrid::count(self : SpatialHashGrid) -> Int32 {
   self.entries.length()
 }
 
 ///|
-fn floor_to_int(x : Double) -> Int {
+fn floor_to_int(x : Double) -> Int32 {
   let i = x.to_int()
   if x < i.to_double() {
     i - 1
@@ -117,7 +117,7 @@ fn floor_to_int(x : Double) -> Int {
 /// The raw xor of the three products maps neighbouring cells to neighbouring
 /// slots, and a broadphase walks neighbouring cells, so without the final mix
 /// the probe sequences of adjacent lookups overlap and pile up.
-fn cell_hash(cx : Int, cy : Int, cz : Int) -> Int {
+fn cell_hash(cx : Int32, cy : Int32, cz : Int32) -> Int32 {
   let mut h = (cx * 73856093) ^ (cy * 19349663) ^ (cz * 83492791)
   h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
@@ -153,10 +153,10 @@ fn SpatialHashGrid::grow_slots(self : SpatialHashGrid) -> Unit {
 /// `clear()` wipes the whole table.
 fn SpatialHashGrid::find_cell(
   self : SpatialHashGrid,
-  cx : Int,
-  cy : Int,
-  cz : Int,
-) -> Int {
+  cx : Int32,
+  cy : Int32,
+  cz : Int32,
+) -> Int32 {
   let mask = self.slot_mask
   let mut slot = cell_hash(cx, cy, cz) & mask
   for ;; {
@@ -177,10 +177,10 @@ fn SpatialHashGrid::find_cell(
 ///|
 fn SpatialHashGrid::find_or_create_cell(
   self : SpatialHashGrid,
-  cx : Int,
-  cy : Int,
-  cz : Int,
-) -> Int {
+  cx : Int32,
+  cy : Int32,
+  cz : Int32,
+) -> Int32 {
   let mask = self.slot_mask
   let mut slot = cell_hash(cx, cy, cz) & mask
   for ;; {
@@ -218,7 +218,7 @@ fn SpatialHashGrid::find_or_create_cell(
 ///|
 pub fn SpatialHashGrid::insert(
   self : SpatialHashGrid,
-  id : Int,
+  id : Int32,
   aabb : AABB,
 ) -> Unit {
   let idx = self.entries.length()
@@ -245,10 +245,10 @@ pub fn SpatialHashGrid::insert(
 /// this keeps the "cell exists" test out of every caller.
 fn SpatialHashGrid::cell_at(
   self : SpatialHashGrid,
-  cx : Int,
-  cy : Int,
-  cz : Int,
-) -> Array[Int]? {
+  cx : Int32,
+  cy : Int32,
+  cz : Int32,
+) -> Array[Int32]? {
   let ci = self.find_cell(cx, cy, cz)
   if ci < 0 {
     None
@@ -261,7 +261,7 @@ fn SpatialHashGrid::cell_at(
 /// Grow the shared mask buffer to hold at least `needed` entries.
 fn SpatialHashGrid::reserve_mask_scratch(
   self : SpatialHashGrid,
-  needed : Int,
+  needed : Int32,
 ) -> Unit {
   if self.mask_scratch.length() < needed {
     let mut capacity = self.mask_scratch.length() * 2

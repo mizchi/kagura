@@ -1,27 +1,29 @@
 import {
   "mizchi/kagura_engine" @engine,
-  "mizchi/gfx" @gfx,
+  "mizchi/gfx",
   "mizchi/native_runtime_hooks/gfx_wgpu_native" @wgpu_native,
-  "mizchi/atlas" @atlas,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/widget2d" @widget2d,
-  "mizchi/text" @text,
+  "mizchi/atlas",
+  "mizchi/renderer2d",
+  "mizchi/widget2d",
+  "mizchi/text",
   "mizchi/native_runtime_hooks" @native_hooks,
-  "mizchi/crater-renderer/renderer" @renderer,
-  "mizchi/crater-dom/html" @html,
-  "mizchi/crater-painter/paint" @paint,
-  "mizchi/crater-layout/types" @crater_types,
-  "mizchi/font" @font,
-  "mizchi/image" @image,
-  "moonbitlang/core/string" @string,
+  "mizchi/crater-renderer/renderer",
+  "mizchi/crater-dom/html",
+  "mizchi/crater-painter/paint",
+  "mizchi/crater-core" @crater_types,
+  "mizchi/css/values" @css,
+  "mizchi/font",
+  "mizchi/image",
+  "moonbitlang/core/string",
 }
 
 warnings = "-1-2-29"
 
 supported_targets = "native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

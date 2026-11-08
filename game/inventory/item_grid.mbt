@@ -1,19 +1,19 @@
 ///|
 /// Immutable footprint; arbitrary occupied cells support rectangular and shaped items.
 pub struct GridFootprint {
-  priv width : Int
-  priv height : Int
-  priv cells : Array[(Int, Int)]
+  priv width : Int32
+  priv height : Int32
+  priv cells : Array[(Int32, Int32)]
 }
 
 ///|
-pub fn GridFootprint::new(cells : Array[(Int, Int)]) -> GridFootprint? {
+pub fn GridFootprint::new(cells : Array[(Int32, Int32)]) -> GridFootprint? {
   if cells.is_empty() {
     return None
   }
   let mut width = 0
   let mut height = 0
-  let copied : Array[(Int, Int)] = []
+  let copied : Array[(Int32, Int32)] = []
   for cell in cells {
     let (x, y) = cell
     if x < 0 || y < 0 || x >= 128 || y >= 128 || copied.contains(cell) {
@@ -27,11 +27,14 @@ pub fn GridFootprint::new(cells : Array[(Int, Int)]) -> GridFootprint? {
 }
 
 ///|
-pub fn GridFootprint::rectangle(width : Int, height : Int) -> GridFootprint? {
+pub fn GridFootprint::rectangle(
+  width : Int32,
+  height : Int32,
+) -> GridFootprint? {
   if width <= 0 || height <= 0 || width > 128 || height > 128 {
     return None
   }
-  let cells : Array[(Int, Int)] = []
+  let cells : Array[(Int32, Int32)] = []
   for y in 0..<height {
     for x in 0..<width {
       cells.push((x, y))
@@ -43,8 +46,8 @@ pub fn GridFootprint::rectangle(width : Int, height : Int) -> GridFootprint? {
 ///|
 pub fn GridFootprint::size(
   self : GridFootprint,
-  rotated? : Bool = false,
-) -> (Int, Int) {
+  rotated~ : Bool = false,
+) -> (Int32, Int32) {
   if rotated {
     (self.height, self.width)
   } else {
@@ -55,8 +58,8 @@ pub fn GridFootprint::size(
 ///|
 pub fn GridFootprint::cells(
   self : GridFootprint,
-  rotated? : Bool = false,
-) -> Array[(Int, Int)] {
+  rotated~ : Bool = false,
+) -> Array[(Int32, Int32)] {
   if rotated {
     self.cells.map(cell => (self.height - 1 - cell.1, cell.0))
   } else {
@@ -66,23 +69,23 @@ pub fn GridFootprint::cells(
 
 ///|
 pub(all) struct GridPlacement {
-  id : Int
+  id : Int32
   footprint : GridFootprint
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   rotated : Bool
 }
 
 ///|
 /// Item IDs and payloads belong to the caller; rejected placements never mutate the grid.
 pub(all) struct ItemGrid {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   priv mut entries : Array[GridPlacement]
 }
 
 ///|
-pub fn ItemGrid::new(width : Int, height : Int) -> ItemGrid {
+pub fn ItemGrid::new(width : Int32, height : Int32) -> ItemGrid {
   { width: width.max(0), height: height.max(0), entries: [], }
 }
 
@@ -92,7 +95,7 @@ pub fn ItemGrid::clone(self : ItemGrid) -> ItemGrid {
 }
 
 ///|
-pub fn ItemGrid::placement(self : ItemGrid, id : Int) -> GridPlacement? {
+pub fn ItemGrid::placement(self : ItemGrid, id : Int32) -> GridPlacement? {
   for entry in self.entries {
     if entry.id == id {
       return Some(entry)
@@ -102,7 +105,7 @@ pub fn ItemGrid::placement(self : ItemGrid, id : Int) -> GridPlacement? {
 }
 
 ///|
-pub fn ItemGrid::remove(self : ItemGrid, id : Int) -> Unit {
+pub fn ItemGrid::remove(self : ItemGrid, id : Int32) -> Unit {
   self.entries = self.entries.filter(entry => entry.id != id)
 }
 
@@ -114,10 +117,10 @@ pub fn ItemGrid::clear(self : ItemGrid) -> Unit {
 ///|
 pub fn ItemGrid::occupied_by(
   self : ItemGrid,
-  x : Int,
-  y : Int,
-  ignore_id? : Int = -1,
-) -> Int? {
+  x : Int32,
+  y : Int32,
+  ignore_id~ : Int32 = -1,
+) -> Int32? {
   for entry in self.entries {
     if entry.id == ignore_id {
       continue
@@ -135,11 +138,11 @@ pub fn ItemGrid::occupied_by(
 pub fn ItemGrid::overlaps(
   self : ItemGrid,
   footprint : GridFootprint,
-  x : Int,
-  y : Int,
-  rotated? : Bool = false,
-  ignore_id? : Int = -1,
-) -> Array[Int]? {
+  x : Int32,
+  y : Int32,
+  rotated~ : Bool = false,
+  ignore_id~ : Int32 = -1,
+) -> Array[Int32]? {
   let (width, height) = footprint.size(rotated~)
   if x < 0 ||
     y < 0 ||
@@ -149,7 +152,7 @@ pub fn ItemGrid::overlaps(
     y > self.height - height {
     return None
   }
-  let ids : Array[Int] = []
+  let ids : Array[Int32] = []
   for cell in footprint.cells(rotated~) {
     if self.occupied_by(x + cell.0, y + cell.1, ignore_id~) is Some(id) {
       if !ids.contains(id) {
@@ -163,11 +166,11 @@ pub fn ItemGrid::overlaps(
 ///|
 pub fn ItemGrid::place(
   self : ItemGrid,
-  id : Int,
+  id : Int32,
   footprint : GridFootprint,
-  x : Int,
-  y : Int,
-  rotated? : Bool = false,
+  x : Int32,
+  y : Int32,
+  rotated~ : Bool = false,
 ) -> Bool {
   if id < 0 {
     return false
@@ -185,9 +188,9 @@ pub fn ItemGrid::place(
 pub fn ItemGrid::find_space(
   self : ItemGrid,
   footprint : GridFootprint,
-  rotated? : Bool = false,
-  ignore_id? : Int = -1,
-) -> (Int, Int)? {
+  rotated~ : Bool = false,
+  ignore_id~ : Int32 = -1,
+) -> (Int32, Int32)? {
   for y in 0..<self.height {
     for x in 0..<self.width {
       if self.overlaps(footprint, x, y, rotated~, ignore_id~) is Some(ids) {
@@ -201,7 +204,7 @@ pub fn ItemGrid::find_space(
 }
 
 ///|
-pub fn ItemGrid::used_cells(self : ItemGrid) -> Int {
+pub fn ItemGrid::used_cells(self : ItemGrid) -> Int32 {
   let mut used = 0
   for entry in self.entries {
     used += entry.footprint.cells.length()

@@ -3,9 +3,9 @@ pub struct WebCanvasHooks {
   try_initialize : (String, WindowOptions) -> Bool
   poll : (Bool) -> Unit
   should_close : () -> Bool
-  outside_size : (Int, Int) -> @core.OutsideSize
+  outside_size : (Int32, Int32) -> @core.OutsideSize
   current_surface : (String, WindowOptions) -> @gfx.SurfaceToken
-  capture_input : (Bool, Int) -> @core.InputSnapshot
+  capture_input : (Bool, Int32) -> @core.InputSnapshot
   set_fullscreen : (String, Bool, Bool) -> Bool
   is_fullscreen : (String, Bool, Bool) -> Bool
   set_cursor_mode : (String, Bool, CursorMode) -> CursorMode
@@ -18,8 +18,8 @@ pub struct WebCanvasHooks {
   request_attention : (String, Bool) -> Unit
   set_mouse_touch_fallback : (String, Bool, Bool) -> Unit
   mouse_touch_fallback_enabled : (String, Bool) -> Bool
-  fullscreen_request_status : (String, Bool, Int) -> Int
-  cursor_mode_request_status : (String, Bool, Int) -> Int
+  fullscreen_request_status : (String, Bool, Int32) -> Int32
+  cursor_mode_request_status : (String, Bool, Int32) -> Int32
 }
 
 ///|
@@ -27,9 +27,9 @@ pub fn new_web_canvas_hooks(
   try_initialize : (String, WindowOptions) -> Bool,
   poll : (Bool) -> Unit,
   should_close : () -> Bool,
-  outside_size : (Int, Int) -> @core.OutsideSize,
+  outside_size : (Int32, Int32) -> @core.OutsideSize,
   current_surface : (String, WindowOptions) -> @gfx.SurfaceToken,
-  capture_input : (Bool, Int) -> @core.InputSnapshot,
+  capture_input : (Bool, Int32) -> @core.InputSnapshot,
   set_fullscreen : (String, Bool, Bool) -> Bool,
   is_fullscreen : (String, Bool, Bool) -> Bool,
   set_cursor_mode : (String, Bool, CursorMode) -> CursorMode,
@@ -42,8 +42,8 @@ pub fn new_web_canvas_hooks(
   request_attention : (String, Bool) -> Unit,
   set_mouse_touch_fallback : (String, Bool, Bool) -> Unit,
   mouse_touch_fallback_enabled : (String, Bool) -> Bool,
-  fullscreen_request_status : (String, Bool, Int) -> Int,
-  cursor_mode_request_status : (String, Bool, Int) -> Int,
+  fullscreen_request_status : (String, Bool, Int32) -> Int32,
+  cursor_mode_request_status : (String, Bool, Int32) -> Int32,
 ) -> WebCanvasHooks {
   {
     try_initialize,
@@ -88,7 +88,7 @@ fn default_web_should_close() -> Bool {
 }
 
 ///|
-fn default_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn default_web_outside_size(width : Int32, height : Int32) -> @core.OutsideSize {
   @core.new_outside_size(width.to_double(), height.to_double())
 }
 
@@ -109,7 +109,7 @@ fn default_web_current_surface(
 ///|
 fn default_web_capture_input(
   _active : Bool,
-  _tick : Int,
+  _tick : Int32,
 ) -> @core.InputSnapshot {
   @core.empty_input_snapshot()
 }
@@ -228,8 +228,8 @@ fn default_web_mouse_touch_fallback_enabled(
 fn default_web_fullscreen_request_status(
   _canvas_selector : String,
   _active : Bool,
-  current : Int,
-) -> Int {
+  current : Int32,
+) -> Int32 {
   current
 }
 
@@ -237,8 +237,8 @@ fn default_web_fullscreen_request_status(
 fn default_web_cursor_mode_request_status(
   _canvas_selector : String,
   _active : Bool,
-  current : Int,
-) -> Int {
+  current : Int32,
+) -> Int32 {
   current
 }
 
@@ -287,7 +287,7 @@ fn web_should_close() -> Bool {
 }
 
 ///|
-fn web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn web_outside_size(width : Int32, height : Int32) -> @core.OutsideSize {
   (web_canvas_hooks.val.outside_size)(width, height)
 }
 
@@ -300,7 +300,7 @@ fn web_current_surface(
 }
 
 ///|
-fn web_capture_input(active : Bool, tick : Int) -> @core.InputSnapshot {
+fn web_capture_input(active : Bool, tick : Int32) -> @core.InputSnapshot {
   (web_canvas_hooks.val.capture_input)(active, tick)
 }
 
@@ -409,8 +409,8 @@ fn _web_mouse_touch_fallback_enabled(
 fn web_fullscreen_request_status(
   canvas_selector : String,
   active : Bool,
-  current : Int,
-) -> Int {
+  current : Int32,
+) -> Int32 {
   (web_canvas_hooks.val.fullscreen_request_status)(
     canvas_selector, active, current,
   )
@@ -420,8 +420,8 @@ fn web_fullscreen_request_status(
 fn web_cursor_mode_request_status(
   canvas_selector : String,
   active : Bool,
-  current : Int,
-) -> Int {
+  current : Int32,
+) -> Int32 {
   (web_canvas_hooks.val.cursor_mode_request_status)(
     canvas_selector, active, current,
   )

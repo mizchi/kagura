@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "kagura/wasm_game_guest"
+
+// Values
+pub fn kagura_alloc(Int32) -> Int32
+
+pub fn kagura_guest_init_export(Int32, Int32) -> Int32
+
+pub fn kagura_guest_render() -> Int32
+
+pub fn kagura_guest_restore_state(Int32, Int32) -> Int32
+
+pub fn kagura_guest_shutdown() -> Unit
+
+pub fn kagura_guest_snapshot_state() -> Int32
+
+pub fn kagura_guest_update_export(Int32, Int32) -> Int32
+
+// Errors
+
+// Types and methods
+type DrawCmd
+
+type Game
+
+type InputState
+
+type Pipe
+
+type Utf8Slice
+
+// Type aliases
+
+// Traits

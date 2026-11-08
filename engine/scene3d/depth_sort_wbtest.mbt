@@ -17,7 +17,7 @@ fn mat4_transform(
 ///|
 /// Metadata for tracking which face a triangle belongs to
 struct TriFaceInfo {
-  face_idx : Int
+  face_idx : Int32
   depth : Double
 }
 
@@ -111,8 +111,8 @@ fn check_no_face_interleave(sorted : Array[TriFaceInfo]) -> Bool {
     return true
   }
   // Find first and last position of each face in the sorted order
-  let face_first : Map[Int, Int] = Map([])
-  let face_last : Map[Int, Int] = Map([])
+  let face_first : Map[Int32, Int32] = Map([])
+  let face_last : Map[Int32, Int32] = Map([])
   for i in 0..<sorted.length() {
     let fi = sorted[i].face_idx
     if !face_first.contains(fi) {

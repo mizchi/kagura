@@ -1,6 +1,7 @@
 // --- Skill System ---
 
 ///|
+#derive(Eq, ToJson, FromJson)
 pub(all) enum SkillTag {
   Lightning
   Fire
@@ -10,13 +11,16 @@ pub(all) enum SkillTag {
   AoE
   Defense
   Utility
-} derive(Eq, ToJson, FromJson)
+}
+
 ///|
 pub extend SkillTag with ToJson::{to_json}
+
 ///|
 pub extend SkillTag with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
-pub fn skill_tag_to_int(tag : SkillTag) -> Int {
+pub fn skill_tag_to_int(tag : SkillTag) -> Int32 {
   match tag {
     Lightning => 0
     Fire => 1
@@ -30,9 +34,10 @@ pub fn skill_tag_to_int(tag : SkillTag) -> Int {
 }
 
 ///|
-pub let skill_tag_count : Int = 8
+pub let skill_tag_count : Int32 = 8
 
 ///|
+#derive(Eq)
 pub(all) enum SkillId {
   PowerStrike
   Whirlwind
@@ -53,27 +58,27 @@ pub(all) enum SkillId {
   AoEMastery
   RaiseZombie
   SummonFlamingSkull
-} derive(Eq)
+}
 
 ///|
 pub(all) struct SkillNode {
   id : SkillId
   name : String
-  max_level : Int
-  mut level : Int
-  cost : Int
-  icon_id : Int
+  max_level : Int32
+  mut level : Int32
+  cost : Int32
+  icon_id : Int32
   prereqs : Array[SkillId]
   tree_x : Double // x position in skill tree (0.0-1.0 normalized)
   tree_y : Double // y position in skill tree (0.0-1.0 normalized)
-  node_size : Int // 0=small passive, 1=notable, 2=keystone
+  node_size : Int32 // 0=small passive, 1=notable, 2=keystone
   connections : Array[SkillId] // visual connections (lines in skill tree UI)
 }
 
 ///|
 pub(all) struct SkillTree {
   nodes : Array[SkillNode]
-  mut skill_points : Int
+  mut skill_points : Int32
 }
 
 ///|
@@ -385,7 +390,7 @@ pub fn SkillTree::find(self : SkillTree, id : SkillId) -> SkillNode? {
 }
 
 ///|
-fn SkillTree::find_index(self : SkillTree, id : SkillId) -> Int {
+fn SkillTree::find_index(self : SkillTree, id : SkillId) -> Int32 {
   for i = 0; i < self.nodes.length(); i = i + 1 {
     if skill_id_eq(self.nodes[i].id, id) {
       return i
@@ -395,7 +400,7 @@ fn SkillTree::find_index(self : SkillTree, id : SkillId) -> Int {
 }
 
 ///|
-pub fn SkillTree::learned_node_count(self : SkillTree) -> Int {
+pub fn SkillTree::learned_node_count(self : SkillTree) -> Int32 {
   let mut count = 0
   for node in self.nodes {
     if node.level > 0 {
@@ -411,7 +416,7 @@ pub fn skill_id_eq(a : SkillId, b : SkillId) -> Bool {
 }
 
 ///|
-pub fn skill_id_to_int(id : SkillId) -> Int {
+pub fn skill_id_to_int(id : SkillId) -> Int32 {
   match id {
     PowerStrike => 0
     Whirlwind => 1
@@ -436,7 +441,7 @@ pub fn skill_id_to_int(id : SkillId) -> Int {
 }
 
 ///|
-pub fn skill_id_from_int(id : Int) -> SkillId? {
+pub fn skill_id_from_int(id : Int32) -> SkillId? {
   match id {
     0 => Some(PowerStrike)
     1 => Some(Whirlwind)
@@ -528,7 +533,7 @@ pub fn SkillTree::learn(self : SkillTree, id : SkillId) -> Bool {
 }
 
 ///|
-pub fn SkillTree::get_level(self : SkillTree, id : SkillId) -> Int {
+pub fn SkillTree::get_level(self : SkillTree, id : SkillId) -> Int32 {
   match self.find(id) {
     Some(node) => node.level
     None => 0

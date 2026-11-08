@@ -6,7 +6,7 @@
 pub(all) struct TagBonus {
   mut damage_pct : Double
   mut cooldown_reduction : Double
-  mut extra_targets : Int
+  mut extra_targets : Int32
   mut aoe_radius_pct : Double
   mut crit_bonus : Double
 }
@@ -23,18 +23,22 @@ pub fn TagBonus::zero() -> TagBonus {
 }
 
 ///|
+#derive(ToJson, FromJson)
 pub(all) struct TagBonusEntry {
   tag : SkillTag
   damage_pct : Double
   cooldown_reduction : Double
-  extra_targets : Int
+  extra_targets : Int32
   aoe_radius_pct : Double
   crit_bonus : Double
-} derive(ToJson, FromJson)
+}
+
 ///|
 pub extend TagBonusEntry with ToJson::{to_json}
+
 ///|
 pub extend TagBonusEntry with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
 pub fn new_tag_bonuses_array() -> Array[TagBonus] {
   let arr : Array[TagBonus] = []
@@ -47,18 +51,22 @@ pub fn new_tag_bonuses_array() -> Array[TagBonus] {
 // --- Item System ---
 
 ///|
+#derive(ToJson, FromJson)
 pub(all) enum ItemRarity {
   Common
   Uncommon
   Rare
   Epic
-} derive(ToJson, FromJson)
+}
+
 ///|
 pub extend ItemRarity with ToJson::{to_json}
+
 ///|
 pub extend ItemRarity with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
-pub fn ItemRarity::color(self : ItemRarity) -> Int {
+pub fn ItemRarity::color(self : ItemRarity) -> Int32 {
   match self {
     Common => 0xAAAAAA
     Uncommon => 0x00CC00
@@ -68,6 +76,7 @@ pub fn ItemRarity::color(self : ItemRarity) -> Int {
 }
 
 ///|
+#derive(Eq, ToJson, FromJson)
 pub(all) enum EquipSlot {
   Weapon
   Armor
@@ -77,22 +86,27 @@ pub(all) enum EquipSlot {
   Boots
   Offhand
   Amulet
-} derive(Eq, ToJson, FromJson)
+}
+
 ///|
 pub extend EquipSlot with Eq::{not_equal, equal}
+
 ///|
 pub extend EquipSlot with ToJson::{to_json}
+
 ///|
 pub extend EquipSlot with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
+#derive(ToJson, FromJson)
 pub(all) struct Affix {
   name : String
-  atk : Int
-  def : Int
-  hp : Int
-  str_bonus : Int
-  int_bonus : Int
-  dex_bonus : Int
+  atk : Int32
+  def : Int32
+  hp : Int32
+  str_bonus : Int32
+  int_bonus : Int32
+  dex_bonus : Int32
   crit : Double
   life_steal : Double
   speed_bonus : Double // movement speed multiplier bonus (e.g. 0.1 = +10%)
@@ -101,37 +115,44 @@ pub(all) struct Affix {
   int_scaling : Double
   dex_scaling : Double
   spell_damage_pct : Double // +% spell damage (legacy, converted to tag bonus)
-  chain_bonus : Int // +chain targets (legacy, converted to tag bonus)
+  chain_bonus : Int32 // +chain targets (legacy, converted to tag bonus)
   tag_bonuses : Array[TagBonusEntry]
-} derive(ToJson, FromJson)
+}
+
 ///|
 pub extend Affix with ToJson::{to_json}
+
 ///|
 pub extend Affix with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
+#derive(ToJson, FromJson)
 pub(all) struct ItemData {
   name : String
   rarity : ItemRarity
   slot : EquipSlot
-  atk_bonus : Int
-  def_bonus : Int
-  hp_bonus : Int
-  str_bonus : Int
-  int_bonus : Int
-  dex_bonus : Int
+  atk_bonus : Int32
+  def_bonus : Int32
+  hp_bonus : Int32
+  str_bonus : Int32
+  int_bonus : Int32
+  dex_bonus : Int32
   str_scaling : Double
   int_scaling : Double
   dex_scaling : Double
   prefix : Affix?
   suffix : Affix?
-  icon_id : Int
-} derive(ToJson, FromJson)
+  icon_id : Int32
+}
+
 ///|
 pub extend ItemData with ToJson::{to_json}
+
 ///|
 pub extend ItemData with @moonbitlang/core/json.FromJson::{from_json}
+
 ///|
-fn affix_sum_int(item : ItemData, base : Int, f : (Affix) -> Int) -> Int {
+fn affix_sum_int(item : ItemData, base : Int32, f : (Affix) -> Int32) -> Int32 {
   let mut v = base
   match item.prefix {
     Some(a) => v = v + f(a)
@@ -159,17 +180,17 @@ fn affix_sum_double(item : ItemData, f : (Affix) -> Double) -> Double {
 }
 
 ///|
-pub fn ItemData::total_atk(self : ItemData) -> Int {
+pub fn ItemData::total_atk(self : ItemData) -> Int32 {
   affix_sum_int(self, self.atk_bonus, fn(a) { a.atk })
 }
 
 ///|
-pub fn ItemData::total_def(self : ItemData) -> Int {
+pub fn ItemData::total_def(self : ItemData) -> Int32 {
   affix_sum_int(self, self.def_bonus, fn(a) { a.def })
 }
 
 ///|
-pub fn ItemData::total_hp(self : ItemData) -> Int {
+pub fn ItemData::total_hp(self : ItemData) -> Int32 {
   affix_sum_int(self, self.hp_bonus, fn(a) { a.hp })
 }
 
@@ -179,17 +200,17 @@ pub fn ItemData::total_crit(self : ItemData) -> Double {
 }
 
 ///|
-pub fn ItemData::total_str_bonus(self : ItemData) -> Int {
+pub fn ItemData::total_str_bonus(self : ItemData) -> Int32 {
   affix_sum_int(self, self.str_bonus, fn(a) { a.str_bonus })
 }
 
 ///|
-pub fn ItemData::total_int_bonus(self : ItemData) -> Int {
+pub fn ItemData::total_int_bonus(self : ItemData) -> Int32 {
   affix_sum_int(self, self.int_bonus, fn(a) { a.int_bonus })
 }
 
 ///|
-pub fn ItemData::total_dex_bonus(self : ItemData) -> Int {
+pub fn ItemData::total_dex_bonus(self : ItemData) -> Int32 {
   affix_sum_int(self, self.dex_bonus, fn(a) { a.dex_bonus })
 }
 
@@ -219,7 +240,7 @@ pub fn ItemData::total_spell_damage_pct(self : ItemData) -> Double {
 }
 
 ///|
-pub fn ItemData::total_chain_bonus(self : ItemData) -> Int {
+pub fn ItemData::total_chain_bonus(self : ItemData) -> Int32 {
   affix_sum_int(self, 0, fn(a) { a.chain_bonus })
 }
 
@@ -344,12 +365,12 @@ pub fn ItemData::display_name(self : ItemData) -> String {
 ///|
 pub(all) struct Inventory {
   items : Array[ItemData?]
-  capacity : Int
+  capacity : Int32
   mut grid : @inventory.ItemGrid?
 }
 
 ///|
-pub fn Inventory::new(capacity : Int) -> Inventory {
+pub fn Inventory::new(capacity : Int32) -> Inventory {
   let items : Array[ItemData?] = []
   for _i in 0..<capacity {
     items.push(None)
@@ -368,7 +389,7 @@ pub fn Inventory::add(self : Inventory, item : ItemData) -> Bool {
 }
 
 ///|
-fn inventory_compact(inv : Inventory) -> Int {
+fn inventory_compact(inv : Inventory) -> Int32 {
   let mut write = 0
   for read in 0..<inv.capacity {
     match inv.items[read] {
@@ -407,7 +428,7 @@ pub fn Inventory::add_fifo(self : Inventory, item : ItemData) -> ItemData? {
 }
 
 ///|
-pub fn Inventory::remove(self : Inventory, index : Int) -> ItemData? {
+pub fn Inventory::remove(self : Inventory, index : Int32) -> ItemData? {
   if index < 0 || index >= self.capacity {
     return None
   }
@@ -420,7 +441,7 @@ pub fn Inventory::remove(self : Inventory, index : Int) -> ItemData? {
 }
 
 ///|
-pub fn Inventory::count(self : Inventory) -> Int {
+pub fn Inventory::count(self : Inventory) -> Int32 {
   let mut c = 0
   for item in self.items {
     if item is Some(_) {
@@ -530,7 +551,7 @@ pub fn Equipment::should_equip_for_build(
 }
 
 ///|
-fn equipment_sum(equip : Equipment, f : (ItemData) -> Int) -> Int {
+fn equipment_sum(equip : Equipment, f : (ItemData) -> Int32) -> Int32 {
   let mut total = 0
   for slot in equipment_slots() {
     if equip.item_for_slot(slot) is Some(item) {
@@ -552,17 +573,17 @@ fn equipment_sum_f(equip : Equipment, f : (ItemData) -> Double) -> Double {
 }
 
 ///|
-pub fn Equipment::total_atk(self : Equipment) -> Int {
+pub fn Equipment::total_atk(self : Equipment) -> Int32 {
   equipment_sum(self, ItemData::total_atk)
 }
 
 ///|
-pub fn Equipment::total_def(self : Equipment) -> Int {
+pub fn Equipment::total_def(self : Equipment) -> Int32 {
   equipment_sum(self, ItemData::total_def)
 }
 
 ///|
-pub fn Equipment::total_hp(self : Equipment) -> Int {
+pub fn Equipment::total_hp(self : Equipment) -> Int32 {
   equipment_sum(self, ItemData::total_hp)
 }
 
@@ -572,17 +593,17 @@ pub fn Equipment::total_crit(self : Equipment) -> Double {
 }
 
 ///|
-pub fn Equipment::total_str_bonus(self : Equipment) -> Int {
+pub fn Equipment::total_str_bonus(self : Equipment) -> Int32 {
   equipment_sum(self, ItemData::total_str_bonus)
 }
 
 ///|
-pub fn Equipment::total_int_bonus(self : Equipment) -> Int {
+pub fn Equipment::total_int_bonus(self : Equipment) -> Int32 {
   equipment_sum(self, ItemData::total_int_bonus)
 }
 
 ///|
-pub fn Equipment::total_dex_bonus(self : Equipment) -> Int {
+pub fn Equipment::total_dex_bonus(self : Equipment) -> Int32 {
   equipment_sum(self, ItemData::total_dex_bonus)
 }
 
@@ -632,6 +653,6 @@ pub fn Equipment::total_spell_damage_pct(self : Equipment) -> Double {
 }
 
 ///|
-pub fn Equipment::total_chain_bonus(self : Equipment) -> Int {
+pub fn Equipment::total_chain_bonus(self : Equipment) -> Int32 {
   equipment_sum(self, ItemData::total_chain_bonus)
 }

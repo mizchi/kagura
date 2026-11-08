@@ -81,7 +81,7 @@ test "snapshot survives a JSON round trip" {
 ///|
 test "from_json names the field it cannot read" {
   let bad : Json = {
-    "schema": scene3d_snapshot_schema.to_json(),
+    "schema": Json(scene3d_snapshot_schema),
     "version": 1,
     "camera": Json::null(),
     "nodes": [
@@ -190,10 +190,7 @@ test "query entry point: check with allow rules, distance, overlaps, raycast" {
   )
   let doc = root.snapshot().to_json()
   let check = (allow : Array[String]) => {
-    query_scene3d_snapshot(
-      { "operation": "check", "allow": allow.to_json() },
-      doc,
-    )
+    query_scene3d_snapshot({ "operation": "check", "allow": Json(allow) }, doc)
   }
   assert_true(check([]) is Object({ "failed": True, .. }))
   assert_true(check(["overlap@world/enemy"]) is Object({ "failed": False, .. }))
@@ -301,7 +298,7 @@ test "balls are judged by their bounding ball, not their box" {
 ///|
 test "snapshots without bounding balls still read" {
   let doc : Json = {
-    "schema": scene3d_snapshot_schema.to_json(),
+    "schema": Json(scene3d_snapshot_schema),
     "version": 1,
     "camera": Json::null(),
     "nodes": [

@@ -3,7 +3,7 @@ test "sky uses a closed inward cube with twelve triangles" {
   let mesh = sky_mesh()
   assert_eq(mesh.triangle_count(), 12)
   for i = 0; i < mesh.indices.length(); i = i + 3 {
-    fn p(j : Int) -> @math3d.Vec3 {
+    fn p(j : Int32) -> @math3d.Vec3 {
       let k = mesh.indices[j] * 8
       @math3d.Vec3::new(
         mesh.vertex_data[k],

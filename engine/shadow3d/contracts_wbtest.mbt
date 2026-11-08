@@ -4,7 +4,7 @@ fn approx(a : Double, b : Double) -> Bool {
 }
 
 ///|
-fn decode(bits : Int) -> Double {
+fn decode(bits : Int32) -> Double {
   @gfx.f32_bits_to_double(bits)
 }
 

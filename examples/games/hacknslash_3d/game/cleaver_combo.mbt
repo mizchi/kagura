@@ -1,15 +1,19 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum CleaverComboStep {
   Opening
   Return
   Finisher
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend CleaverComboStep with Eq::{not_equal, equal}
+
 ///|
 pub extend CleaverComboStep with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
-pub fn CleaverComboStep::index(self : CleaverComboStep) -> Int {
+pub fn CleaverComboStep::index(self : CleaverComboStep) -> Int32 {
   match self {
     Opening => 0
     Return => 1
@@ -68,4 +72,4 @@ fn GameWorld::reset_cleaver_combo(self : GameWorld) -> Unit {
 
 ///|
 // Includes the active strike, then a 0.75 second window to continue the chain.
-let cleaver_combo_window : Int = 45
+let cleaver_combo_window : Int32 = 45

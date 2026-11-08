@@ -46,7 +46,7 @@ fn parse_buffer_view(obj : Json) -> GltfBufferView {
 
 ///|
 fn parse_primitive(obj : Json) -> GltfPrimitive {
-  let attributes : Map[String, Int] = Map([])
+  let attributes : Map[String, Int32] = Map([])
   match json_get(obj, "attributes") {
     Some(Object(map)) => map.each(fn(k, v) { attributes[k] = json_int(v) })
     _ => ()
@@ -73,7 +73,7 @@ fn parse_mesh(obj : Json) -> GltfMesh {
 
 ///|
 fn parse_node(obj : Json) -> GltfNode {
-  let children : Array[Int] = []
+  let children : Array[Int32] = []
   for c in json_get_array(obj, "children") {
     children.push(json_int(c))
   }
@@ -113,7 +113,7 @@ fn parse_node(obj : Json) -> GltfNode {
 
 ///|
 fn parse_scene(obj : Json) -> GltfScene {
-  let nodes : Array[Int] = []
+  let nodes : Array[Int32] = []
   for n in json_get_array(obj, "nodes") {
     nodes.push(json_int(n))
   }
@@ -142,7 +142,7 @@ fn parse_material(obj : Json) -> GltfMaterial {
 
 ///|
 fn parse_skin(obj : Json) -> GltfSkin {
-  let joints : Array[Int] = []
+  let joints : Array[Int32] = []
   for j in json_get_array(obj, "joints") {
     joints.push(json_int(j))
   }

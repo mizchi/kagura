@@ -1,5 +1,5 @@
 ///|
-fn playing_fixture(_width : Int, _height : Int) -> GameState {
+fn playing_fixture(_width : Int32, _height : Int32) -> GameState {
   let state = GameState::new(seed=42)
   state.world.mode = @game.Playing
   state

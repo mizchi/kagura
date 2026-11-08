@@ -11,7 +11,7 @@ fn ease_out(t : Double) -> Double {
 }
 
 ///|
-fn Game::actor_pose(self : Game, fighter : Fighter, index : Int) -> ActorPose {
+fn Game::actor_pose(self : Game, fighter : Fighter, index : Int32) -> ActorPose {
   if self.reduced_motion {
     return { x: 0.0, y: 0.0, }
   }
@@ -46,9 +46,9 @@ fn Game::actor_pose(self : Game, fighter : Fighter, index : Int) -> ActorPose {
 fn Game::actor_color(
   self : Game,
   fighter : Fighter,
-  index : Int,
-  base : Int,
-) -> Int {
+  index : Int32,
+  base : Int32,
+) -> Int32 {
   if fighter.is_dead() {
     return 0x806776
   }
@@ -69,7 +69,7 @@ fn Game::actor_color(
 }
 
 ///|
-fn Game::show_enemy(self : Game, fighter : Fighter, index : Int) -> Bool {
+fn Game::show_enemy(self : Game, fighter : Fighter, index : Int32) -> Bool {
   if !fighter.is_dead() {
     return true
   }
@@ -83,7 +83,7 @@ fn Game::show_enemy(self : Game, fighter : Fighter, index : Int) -> Bool {
 }
 
 ///|
-fn Game::draw_card_offset(self : Game, index : Int) -> Double {
+fn Game::draw_card_offset(self : Game, index : Int32) -> Double {
   if self.reduced_motion {
     return 0.0
   }
@@ -120,7 +120,7 @@ fn Game::view_fighter_feedback(
   fighter : Fighter,
   before : FighterFrame,
   rect : UiRect,
-  index : Int,
+  index : Int32,
   action : String,
 ) -> @scene.SceneNode {
   let delta = fighter.hp - before.hp
@@ -340,7 +340,7 @@ fn Game::actor_alpha(self : Game, fighter : Fighter) -> Double {
 }
 
 ///|
-fn Game::shown_intent(self : Game, enemy : Enemy, index : Int) -> Intent {
+fn Game::shown_intent(self : Game, enemy : Enemy, index : Int32) -> Intent {
   match self.presentation {
     Some({ step: EnemyImpact(actor, before), .. }) =>
       if actor == index {

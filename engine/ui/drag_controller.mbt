@@ -18,7 +18,7 @@ pub struct UIDragController {
 }
 
 ///|
-pub fn UIDragController::new(threshold? : Double = 8.0) -> UIDragController {
+pub fn UIDragController::new(threshold~ : Double = 8.0) -> UIDragController {
   {
     input: UIPointerInputAdapter::new(),
     threshold: if threshold >= 0.0 {
@@ -67,7 +67,7 @@ fn drag_event(g : UIDragGesture, phase : UIDragPhase) -> UIEvent {
 /// Cancels a pending press or active drag. A started drag always ends once.
 pub fn UIDragController::cancel(
   self : UIDragController,
-  reason? : UIDragCancelReason = Explicit,
+  reason~ : UIDragCancelReason = Explicit,
 ) -> Array[UIEvent] {
   let events = []
   if self.gesture is Some(g) {
@@ -131,7 +131,7 @@ pub fn UIDragController::update(
   input : @core.InputSnapshot,
   source_at~ : (Double, Double) -> UINodeId?,
   target_at~ : (UINodeId, Double, Double) -> UINodeId?,
-  enabled? : Bool = true,
+  enabled~ : Bool = true,
 ) -> Array[UIEvent] {
   let events = self.input.from_input_snapshot(input)
   for
@@ -153,7 +153,7 @@ pub fn UIDragController::handle_pointer(
   frame : UIPointerFrame,
   source_at~ : (Double, Double) -> UINodeId?,
   target_at~ : (UINodeId, Double, Double) -> UINodeId?,
-  enabled? : Bool = true,
+  enabled~ : Bool = true,
 ) -> Array[UIEvent] {
   let events : Array[UIEvent] = []
   if !enabled {

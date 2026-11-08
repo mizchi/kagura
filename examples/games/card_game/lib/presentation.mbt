@@ -1,9 +1,9 @@
 ///|
 /// Presentation captures values, never references to mutable fighters.
 priv struct FighterFrame {
-  hp : Int
-  block : Int
-  strength : Int
+  hp : Int32
+  block : Int32
+  strength : Int32
 }
 
 ///|
@@ -30,18 +30,18 @@ fn CombatFeedback::capture(state : BattleState) -> CombatFeedback {
 ///|
 priv struct CardFlight {
   card : CardId
-  slot : Int
-  hand_count : Int
+  slot : Int32
+  hand_count : Int32
 }
 
 ///|
 priv enum ScreenAction {
-  ChooseReward(Int)
+  ChooseReward(Int32)
   Rest
   ContinueBattle
-  Restart(Int)
+  Restart(Int32)
   SwitchScene(AppScene)
-  StartAdventure(CharacterId, StageId, Int)
+  StartAdventure(CharacterId, StageId, Int32)
   AdventureChoice(String)
 }
 
@@ -49,10 +49,10 @@ priv enum ScreenAction {
 priv enum PresentationStep {
   CardPlay(CardFlight, CombatFeedback)
   EnemyNotice
-  EnemyWindup(Int)
-  EnemyImpact(Int, CombatFeedback)
+  EnemyWindup(Int32)
+  EnemyImpact(Int32, CombatFeedback)
   DrawHand
-  BattleOutcome(Array[Int])
+  BattleOutcome(Array[Int32])
   Travel(ScreenAction)
 }
 
@@ -128,7 +128,7 @@ fn Game::apply_screen_action(self : Game, action : ScreenAction) -> Unit {
 }
 
 ///|
-fn next_living_enemy(state : BattleState, from : Int) -> Int {
+fn next_living_enemy(state : BattleState, from : Int32) -> Int32 {
   for i = from; i < state.enemies.length(); i = i + 1 {
     if !state.enemies[i].fighter.is_dead() {
       return i
@@ -138,7 +138,7 @@ fn next_living_enemy(state : BattleState, from : Int) -> Int {
 }
 
 ///|
-fn Game::present_enemy(self : Game, state : BattleState, from : Int) -> Unit {
+fn Game::present_enemy(self : Game, state : BattleState, from : Int32) -> Unit {
   if state.phase == Defeat {
     self.present(BattleOutcome([]))
     return
@@ -177,7 +177,7 @@ fn Game::advance_presentation(self : Game, elapsed_ms : Double) -> Bool {
           match p.step {
             CardPlay(_, before) =>
               if state.phase == Victory || state.phase == Defeat {
-                let defeated : Array[Int] = []
+                let defeated : Array[Int32] = []
                 for i in 0..<state.enemies.length() {
                   if before.enemies[i].hp > 0 &&
                     state.enemies[i].fighter.is_dead() {
@@ -236,7 +236,7 @@ fn Game::effect_progress(self : Game) -> Double {
 }
 
 ///|
-fn Game::shown_hp(self : Game, fighter : Fighter, index : Int) -> Int {
+fn Game::shown_hp(self : Game, fighter : Fighter, index : Int32) -> Int32 {
   if self.reduced_motion {
     return fighter.hp
   }

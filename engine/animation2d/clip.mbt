@@ -30,7 +30,7 @@ pub fn SpriteAnimationClip::new(
 /// Generate asset keys like "prefix_0", "prefix_1", ..., "prefix_{count-1}".
 pub fn sprite_sheet_keys(
   prefix : String,
-  count : Int,
+  count : Int32,
 ) -> Array[@atlas.AssetKey] {
   let keys : Array[@atlas.AssetKey] = []
   for i in 0..<count {

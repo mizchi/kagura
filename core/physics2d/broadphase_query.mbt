@@ -2,13 +2,13 @@
 pub fn SpatialHashGrid2D::query_aabb(
   self : SpatialHashGrid2D,
   aabb : AABB2D,
-) -> Array[Int] {
+) -> Array[Int32] {
   let min_cx = floor_to_int(aabb.min.x * self.inv_cell_size)
   let min_cy = floor_to_int(aabb.min.y * self.inv_cell_size)
   let max_cx = floor_to_int(aabb.max.x * self.inv_cell_size)
   let max_cy = floor_to_int(aabb.max.y * self.inv_cell_size)
-  let seen : Map[Int, Unit] = Map([])
-  let result : Array[Int] = []
+  let seen : Map[Int32, Unit] = Map([])
+  let result : Array[Int32] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       match self.cell_at(cx, cy) {
@@ -41,7 +41,7 @@ pub fn SpatialHashGrid2D::query_aabb(
 /// rejected pair is not retried from another cell) decides pair membership.
 /// Returns the pair count; read the pairs as `pair_id_a[p]` / `pair_id_b[p]` for
 /// `p` in `0 ..< count`. `get_pairs` is this plus one heap tuple per pair.
-pub fn SpatialHashGrid2D::get_pairs_into(self : SpatialHashGrid2D) -> Int {
+pub fn SpatialHashGrid2D::get_pairs_into(self : SpatialHashGrid2D) -> Int32 {
   self.reset_pairs()
   let ids_a = self.pair_id_a
   let ids_b = self.pair_id_b
@@ -80,9 +80,9 @@ pub fn SpatialHashGrid2D::get_pairs_into(self : SpatialHashGrid2D) -> Int {
 /// one heap tuple per pair on top of it.
 pub fn SpatialHashGrid2D::get_pairs(
   self : SpatialHashGrid2D,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   let count = self.get_pairs_into()
-  let result : Array[(Int, Int)] = Array(capacity=count)
+  let result : Array[(Int32, Int32)] = Array(capacity=count)
   for p = 0; p < count; p = p + 1 {
     result.push((self.pair_id_a[p], self.pair_id_b[p]))
   }

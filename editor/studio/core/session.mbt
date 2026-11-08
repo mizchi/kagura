@@ -2,14 +2,14 @@
 /// Session owns authoring state. Preview, camera and view layout never enter document history.
 pub struct Session {
   mut document : Document
-  mut revision : Int
+  mut revision : Int32
   past : Array[Document]
   future : Array[Document]
 }
 
 ///|
 pub fn Session::new() -> Session {
-  { document: default_document(), revision: 0, past: [], future: [] }
+  { document: default_document(), revision: 0, past: [], future: [], }
 }
 
 ///|
@@ -25,7 +25,7 @@ pub fn Session::can_redo(self : Session) -> Bool {
 ///|
 pub fn Session::execute(self : Session, envelope : Json) -> Unit raise {
   keys(envelope, ["expectedRevision", "commands"])
-  let expected : Int = integer(field(envelope, "expectedRevision"))
+  let expected : Int32 = integer(field(envelope, "expectedRevision"))
   if expected != self.revision {
     raise Conflict(self.revision)
   }
@@ -69,7 +69,8 @@ pub fn Session::redo(self : Session) -> Unit raise EditorError {
   self.revision += 1
 }
 
-///| Start a new document history boundary when switching project scene files.
+///|
+/// Start a new document history boundary when switching project scene files.
 pub fn Session::clear_history(self : Session) -> Unit {
   self.past.clear()
   self.future.clear()

@@ -4,13 +4,13 @@
 ///|
 pub struct SimpleTextBatchBuilder {
   cache : @font.GlyphCache
-  pipeline_id : Int
+  pipeline_id : Int32
 }
 
 ///|
 pub fn SimpleTextBatchBuilder::new(
   cache : @font.GlyphCache,
-  pipeline_id : Int,
+  pipeline_id : Int32,
 ) -> SimpleTextBatchBuilder {
   { cache, pipeline_id, }
 }
@@ -20,7 +20,7 @@ pub fn SimpleTextBatchBuilder::new(
 // Array[Int] allocation (text batches can run thousands of vertices).
 
 ///|
-fn mix_cache_key(seed : Int, value : Int) -> Int {
+fn mix_cache_key(seed : Int32, value : Int32) -> Int32 {
   seed * 16777619 + value + 31
 }
 
@@ -30,7 +30,7 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // target.
 
 ///|
-fn double_cache_bits(v : Double) -> Int {
+fn double_cache_bits(v : Double) -> Int32 {
   (v * 4096.0).to_int()
 }
 
@@ -38,12 +38,12 @@ fn double_cache_bits(v : Double) -> Int {
 fn simple_text_batch_resource_cache_key(
   target : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
+  pipeline_id : Int32,
   region : @gfx.DstRegion,
-  src_image_ids : Array[Int],
+  src_image_ids : Array[Int32],
   vertex_data : Array[Double],
-  indices : Array[Int],
-) -> Int {
+  indices : Array[Int32],
+) -> Int32 {
   let mut hash = 0x54455854
   hash = mix_cache_key(hash, target.id)
   hash = mix_cache_key(hash, target.width)
@@ -85,7 +85,7 @@ pub impl TextBatchBuilder for SimpleTextBatchBuilder with fn build_draw_commands
     return []
   }
   let vertex_data : Array[Double] = Array::make(glyphs.length() * 16, 0.0)
-  let indices : Array[Int] = Array::make(glyphs.length() * 6, 0)
+  let indices : Array[Int32] = Array::make(glyphs.length() * 6, 0)
   let inv_atlas_w = 1.0 / self.cache.atlas_width
   let inv_atlas_h = 1.0 / self.cache.atlas_height
   let mut vertex_offset = 0
@@ -202,16 +202,16 @@ pub impl TextBatchBuilder for SimpleTextBatchBuilder with fn build_draw_commands
       }
       out
     }
-    let command_indices : Array[Int] = if index_offset == indices.length() {
+    let command_indices : Array[Int32] = if index_offset == indices.length() {
       indices
     } else {
-      let out : Array[Int] = []
+      let out : Array[Int32] = []
       for i in 0..<index_offset {
         out.push(indices[i])
       }
       out
     }
-    let src_image_ids : Array[Int] = if src_image_id < 0 {
+    let src_image_ids : Array[Int32] = if src_image_id < 0 {
       []
     } else {
       [src_image_id]

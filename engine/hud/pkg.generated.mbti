@@ -10,7 +10,7 @@ import {
 // Values
 pub fn default_status_bar() -> StatusBar
 
-pub fn hex_color(Int, alpha? : Double) -> @gfx.Color
+pub fn hex_color(Int32, alpha? : Double) -> @gfx.Color
 
 // Errors
 
@@ -22,27 +22,27 @@ pub(all) struct HudContext {
   screen_h : Double
   text_renderer : @text.TextRenderer?
 }
-pub fn HudContext::append_rect_batch_geometry(Self, Array[Double], Array[Int], Double, Double, Double, Double) -> Unit
+pub fn HudContext::append_rect_batch_geometry(Self, Array[Double], Array[Int32], Double, Double, Double, Double) -> Unit
 pub fn HudContext::draw_rect(Self, Array[@gfx.DrawTrianglesCommand], Double, Double, Double, Double, @gfx.Color) -> Unit
-pub fn HudContext::draw_text(Self, Array[@gfx.DrawTrianglesCommand], String, Double, Double, Double, Int) -> Unit
-pub fn HudContext::draw_text_centered(Self, Array[@gfx.DrawTrianglesCommand], String, Double, Double, Double, Int) -> Unit
+pub fn HudContext::draw_text(Self, Array[@gfx.DrawTrianglesCommand], String, Double, Double, Double, Int32) -> Unit
+pub fn HudContext::draw_text_centered(Self, Array[@gfx.DrawTrianglesCommand], String, Double, Double, Double, Int32) -> Unit
 pub fn HudContext::measure_text(Self, String, Double) -> (Double, Double)
-pub fn HudContext::push_rect_batch_command(Self, Array[@gfx.DrawTrianglesCommand], Array[Double], Array[Int], @gfx.Color) -> Unit
+pub fn HudContext::push_rect_batch_command(Self, Array[@gfx.DrawTrianglesCommand], Array[Double], Array[Int32], @gfx.Color) -> Unit
 
 pub(all) struct IconSlot {
   x : Double
   y : Double
   size : Double
-  bg_color : Int
-  border_color : Int
+  bg_color : Int32
+  border_color : Int32
   border_width : Double
   cooldown_ratio : Double
-  cooldown_color : Int
+  cooldown_color : Int32
   label : String
   label_size : Double
-  label_color : Int
+  label_color : Int32
   selected : Bool
-  selected_color : Int
+  selected_color : Int32
 }
 pub fn IconSlot::render(Self, HudContext, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
@@ -51,13 +51,13 @@ pub(all) struct Panel {
   y : Double
   width : Double
   height : Double
-  bg_color : Int
-  border_color : Int
+  bg_color : Int32
+  border_color : Int32
   border_width : Double
   title : String
   title_size : Double
-  title_color : Int
-  title_bg_color : Int
+  title_color : Int32
+  title_bg_color : Int32
 }
 pub fn Panel::render(Self, HudContext, Array[@gfx.DrawTrianglesCommand]) -> (Double, Double, Double, Double)
 
@@ -67,21 +67,22 @@ pub(all) struct StatusBar {
   width : Double
   height : Double
   ratio : Double
-  fill_color : Int
-  bg_color : Int
-  border_color : Int?
+  fill_color : Int32
+  bg_color : Int32
+  border_color : Int32?
   border_width : Double
   label : String
   label_size : Double
-  label_color : Int
+  label_color : Int32
 }
 pub fn StatusBar::render(Self, HudContext, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
+#derive(Eq, @debug.Debug)
 pub(all) enum TextAlign {
   Left
   Center
   Right
-} derive(Eq, @debug.Debug)
+}
 pub fn TextAlign::equal(Self, Self) -> Bool
 pub fn TextAlign::not_equal(Self, Self) -> Bool
 pub fn TextAlign::output(Self, &Logger) -> Unit
@@ -94,7 +95,7 @@ pub(all) struct TextLabel {
   y : Double
   text : String
   size : Double
-  color : Int
+  color : Int32
   align : TextAlign
 }
 pub fn TextLabel::render(Self, HudContext, Array[@gfx.DrawTrianglesCommand]) -> Unit

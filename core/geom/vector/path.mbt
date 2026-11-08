@@ -84,7 +84,7 @@ pub fn Path::arc_to(
   r : Double,
   start_angle : Double,
   end_angle : Double,
-  segments : Int,
+  segments : Int32,
 ) -> Unit {
   let n = if segments < 3 { 3 } else { segments }
   let da = (end_angle - start_angle) / n.to_double()
@@ -111,7 +111,7 @@ pub fn Path::close(self : Path) -> Unit {
 }
 
 ///|
-pub fn Path::command_count(self : Path) -> Int {
+pub fn Path::command_count(self : Path) -> Int32 {
   self.commands.length()
 }
 
@@ -278,7 +278,7 @@ fn stroke_segment_is_degenerate(p0 : Vec2, p1 : Vec2) -> Bool {
 }
 
 ///|
-fn count_non_degenerate_stroke_segments(points : Array[Vec2]) -> Int {
+fn count_non_degenerate_stroke_segments(points : Array[Vec2]) -> Int32 {
   let mut count = 0
   for i in 0..<(points.length() - 1) {
     if !stroke_segment_is_degenerate(points[i], points[i + 1]) {
@@ -291,14 +291,14 @@ fn count_non_degenerate_stroke_segments(points : Array[Vec2]) -> Int {
 ///|
 fn append_stroke_quad(
   vertices : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   p0 : Vec2,
   p1 : Vec2,
   half_width : Double,
   u : Double,
   u_next : Double,
-  vert_index : Int,
-) -> Int {
+  vert_index : Int32,
+) -> Int32 {
   let dir = p1.sub(p0).normalize()
   let perp = dir.perpendicular().scale(half_width)
   append_path_vertex(vertices, p0.add(perp), u, 0.0)
@@ -320,9 +320,9 @@ fn append_stroke_quad(
 pub fn stroke_path(
   points : Array[Vec2],
   width : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let half_w = width / 2.0
   if points.length() < 2 {
     return (vertices, indices)
@@ -353,9 +353,9 @@ pub fn stroke_path(
 /// Generate fill vertices from flattened path points using fan triangulation.
 /// Assumes the polygon is convex or simple (uses fan from first vertex).
 /// Returns (vertex_data, indices) where each vertex is [x, y, u, v].
-pub fn fill_path(points : Array[Vec2]) -> (Array[Double], Array[Int]) {
+pub fn fill_path(points : Array[Vec2]) -> (Array[Double], Array[Int32]) {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let n = points.length()
   if n < 3 {
     return (vertices, indices)

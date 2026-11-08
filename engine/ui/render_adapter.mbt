@@ -4,13 +4,13 @@
 ///|
 pub struct SimpleUIRenderAdapter {
   shader : @gfx.ShaderHandle
-  pipeline_id : Int
+  pipeline_id : Int32
 }
 
 ///|
 pub fn SimpleUIRenderAdapter::new(
   shader : @gfx.ShaderHandle,
-  pipeline_id : Int,
+  pipeline_id : Int32,
 ) -> SimpleUIRenderAdapter {
   { shader, pipeline_id, }
 }

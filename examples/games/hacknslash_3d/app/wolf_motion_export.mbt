@@ -4,16 +4,16 @@ pub fn export_wolf_motion_asset() -> String {
   let skeleton : Array[Json] = wolf_skeleton.bones.map(bone => {
     let pose = bone.local_transform
     {
-      "name": bone.name.to_json(),
-      "parent": bone.parent.to_json(),
-      "position": [pose.position.x, pose.position.y, pose.position.z].to_json(),
-      "rotation": [
+      "name": Json(bone.name),
+      "parent": Json(bone.parent),
+      "position": Json([pose.position.x, pose.position.y, pose.position.z]),
+      "rotation": Json([
         pose.rotation.x,
         pose.rotation.y,
         pose.rotation.z,
         pose.rotation.w,
-      ].to_json(),
-      "scale": [pose.scale.x, pose.scale.y, pose.scale.z].to_json(),
+      ]),
+      "scale": Json([pose.scale.x, pose.scale.y, pose.scale.z]),
     }
   })
   let clips : Array[Json] = []
@@ -25,45 +25,47 @@ pub fn export_wolf_motion_asset() -> String {
         @animation3d.Scale => "scale"
       }
       {
-        "joint": channel.node_index.to_json(),
-        "target": target.to_json(),
+        "joint": Json(channel.node_index),
+        "target": Json(target),
         "interpolation": "linear",
-        "times": channel.times.to_json(),
-        "values": channel.values.to_json(),
+        "times": Json(channel.times),
+        "values": Json(channel.values),
       }
     })
     let events : Array[Json] = if i == 2 {
       [
         {
           "name": "Impact",
-          "time": (@game.Bite.melee_profile().unwrap().windup.to_double() / 60.0).to_json(),
+          "time": Json(
+            @game.Bite.melee_profile().unwrap().windup.to_double() / 60.0,
+          ),
         },
       ]
     } else {
       []
     }
     clips.push({
-      "id": clip.name.to_json(),
-      "name": ["歩く / Walk", "走る / Run", "噛み付く / Bite"][i].to_json(),
-      "duration": clip.duration.to_json(),
+      "id": Json(clip.name),
+      "name": Json(["歩く / Walk", "走る / Run", "噛み付く / Bite"][i]),
+      "duration": Json(clip.duration),
       "fps": 60,
-      "events": events.to_json(),
-      "channels": channels.to_json(),
+      "events": Json(events),
+      "channels": Json(channels),
     })
   }
   let models : Array[Json] = [
     {
       "id": "wolf",
       "name": "灰狼 / Ash wolf",
-      "parts": export_motion_parts(wolf_mesh.parts).to_json(),
+      "parts": Json(export_motion_parts(wolf_mesh.parts)),
     },
   ]
   let weapons : Array[Json] = [
     {
       "id": "natural",
       "name": "牙・四肢",
-      "parts": ([] : Array[Json]).to_json(),
-      "clips": ["wolf_walk", "wolf_run", "wolf_bite"].to_json(),
+      "parts": Json(([] : Array[Json])),
+      "clips": Json(["wolf_walk", "wolf_run", "wolf_bite"]),
       "defaultClip": "wolf_walk",
     },
   ]
@@ -72,9 +74,9 @@ pub fn export_wolf_motion_asset() -> String {
       "format": "kagura.motion",
       "version": 2,
       "name": "ASHEN REALMS — 灰狼",
-      "skeleton": skeleton.to_json(),
-      "models": models.to_json(),
-      "clips": clips.to_json(),
-      "weapons": weapons.to_json(),
+      "skeleton": Json(skeleton),
+      "models": Json(models),
+      "clips": Json(clips),
+      "weapons": Json(weapons),
     } : Json).stringify()
 }

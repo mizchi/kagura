@@ -1,6 +1,6 @@
 ///|
 pub(all) struct DotText2D {
-  chars : Array[Int]
+  chars : Array[Int32]
   cx : Double
   cy : Double
   color : @gfx.Color
@@ -9,11 +9,11 @@ pub(all) struct DotText2D {
 
 ///|
 pub fn DotText2D::new(
-  chars~ : Array[Int],
+  chars~ : Array[Int32],
   cx~ : Double,
   cy~ : Double,
   color~ : @gfx.Color,
-  scale? : Double = 1.0,
+  scale~ : Double = 1.0,
 ) -> DotText2D {
   { chars, cx, cy, color, scale, }
 }
@@ -26,8 +26,8 @@ pub fn DotText2D::new(
 /// comparison is only sound if it uses the same arithmetic `append_dot_text`
 /// lays the glyphs out with, so both read it from here.
 pub fn dot_text_size(
-  char_count : Int,
-  scale? : Double = 1.0,
+  char_count : Int32,
+  scale~ : Double = 1.0,
 ) -> (Double, Double) {
   if char_count <= 0 {
     return (0.0, 0.0)
@@ -65,7 +65,7 @@ pub fn append_dot_text(
   // slack would be held for the whole frame. See
   // `docs/performance/dot-text-batching.md`.
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let screen_w = frame.screen_w.to_double()
   let screen_h = frame.screen_h.to_double()
   for i in 0..<text.chars.length() {
@@ -98,7 +98,7 @@ pub fn append_dot_text(
 
 ///|
 pub(all) struct Number2D {
-  number : Int
+  number : Int32
   cx : Double
   cy : Double
   color : @gfx.Color
@@ -107,18 +107,18 @@ pub(all) struct Number2D {
 
 ///|
 pub fn Number2D::new(
-  number~ : Int,
+  number~ : Int32,
   cx~ : Double,
   cy~ : Double,
   color~ : @gfx.Color,
-  scale? : Double = 1.0,
+  scale~ : Double = 1.0,
 ) -> Number2D {
   { number, cx, cy, color, scale, }
 }
 
 ///|
-fn number_to_char_codes(number : Int) -> Array[Int] {
-  let digits : Array[Int] = []
+fn number_to_char_codes(number : Int32) -> Array[Int32] {
+  let digits : Array[Int32] = []
   if number == 0 {
     digits.push(0)
   } else {

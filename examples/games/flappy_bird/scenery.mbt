@@ -4,7 +4,7 @@ fn pixel_panel(
   y : Double,
   w : Double,
   h : Double,
-  color : Int,
+  color : Int32,
 ) -> @scene.SceneNode {
   @scene.group(x~, y~, children=[
     @scene.rect(x=3.0, w=w - 6.0, h~, fill=color),

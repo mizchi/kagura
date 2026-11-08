@@ -1,7 +1,7 @@
 ///|
 priv struct Sound {
   players : Array[@audio.PlayerId]
-  mut next : Int
+  mut next : Int32
 }
 
 ///|
@@ -44,7 +44,7 @@ pub fn register_audio(name : String, bytes : Bytes) -> Bool {
     )
     players.push(id)
   }
-  sounds[name] = { players, next: 0 }
+  sounds[name] = { players, next: 0, }
   true
 }
 
@@ -68,7 +68,7 @@ pub fn set_muted(value : Bool) -> Unit {
 }
 
 ///|
-fn play_sound(name : String, restart? : Bool = true) -> Unit {
+fn play_sound(name : String, restart~ : Bool = true) -> Unit {
   if sounds.get(name) is Some(s) {
     let id = s.players[s.next]
     s.next = (s.next + 1) % s.players.length()

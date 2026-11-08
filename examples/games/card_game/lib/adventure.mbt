@@ -28,7 +28,7 @@ fn room_detail(kind : RoomKind) -> String {
 }
 
 ///|
-fn route_row_kind(row : Int, lane : Int, seed : Int) -> RoomKind {
+fn route_row_kind(row : Int32, lane : Int32, seed : Int32) -> RoomKind {
   if row == 1 {
     return RoomBattle
   }
@@ -57,7 +57,11 @@ fn route_row_kind(row : Int, lane : Int, seed : Int) -> RoomKind {
 }
 
 ///|
-fn make_route(act : Int, seed : Int, visited? : Array[Int] = []) -> RouteState {
+fn make_route(
+  act : Int32,
+  seed : Int32,
+  visited~ : Array[Int32] = [],
+) -> RouteState {
   let start = (act - 1) * 15 + 1
   let nodes : Array[RouteNode] = []
   for row in 1..<16 {
@@ -66,7 +70,7 @@ fn make_route(act : Int, seed : Int, visited? : Array[Int] = []) -> RouteState {
       if row == 15 && lane != 1 {
         continue
       }
-      let next : Array[Int] = []
+      let next : Array[Int32] = []
       if row == 14 {
         next.push(floor * 3 + 1)
       } else if row < 14 {
@@ -93,7 +97,7 @@ fn make_route(act : Int, seed : Int, visited? : Array[Int] = []) -> RouteState {
 pub fn RunState::adventure(
   character : CharacterId,
   stage : StageId,
-  seed? : Int = 42,
+  seed~ : Int32 = 42,
 ) -> RunState {
   if stage == GuardianTrial {
     return RunState::start(character, stage, seed~)
@@ -117,7 +121,7 @@ pub fn available_rooms(run : RunState) -> Array[RouteNode] {
       !route.visited.contains(n.id)
     })
   }
-  let mut ids : Array[Int] = []
+  let mut ids : Array[Int32] = []
   for node in route.nodes {
     if node.id == current {
       ids = node.next
@@ -156,7 +160,7 @@ fn complete_room(run : RunState) -> Unit {
 }
 
 ///|
-fn enter_room(run : RunState, id : Int) -> Unit {
+fn enter_room(run : RunState, id : Int32) -> Unit {
   let mut selected : RouteNode? = None
   for node in available_rooms(run) {
     if node.id == id {
@@ -205,7 +209,7 @@ fn enter_room(run : RunState, id : Int) -> Unit {
 }
 
 ///|
-fn combat_gold(run : RunState, kind : RoomKind) -> Int {
+fn combat_gold(run : RunState, kind : RoomKind) -> Int32 {
   let base = match kind {
     RoomBoss => 100
     RoomUnique => 70

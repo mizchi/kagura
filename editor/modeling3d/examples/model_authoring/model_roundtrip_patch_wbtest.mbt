@@ -209,9 +209,7 @@ test "build_roundtrip_patch_plan separates auto and manual actions" {
     plan,
     authoring_profile(),
   )
-  assert_true(
-    review_prompt.contains("examples/model_authoring/model_doc.mbt"),
-  )
+  assert_true(review_prompt.contains("examples/model_authoring/model_doc.mbt"))
   assert_true(review_prompt.contains("Review profile: `generic_model`"))
   assert_true(
     review_prompt.contains(

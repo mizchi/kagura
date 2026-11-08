@@ -1,5 +1,5 @@
 ///|
-fn agent_card_json(card : CardId, cost : Int) -> Json {
+fn agent_card_json(card : CardId, cost : Int32) -> Json {
   let def = card_def(card)
   {
     "id": card.to_string(),
@@ -19,7 +19,7 @@ fn agent_card_json(card : CardId, cost : Int) -> Json {
 /// A sorted multiset provides inspectable contents without disclosing the
 /// shuffled draw order or advancing the game's random generator.
 fn agent_pile_json(cards : Array[CardId]) -> Json {
-  let counts : Map[String, Int] = Map([])
+  let counts : Map[String, Int32] = Map([])
   let ids : Array[String] = []
   for card in cards {
     let id = card.to_string()
@@ -137,8 +137,8 @@ fn agent_battle_json(b : BattleState) -> Json {
   for index, card in b.hand {
     let entry = agent_card_json(card, card_play_cost(b, card))
     if entry is Object(fields) {
-      fields["handIndex"] = index.to_json()
-      fields["playable"] = can_play_card(b, index).to_json()
+      fields["handIndex"] = Json(index)
+      fields["playable"] = Json(can_play_card(b, index))
     }
     hand.push(entry)
   }
@@ -180,9 +180,7 @@ fn agent_battle_json(b : BattleState) -> Json {
       "regen": b.powers.regen,
     },
     "recentEvents": [
-      for i in (b.logs.length() - 8).max(0)..<b.logs.length() => {
-        b.logs[i].to_json()
-      }
+      for i in (b.logs.length() - 8).max(0)..<b.logs.length() => Json(b.logs[i])
     ],
   }
 }
@@ -219,7 +217,7 @@ pub fn AgentSession::observe(self : AgentSession) -> Json {
         "floor": run.floor,
         "gold": run.gold,
         "room": run.current_room
-        .map(kind => room_name(kind).to_json())
+        .map(kind => Json(room_name(kind)))
         .unwrap_or(Json::null()),
         "map": agent_route_json(run),
         "event": agent_event_json(run),
@@ -286,7 +284,7 @@ fn agent_route_json(run : RunState) -> Json {
   })
   {
     "act": route.act,
-    "current": route.current.map(id => id.to_json()).unwrap_or(Json::null()),
+    "current": route.current.map(id => Json(id)).unwrap_or(Json::null()),
     "nodes": nodes,
   }
 }

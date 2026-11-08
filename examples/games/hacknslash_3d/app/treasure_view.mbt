@@ -1,24 +1,30 @@
 ///|
+#derive(ToJson)
 struct HunterChestView {
-  id : Int
+  id : Int32
   name : String
   x : Double
   z : Double
   opened : Bool
   kind : String
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterChestView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterExplorationView {
-  nearby_chest : Int
+  nearby_chest : Int32
   site_name : String
   chests : Array[HunterChestView]
-  wolves : Int
+  wolves : Int32
   road_path : String
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterExplorationView with ToJson::{to_json}
+
 ///|
 fn GameState::hunter_exploration_view(
   self : GameState,

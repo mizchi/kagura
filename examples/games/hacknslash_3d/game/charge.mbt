@@ -1,9 +1,9 @@
 ///|
 /// Gameplay frames and normalized animation phases are shared by both rigs.
 pub(all) struct ChargeProfile {
-  windup : Int
-  active : Int
-  recovery : Int
+  windup : Int32
+  active : Int32
+  recovery : Int32
 }
 
 ///|
@@ -21,20 +21,20 @@ pub let enemy_charge_profile : ChargeProfile = {
 }
 
 ///|
-pub let player_charge_cooldown : Int = 180
+pub let player_charge_cooldown : Int32 = 180
 
 ///|
-pub fn ChargeProfile::duration(self : ChargeProfile) -> Int {
+pub fn ChargeProfile::duration(self : ChargeProfile) -> Int32 {
   self.windup + self.active + self.recovery
 }
 
 ///|
-pub fn ChargeProfile::is_active(self : ChargeProfile, frame : Int) -> Bool {
+pub fn ChargeProfile::is_active(self : ChargeProfile, frame : Int32) -> Bool {
   frame >= self.windup && frame < self.windup + self.active
 }
 
 ///|
-pub fn ChargeProfile::phase(self : ChargeProfile, frame : Int) -> Double {
+pub fn ChargeProfile::phase(self : ChargeProfile, frame : Int32) -> Double {
   if frame <= self.windup {
     0.3 * frame.max(0).to_double() / self.windup.to_double()
   } else if frame <= self.windup + self.active {
@@ -50,9 +50,9 @@ pub fn ChargeProfile::phase(self : ChargeProfile, frame : Int) -> Double {
 ///|
 pub(all) struct PlayerCharge {
   angle : Double
-  mut frame : Int
+  mut frame : Int32
   // Enemy array indices remain stable until the floor changes, which cancels charge.
-  hit_enemies : Array[Int]
+  hit_enemies : Array[Int32]
 }
 
 ///|

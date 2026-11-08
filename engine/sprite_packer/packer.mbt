@@ -9,14 +9,14 @@ pub fn PackerConfig::default() -> PackerConfig {
 /// Returns None if any sprite cannot fit.
 pub fn pack_sprites(
   inputs : Array[SpriteInput],
-  config? : PackerConfig = PackerConfig::default(),
+  config~ : PackerConfig = PackerConfig::default(),
 ) -> PackResult? {
   if inputs.is_empty() {
     let size = if config.power_of_two { 1 } else { 0 }
     return Some({ width: size, height: size, sprites: [], })
   }
   // Sort by area descending (larger sprites first for better packing)
-  let indexed : Array[(Int, SpriteInput)] = []
+  let indexed : Array[(Int32, SpriteInput)] = []
   for i, inp in inputs {
     indexed.push((i, inp))
   }
@@ -75,7 +75,7 @@ pub fn compose_packed_image(
   inputs : Array[SpriteInput],
   result : PackResult,
 ) -> @atlas.ImageSpec {
-  let pixels : Array[Int] = Array::make(result.width * result.height * 4, 0)
+  let pixels : Array[Int32] = Array::make(result.width * result.height * 4, 0)
   // Build lookup from key to spec
   let specs : Map[String, @atlas.ImageSpec] = Map([])
   for inp in inputs {
@@ -104,7 +104,7 @@ pub fn compose_packed_image(
 
 ///|
 /// Round up to the next power of two.
-fn next_power_of_two(n : Int) -> Int {
+fn next_power_of_two(n : Int32) -> Int32 {
   if n <= 1 {
     return 1
   }

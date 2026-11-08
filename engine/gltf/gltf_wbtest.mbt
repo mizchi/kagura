@@ -32,7 +32,7 @@ fn f32_to_bytes(v : Double) -> Array[Byte] {
 }
 
 ///|
-fn u16_to_bytes(v : Int) -> Array[Byte] {
+fn u16_to_bytes(v : Int32) -> Array[Byte] {
   [(v & 0xFF).to_byte(), ((v >> 8) & 0xFF).to_byte()]
 }
 

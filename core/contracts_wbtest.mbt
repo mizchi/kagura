@@ -118,7 +118,7 @@ test "touch point with zero id and negative coordinates" {
 
 ///|
 test "gamepad snapshot with many buttons" {
-  let buttons : Array[Int] = []
+  let buttons : Array[Int32] = []
   for i in 0..<20 {
     buttons.push(i)
   }

@@ -28,11 +28,11 @@ pub fn[T : EngineGame] run_game(
   on_frame? : () -> Unit,
   after_render? : (Double, Double) -> Unit,
   audio_ctx? : @audio.MixerAudioContext,
-  audio_frames_per_tick? : Int = 735,
-  width? : Int = 320,
-  height? : Int = 240,
-  title? : String = "kagura",
-  canvas? : String = "#app",
+  audio_frames_per_tick~ : Int32 = 735,
+  width~ : Int32 = 320,
+  height~ : Int32 = 240,
+  title~ : String = "kagura",
+  canvas~ : String = "#app",
 ) -> Unit {
   run(
     update=fn(input) { engine_game_update(game, input) },

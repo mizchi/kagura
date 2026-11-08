@@ -1,6 +1,6 @@
 ///|
 struct MockRequest {
-  id : Int
+  id : Int32
   url : String
   _on_progress : (@fetch.FetchProgress) -> Unit
   on_complete : (Bytes?) -> Unit
@@ -9,7 +9,7 @@ struct MockRequest {
 
 ///|
 struct MockFetcher {
-  mut next_id : Int
+  mut next_id : Int32
   requests : Array[MockRequest]
 }
 
@@ -52,7 +52,11 @@ impl @fetch.BytesFetcher for MockFetcher with fn poll(_) {
 }
 
 ///|
-fn complete_mock(fetcher : MockFetcher, req_index : Int, data : Bytes?) -> Unit {
+fn complete_mock(
+  fetcher : MockFetcher,
+  req_index : Int32,
+  data : Bytes?,
+) -> Unit {
   let req = fetcher.requests[req_index]
   if !req.cancelled {
     (req.on_complete)(data)

@@ -17,7 +17,7 @@ pub fn next_u64(state : SimState) -> UInt64 {
 
 ///|
 /// Uniform integer in [0, n). Returns 0 for n <= 0.
-pub fn next_int(state : SimState, n : Int) -> Int {
+pub fn next_int(state : SimState, n : Int32) -> Int32 {
   if n <= 0 {
     return 0
   }
@@ -27,7 +27,7 @@ pub fn next_int(state : SimState, n : Int) -> Int {
 
 ///|
 /// Roll `count` dice with `sides` faces (1..sides) and return the sum.
-pub fn roll_dice(state : SimState, count : Int, sides : Int) -> Int {
+pub fn roll_dice(state : SimState, count : Int32, sides : Int32) -> Int32 {
   if count <= 0 || sides <= 0 {
     return 0
   }

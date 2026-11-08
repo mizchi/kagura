@@ -19,12 +19,14 @@ fn main {
     }
     _ => Json::null()
   }
-  let request = @json.parse(parse_cli(args)) catch { _ => Json::null() }
+  let request = @json.parse(parse_cli(FixedArray::from_array(args[:]))) catch {
+    _ => Json::null()
+  }
   let payload : Json = {
     "request": request,
     "files": files,
     "runtime": if parse_args(args) is Ok(NewWeb(_)) {
-      runtime_payload.to_json()
+      Json(runtime_payload)
     } else {
       Json::null()
     },

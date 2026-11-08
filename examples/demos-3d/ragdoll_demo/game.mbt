@@ -5,16 +5,16 @@
 // Click and drag to grab and move body parts with a spring force.
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
 let px_per_unit : Double = 40.0
 
 ///|
-let circle_segments : Int = 16
+let circle_segments : Int32 = 16
 
 ///|
 let spring_strength : Double = 200.0
@@ -27,68 +27,68 @@ let grab_distance : Double = 2.0
 // ============================================================
 
 ///|
-let id_ground : Int = 0
+let id_ground : Int32 = 0
 
 ///|
-let id_head : Int = 1
+let id_head : Int32 = 1
 
 ///|
-let id_torso : Int = 2
+let id_torso : Int32 = 2
 
 ///|
-let id_l_arm : Int = 3
+let id_l_arm : Int32 = 3
 
 ///|
-let id_r_arm : Int = 4
+let id_r_arm : Int32 = 4
 
 ///|
-let id_l_fore : Int = 5
+let id_l_fore : Int32 = 5
 
 ///|
-let id_r_fore : Int = 6
+let id_r_fore : Int32 = 6
 
 ///|
-let id_l_thigh : Int = 7
+let id_l_thigh : Int32 = 7
 
 ///|
-let id_r_thigh : Int = 8
+let id_r_thigh : Int32 = 8
 
 ///|
-let id_l_shin : Int = 9
+let id_l_shin : Int32 = 9
 
 ///|
-let id_r_shin : Int = 10
+let id_r_shin : Int32 = 10
 
 // ============================================================
 // Colors
 // ============================================================
 
 ///|
-let color_skin : Int = 0xF0C8A0
+let color_skin : Int32 = 0xF0C8A0
 
 ///|
-let color_torso : Int = 0x4080C0
+let color_torso : Int32 = 0x4080C0
 
 ///|
-let color_arm : Int = 0x5090D0
+let color_arm : Int32 = 0x5090D0
 
 ///|
-let color_forearm : Int = 0x60A0E0
+let color_forearm : Int32 = 0x60A0E0
 
 ///|
-let color_thigh : Int = 0x406080
+let color_thigh : Int32 = 0x406080
 
 ///|
-let color_shin : Int = 0x507090
+let color_shin : Int32 = 0x507090
 
 ///|
-let color_highlight : Int = 0xFFFF00
+let color_highlight : Int32 = 0xFFFF00
 
 ///|
-let color_bg : Int = 0x1A1A2E
+let color_bg : Int32 = 0x1A1A2E
 
 ///|
-let color_ground_hex : Int = 0x444444
+let color_ground_hex : Int32 = 0x444444
 
 // ============================================================
 // DemoState
@@ -98,8 +98,8 @@ let color_ground_hex : Int = 0x444444
 struct DemoState {
   world : @physics2d.PhysicsWorld2D
   input : @inpututil.InputHelper
-  mut frame : Int
-  mut grabbed_id : Int // -1 = none
+  mut frame : Int32
+  mut grabbed_id : Int32 // -1 = none
   mut mouse_phys_x : Double
   mut mouse_phys_y : Double
 }
@@ -134,7 +134,7 @@ fn physics_to_screen_y(py : Double) -> Double {
 
 ///|
 fn make_ragdoll_circle(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   radius : Double,
@@ -153,7 +153,7 @@ fn make_ragdoll_circle(
 
 ///|
 fn make_ragdoll_box(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   hx : Double,
@@ -173,8 +173,8 @@ fn make_ragdoll_box(
 
 ///|
 fn make_revolute(
-  a_id : Int,
-  b_id : Int,
+  a_id : Int32,
+  b_id : Int32,
   anchor_a : @vector.Vec2,
   anchor_b : @vector.Vec2,
 ) -> @physics2d.RevoluteJoint2D {
@@ -415,7 +415,7 @@ fn find_closest_dynamic(
   world : @physics2d.PhysicsWorld2D,
   mx : Double,
   my : Double,
-) -> Int {
+) -> Int32 {
   let mut best_id = -1
   let mut best_dist = grab_distance
   for i = 0; i < world.bodies.length(); i = i + 1 {
@@ -451,7 +451,7 @@ fn draw_filled_circle(
 ) -> Unit {
   let n = circle_segments
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let ndc_cx = cx / sw * 2.0 - 1.0
   let ndc_cy = 1.0 - cy / sh * 2.0
   vertices.push(ndc_cx)
@@ -512,7 +512,7 @@ fn draw_rotated_box(
     vertices.push(0.5)
     vertices.push(0.5)
   }
-  let indices : Array[Int] = [0, 1, 2, 0, 2, 3]
+  let indices : Array[Int32] = [0, 1, 2, 0, 2, 3]
   @renderer2d.append_primitive_batch(cmds, frame, vertices, indices, color)
 }
 
@@ -521,7 +521,7 @@ fn draw_rotated_box(
 // ============================================================
 
 ///|
-fn get_part_color(id : Int, grabbed_id : Int) -> @gfx.Color {
+fn get_part_color(id : Int32, grabbed_id : Int32) -> @gfx.Color {
   if id == grabbed_id {
     return @renderer2d.color_from_hex(color_highlight)
   }

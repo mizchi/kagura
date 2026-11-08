@@ -3,8 +3,8 @@ let runtime_title : Ref[String] = Ref("kagura")
 
 ///|
 priv struct SyncedSourceGeneration {
-  image_id : Int
-  generation : Int
+  image_id : Int32
+  generation : Int32
 }
 
 ///|
@@ -17,7 +17,7 @@ let saw_native_touch_input : Ref[Bool] = Ref(false)
 let mouse_touch_fallback_enabled : Ref[Bool] = Ref(false)
 
 ///|
-fn normalized_source_generation(generation : Int) -> Int {
+fn normalized_source_generation(generation : Int32) -> Int32 {
   if generation <= 0 {
     1
   } else {
@@ -26,7 +26,7 @@ fn normalized_source_generation(generation : Int) -> Int {
 }
 
 ///|
-fn synced_source_generation_at(image_id : Int) -> Int {
+fn synced_source_generation_at(image_id : Int32) -> Int32 {
   let mut generation = 0
   for entry in synced_source_generations.val {
     if entry.image_id == image_id {
@@ -37,7 +37,7 @@ fn synced_source_generation_at(image_id : Int) -> Int {
 }
 
 ///|
-fn set_synced_source_generation(image_id : Int, generation : Int) -> Unit {
+fn set_synced_source_generation(image_id : Int32, generation : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   let mut replaced = false
   let safe_generation = normalized_source_generation(generation)
@@ -86,7 +86,7 @@ fn bridge_desktop_mouse_touch_fallback_enabled(active : Bool) -> Bool {
 }
 
 ///|
-fn drop_synced_source_generation(image_id : Int) -> Unit {
+fn drop_synced_source_generation(image_id : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   for entry in synced_source_generations.val {
     if entry.image_id != image_id {
@@ -118,7 +118,10 @@ fn bridge_desktop_should_close() -> Bool {
 }
 
 ///|
-fn bridge_desktop_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn bridge_desktop_outside_size(
+  width : Int32,
+  height : Int32,
+) -> @core.OutsideSize {
   let (w, h) = @wgpu_native.runtime_window_size(width, height)
   @core.new_outside_size(w.to_double(), h.to_double())
 }
@@ -126,7 +129,7 @@ fn bridge_desktop_outside_size(width : Int, height : Int) -> @core.OutsideSize {
 ///|
 fn bridge_desktop_capture_input(
   active : Bool,
-  _tick : Int,
+  _tick : Int32,
 ) -> @core.InputSnapshot {
   if active {
     let cursor_x = @wgpu_native.runtime_cursor_x()
@@ -134,7 +137,7 @@ fn bridge_desktop_capture_input(
     let wheel_x = @wgpu_native.runtime_take_wheel_x()
     let wheel_y = @wgpu_native.runtime_take_wheel_y()
 
-    let pressed_keys : Array[Int] = []
+    let pressed_keys : Array[Int32] = []
     let key_count = @wgpu_native.runtime_pressed_key_count()
     for i in 0..<key_count {
       let key = @wgpu_native.runtime_pressed_key_at(i)
@@ -142,7 +145,7 @@ fn bridge_desktop_capture_input(
         pressed_keys.push(key)
       }
     }
-    let pressed_mouse_buttons : Array[Int] = []
+    let pressed_mouse_buttons : Array[Int32] = []
     let mouse_button_count = @wgpu_native.runtime_pressed_mouse_button_count()
     for i in 0..<mouse_button_count {
       let button = @wgpu_native.runtime_pressed_mouse_button_at(i)
@@ -187,7 +190,7 @@ fn bridge_desktop_capture_input(
         for j in 0..<axis_count {
           axes.push(@wgpu_native.runtime_gamepad_axis_at(i, j))
         }
-        let pressed_buttons : Array[Int] = []
+        let pressed_buttons : Array[Int32] = []
         let button_count = @wgpu_native.runtime_gamepad_pressed_button_count(i)
         for j in 0..<button_count {
           let button = @wgpu_native.runtime_gamepad_pressed_button_at(i, j)
@@ -321,7 +324,7 @@ fn bridge_desktop_request_attention(active : Bool) -> Unit {
 }
 
 ///|
-fn bridge_gfx_try_initialize(width : Int, height : Int) -> Bool {
+fn bridge_gfx_try_initialize(width : Int32, height : Int32) -> Bool {
   @wgpu_native.ensure_runtime_context(width, height, runtime_title.val)
 }
 
@@ -409,7 +412,7 @@ fn bridge_gfx_on_draw(
 }
 
 ///|
-fn bridge_gfx_on_resize(active : Bool, width : Int, height : Int) -> Unit {
+fn bridge_gfx_on_resize(active : Bool, width : Int32, height : Int32) -> Unit {
   if active {
     let _ = @wgpu_native.runtime_resize_surface(width, height)
   }
@@ -417,9 +420,9 @@ fn bridge_gfx_on_resize(active : Bool, width : Int, height : Int) -> Unit {
 
 ///|
 priv struct OffscreenImage {
-  id : Int
-  width : Int
-  height : Int
+  id : Int32
+  width : Int32
+  height : Int32
 }
 
 ///|
@@ -428,11 +431,11 @@ let last_offscreen_image : Ref[OffscreenImage?] = Ref(None)
 ///|
 fn bridge_gfx_on_read_pixels(
   active : Bool,
-  x : Int,
-  y : Int,
-  width : Int,
-  height : Int,
-) -> Array[Int]? {
+  x : Int32,
+  y : Int32,
+  width : Int32,
+  height : Int32,
+) -> Array[Int32]? {
   if !active {
     return None
   }
@@ -456,9 +459,9 @@ fn bridge_gfx_on_read_pixels(
 ///|
 fn bridge_gfx_on_new_image(
   active : Bool,
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   if active {
     @wgpu_native.register_offscreen_target(image_id, width, height)
@@ -469,9 +472,9 @@ fn bridge_gfx_on_new_image(
 ///|
 fn palette_channel_or_zero(
   palette : @atlas.ImagePalette2x2,
-  pixel_index : Int,
-  channel_index : Int,
-) -> Int {
+  pixel_index : Int32,
+  channel_index : Int32,
+) -> Int32 {
   let value = @atlas.palette_channel(palette, pixel_index, channel_index)
   if value < 0 {
     0
@@ -482,7 +485,7 @@ fn palette_channel_or_zero(
 
 ///|
 pub fn register_source_image_palette(
-  source_image_id : Int,
+  source_image_id : Int32,
   palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   @wgpu_native.runtime_register_source_image_palette(
@@ -511,7 +514,7 @@ pub fn register_source_image_palette(
 
 ///|
 pub fn register_source_image_solid_color(
-  source_image_id : Int,
+  source_image_id : Int32,
   color : @atlas.Rgba,
 ) -> Unit {
   register_source_image_palette(
@@ -522,10 +525,10 @@ pub fn register_source_image_solid_color(
 
 ///|
 pub fn register_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Unit {
   @wgpu_native.runtime_register_source_image_rgba8(
     source_image_id, width, height, rgba8_channels,
@@ -537,14 +540,14 @@ pub fn register_source_image_rgba8(
 
 ///|
 pub fn patch_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  dirty_x : Int,
-  dirty_y : Int,
-  dirty_width : Int,
-  dirty_height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  dirty_x : Int32,
+  dirty_y : Int32,
+  dirty_width : Int32,
+  dirty_height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Bool {
   @wgpu_native.runtime_patch_source_image_rgba8(
     source_image_id, width, height, dirty_x, dirty_y, dirty_width, dirty_height,
@@ -561,7 +564,7 @@ pub fn clear_source_image_palettes() -> Unit {
 ///|
 pub fn sync_source_image_palettes(
   bindings : Array[@atlas.ImagePaletteBinding],
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for binding in bindings {
     register_source_image_palette(binding.image_id, binding.palette)
@@ -573,12 +576,12 @@ pub fn sync_source_image_palettes(
 ///|
 pub fn sync_source_image_palettes_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_image_palettes(@atlas.list_image_palette_bindings(repository))
 }
 
 ///|
-pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
+pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int32 {
   let mut count = 0
   for binding in bindings {
     if binding.image_id < 0 {
@@ -633,14 +636,14 @@ pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
 ///|
 pub fn sync_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_images(@atlas.list_source_image_bindings(repository))
 }
 
 ///|
 pub fn sync_dirty_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   let synced = sync_source_images(
     @atlas.list_dirty_source_image_bindings(repository),
   )
@@ -651,7 +654,7 @@ pub fn sync_dirty_source_images_from_repository(
 ///|
 pub fn sync_dirty_atlas_pages_from_repository(
   repository : @atlas.SimpleAtlasImageRepository,
-) -> Int {
+) -> Int32 {
   let synced = sync_source_images(
     @atlas.list_dirty_atlas_page_bindings(repository),
   )
@@ -686,7 +689,7 @@ pub fn install(title : String) -> Unit {
 }
 
 ///|
-fn bridge_load_font_data(name : String) -> Array[Int]? {
+fn bridge_load_font_data(name : String) -> Array[Int32]? {
   @wgpu_native.runtime_load_font_data(name)
 }
 
@@ -712,14 +715,18 @@ pub fn shutdown() -> Unit {
 }
 
 ///|
-pub fn initialize_context(width : Int, height : Int, title : String) -> Bool {
+pub fn initialize_context(
+  width : Int32,
+  height : Int32,
+  title : String,
+) -> Bool {
   install(title)
   @wgpu_native.ensure_runtime_context(width, height, title)
 }
 
 ///|
 /// Initialize a headless context (hidden window) for offscreen rendering.
-pub fn initialize_headless_context(width : Int, height : Int) -> Bool {
+pub fn initialize_headless_context(width : Int32, height : Int32) -> Bool {
   install("headless")
   @wgpu_native.ensure_headless_runtime_context(width, height)
 }
@@ -748,7 +755,10 @@ pub fn shutdown_context() -> Unit {
 ///|
 /// Get an EngineContext for building draw commands in headless mode.
 /// Must be called after initialize_headless_context().
-pub fn get_engine_context(width : Int, height : Int) -> @engine.EngineContext {
+pub fn get_engine_context(
+  width : Int32,
+  height : Int32,
+) -> @engine.EngineContext {
   // id=0 targets the swap chain surface (not an offscreen target)
   let dst = @gfx.new_image_handle(0, width, height)
   let shader = @gfx.new_shader_handle(1, @gfx.default_builtin_shader_source())

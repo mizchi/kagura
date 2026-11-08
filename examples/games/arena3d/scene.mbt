@@ -4,7 +4,7 @@ fn scene_vec(values : Array[Double]) -> @math3d.Vec3 {
 }
 
 ///|
-fn scene_color(value : Int) -> @math3d.Vec4 {
+fn scene_color(value : Int32) -> @math3d.Vec4 {
   @math3d.Vec4::new(
     ((value >> 16) & 255).to_double() / 255.0,
     ((value >> 8) & 255).to_double() / 255.0,

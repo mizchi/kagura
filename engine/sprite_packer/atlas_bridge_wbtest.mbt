@@ -18,8 +18,8 @@ test "packed_sprite_to_atlas_region" {
 ///|
 test "create_packed_atlas_repository basic" {
   // Create two 4x4 sprites
-  let pixels_a : Array[Int] = Array::make(4 * 4 * 4, 255)
-  let pixels_b : Array[Int] = Array::make(4 * 4 * 4, 128)
+  let pixels_a : Array[Int32] = Array::make(4 * 4 * 4, 255)
+  let pixels_b : Array[Int32] = Array::make(4 * 4 * 4, 128)
   let spec_a = @atlas.image_spec_with_rgba8(4, 4, pixels_a)
   let spec_b = @atlas.image_spec_with_rgba8(4, 4, pixels_b)
   let inputs : Array[SpriteInput] = [
@@ -53,7 +53,7 @@ test "create_packed_atlas_repository basic" {
 
 ///|
 test "create_packed_atlas_repository UV coordinates" {
-  let pixels : Array[Int] = Array::make(8 * 8 * 4, 200)
+  let pixels : Array[Int32] = Array::make(8 * 8 * 4, 200)
   let spec = @atlas.image_spec_with_rgba8(8, 8, pixels)
   let inputs : Array[SpriteInput] = [{ key: "img", spec, }]
   let result : PackResult = {
@@ -122,7 +122,7 @@ test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
   // Create a 32x32 sprite sheet (2x2 grid of 16x16 tiles)
   let sheet_w = 32
   let sheet_h = 32
-  let pixels : Array[Int] = Array::make(sheet_w * sheet_h * 4, 0)
+  let pixels : Array[Int32] = Array::make(sheet_w * sheet_h * 4, 0)
   for row in 0..<2 {
     for col in 0..<2 {
       let tile_idx = row * 2 + col

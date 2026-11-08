@@ -1,12 +1,13 @@
 ///|
 /// Enemy intent (what the enemy plans to do this turn)
+#derive(Debug, Eq)
 pub(all) enum Intent {
-  AttackIntent(Int) // Deal N damage
-  DefendIntent(Int) // Gain N block
+  AttackIntent(Int32) // Deal N damage
+  DefendIntent(Int32) // Gain N block
   BuffIntent // Gain strength
-  MultiAttack(Int, Int) // Deal N damage X times
+  MultiAttack(Int32, Int32) // Deal N damage X times
   DebuffIntent // Apply Weak/Vulnerable to player
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for Intent with fn output(self, logger) {
@@ -15,12 +16,13 @@ pub impl Show for Intent with fn output(self, logger) {
 
 ///|
 /// Enemy with fighter stats and AI
+#derive(Debug)
 pub(all) struct Enemy {
   id : EnemyId
   fighter : Fighter
   mut intent : Intent
-  mut pattern_index : Int
-} derive(Debug)
+  mut pattern_index : Int32
+}
 
 ///|
 pub impl Show for Enemy with fn output(self, logger) {
@@ -29,6 +31,7 @@ pub impl Show for Enemy with fn output(self, logger) {
 
 ///|
 /// Enemy template identifiers
+#derive(Debug, Eq)
 pub(all) enum EnemyId {
   // Easy encounters
   GreenLouse
@@ -54,7 +57,7 @@ pub(all) enum EnemyId {
   CinderDuelist
   GildedSentinel
   HollowOracle
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for EnemyId with fn output(self, logger) {
@@ -445,6 +448,7 @@ fn execute_enemy_intent(enemy : Enemy, player : Fighter) -> Array[String] {
 
 ///|
 /// Predefined encounter configurations
+#derive(Debug, Eq)
 pub(all) enum EncounterId {
   UniqueDuelist
   UniqueSentinel
@@ -467,7 +471,7 @@ pub(all) enum EncounterId {
   Act2EliteBook // Elite: escalating multi-stab
   Act2EliteSentryTrio // Elite: three sentries
   BossAutomaton // Boss: Bronze Automaton
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for EncounterId with fn output(self, logger) {
@@ -502,12 +506,13 @@ pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
 }
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum EncounterTier {
   Easy
   Normal
   Elite
   Boss
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for EncounterTier with fn output(self, logger) {

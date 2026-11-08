@@ -1,20 +1,21 @@
 ///|
+#derive(Debug)
 struct DrawPlayingStats {
-  total_commands : Int
-  estimated_draw_calls : Int
-  total_index_count : Int
-  shadow_depth_commands : Int
-  shadow_lit_commands : Int
-  direct_lit_commands : Int
-  instanced_commands : Int
-  instanced_instances : Int
-  skinned_commands : Int
-  ssao_commands : Int
-  bloom_commands : Int
-  tonemap_commands : Int
-  fxaa_commands : Int
-  final_output_commands : Int
-} derive(Debug)
+  total_commands : Int32
+  estimated_draw_calls : Int32
+  total_index_count : Int32
+  shadow_depth_commands : Int32
+  shadow_lit_commands : Int32
+  direct_lit_commands : Int32
+  instanced_commands : Int32
+  instanced_instances : Int32
+  skinned_commands : Int32
+  ssao_commands : Int32
+  bloom_commands : Int32
+  tonemap_commands : Int32
+  fxaa_commands : Int32
+  final_output_commands : Int32
+}
 
 ///|
 pub impl Show for DrawPlayingStats with fn output(self, logger) {

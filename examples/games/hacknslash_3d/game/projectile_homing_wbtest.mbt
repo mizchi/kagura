@@ -13,7 +13,7 @@ fn homing_test_world() -> GameWorld {
 fn homing_test_projectile(
   w : GameWorld,
   kind : ProjectileKind,
-  is_player? : Bool = true,
+  is_player~ : Bool = true,
 ) -> Projectile {
   {
     x: w.player.x,

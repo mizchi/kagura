@@ -2,7 +2,7 @@
 pub fn PhysicsWorld2D::new(
   gravity : @vector.Vec2,
   broadphase_cell_size : Double,
-  solver_config? : SolverConfig2D = SolverConfig2D::default(),
+  solver_config~ : SolverConfig2D = SolverConfig2D::default(),
 ) -> PhysicsWorld2D {
   {
     bodies: [],
@@ -28,7 +28,7 @@ pub fn PhysicsWorld2D::add_body(
 ///|
 pub fn PhysicsWorld2D::get_body(
   self : PhysicsWorld2D,
-  id : Int,
+  id : Int32,
 ) -> RigidBody2D? {
   self.body_index.ensure(self.bodies)
   let index = self.body_index.find(id)
@@ -40,14 +40,14 @@ pub fn PhysicsWorld2D::get_body(
 }
 
 ///|
-pub fn PhysicsWorld2D::body_count(self : PhysicsWorld2D) -> Int {
+pub fn PhysicsWorld2D::body_count(self : PhysicsWorld2D) -> Int32 {
   self.bodies.length()
 }
 
 ///|
 pub fn PhysicsWorld2D::apply_force(
   self : PhysicsWorld2D,
-  body_id : Int,
+  body_id : Int32,
   force : @vector.Vec2,
 ) -> Unit {
   for i = 0; i < self.bodies.length(); i = i + 1 {
@@ -61,7 +61,7 @@ pub fn PhysicsWorld2D::apply_force(
 ///|
 pub fn PhysicsWorld2D::apply_impulse(
   self : PhysicsWorld2D,
-  body_id : Int,
+  body_id : Int32,
   impulse : @vector.Vec2,
 ) -> Unit {
   for i = 0; i < self.bodies.length(); i = i + 1 {
@@ -99,7 +99,7 @@ let sleep_time_threshold : Double = 0.5 // seconds at rest before sleeping
 
 ///|
 /// Union-Find for island detection.
-fn uf_find(parent : Array[Int], i : Int) -> Int {
+fn uf_find(parent : Array[Int32], i : Int32) -> Int32 {
   let mut x = i
   // Path compression loop (no recursion to avoid stack issues)
   for ;; {
@@ -112,7 +112,12 @@ fn uf_find(parent : Array[Int], i : Int) -> Int {
 }
 
 ///|
-fn uf_union(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit {
+fn uf_union(
+  parent : Array[Int32],
+  rank : Array[Int32],
+  a : Int32,
+  b : Int32,
+) -> Unit {
   let ra = uf_find(parent, a)
   let rb = uf_find(parent, b)
   if ra == rb {
@@ -134,7 +139,7 @@ fn uf_union(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit {
 ///
 /// `step` and `world_bench.mbt` both call this, so the benchmark can never
 /// drift away from the shipped pipeline.
-fn PhysicsWorld2D::phase_broadphase_pairs(self : PhysicsWorld2D) -> Int {
+fn PhysicsWorld2D::phase_broadphase_pairs(self : PhysicsWorld2D) -> Int32 {
   let body_count = self.bodies.length()
   self.broadphase.clear()
   for i = 0; i < body_count; i = i + 1 {
@@ -154,9 +159,11 @@ fn PhysicsWorld2D::phase_broadphase_pairs(self : PhysicsWorld2D) -> Int {
 /// Note: avoid `continue` in for-loop due to MoonBit JS codegen bug
 fn PhysicsWorld2D::phase_narrowphase(
   self : PhysicsWorld2D,
-  pair_count : Int,
-) -> Array[(Int, Int, Contact2D)] {
-  let raw_contacts : Array[(Int, Int, Contact2D)] = Array(capacity=pair_count)
+  pair_count : Int32,
+) -> Array[(Int32, Int32, Contact2D)] {
+  let raw_contacts : Array[(Int32, Int32, Contact2D)] = Array(
+    capacity=pair_count,
+  )
   let pair_id_a = self.broadphase.pair_id_a
   let pair_id_b = self.broadphase.pair_id_b
   for p = 0; p < pair_count; p = p + 1 {
@@ -182,7 +189,7 @@ fn PhysicsWorld2D::phase_narrowphase(
 /// world as well as returning the constraints.
 fn PhysicsWorld2D::phase_contact_constraints(
   self : PhysicsWorld2D,
-  raw_contacts : Array[(Int, Int, Contact2D)],
+  raw_contacts : Array[(Int32, Int32, Contact2D)],
   sub_dt : Double,
 ) -> Array[ContactConstraint2D] {
   let config = self.solver_config
@@ -329,8 +336,8 @@ fn PhysicsWorld2D::phase_solve_velocities(
   dist_constraints : Array[DistanceJointConstraint2D],
   rev_constraints : Array[RevoluteJointConstraint2D],
   vel : VelocityState2D,
-  iterations : Int,
-  use_bias? : Bool = true,
+  iterations : Int32,
+  use_bias~ : Bool = true,
 ) -> Unit {
   // Velocities live in `vel` for the whole substep loop, so this pass neither
   // loads nor stores -- it allocates nothing at all. Positions and masses are
@@ -492,8 +499,8 @@ fn PhysicsWorld2D::phase_update_sleep(
     return
   }
   // Build Union-Find for islands from active contacts
-  let parent : Array[Int] = Array::make(n, 0)
-  let rank : Array[Int] = Array::make(n, 0)
+  let parent : Array[Int32] = Array::make(n, 0)
+  let rank : Array[Int32] = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {
     parent[i] = i
   }

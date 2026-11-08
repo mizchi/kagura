@@ -1,4 +1,5 @@
 // Browser storage is kept separate from the portable save codec.
+
 ///|
 extern "js" fn js_storage_set(key : String, value : String) -> Bool =
   #| (key, value) => { try { localStorage.setItem(key, value); return true; } catch { return false; } }

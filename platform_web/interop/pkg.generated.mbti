@@ -2,41 +2,43 @@
 package "mizchi/kagura_platform_web/interop"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn argument(@core.Any, @core.Any) -> @core.Any
+pub fn argument(@js_core.Any, @js_core.Any) -> @js_core.Any
 
-pub fn array_values(@core.Any) -> Array[@core.Any]
+pub fn[T] array_to_js(Array[T]) -> @js_core.Any
+
+pub fn array_values(@js_core.Any) -> Array[@js_core.Any]
 
 pub fn clamp(Double, Double, Double) -> Double
 
-pub fn delete_key(@core.Any, String) -> Unit
+pub fn delete_key(@js_core.Any, String) -> Unit
 
-pub fn fallback(@core.Any, @core.Any) -> @core.Any
+pub fn fallback(@js_core.Any, @js_core.Any) -> @js_core.Any
 
-pub fn field(@core.Any, String) -> @core.Any
+pub fn field(@js_core.Any, String) -> @js_core.Any
 
-pub fn finite(@core.Any) -> Bool
+pub fn finite(@js_core.Any) -> Bool
 
-pub fn fixed_decimal(Double, Int) -> Double
+pub fn fixed_decimal(Double, Int32) -> Double
 
-pub fn length(@core.Any) -> Int
+pub fn length(@js_core.Any) -> Int32
 
-pub fn number(@core.Any) -> Double
+pub fn number(@js_core.Any) -> Double
 
-pub fn number_field(@core.Any, String, Double) -> Double
+pub fn number_field(@js_core.Any, String, Double) -> Double
 
-pub fn object_spread(@core.Any, @core.Any) -> @core.Any
+pub fn object_spread(@js_core.Any, @js_core.Any) -> @js_core.Any
 
 pub fn range_error(String) -> Unit
 
-pub fn safe_integer(@core.Any) -> Bool
+pub fn safe_integer(@js_core.Any) -> Bool
 
-pub fn truthy(@core.Any) -> Bool
+pub fn truthy(@js_core.Any) -> Bool
 
-pub fn vector(Double, Double) -> @core.Any
+pub fn vector(Double, Double) -> @js_core.Any
 
 // Errors
 

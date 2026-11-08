@@ -5,10 +5,10 @@ pub fn make_enemy(
   cx : Double,
   cy : Double,
   kind : EnemyKind,
-  hp : Int,
+  hp : Int32,
   speed : Double,
   size : Double,
-  room_index? : Int = -1,
+  room_index~ : Int32 = -1,
 ) -> Enemy {
   {
     camp: None,
@@ -60,9 +60,9 @@ pub fn make_enemy(
 ///|
 pub fn spawn_enemies_for_floor(
   rooms : Array[@terrain.Room],
-  player_room_idx : Int,
-  seed : Int,
-  floor : Int,
+  player_room_idx : Int32,
+  seed : Int32,
+  floor : Int32,
 ) -> Array[Enemy] {
   spawn_enemies_for_floor_with_params(
     rooms,
@@ -76,9 +76,9 @@ pub fn spawn_enemies_for_floor(
 ///|
 pub fn spawn_enemies_for_floor_with_params(
   rooms : Array[@terrain.Room],
-  player_room_idx : Int,
-  seed : Int,
-  floor : Int,
+  player_room_idx : Int32,
+  seed : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> Array[Enemy] {
   if floor > 1 && floor % 5 == 0 {
@@ -96,9 +96,9 @@ pub fn spawn_enemies_for_floor_with_params(
 ///|
 pub fn spawn_boss(
   rooms : Array[@terrain.Room],
-  player_room_idx : Int,
-  seed : Int,
-  floor : Int,
+  player_room_idx : Int32,
+  seed : Int32,
+  floor : Int32,
 ) -> Array[Enemy] {
   spawn_boss_with_params(
     rooms,
@@ -112,9 +112,9 @@ pub fn spawn_boss(
 ///|
 pub fn spawn_boss_with_params(
   rooms : Array[@terrain.Room],
-  player_room_idx : Int,
-  seed : Int,
-  floor : Int,
+  player_room_idx : Int32,
+  seed : Int32,
+  floor : Int32,
   params : BalanceParams,
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
@@ -171,8 +171,8 @@ pub fn spawn_boss_with_params(
 ///|
 pub fn spawn_enemies_in_rooms(
   rooms : Array[@terrain.Room],
-  player_room_idx : Int,
-  seed : Int,
+  player_room_idx : Int32,
+  seed : Int32,
 ) -> Array[Enemy] {
   spawn_enemies_in_rooms_with_params(
     rooms,
@@ -205,10 +205,10 @@ fn pick_enemy_type(rng : @terrain.RNG) -> EnemyTypeConfig {
 ///|
 pub fn spawn_enemies_in_rooms_with_params(
   rooms : Array[@terrain.Room],
-  player_room_idx : Int,
-  seed : Int,
+  player_room_idx : Int32,
+  seed : Int32,
   params : BalanceParams,
-  floor? : Int = 1,
+  floor~ : Int32 = 1,
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
   let rng = @terrain.make_rng(seed.reinterpret_as_uint() + 7777)

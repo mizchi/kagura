@@ -1,5 +1,5 @@
 ///|
-fn enemy_overlap_pair_count(enemies : Array[Enemy]) -> Int {
+fn enemy_overlap_pair_count(enemies : Array[Enemy]) -> Int32 {
   let mut count = 0
   for i = 0; i < enemies.length(); i = i + 1 {
     let a = enemies[i]

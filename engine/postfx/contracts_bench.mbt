@@ -9,7 +9,7 @@ fn bench_postfx_dst() -> @gfx.ImageHandle {
 }
 
 ///|
-fn bench_postfx_shader(id : Int) -> @gfx.ShaderHandle {
+fn bench_postfx_shader(id : Int32) -> @gfx.ShaderHandle {
   @gfx.new_shader_handle(id, "postfx_bench")
 }
 

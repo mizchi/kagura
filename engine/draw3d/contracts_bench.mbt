@@ -5,12 +5,12 @@
 /// the older BigInt-based double_to_f32_bits path is no longer used here.
 
 ///|
-fn bench_mat4_translation(i : Int) -> @math3d.Mat4 {
+fn bench_mat4_translation(i : Int32) -> @math3d.Mat4 {
   @math3d.Mat4::translation(i.to_double(), 0.0, 0.0)
 }
 
 ///|
-fn bench_skin_matrices(count : Int) -> Array[@math3d.Mat4] {
+fn bench_skin_matrices(count : Int32) -> Array[@math3d.Mat4] {
   let out : Array[@math3d.Mat4] = []
   for i in 0..<count {
     out.push(bench_mat4_translation(i))
@@ -19,7 +19,7 @@ fn bench_skin_matrices(count : Int) -> Array[@math3d.Mat4] {
 }
 
 ///|
-fn bench_instance_matrices(count : Int) -> Array[@math3d.Mat4] {
+fn bench_instance_matrices(count : Int32) -> Array[@math3d.Mat4] {
   let out : Array[@math3d.Mat4] = []
   for i in 0..<count {
     out.push(bench_mat4_translation(i * 2))
@@ -28,7 +28,7 @@ fn bench_instance_matrices(count : Int) -> Array[@math3d.Mat4] {
 }
 
 ///|
-fn bench_instance_colors(count : Int) -> Array[@math3d.Vec4] {
+fn bench_instance_colors(count : Int32) -> Array[@math3d.Vec4] {
   let out : Array[@math3d.Vec4] = []
   for i in 0..<count {
     let f = (i % 256).to_double() / 256.0

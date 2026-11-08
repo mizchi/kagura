@@ -11,7 +11,7 @@ pub fn mesh_from_gltf(
     return @mesh3d.Mesh3D::new([], [])
   }
   let all_vertex_data : Array[Double] = []
-  let all_indices : Array[Int] = []
+  let all_indices : Array[Int32] = []
   for i in 0..<doc.meshes.length() {
     let m = build_mesh(doc, i, buffers)
     let base = all_vertex_data.length() / @mesh3d.vertex3d_stride
@@ -45,7 +45,7 @@ pub fn meshes_from_gltf(
 pub fn scene_graph_from_gltf(
   source : String,
   buffers : Array[Bytes],
-  scene_index? : Int,
+  scene_index? : Int32,
 ) -> @scene3d.SceneGraph raise GltfError {
   let root = @json.parse(source) catch {
     _ => raise GltfError::ParseError("invalid JSON")
@@ -64,7 +64,7 @@ pub fn scene_graph_from_gltf(
 pub fn skinned_scene_from_gltf(
   source : String,
   buffers : Array[Bytes],
-  scene_index? : Int,
+  scene_index? : Int32,
 ) -> (
   @scene3d.SceneGraph,
   @skeleton3d.Skeleton?,

@@ -16,11 +16,12 @@
 /// in-place update move all of them. Everything that merely reads a transform
 /// (scene graph, animation blending, IK) still treats it as a value, and the
 /// `with_*` helpers still return a new transform for those callers.
+#derive(Debug)
 pub struct Transform3D {
   mut position : @math3d.Vec3
   mut rotation : @math3d.Quaternion
   mut scale : @math3d.Vec3
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Transform3D with fn output(self, logger) {

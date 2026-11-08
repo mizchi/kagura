@@ -1,11 +1,11 @@
 ///|
-fn snapshot_with_pressed_keys(keys : Array[Int]) -> @core.InputSnapshot {
+fn snapshot_with_pressed_keys(keys : Array[Int32]) -> @core.InputSnapshot {
   @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, keys)
 }
 
 ///|
 fn snapshot_with_pressed_mouse_buttons(
-  buttons : Array[Int],
+  buttons : Array[Int32],
 ) -> @core.InputSnapshot {
   @core.new_input_snapshot_full(0.0, 0.0, 0.0, 0.0, [], buttons, [], [])
 }

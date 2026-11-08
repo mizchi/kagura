@@ -1,3 +1,4 @@
+import {createWasmHost} from "../../../assets/web/kagura-wasm-host.js";
 import { access, readFile } from "node:fs/promises";
 import {
   deserializeDrawCommands,
@@ -7,20 +8,8 @@ import {
   writeInitEnv,
 } from "./protocol/shared-memory.js";
 
-export const TARGETS = {
-  moonbit: {
-    label: "MoonBit",
-    path: "examples/wasm_game/guest/moonbit/_build/wasm/debug/build/wasm_game_guest.wasm",
-  },
-  rust: {
-    label: "Rust",
-    path: "examples/wasm_game/guest/rust/target/wasm32-unknown-unknown/release/kagura_wasm_guest_rust.wasm",
-  },
-  zig: {
-    label: "Zig",
-    path: "examples/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm",
-  },
-};
+export {TARGETS} from "./guest-paths.mjs";
+import {TARGETS} from "./guest-paths.mjs";
 
 export const HOST_ASSET_TITLE = "Flappy Bird via Host Asset";
 
@@ -81,7 +70,9 @@ export async function instantiateGuest(path, options = {}) {
   );
 
   let currentMemory = null;
+  const host = createWasmHost(wasm, {write: text => hostLogs.push({level: 2, message: text})});
   const imports = {
+    ...host.imports,
     kagura_host: {
       log_i32_utf8(level, ptr, len) {
         if (!currentMemory) {
@@ -119,6 +110,7 @@ export async function instantiateGuest(path, options = {}) {
   };
 
   const { instance } = await WebAssembly.instantiate(wasm, imports);
+  host.bind(instance);
   const exports = instance.exports;
   currentMemory = exports.memory;
   if (exports._start) {

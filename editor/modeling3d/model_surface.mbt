@@ -9,9 +9,9 @@ pub(all) struct BakedSurfaceSample {
 
 ///|
 priv struct SurfaceDirection {
-  dx : Int
-  dy : Int
-  dz : Int
+  dx : Int32
+  dy : Int32
+  dz : Int32
   normal : @math3d.Vec3
 }
 
@@ -24,8 +24,8 @@ priv struct SurfaceBasis {
 ///|
 priv struct DensityGrid {
   step : Double
-  half_steps : Int
-  size : Int
+  half_steps : Int32
+  size : Int32
   densities : Array[Double]
 }
 
@@ -37,16 +37,16 @@ priv struct SurfaceVertex {
 
 ///|
 priv struct EdgeIndices {
-  a : Int
-  b : Int
+  a : Int32
+  b : Int32
 }
 
 ///|
 priv struct TetraIndices {
-  a : Int
-  b : Int
-  c : Int
-  d : Int
+  a : Int32
+  b : Int32
+  c : Int32
+  d : Int32
 }
 
 ///|
@@ -64,9 +64,9 @@ fn surface_directions() -> Array[SurfaceDirection] {
 ///|
 fn is_sculpt_layer_voxel_filled(
   layer : SculptLayer,
-  ix : Int,
-  iy : Int,
-  iz : Int,
+  ix : Int32,
+  iy : Int32,
+  iz : Int32,
 ) -> Bool {
   let half = layer.half_extent
   if ix < -half ||
@@ -122,7 +122,7 @@ pub fn sculpt_layer_baked_surface_samples(
 }
 
 ///|
-fn layer_baked_surface_sample_count(layer : SculptLayer) -> Int {
+fn layer_baked_surface_sample_count(layer : SculptLayer) -> Int32 {
   sculpt_layer_baked_surface_samples(layer).length()
 }
 
@@ -204,16 +204,21 @@ fn build_sculpt_layer_density_grid(layer : SculptLayer) -> DensityGrid {
 }
 
 ///|
-fn density_grid_index(grid : DensityGrid, ix : Int, iy : Int, iz : Int) -> Int {
+fn density_grid_index(
+  grid : DensityGrid,
+  ix : Int32,
+  iy : Int32,
+  iz : Int32,
+) -> Int32 {
   ix * grid.size * grid.size + iy * grid.size + iz
 }
 
 ///|
 fn density_grid_value(
   grid : DensityGrid,
-  ix : Int,
-  iy : Int,
-  iz : Int,
+  ix : Int32,
+  iy : Int32,
+  iz : Int32,
 ) -> Double {
   grid.densities[density_grid_index(grid, ix, iy, iz)]
 }
@@ -221,9 +226,9 @@ fn density_grid_value(
 ///|
 fn density_grid_position(
   grid : DensityGrid,
-  ix : Int,
-  iy : Int,
-  iz : Int,
+  ix : Int32,
+  iy : Int32,
+  iz : Int32,
 ) -> @math3d.Vec3 {
   @math3d.Vec3::new(
     (ix - grid.half_steps).to_double() * grid.step,
@@ -342,7 +347,7 @@ fn append_baked_mesh_vertex(
 ///|
 fn append_surface_triangle(
   data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   a : SurfaceVertex,
   b : SurfaceVertex,
   c : SurfaceVertex,
@@ -363,7 +368,7 @@ fn append_surface_triangle(
 ///|
 fn append_surface_polygon(
   data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   polygon : Array[SurfaceVertex],
   inflate : Double,
 ) -> Unit {
@@ -443,7 +448,7 @@ fn polygonize_tetrahedron(
 fn append_marching_tetra_cell(
   layer : SculptLayer,
   data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   positions : Array[@math3d.Vec3],
   densities : Array[Double],
   normal_step : Double,
@@ -485,7 +490,7 @@ fn sculpt_layer_baked_mesh_with_inflate(
 ) -> @mesh3d.Mesh3D {
   let grid = build_sculpt_layer_density_grid(layer)
   let vertex_data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let max_index = grid.size - 1
   for ix in 0..<max_index {
     for iy in 0..<max_index {
@@ -531,11 +536,11 @@ pub fn sculpt_layer_baked_mesh(layer : SculptLayer) -> @mesh3d.Mesh3D {
 }
 
 ///|
-fn layer_baked_triangle_count(layer : SculptLayer) -> Int {
+fn layer_baked_triangle_count(layer : SculptLayer) -> Int32 {
   sculpt_layer_baked_mesh(layer).triangle_count()
 }
 
 ///|
-fn layer_baked_vertex_count(layer : SculptLayer) -> Int {
+fn layer_baked_vertex_count(layer : SculptLayer) -> Int32 {
   sculpt_layer_baked_mesh(layer).vertex_count()
 }

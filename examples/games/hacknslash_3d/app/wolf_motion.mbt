@@ -25,9 +25,9 @@ let wolf_rest_skinning : Array[@math3d.Mat4] = Array::makei(15, _ => {
 
 ///|
 // Gaits are in-place. Actual displacement controls playback in the game.
-fn wolf_pose(kind : Int, t : Double) -> Array[@transform3d.Transform3D] {
+fn wolf_pose(kind : Int32, t : Double) -> Array[@transform3d.Transform3D] {
   let poses = wolf_skeleton.bones.map(b => b.local_transform)
-  fn rotate(joint : Int, x : Double, y : Double, z : Double) -> Unit {
+  fn rotate(joint : Int32, x : Double, y : Double, z : Double) -> Unit {
     let q = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), y)
       .multiply(@math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_x(), x))
       .multiply(@math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_z(), z))
@@ -119,7 +119,7 @@ fn wolf_pose(kind : Int, t : Double) -> Array[@transform3d.Transform3D] {
 }
 
 ///|
-fn build_wolf_clip(kind : Int) -> @animation3d.AnimationClip {
+fn build_wolf_clip(kind : Int32) -> @animation3d.AnimationClip {
   let profile = @game.Bite.melee_profile().unwrap()
   let frames = if kind == 2 {
     profile.windup + profile.recovery
@@ -164,10 +164,10 @@ fn build_wolf_clip(kind : Int) -> @animation3d.AnimationClip {
 }
 
 ///|
-let wolf_pose_stride : Int = 65
+let wolf_pose_stride : Int32 = 65
 
 ///|
-fn wolf_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
+fn wolf_pose_key(enemy : @game.Enemy, frame~ : Int32 = 0) -> Int32 {
   if enemy.attack_motion == @game.Bite {
     return 2 * wolf_pose_stride +
       wolf_baked_clips[2].frame_index(
@@ -189,7 +189,7 @@ fn wolf_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
 }
 
 ///|
-fn wolf_skinning_for_key(key : Int) -> Array[@math3d.Mat4] {
+fn wolf_skinning_for_key(key : Int32) -> Array[@math3d.Mat4] {
   if key < 0 {
     return wolf_camp_clip.matrices(-key - 1)
   }

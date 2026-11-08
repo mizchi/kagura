@@ -66,7 +66,7 @@ let color_projectile_outline : @math3d.Vec4 = @math3d.Vec4::new(
 let color_fireball : @math3d.Vec4 = @math3d.Vec4::new(0.3, 0.6, 1.0, 1.0) // blue fireball
 
 ///|
-fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
+fn hex_to_vec4(hex : Int32) -> @math3d.Vec4 {
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0
   let b = (hex & 0xFF).to_double() / 255.0

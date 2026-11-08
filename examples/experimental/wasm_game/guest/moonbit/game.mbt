@@ -5,10 +5,10 @@ struct Pipe {
 }
 
 ///|
-let screen_w : Int = 320
+let screen_w : Int32 = 320
 
 ///|
-let screen_h : Int = 240
+let screen_h : Int32 = 240
 
 ///|
 let bird_x : Double = 60.0
@@ -32,7 +32,7 @@ let pipe_gap : Double = 70.0
 let pipe_speed : Double = 1.5
 
 ///|
-let pipe_interval : Int = 120
+let pipe_interval : Int32 = 120
 
 ///|
 let ground_h : Double = 20.0
@@ -40,22 +40,22 @@ let ground_h : Double = 20.0
 // KeyCode constants
 
 ///|
-let key_space : Int = 32
+let key_space : Int32 = 32
 
 ///|
-let key_up : Int = 38
+let key_up : Int32 = 38
 
 ///|
-let target_tps : Int = 60
+let target_tps : Int32 = 60
 
 ///|
 struct Game {
-  mut game_mode : Int // 0=start, 1=playing, 2=game_over
-  mut score : Int
+  mut game_mode : Int32 // 0=start, 1=playing, 2=game_over
+  mut score : Int32
   mut bird_y : Double
   mut velocity : Double
-  mut frame_count : Int
-  mut pipe_timer : Int
+  mut frame_count : Int32
+  mut pipe_timer : Int32
   pipes : Array[Pipe]
   mut prev_action : Bool
 }
@@ -85,7 +85,7 @@ fn Game::reset(self : Game) -> Unit {
 }
 
 ///|
-fn pseudo_random(seed : Int) -> Double {
+fn pseudo_random(seed : Int32) -> Double {
   let x = seed * 1103515245 + 12345
   let normalized = ((x >> 16) & 0x7FFF).to_double() / 32767.0
   normalized
@@ -123,7 +123,7 @@ fn Game::update(self : Game, input : InputState) -> Unit {
         let max_gap_y = sh - ground_h - pipe_gap - 40.0
         let gap_y = min_gap_y +
           pseudo_random(self.frame_count) * (max_gap_y - min_gap_y)
-        self.pipes.push({ x: sw, gap_y })
+        self.pipes.push({ x: sw, gap_y, })
       }
       // Move pipes and check scoring
       let mut i = 0
@@ -226,7 +226,7 @@ fn Game::draw(self : Game) -> Array[DrawCmd] {
 let game : Game = Game::new()
 
 ///|
-pub fn kagura_guest_init_export(env_ptr : Int, len : Int) -> Int {
+pub fn kagura_guest_init_export(env_ptr : Int32, len : Int32) -> Int32 {
   bump_init()
   ignore(env_ptr)
   ignore(len)
@@ -244,7 +244,7 @@ pub fn kagura_guest_init_export(env_ptr : Int, len : Int) -> Int {
 }
 
 ///|
-pub fn kagura_guest_update_export(ptr : Int, len : Int) -> Int {
+pub fn kagura_guest_update_export(ptr : Int32, len : Int32) -> Int32 {
   let input = read_input(ptr)
   game.update(input)
   ignore(len)
@@ -252,24 +252,24 @@ pub fn kagura_guest_update_export(ptr : Int, len : Int) -> Int {
 }
 
 ///|
-pub fn kagura_guest_render() -> Int {
+pub fn kagura_guest_render() -> Int32 {
   bump_reset()
   let cmds = game.draw()
   write_draw_commands(cmds)
 }
 
 ///|
-pub fn kagura_alloc(size : Int) -> Int {
+pub fn kagura_alloc(size : Int32) -> Int32 {
   bump_alloc(size)
 }
 
 ///|
-pub fn kagura_guest_snapshot_state() -> Int {
+pub fn kagura_guest_snapshot_state() -> Int32 {
   0
 }
 
 ///|
-pub fn kagura_guest_restore_state(ptr : Int, len : Int) -> Int {
+pub fn kagura_guest_restore_state(ptr : Int32, len : Int32) -> Int32 {
   ignore(ptr)
   ignore(len)
   0

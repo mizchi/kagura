@@ -20,9 +20,9 @@ fn make_hud_ctx(
 ///|
 fn append_particle_geometry(
   vertex_data : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   appended_vertex_data : Array[Double],
-  appended_indices : Array[Int],
+  appended_indices : Array[Int32],
 ) -> Unit {
   let base_vertex = vertex_data.length() / 8
   for value in appended_vertex_data {
@@ -117,7 +117,7 @@ fn append_effect_particles(
     view.elements[9],
   )
   let vertex_data : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for burst in runtime.scheduled_bursts {
     let emitter = @particle3d.ParticleEmitter::new(burst.config)
     emitter.update(1.0)

@@ -1,7 +1,7 @@
 ///|
 fn drape_hunting_vertices(
   g : @procedural3d.RigidGeometry,
-  start : Int,
+  start : Int32,
   dungeon : @game.DungeonData,
 ) -> Unit {
   guard dungeon.terrain_surface is Some(surface) else { return }
@@ -22,7 +22,7 @@ fn hunting_surface_shadow(
   if dungeon.terrain_surface is Some(surface) {
     let mesh = terrain_shadow_mesh(surface, x, z, rx, rz)
     for i = 0; i < mesh.indices.length(); i = i + 3 {
-      fn point(j : Int) -> @math3d.Vec3 {
+      fn point(j : Int32) -> @math3d.Vec3 {
         let k = mesh.indices[j] * 8
         @math3d.Vec3::new(
           mesh.vertex_data[k],
@@ -42,7 +42,7 @@ fn hunting_surface_grass(
   g : @procedural3d.RigidGeometry,
   x : Double,
   z : Double,
-  hash : Int,
+  hash : Int32,
   dungeon : @game.DungeonData,
 ) -> Unit {
   let start = g.vertices.length()

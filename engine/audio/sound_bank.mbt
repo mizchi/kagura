@@ -1,11 +1,12 @@
 ///|
 /// Outcome of a cue request. Playback errors remain errors, not missing cues.
+#derive(Eq, Debug)
 pub(all) enum CuePlayback {
   Played
   Suppressed
   Muted
   Missing
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CuePlayback with Eq::{equal, not_equal}
@@ -56,7 +57,7 @@ pub fn[Key : Eq] SoundBank::register(
   self : SoundBank[Key],
   cue : Key,
   clip : AudioClip,
-  volume? : Double = 1.0,
+  volume~ : Double = 1.0,
 ) -> Unit raise {
   let player = self.context.create_player(clip)
   self.context.set_volume(player, volume)
@@ -79,7 +80,7 @@ pub fn[Key : Eq] SoundBank::register(
 pub fn[Key : Eq] SoundBank::play(
   self : SoundBank[Key],
   cue : Key,
-  restart? : Bool = false,
+  restart~ : Bool = false,
 ) -> CuePlayback raise {
   if self.muted {
     return Muted
@@ -120,12 +121,12 @@ pub fn[Key] SoundBank::is_muted(self : SoundBank[Key]) -> Bool {
 }
 
 ///|
-pub fn[Key] SoundBank::loaded_count(self : SoundBank[Key]) -> Int {
+pub fn[Key] SoundBank::loaded_count(self : SoundBank[Key]) -> Int32 {
   self.entries.length()
 }
 
 ///|
-pub fn[Key] SoundBank::playing_count(self : SoundBank[Key]) -> Int {
+pub fn[Key] SoundBank::playing_count(self : SoundBank[Key]) -> Int32 {
   let mut count = 0
   for (_, player) in self.entries {
     match self.context.state(player) {

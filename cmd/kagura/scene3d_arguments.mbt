@@ -1,6 +1,7 @@
 ///|
 /// `kagura scene3d <operation> <snapshot.json> ...`. The analysis runs in
 /// `cmd/inspect3d`; this only validates the command line.
+#derive(Eq, Debug)
 pub(all) struct Scene3DOptions {
   operation : String
   snapshot : String
@@ -11,7 +12,7 @@ pub(all) struct Scene3DOptions {
   /// How deep an overlap must be to count (check, overlaps); None = 0.01.
   tolerance : Double?
   json : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// `x,y,z` with finite decimal numbers.
@@ -157,13 +158,13 @@ fn scene3d_request(options : Scene3DOptions) -> Json {
   {
     "ok": true,
     "command": "scene3d",
-    "operation": options.operation.to_json(),
-    "snapshot": options.snapshot.to_json(),
-    "paths": options.paths.to_json(),
+    "operation": Json(options.operation),
+    "snapshot": Json(options.snapshot),
+    "paths": Json(options.paths),
     "from": optional_json(options.from),
     "direction": optional_json(options.direction),
-    "allow": options.allow.to_json(),
+    "allow": Json(options.allow),
     "tolerance": optional_json(options.tolerance),
-    "json": options.json.to_json(),
+    "json": Json(options.json),
   }
 }

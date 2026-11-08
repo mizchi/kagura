@@ -60,7 +60,7 @@ pub fn advance_pilot(
   stage : Stage,
   targets : Array[Solid],
 ) -> Pilot {
-  let p = { ..previous, yaw: i.yaw, pitch: clamp(i.pitch, -0.2, 1.05) }
+  let p = { ..previous, yaw: i.yaw, pitch: clamp(i.pitch, -0.2, 1.05), }
   let dt = if delta >= -1.7976931348623157e308 &&
     delta <= 1.7976931348623157e308 {
     clamp(delta, 0.0, 0.1)
@@ -163,7 +163,7 @@ pub fn box_intersection(
   origin : @math3d.Vec3,
   delta : @math3d.Vec3,
   box : Solid,
-  padding? : Double = 0.0,
+  padding~ : Double = 0.0,
 ) -> Double? {
   let os = [origin.x, origin.y, origin.z]
   let ds = [delta.x, delta.y, delta.z]

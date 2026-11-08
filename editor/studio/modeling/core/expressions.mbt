@@ -1,23 +1,26 @@
 ///|
 /// Sparse offsets from the neutral mesh; independent of species and renderer.
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct VertexDelta {
-  index : Int
+  index : Int32
   offset : Array[Double]
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct ExpressionTarget {
   node : String
   position : Array[Double]
   vertices : Array[VertexDelta]
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct ModelExpression {
   id : String
   name : String
   targets : Array[ExpressionTarget]
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
 fn validate_expression_json(j : Json) -> Unit raise {
@@ -72,7 +75,7 @@ fn validate_expressions(doc : ModelDocument) -> Unit raise ModelError {
       require(!seen.contains(target.node), "Duplicate expression object")
       seen[target.node] = true
       require(valid_vec(target.position), "Invalid expression position")
-      let vertices : Map[Int, Bool] = Map([])
+      let vertices : Map[Int32, Bool] = Map([])
       for delta in target.vertices {
         require(
           delta.index >= 0 &&
@@ -112,7 +115,7 @@ pub fn evaluate_expressions(
   validate_document(doc)
   validate_weights(doc, weights)
   let nodes = doc.nodes.copy()
-  let indices : Map[String, Int] = Map([])
+  let indices : Map[String, Int32] = Map([])
   for i, n in nodes {
     indices[n.id] = i
   }
@@ -186,3 +189,39 @@ pub fn capture_expression(
   validate_document({ ..neutral, expressions: [expression], })
   expression
 }
+
+///|
+pub extend ExpressionTarget with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ExpressionTarget with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend ExpressionTarget with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend ExpressionTarget with Eq::{not_equal, equal}
+
+///|
+pub extend ModelExpression with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ModelExpression with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend ModelExpression with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend ModelExpression with Eq::{not_equal, equal}
+
+///|
+pub extend VertexDelta with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VertexDelta with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend VertexDelta with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend VertexDelta with Eq::{not_equal, equal}

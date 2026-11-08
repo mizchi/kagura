@@ -2,7 +2,7 @@
 extern "js" fn register_js(
   game : String,
   schema : String,
-  version : Int,
+  version : Int32,
   invoke : (String, String) -> String,
   scene : (() -> String)?,
   hierarchy : (() -> String)?,

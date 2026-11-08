@@ -2,9 +2,9 @@
 pub(all) struct TwoBoneIKRequest {
   skeleton : @skeleton3d.Skeleton
   local_poses : Array[@transform3d.Transform3D]
-  upper_bone : Int
-  lower_bone : Int
-  end_bone : Int
+  upper_bone : Int32
+  lower_bone : Int32
+  end_bone : Int32
   target : @math3d.Vec3
   pole_target : @math3d.Vec3?
 }
@@ -50,10 +50,10 @@ fn world_pos(m : @math3d.Mat4) -> @math3d.Vec3 {
 fn compute_bone_world_rotation(
   skeleton : @skeleton3d.Skeleton,
   local_poses : Array[@transform3d.Transform3D],
-  bone_index : Int,
+  bone_index : Int32,
 ) -> @math3d.Quaternion {
   // Collect ancestor chain
-  let chain : Array[Int] = []
+  let chain : Array[Int32] = []
   let mut idx = bone_index
   while idx >= 0 {
     chain.push(idx)

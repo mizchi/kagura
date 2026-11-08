@@ -1,5 +1,5 @@
 ///|
-pub fn capture_viewport(width : Int, height : Int) -> (Int, Int) {
+pub fn capture_viewport(width : Int32, height : Int32) -> (Int32, Int32) {
   (width, height)
 }
 

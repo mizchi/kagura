@@ -1,17 +1,17 @@
 name = "mizchi/kagura"
 
-version = "0.6.0"
+version = "0.7.0"
 
 import {
-  "mizchi/kagura_core@0.6.0",
-  "mizchi/kagura_platform@0.6.0",
-  "mizchi/kagura_engine@0.6.0",
-  "mizchi/image@0.4.3",
-  "mizchi/font@0.7.3",
+  "mizchi/kagura_core@0.7.0",
+  "mizchi/kagura_platform@0.7.0",
+  "mizchi/kagura_engine@0.7.0",
+  "mizchi/image@0.5.0",
+  "mizchi/font@0.7.4",
   "mizchi/audio@0.1.1",
   "mizchi/svg@0.2.3",
   "mizchi/glfw@0.2.3",
-  "mizchi/gfx@0.1.0",
+  "mizchi/gfx@0.1.1",
 }
 
 readme = "README.mbt.md"

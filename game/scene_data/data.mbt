@@ -1,13 +1,14 @@
 ///|
 /// Portable, renderer-independent scene recipe. Editor adapters compile into this contract.
+#derive(FromJson, ToJson)
 pub(all) struct Entity {
   id : String
   kind : String
   position : Array[Double]
   scale : Array[Double]
-  color : Int
+  color : Int32
   target : String
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Entity with @moonbitlang/core/json.FromJson::{from_json}
@@ -16,10 +17,11 @@ pub extend Entity with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Entity with ToJson::{to_json}
 
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct Definition {
-  version : Int
+  version : Int32
   entities : Array[Entity]
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Definition with @moonbitlang/core/json.FromJson::{from_json}
@@ -28,10 +30,11 @@ pub extend Definition with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Definition with ToJson::{to_json}
 
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct Entry {
   id : String
   data : Definition
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Entry with @moonbitlang/core/json.FromJson::{from_json}
@@ -40,10 +43,11 @@ pub extend Entry with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Entry with ToJson::{to_json}
 
 ///|
+#derive(FromJson, ToJson)
 pub(all) struct Project {
   entry : String
   scenes : Array[Entry]
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend Project with @moonbitlang/core/json.FromJson::{from_json}

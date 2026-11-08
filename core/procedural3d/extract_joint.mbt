@@ -6,10 +6,10 @@ pub fn RigidGeometry::append_joint(
   self : RigidGeometry,
   mesh : @mesh3d.Mesh3D,
   skin : @skeleton3d.SkinData,
-  source_joint : Int,
-  target_joint : Int,
+  source_joint : Int32,
+  target_joint : Int32,
 ) -> Unit {
-  fn belongs(vertex : Int) -> Bool {
+  fn belongs(vertex : Int32) -> Bool {
     let base = vertex * 4
     let mut weight = 0.0
     for i in 0..<4 {
@@ -22,7 +22,7 @@ pub fn RigidGeometry::append_joint(
     }
     (weight - 1.0).abs() < 0.000001
   }
-  let remap : Map[Int, Int] = Map([])
+  let remap : Map[Int32, Int32] = Map([])
   for triangle in 0..<(mesh.indices.length() / 3) {
     let a = mesh.indices[triangle * 3]
     let b = mesh.indices[triangle * 3 + 1]

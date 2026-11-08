@@ -29,7 +29,7 @@ test "sound bank isolates cues, suppresses overlap, and replays completed voices
 ///|
 test "mute stops all cues and replacing a clip does not leak voices" {
   let context = @kagura_audio.MixerAudioContext::new(44100)
-  let bank : @kagura_audio.SoundBank[Int] = @kagura_audio.SoundBank::new(
+  let bank : @kagura_audio.SoundBank[Int32] = @kagura_audio.SoundBank::new(
     context,
   )
   let clip = @kagura_audio.new_audio_clip(

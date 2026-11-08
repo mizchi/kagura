@@ -2,7 +2,7 @@
 fn button(
   label : String,
   action : () -> Unit,
-  class? : String = "",
+  class~ : String = "",
 ) -> @dom.DomNode {
   @dom.button(class~, on=@dom.events().click(fn(_) { action() }), [
     @dom.text(label),
@@ -20,7 +20,7 @@ fn heading(title : String, detail : String) -> @dom.DomNode {
 ///|
 pub fn set_layout(value : String) -> Unit {
   if value == "scene" || value == "action" {
-    ignore(request({ "method": "layout", "value": value.to_json() }))
+    ignore(request({ "method": "layout", "value": Json(value) }))
     host_action("layout", value)
   }
 }
@@ -228,8 +228,8 @@ fn inspector() -> @dom.DomNode {
               on=@dom.events().change(fn(_) {
                 command({
                   "op": "node.rename",
-                  "id": n.id.to_json(),
-                  "name": input_value("node-name").to_json(),
+                  "id": Json(n.id),
+                  "name": Json(input_value("node-name")),
                 })
               }),
             ),
@@ -246,8 +246,8 @@ fn inspector() -> @dom.DomNode {
               on=@dom.events().change(fn(_) {
                 command({
                   "op": "node.reparent",
-                  "id": n.id.to_json(),
-                  "parent": input_value("node-parent").to_json(),
+                  "id": Json(n.id),
+                  "parent": Json(input_value("node-parent")),
                 })
               }),
             ),
@@ -269,8 +269,8 @@ fn inspector() -> @dom.DomNode {
               on=@dom.events().change(fn(_) {
                 command({
                   "op": "node.material",
-                  "id": n.id.to_json(),
-                  "color": color_number("node-color").to_json(),
+                  "id": Json(n.id),
+                  "color": Json(color_number("node-color")),
                 })
               }),
             ),
@@ -278,7 +278,7 @@ fn inspector() -> @dom.DomNode {
           @dom.p(class="muted", [@dom.text(n.asset)]),
           button(
             "Delete object",
-            fn() { command({ "op": "node.remove", "id": n.id.to_json() }) },
+            fn() { command({ "op": "node.remove", "id": Json(n.id) }) },
             class="danger",
           ),
         ])

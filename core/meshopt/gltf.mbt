@@ -4,8 +4,8 @@
 /// `OCTAHEDRAL`, `QUATERNION`, `EXPONENTIAL` or `COLOR`, as named in the
 /// extension. Returns `count * byte_stride` decoded bytes.
 pub fn decode_gltf_buffer(
-  count : Int,
-  byte_stride : Int,
+  count : Int32,
+  byte_stride : Int32,
   source : BytesView,
   mode : String,
   filter : String,

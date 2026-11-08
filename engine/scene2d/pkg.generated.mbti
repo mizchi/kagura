@@ -10,18 +10,20 @@ import {
 // Errors
 
 // Types and methods
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Document {
   coordinates : String
-  width : Int
-  height : Int
-  background : Int
+  width : Int32
+  height : Int32
+  background : Int32
   objects : Array[Element]
-} derive(ToJson, @json.FromJson)
+}
 pub fn Document::element(Self, String) -> Element raise
-pub fn Document::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn Document::to_json(Self) -> Json
+pub fn Document::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Document::to_json(Self) -> @json.Json
 pub fn Document::validate(Self) -> Unit raise
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Element {
   id : String
   name : String
@@ -30,10 +32,10 @@ pub(all) struct Element {
   y : Double
   width : Double
   height : Double
-  color : Int
-} derive(ToJson, @json.FromJson)
-pub fn Element::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn Element::to_json(Self) -> Json
+  color : Int32
+}
+pub fn Element::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Element::to_json(Self) -> @json.Json
 
 // Type aliases
 

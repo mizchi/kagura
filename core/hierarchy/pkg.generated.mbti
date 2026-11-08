@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/kagura_core/hierarchy"
 
+import {
+  "moonbitlang/core/json",
+}
+
 // Values
 pub fn inspection_enabled() -> Bool
 
@@ -11,6 +15,7 @@ pub fn valid_subject(String) -> Bool
 // Errors
 
 // Types and methods
+#derive(@json.ToJson)
 pub(all) struct Node {
   id : String
   name : String
@@ -18,8 +23,8 @@ pub(all) struct Node {
   generated : Bool
   subject : String?
   children : Array[Node]
-} derive(ToJson)
-pub fn Node::to_json(Self) -> Json
+}
+pub fn Node::to_json(Self) -> @json.Json
 
 // Type aliases
 

@@ -9,10 +9,10 @@ fn rect_cmd(
   h : Double,
   screen_w : Double,
   screen_h : Double,
-  r : Int,
-  g : Int,
-  b : Int,
-  alpha : Int,
+  r : Int32,
+  g : Int32,
+  b : Int32,
+  alpha : Int32,
 ) -> DrawCmd {
   // Pixel to NDC: ndc_x = (px / screen_w) * 2 - 1, ndc_y = 1 - (py / screen_h) * 2
   let x0 = Float::from_double(x / screen_w * 2.0 - 1.0)
@@ -46,8 +46,8 @@ fn rect_cmd_hex(
   h : Double,
   screen_w : Double,
   screen_h : Double,
-  fill : Int,
-  alpha? : Int = 255,
+  fill : Int32,
+  alpha~ : Int32 = 255,
 ) -> DrawCmd {
   let r = (fill >> 16) & 0xFF
   let g = (fill >> 8) & 0xFF

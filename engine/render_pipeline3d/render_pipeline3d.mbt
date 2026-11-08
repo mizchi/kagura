@@ -35,8 +35,8 @@ pub fn PostFXConfig::default() -> PostFXConfig {
 }
 
 ///|
-fn half_res(size : Int) -> Int {
-  Int::max(1, size / 2)
+fn half_res(size : Int32) -> Int32 {
+  Int32::max(1, size / 2)
 }
 
 ///|
@@ -63,9 +63,9 @@ pub struct RenderPipeline3D {
 
 ///|
 pub fn RenderPipeline3D::new(
-  base_id : Int,
-  screen_w : Int,
-  screen_h : Int,
+  base_id : Int32,
+  screen_w : Int32,
+  screen_h : Int32,
   config : PostFXConfig,
 ) -> RenderPipeline3D {
   let bloom_w = half_res(screen_w)
@@ -118,10 +118,10 @@ pub fn RenderPipeline3D::compose_postfx(
   dst : @gfx.ImageHandle,
   depth_casters : Array[@shadow3d.ShadowCaster],
   view_projection : @math3d.Mat4,
-  screen_w : Int,
-  screen_h : Int,
-  hit_flash? : Double = 0.0,
-  cache_resources? : Bool = true,
+  screen_w : Int32,
+  screen_h : Int32,
+  hit_flash~ : Double = 0.0,
+  cache_resources~ : Bool = true,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   // SSAO (optional)

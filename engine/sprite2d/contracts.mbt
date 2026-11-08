@@ -12,15 +12,15 @@ pub fn new_atlas_sprite_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   left : Double,
   top : Double,
   right : Double,
   bottom : Double,
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> @gfx.DrawTrianglesCommand? {
   match @atlas.get_atlas_draw_source(atlas_repository, atlas_key) {
     Some(source) =>
@@ -42,15 +42,15 @@ pub fn append_atlas_sprite_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   left : Double,
   top : Double,
   right : Double,
   bottom : Double,
-  uniform_dwords : Array[Int],
+  uniform_dwords : Array[Int32],
 ) -> Bool {
   match
     new_atlas_sprite_draw_command(

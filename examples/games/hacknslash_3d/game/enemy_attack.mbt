@@ -1,4 +1,5 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum EnemyAttackMotion {
   NoAttack
   Pounce
@@ -8,18 +9,21 @@ pub(all) enum EnemyAttackMotion {
   CastSpell
   BowShot
   Charge
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend EnemyAttackMotion with Eq::{not_equal, equal}
+
 ///|
 pub extend EnemyAttackMotion with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 /// Frame zero is anticipation. Impact is exactly windup; the remainder recovers.
 pub fn Enemy::begin_attack(
   self : Enemy,
   motion : EnemyAttackMotion,
-  windup : Int,
-  recovery : Int,
+  windup : Int32,
+  recovery : Int32,
   target_x : Double,
   target_y : Double,
 ) -> Unit {
@@ -159,8 +163,8 @@ fn enemy_melee_hits(
 ///|
 /// One footprint and timing contract drives both the damage test and its ground warning.
 pub(all) struct EnemyMeleeProfile {
-  windup : Int
-  recovery : Int
+  windup : Int32
+  recovery : Int32
   reach : Double
   width : Double
 }

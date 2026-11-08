@@ -1,9 +1,9 @@
 ///|
 fn expect_some_image(
   value : @gfx.ImageHandle?,
-  expected_id : Int,
-  expected_width : Int,
-  expected_height : Int,
+  expected_id : Int32,
+  expected_width : Int32,
+  expected_height : Int32,
 ) -> Unit raise {
   match value {
     Some(image) => {
@@ -18,7 +18,7 @@ fn expect_some_image(
 ///|
 fn expect_some_shader(
   value : @gfx.ShaderHandle?,
-  expected_id : Int,
+  expected_id : Int32,
   expected_source : String,
 ) -> Unit raise {
   match value {

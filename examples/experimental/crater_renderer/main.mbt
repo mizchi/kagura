@@ -1,8 +1,8 @@
 ///|
-let screen_w : Int = 800
+let screen_w : Int32 = 800
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
 let demo_html : String =
@@ -156,7 +156,7 @@ fn render_paint_node(
 }
 
 ///|
-fn crater_color_to_hex(color : @crater_types.Color) -> Int {
+fn crater_color_to_hex(color : @crater_types.Color) -> Int32 {
   let r = if color.r > 255 { 255 } else if color.r < 0 { 0 } else { color.r }
   let g = if color.g > 255 { 255 } else if color.g < 0 { 0 } else { color.g }
   let b = if color.b > 255 { 255 } else if color.b < 0 { 0 } else { color.b }
@@ -172,7 +172,7 @@ fn push_text(
   size_px : Double,
   x : Double,
   y : Double,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
   match demo.text_renderer {
     Some(tr) => {
@@ -195,7 +195,7 @@ fn push_text(
       }
     }
     None => {
-      let chars : Array[Int] = []
+      let chars : Array[Int32] = []
       for ch in text {
         let mut code = ch.to_int()
         if code >= 97 && code <= 122 {
@@ -243,8 +243,8 @@ fn make_cmd(
   ctx : @engine.EngineContext,
   scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
-  indices : Array[Int],
-  color_hex : Int,
+  indices : Array[Int32],
+  color_hex : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let sc = scissor.current()
   @gfx.new_draw_triangles_command(

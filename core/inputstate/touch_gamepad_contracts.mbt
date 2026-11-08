@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 struct TouchDurationEntry {
-  id : Int
-  duration : Int
-} derive(Debug)
+  id : Int32
+  duration : Int32
+}
 
 ///|
 pub impl Show for TouchDurationEntry with fn output(self, logger) {
@@ -11,16 +12,16 @@ pub impl Show for TouchDurationEntry with fn output(self, logger) {
 
 ///|
 pub struct TouchInputState {
-  mut prev_touch_ids : Array[Int]
-  mut touch_ids : Array[Int]
-  mut just_pressed_touch_ids : Array[Int]
-  mut just_released_touch_ids : Array[Int]
+  mut prev_touch_ids : Array[Int32]
+  mut touch_ids : Array[Int32]
+  mut just_pressed_touch_ids : Array[Int32]
+  mut just_released_touch_ids : Array[Int32]
   mut durations : Array[TouchDurationEntry]
 }
 
 ///|
-fn normalize_touch_ids(snapshot : @core.InputSnapshot) -> Array[Int] {
-  let out : Array[Int] = []
+fn normalize_touch_ids(snapshot : @core.InputSnapshot) -> Array[Int32] {
+  let out : Array[Int32] = []
   for touch in snapshot.touches {
     if !contains_key(out, touch.id) {
       out.push(touch.id)
@@ -30,7 +31,7 @@ fn normalize_touch_ids(snapshot : @core.InputSnapshot) -> Array[Int] {
 }
 
 ///|
-fn duration_for_touch(entries : Array[TouchDurationEntry], id : Int) -> Int {
+fn duration_for_touch(entries : Array[TouchDurationEntry], id : Int32) -> Int32 {
   let mut out = 0
   for entry in entries {
     if entry.id == id {
@@ -58,13 +59,13 @@ pub fn update_touch_input_state(
 ) -> Unit {
   let prev_ids = state.touch_ids
   let next_ids = normalize_touch_ids(snapshot)
-  let just_pressed : Array[Int] = []
+  let just_pressed : Array[Int32] = []
   for id in next_ids {
     if !contains_key(prev_ids, id) {
       just_pressed.push(id)
     }
   }
-  let just_released : Array[Int] = []
+  let just_released : Array[Int32] = []
   for id in prev_ids {
     if !contains_key(next_ids, id) {
       just_released.push(id)
@@ -87,30 +88,30 @@ pub fn update_touch_input_state(
 }
 
 ///|
-pub fn is_touch_pressed(state : TouchInputState, id : Int) -> Bool {
+pub fn is_touch_pressed(state : TouchInputState, id : Int32) -> Bool {
   contains_key(state.touch_ids, id)
 }
 
 ///|
-pub fn is_touch_just_pressed(state : TouchInputState, id : Int) -> Bool {
+pub fn is_touch_just_pressed(state : TouchInputState, id : Int32) -> Bool {
   contains_key(state.just_pressed_touch_ids, id)
 }
 
 ///|
-pub fn is_touch_just_released(state : TouchInputState, id : Int) -> Bool {
+pub fn is_touch_just_released(state : TouchInputState, id : Int32) -> Bool {
   contains_key(state.just_released_touch_ids, id)
 }
 
 ///|
-pub fn touch_press_duration(state : TouchInputState, id : Int) -> Int {
+pub fn touch_press_duration(state : TouchInputState, id : Int32) -> Int32 {
   duration_for_touch(state.durations, id)
 }
 
 ///|
 pub fn append_touch_ids(
   state : TouchInputState,
-  dst : Array[Int],
-) -> Array[Int] {
+  dst : Array[Int32],
+) -> Array[Int32] {
   let out = dst
   for id in state.touch_ids {
     out.push(id)
@@ -121,8 +122,8 @@ pub fn append_touch_ids(
 ///|
 pub fn append_just_pressed_touch_ids(
   state : TouchInputState,
-  dst : Array[Int],
-) -> Array[Int] {
+  dst : Array[Int32],
+) -> Array[Int32] {
   let out = dst
   for id in state.just_pressed_touch_ids {
     out.push(id)
@@ -133,8 +134,8 @@ pub fn append_just_pressed_touch_ids(
 ///|
 pub fn append_just_released_touch_ids(
   state : TouchInputState,
-  dst : Array[Int],
-) -> Array[Int] {
+  dst : Array[Int32],
+) -> Array[Int32] {
   let out = dst
   for id in state.just_released_touch_ids {
     out.push(id)
@@ -143,10 +144,11 @@ pub fn append_just_released_touch_ids(
 }
 
 ///|
+#derive(Debug)
 struct GamepadDurationEntry {
-  id : Int
-  duration : Int
-} derive(Debug)
+  id : Int32
+  duration : Int32
+}
 
 ///|
 pub impl Show for GamepadDurationEntry with fn output(self, logger) {
@@ -154,10 +156,11 @@ pub impl Show for GamepadDurationEntry with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 struct GamepadButtonKey {
-  gamepad_id : Int
-  button_id : Int
-} derive(Debug)
+  gamepad_id : Int32
+  button_id : Int32
+}
 
 ///|
 pub impl Show for GamepadButtonKey with fn output(self, logger) {
@@ -165,11 +168,12 @@ pub impl Show for GamepadButtonKey with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 struct GamepadButtonDurationEntry {
-  gamepad_id : Int
-  button_id : Int
-  duration : Int
-} derive(Debug)
+  gamepad_id : Int32
+  button_id : Int32
+  duration : Int32
+}
 
 ///|
 pub impl Show for GamepadButtonDurationEntry with fn output(self, logger) {
@@ -178,10 +182,10 @@ pub impl Show for GamepadButtonDurationEntry with fn output(self, logger) {
 
 ///|
 pub struct GamepadInputState {
-  mut prev_gamepad_ids : Array[Int]
-  mut gamepad_ids : Array[Int]
-  mut just_connected_gamepad_ids : Array[Int]
-  mut just_disconnected_gamepad_ids : Array[Int]
+  mut prev_gamepad_ids : Array[Int32]
+  mut gamepad_ids : Array[Int32]
+  mut just_connected_gamepad_ids : Array[Int32]
+  mut just_disconnected_gamepad_ids : Array[Int32]
   mut durations : Array[GamepadDurationEntry]
   mut prev_pressed_buttons : Array[GamepadButtonKey]
   mut pressed_buttons : Array[GamepadButtonKey]
@@ -191,8 +195,8 @@ pub struct GamepadInputState {
 }
 
 ///|
-fn normalize_gamepad_ids(snapshot : @core.InputSnapshot) -> Array[Int] {
-  let out : Array[Int] = []
+fn normalize_gamepad_ids(snapshot : @core.InputSnapshot) -> Array[Int32] {
+  let out : Array[Int32] = []
   for gamepad in snapshot.gamepads {
     if !contains_key(out, gamepad.id) {
       out.push(gamepad.id)
@@ -204,8 +208,8 @@ fn normalize_gamepad_ids(snapshot : @core.InputSnapshot) -> Array[Int] {
 ///|
 fn contains_gamepad_button(
   entries : Array[GamepadButtonKey],
-  gamepad_id : Int,
-  button_id : Int,
+  gamepad_id : Int32,
+  button_id : Int32,
 ) -> Bool {
   let mut found = false
   for entry in entries {
@@ -232,7 +236,10 @@ fn normalize_gamepad_buttons(
 }
 
 ///|
-fn duration_for_gamepad(entries : Array[GamepadDurationEntry], id : Int) -> Int {
+fn duration_for_gamepad(
+  entries : Array[GamepadDurationEntry],
+  id : Int32,
+) -> Int32 {
   let mut out = 0
   for entry in entries {
     if entry.id == id {
@@ -245,9 +252,9 @@ fn duration_for_gamepad(entries : Array[GamepadDurationEntry], id : Int) -> Int 
 ///|
 fn duration_for_gamepad_button(
   entries : Array[GamepadButtonDurationEntry],
-  gamepad_id : Int,
-  button_id : Int,
-) -> Int {
+  gamepad_id : Int32,
+  button_id : Int32,
+) -> Int32 {
   let mut out = 0
   for entry in entries {
     if entry.gamepad_id == gamepad_id && entry.button_id == button_id {
@@ -280,13 +287,13 @@ pub fn update_gamepad_input_state(
 ) -> Unit {
   let prev_gamepad_ids = state.gamepad_ids
   let next_gamepad_ids = normalize_gamepad_ids(snapshot)
-  let just_connected : Array[Int] = []
+  let just_connected : Array[Int32] = []
   for id in next_gamepad_ids {
     if !contains_key(prev_gamepad_ids, id) {
       just_connected.push(id)
     }
   }
-  let just_disconnected : Array[Int] = []
+  let just_disconnected : Array[Int32] = []
   for id in prev_gamepad_ids {
     if !contains_key(next_gamepad_ids, id) {
       just_disconnected.push(id)
@@ -358,33 +365,36 @@ pub fn update_gamepad_input_state(
 }
 
 ///|
-pub fn is_gamepad_connected(state : GamepadInputState, id : Int) -> Bool {
+pub fn is_gamepad_connected(state : GamepadInputState, id : Int32) -> Bool {
   contains_key(state.gamepad_ids, id)
 }
 
 ///|
-pub fn is_gamepad_just_connected(state : GamepadInputState, id : Int) -> Bool {
+pub fn is_gamepad_just_connected(state : GamepadInputState, id : Int32) -> Bool {
   contains_key(state.just_connected_gamepad_ids, id)
 }
 
 ///|
 pub fn is_gamepad_just_disconnected(
   state : GamepadInputState,
-  id : Int,
+  id : Int32,
 ) -> Bool {
   contains_key(state.just_disconnected_gamepad_ids, id)
 }
 
 ///|
-pub fn gamepad_connection_duration(state : GamepadInputState, id : Int) -> Int {
+pub fn gamepad_connection_duration(
+  state : GamepadInputState,
+  id : Int32,
+) -> Int32 {
   duration_for_gamepad(state.durations, id)
 }
 
 ///|
 pub fn is_gamepad_button_pressed(
   state : GamepadInputState,
-  gamepad_id : Int,
-  button_id : Int,
+  gamepad_id : Int32,
+  button_id : Int32,
 ) -> Bool {
   contains_gamepad_button(state.pressed_buttons, gamepad_id, button_id)
 }
@@ -392,8 +402,8 @@ pub fn is_gamepad_button_pressed(
 ///|
 pub fn is_gamepad_button_just_pressed(
   state : GamepadInputState,
-  gamepad_id : Int,
-  button_id : Int,
+  gamepad_id : Int32,
+  button_id : Int32,
 ) -> Bool {
   contains_gamepad_button(state.just_pressed_buttons, gamepad_id, button_id)
 }
@@ -401,41 +411,41 @@ pub fn is_gamepad_button_just_pressed(
 ///|
 pub fn is_gamepad_button_just_released(
   state : GamepadInputState,
-  gamepad_id : Int,
-  button_id : Int,
+  gamepad_id : Int32,
+  button_id : Int32,
 ) -> Bool {
   contains_gamepad_button(state.just_released_buttons, gamepad_id, button_id)
 }
 
 ///|
-pub fn gamepad_pressed_button_count(state : GamepadInputState) -> Int {
+pub fn gamepad_pressed_button_count(state : GamepadInputState) -> Int32 {
   state.pressed_buttons.length()
 }
 
 ///|
-pub fn gamepad_just_pressed_button_count(state : GamepadInputState) -> Int {
+pub fn gamepad_just_pressed_button_count(state : GamepadInputState) -> Int32 {
   state.just_pressed_buttons.length()
 }
 
 ///|
-pub fn gamepad_just_released_button_count(state : GamepadInputState) -> Int {
+pub fn gamepad_just_released_button_count(state : GamepadInputState) -> Int32 {
   state.just_released_buttons.length()
 }
 
 ///|
 pub fn gamepad_button_press_duration(
   state : GamepadInputState,
-  gamepad_id : Int,
-  button_id : Int,
-) -> Int {
+  gamepad_id : Int32,
+  button_id : Int32,
+) -> Int32 {
   duration_for_gamepad_button(state.button_durations, gamepad_id, button_id)
 }
 
 ///|
 pub fn append_connected_gamepad_ids(
   state : GamepadInputState,
-  dst : Array[Int],
-) -> Array[Int] {
+  dst : Array[Int32],
+) -> Array[Int32] {
   let out = dst
   for id in state.gamepad_ids {
     out.push(id)
@@ -446,8 +456,8 @@ pub fn append_connected_gamepad_ids(
 ///|
 pub fn append_just_connected_gamepad_ids(
   state : GamepadInputState,
-  dst : Array[Int],
-) -> Array[Int] {
+  dst : Array[Int32],
+) -> Array[Int32] {
   let out = dst
   for id in state.just_connected_gamepad_ids {
     out.push(id)
@@ -458,8 +468,8 @@ pub fn append_just_connected_gamepad_ids(
 ///|
 pub fn append_just_disconnected_gamepad_ids(
   state : GamepadInputState,
-  dst : Array[Int],
-) -> Array[Int] {
+  dst : Array[Int32],
+) -> Array[Int32] {
   let out = dst
   for id in state.just_disconnected_gamepad_ids {
     out.push(id)

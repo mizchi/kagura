@@ -1,5 +1,5 @@
 ///|
-fn test_item(rarity : @game.ItemRarity, icon_id : Int) -> @game.ItemData {
+fn test_item(rarity : @game.ItemRarity, icon_id : Int32) -> @game.ItemData {
   {
     name: "Test",
     rarity,
@@ -20,7 +20,7 @@ fn test_item(rarity : @game.ItemRarity, icon_id : Int) -> @game.ItemData {
 }
 
 ///|
-fn test_skill(icon_id : Int) -> @game.SkillNode {
+fn test_skill(icon_id : Int32) -> @game.SkillNode {
   {
     id: @game.PowerStrike,
     name: "Test Skill",

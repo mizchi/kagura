@@ -20,7 +20,7 @@ fn Game::update_combat_navigation(
         match self.combat_focus {
           Some(Target(index)) =>
             if self.need_target {
-              let alive : Array[Int] = []
+              let alive : Array[Int32] = []
               for i in 0..<state.enemies.length() {
                 if !state.enemies[i].fighter.is_dead() {
                   alive.push(i)

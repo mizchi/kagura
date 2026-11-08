@@ -2,14 +2,14 @@
 fn ellipsoid(
   id : String,
   name : String,
-  color : Int,
+  color : Int32,
   position : Array[Double],
   size : Array[Double],
-  segments? : Int = 16,
-  rings? : Int = 10,
+  segments~ : Int32 = 16,
+  rings~ : Int32 = 10,
 ) -> MeshNode {
   let vertices : Array[Array[Double]] = [[0, size[1], 0]]
-  let faces : Array[Array[Int]] = []
+  let faces : Array[Array[Int32]] = []
   for r = 1; r < rings; r = r + 1 {
     let phi = r.to_double() * 3.141592653589793 / rings.to_double()
     for s = 0; s < segments; s = s + 1 {
@@ -73,7 +73,7 @@ fn cube(id : String) -> MeshNode {
 fn prism(
   id : String,
   name : String,
-  color : Int,
+  color : Int32,
   position : Array[Double],
   outline : Array[Array[Double]],
   depth : Double,
@@ -88,7 +88,7 @@ fn prism(
   }
   let front = Array::makei(count, i => i)
   let back = Array::makei(count, i => count * 2 - 1 - i)
-  let faces : Array[Array[Int]] = [front, back]
+  let faces : Array[Array[Int32]] = [front, back]
   for i = 0; i < count; i = i + 1 {
     let next = (i + 1) % count
     faces.push([i, i + count, next + count, next])

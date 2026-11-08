@@ -19,12 +19,12 @@ pub fn InstancedMeshBatch::clear(self : InstancedMeshBatch) -> Unit {
 }
 
 ///|
-pub fn InstancedMeshBatch::length(self : InstancedMeshBatch) -> Int {
+pub fn InstancedMeshBatch::length(self : InstancedMeshBatch) -> Int32 {
   self.matrices.length()
 }
 
 ///|
-pub fn InstancedMeshBatch::triangle_count(self : InstancedMeshBatch) -> Int {
+pub fn InstancedMeshBatch::triangle_count(self : InstancedMeshBatch) -> Int32 {
   self.mesh.indices.length() / 3 * self.length()
 }
 
@@ -32,7 +32,7 @@ pub fn InstancedMeshBatch::triangle_count(self : InstancedMeshBatch) -> Int {
 pub fn InstancedMeshBatch::push(
   self : InstancedMeshBatch,
   matrix : @math3d.Mat4,
-  color? : @math3d.Vec4 = @math3d.Vec4::new(1, 1, 1, 1),
+  color~ : @math3d.Vec4 = @math3d.Vec4::new(1, 1, 1, 1),
 ) -> Unit {
   self.matrices.push(matrix)
   self.colors.push(color)
@@ -46,7 +46,7 @@ pub fn InstancedMeshBatch::push_segment(
   start : @math3d.Vec3,
   end : @math3d.Vec3,
   radius : Double,
-  color? : @math3d.Vec4 = @math3d.Vec4::new(1, 1, 1, 1),
+  color~ : @math3d.Vec4 = @math3d.Vec4::new(1, 1, 1, 1),
 ) -> Bool {
   let delta = end.sub(start)
   let length = delta.length()
@@ -77,12 +77,12 @@ pub fn InstancedMeshBatch::append_draw_commands(
   self : InstancedMeshBatch,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   commands : Array[@gfx.DrawTrianglesCommand],
-  blend? : @gfx.BlendMode = @gfx.BlendMode::from_int(0),
+  blend~ : @gfx.BlendMode = @gfx.BlendMode::from_int(0),
 ) -> Unit {
   for start = 0; start < self.length(); start = start + max_instances {
     let end = (start + max_instances).min(self.length())

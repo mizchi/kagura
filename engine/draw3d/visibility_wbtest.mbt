@@ -22,7 +22,7 @@ test "camera occlusion appends three aligned vec4s without disturbing existing u
     )
   }
   let disabled : CameraOcclusion = { ..mask, enabled: false, }
-  let disabled_words : Array[Int] = []
+  let disabled_words : Array[Int32] = []
   disabled.append_uniform_dwords(disabled_words)
   assert_eq(disabled_words[3], 0)
 }

@@ -2,26 +2,27 @@
 package "mizchi/machinations"
 
 // Values
-pub fn next_int(SimState, Int) -> Int
+pub fn next_int(SimState, Int32) -> Int32
 
 pub fn next_u64(SimState) -> UInt64
 
-pub fn roll_dice(SimState, Int, Int) -> Int
+pub fn roll_dice(SimState, Int32, Int32) -> Int32
 
-pub fn run(Diagram, SimState, Int) -> Unit
+pub fn run(Diagram, SimState, Int32) -> Unit
 
 pub fn step(Diagram, SimState) -> Unit
 
 // Errors
 
 // Types and methods
+#derive(Eq)
 pub(all) enum Activation {
   Passive
   Automatic
   Interactive
   OnTrigger
   Start
-} derive(Eq)
+}
 pub fn Activation::equal(Self, Self) -> Bool
 pub fn Activation::not_equal(Self, Self) -> Bool
 
@@ -30,33 +31,35 @@ pub(all) struct Diagram {
   resources : Array[ResourceEdge]
   states : Array[StateEdge]
 }
-pub fn Diagram::connect(Self, Int, Int, rate? : Rate, weight? : Double) -> Int
-pub fn Diagram::converter(Self, String, activation? : Activation, x? : Double, y? : Double) -> Int
-pub fn Diagram::delay(Self, String, steps? : Int, activation? : Activation, x? : Double, y? : Double) -> Int
-pub fn Diagram::drain(Self, String, flow? : Flow, activation? : Activation, x? : Double, y? : Double) -> Int
-pub fn Diagram::gate(Self, String, flow? : Flow, activation? : Activation, gate_mode? : GateMode, x? : Double, y? : Double) -> Int
+pub fn Diagram::connect(Self, Int32, Int32, rate? : Rate, weight? : Double) -> Int32
+pub fn Diagram::converter(Self, String, activation? : Activation, x? : Double, y? : Double) -> Int32
+pub fn Diagram::delay(Self, String, steps? : Int32, activation? : Activation, x? : Double, y? : Double) -> Int32
+pub fn Diagram::drain(Self, String, flow? : Flow, activation? : Activation, x? : Double, y? : Double) -> Int32
+pub fn Diagram::gate(Self, String, flow? : Flow, activation? : Activation, gate_mode? : GateMode, x? : Double, y? : Double) -> Int32
 pub fn Diagram::new() -> Self
-pub fn Diagram::node(Self, NodeKind, String, initial? : Int, capacity? : Int?, flow? : Flow, activation? : Activation, gate_mode? : GateMode, param? : Int, x? : Double, y? : Double) -> Int
-pub fn Diagram::pool(Self, String, initial? : Int, capacity? : Int?, flow? : Flow, activation? : Activation, x? : Double, y? : Double) -> Int
-pub fn Diagram::queue(Self, String, rate? : Int, activation? : Activation, x? : Double, y? : Double) -> Int
-pub fn Diagram::register(Self, String, value? : Int, x? : Double, y? : Double) -> Int
-pub fn Diagram::source(Self, String, flow? : Flow, activation? : Activation, x? : Double, y? : Double) -> Int
-pub fn Diagram::state_to_edge(Self, Int, Int, StateKind, factor? : Double) -> Int
-pub fn Diagram::state_to_node(Self, Int, Int, StateKind, factor? : Double) -> Int
-pub fn Diagram::trader(Self, String, activation? : Activation, x? : Double, y? : Double) -> Int
+pub fn Diagram::node(Self, NodeKind, String, initial? : Int32, capacity? : Int32?, flow? : Flow, activation? : Activation, gate_mode? : GateMode, param? : Int32, x? : Double, y? : Double) -> Int32
+pub fn Diagram::pool(Self, String, initial? : Int32, capacity? : Int32?, flow? : Flow, activation? : Activation, x? : Double, y? : Double) -> Int32
+pub fn Diagram::queue(Self, String, rate? : Int32, activation? : Activation, x? : Double, y? : Double) -> Int32
+pub fn Diagram::register(Self, String, value? : Int32, x? : Double, y? : Double) -> Int32
+pub fn Diagram::source(Self, String, flow? : Flow, activation? : Activation, x? : Double, y? : Double) -> Int32
+pub fn Diagram::state_to_edge(Self, Int32, Int32, StateKind, factor? : Double) -> Int32
+pub fn Diagram::state_to_node(Self, Int32, Int32, StateKind, factor? : Double) -> Int32
+pub fn Diagram::trader(Self, String, activation? : Activation, x? : Double, y? : Double) -> Int32
 
+#derive(Eq)
 pub(all) enum Flow {
   Pull
   PullAll
   Push
-} derive(Eq)
+}
 pub fn Flow::equal(Self, Self) -> Bool
 pub fn Flow::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum GateMode {
   Deterministic
   Probabilistic
-} derive(Eq)
+}
 pub fn GateMode::equal(Self, Self) -> Bool
 pub fn GateMode::not_equal(Self, Self) -> Bool
 
@@ -65,14 +68,15 @@ pub(all) struct Node {
   label : String
   activation : Activation
   flow : Flow
-  capacity : Int?
-  initial : Int
+  capacity : Int32?
+  initial : Int32
   gate_mode : GateMode
-  param : Int
+  param : Int32
   x : Double
   y : Double
 }
 
+#derive(Eq)
 pub(all) enum NodeKind {
   Pool
   Source
@@ -83,52 +87,54 @@ pub(all) enum NodeKind {
   Delay
   Queue
   Register
-} derive(Eq)
+}
 pub fn NodeKind::equal(Self, Self) -> Bool
 pub fn NodeKind::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum Rate {
-  Fixed(Int)
-  Dice(Int, Int)
-  Interval(Int)
+  Fixed(Int32)
+  Dice(Int32, Int32)
+  Interval(Int32)
   All
-} derive(Eq)
+}
 pub fn Rate::equal(Self, Self) -> Bool
 pub fn Rate::not_equal(Self, Self) -> Bool
 
 pub(all) struct ResourceEdge {
-  from : Int
-  to : Int
+  from : Int32
+  to : Int32
   rate : Rate
   weight : Double
 }
 
 pub(all) struct SimState {
-  mut values : Array[Int]
-  mut step : Int
+  mut values : Array[Int32]
+  mut step : Int32
   mut rng : UInt64
-  mut last_flows : Array[Int]
+  mut last_flows : Array[Int32]
   mut pending : Array[Bool]
-  mut buffers : Array[Array[Int]]
+  mut buffers : Array[Array[Int32]]
 }
-pub fn SimState::activate(Self, Int) -> Unit
+pub fn SimState::activate(Self, Int32) -> Unit
 pub fn SimState::init(Diagram, seed? : UInt64) -> Self
 pub fn SimState::reset(Self, Diagram) -> Unit
 
 pub(all) struct StateEdge {
-  from : Int
-  to_node : Int?
-  to_edge : Int?
+  from : Int32
+  to_node : Int32?
+  to_edge : Int32?
   kind : StateKind
   factor : Double
 }
 
+#derive(Eq)
 pub(all) enum StateKind {
   Modifier
   Trigger
   Activator
   RateLabel
-} derive(Eq)
+}
 pub fn StateKind::equal(Self, Self) -> Bool
 pub fn StateKind::not_equal(Self, Self) -> Bool
 

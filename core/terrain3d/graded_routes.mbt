@@ -1,17 +1,19 @@
 ///|
 /// Gameplay-owned anchors in unit-spaced heightfield coordinates.
+#derive(ToJson)
 pub(all) struct TerrainPad {
   x : Double
   z : Double
   height : Double
   radius : Double
-} derive(ToJson)
+}
 
 ///|
 pub extend TerrainPad with ToJson::{to_json}
 
 ///|
 /// A graded segment. Curves and switchbacks are represented by several segments.
+#derive(ToJson)
 pub(all) struct TerrainRoute {
   ax : Double
   az : Double
@@ -20,7 +22,7 @@ pub(all) struct TerrainRoute {
   bz : Double
   bh : Double
   width : Double
-} derive(ToJson)
+}
 
 ///|
 pub extend TerrainRoute with ToJson::{to_json}
@@ -91,7 +93,11 @@ pub fn HeightField::grade_routes(
 
 ///|
 /// Maximum gradient of the two actual rendered triangles, not a bilinear approximation.
-pub fn HeightField::cell_slope(self : HeightField, x : Int, z : Int) -> Double {
+pub fn HeightField::cell_slope(
+  self : HeightField,
+  x : Int32,
+  z : Int32,
+) -> Double {
   let a = self.at(x, z)
   let b = self.at(x, z + 1)
   let c = self.at(x + 1, z + 1)

@@ -1,5 +1,5 @@
 ///|
-fn setup_world(n : Int) -> World {
+fn setup_world(n : Int32) -> World {
   let world = World::new()
   for i in 0..<n {
     let eid = world.spawn()
@@ -16,7 +16,7 @@ fn setup_world(n : Int) -> World {
 }
 
 ///|
-fn world_checksum(world : World) -> Int {
+fn world_checksum(world : World) -> Int32 {
   let mut sum = 0
   world.each_with_transform(fn(_eid, t) {
     sum += (t.position.x * 100.0).to_int()
@@ -64,7 +64,7 @@ test "bench system_movement 10000" (b : @bench.T) {
 /// It reads a body out of the physics world and writes position and rotation onto
 /// the entity's transform -- two transform rebuilds per entity before this was
 /// done in place.
-fn setup_physics_sync_world(n : Int) -> (World, @physics3d.PhysicsWorld) {
+fn setup_physics_sync_world(n : Int32) -> (World, @physics3d.PhysicsWorld) {
   let world = setup_world(n)
   let physics = @physics3d.PhysicsWorld::new(
     @math3d.Vec3::new(0.0, -9.81, 0.0),

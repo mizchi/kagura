@@ -1,12 +1,13 @@
 ///|
+#derive(Debug)
 struct EffectStudioOverlayModel {
   status_label : String
-  lane_count : Int
-  scheduled_burst_count : Int
-  scheduled_particle_count : Int
-  active_track_count : Int
+  lane_count : Int32
+  scheduled_burst_count : Int32
+  scheduled_particle_count : Int32
+  active_track_count : Int32
   playhead_ratio : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for EffectStudioOverlayModel with fn output(self, logger) {
@@ -94,7 +95,7 @@ fn effect_doc_target_file() -> String {
 ///|
 fn effect_track_patch_scaffold(
   track : @effect.EffectTrack,
-  index : Int,
+  index : Int32,
 ) -> String {
   let buf = StringBuilder()
   buf.write_string("// track[")

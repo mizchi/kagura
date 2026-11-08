@@ -1,5 +1,5 @@
 ///|
-extern "js" fn read_lazy_snapshot_frame() -> Int =
+extern "js" fn read_lazy_snapshot_frame() -> Int32 =
   #| () => globalThis.__kaguraUISnapshot.parsed.frame
 
 ///|

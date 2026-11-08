@@ -3,10 +3,11 @@
 /// Ebiten refs:
 /// - internal/clock/clock.go
 /// - internal/ui/context.go (updateFrameImpl / update count handling)
+#derive(Debug)
 pub struct FixedStepConfig {
-  tps : Int
-  max_updates_per_frame : Int
-} derive(Debug)
+  tps : Int32
+  max_updates_per_frame : Int32
+}
 
 ///|
 pub impl Show for FixedStepConfig with fn output(self, logger) {
@@ -17,10 +18,11 @@ pub impl Show for FixedStepConfig with fn output(self, logger) {
 /// Scheduler state carried between frames.
 /// Ebiten refs:
 /// - internal/ui/context.go (tick progression and frame accumulator semantics)
+#derive(Debug)
 pub struct FixedStepState {
   accumulator_ms : Double
-  tick : Int
-} derive(Debug)
+  tick : Int32
+}
 
 ///|
 pub impl Show for FixedStepState with fn output(self, logger) {
@@ -32,11 +34,12 @@ pub impl Show for FixedStepState with fn output(self, logger) {
 /// Ebiten refs:
 /// - run.go (Update / Draw separation)
 /// - internal/ui/context.go (skip / interpolation flow)
+#derive(Debug)
 pub struct StepResult {
-  updates : Int
+  updates : Int32
   alpha : Double
   next_state : FixedStepState
-} derive(Debug)
+}
 
 ///|
 pub impl Show for StepResult with fn output(self, logger) {
@@ -50,8 +53,8 @@ pub fn default_fixed_step_config() -> FixedStepConfig {
 
 ///|
 pub fn new_fixed_step_config(
-  tps : Int,
-  max_updates_per_frame : Int,
+  tps : Int32,
+  max_updates_per_frame : Int32,
 ) -> FixedStepConfig {
   { tps, max_updates_per_frame, }
 }
@@ -62,7 +65,7 @@ pub fn initial_fixed_step_state() -> FixedStepState {
 }
 
 ///|
-fn safe_tps(config : FixedStepConfig) -> Int {
+fn safe_tps(config : FixedStepConfig) -> Int32 {
   if config.tps <= 0 {
     60
   } else {
@@ -71,7 +74,7 @@ fn safe_tps(config : FixedStepConfig) -> Int {
 }
 
 ///|
-fn safe_max_updates(config : FixedStepConfig) -> Int {
+fn safe_max_updates(config : FixedStepConfig) -> Int32 {
   if config.max_updates_per_frame <= 0 {
     1
   } else {

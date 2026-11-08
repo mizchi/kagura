@@ -10,9 +10,10 @@ import {
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct Mat4 {
   elements : FixedArray[Double]
-} derive(@debug.Debug)
+}
 pub fn Mat4::approx_eq(Self, Self, Double) -> Bool
 pub fn Mat4::determinant(Self) -> Double
 pub fn Mat4::from_cols(Vec4, Vec4, Vec4, Vec4) -> Self
@@ -37,12 +38,13 @@ pub fn Mat4::transpose(Self) -> Self
 pub fn Mat4::zero() -> Self
 pub impl Show for Mat4
 
+#derive(@debug.Debug)
 pub struct Quaternion {
   x : Double
   y : Double
   z : Double
   w : Double
-} derive(@debug.Debug)
+}
 pub fn Quaternion::approx_eq(Self, Self, Double) -> Bool
 pub fn Quaternion::conjugate(Self) -> Self
 pub fn Quaternion::from_axis_angle(Vec3, Double) -> Self
@@ -70,11 +72,12 @@ pub fn Segment3::closest_point(Self, Vec3) -> Vec3
 pub fn Segment3::distance_squared(Self, Vec3) -> Double
 pub fn Segment3::new(Vec3, Vec3) -> Self
 
+#derive(@debug.Debug)
 pub struct Vec3 {
   x : Double
   y : Double
   z : Double
-} derive(@debug.Debug)
+}
 pub fn Vec3::add(Self, Self) -> Self
 pub fn Vec3::approx_eq(Self, Self, Double) -> Bool
 pub fn Vec3::clamp(Self, Self, Self) -> Self
@@ -105,12 +108,13 @@ pub fn Vec3::unit_z() -> Self
 pub fn Vec3::zero() -> Self
 pub impl Show for Vec3
 
+#derive(@debug.Debug)
 pub struct Vec4 {
   x : Double
   y : Double
   z : Double
   w : Double
-} derive(@debug.Debug)
+}
 pub fn Vec4::add(Self, Self) -> Self
 pub fn Vec4::approx_eq(Self, Self, Double) -> Bool
 pub fn Vec4::dot(Self, Self) -> Double

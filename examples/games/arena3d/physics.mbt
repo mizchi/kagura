@@ -1,7 +1,7 @@
 ///|
 /// Rendering metadata is separate from the physics world's mutable body state.
 struct PhysicsProp {
-  id : Int
+  id : Int32
   key : String
   sphere : Bool
   scale : @math3d.Vec3
@@ -133,7 +133,7 @@ fn GameState::reset_physics(self : GameState) -> Unit {
 ///|
 fn GameState::add_physics_prop(
   self : GameState,
-  id : Int,
+  id : Int32,
   key : String,
   position : @math3d.Vec3,
   scale : @math3d.Vec3,

@@ -19,20 +19,22 @@
 /// A numeric amount, resolved against the current battle state at play time.
 /// This keeps cards like Heavy Blade (Strength scales 3x), Body Slam (damage
 /// equals current Block) or Rampage (grows each play) as data, not code.
+#derive(Debug, Eq)
 pub(all) enum Amount {
-  Const(Int)
+  Const(Int32)
   /// Current player Block (Body Slam).
   PlayerBlock
   /// `base` damage, with Strength applied `mult` times instead of once.
   /// The engine's damage path already adds Strength once, so we pre-add the
   /// extra `(mult - 1)` applications here. Heavy Blade = `mult: 3`.
-  StrengthScaled(base~ : Int, mult~ : Int)
+  StrengthScaled(base~ : Int32, mult~ : Int32)
   /// `base` plus the accumulated Rampage bonus (Rampage).
-  RampageScaled(base~ : Int)
-} derive(Debug, Eq)
+  RampageScaled(base~ : Int32)
+}
 
 ///|
 /// Which combatants an effect hits.
+#derive(Debug, Eq)
 pub(all) enum EffectTarget {
   /// The enemy the player selected (`target_index`).
   ChosenEnemy
@@ -42,7 +44,7 @@ pub(all) enum EffectTarget {
   AllEnemies
   /// The first living enemy, re-resolved per hit (legacy Sword Boomerang).
   FirstAliveEnemy
-} derive(Debug, Eq)
+}
 
 ///|
 /// A single primitive effect. A card is an ordered list of these.
@@ -50,40 +52,41 @@ pub(all) enum EffectTarget {
 /// The first group is the "parametric core" the procedural generator draws
 /// from (bounded, always sensible). The rest are named nodes for bespoke card
 /// mechanics — still declarative data, but card-specific.
+#derive(Debug, Eq)
 pub(all) enum Effect {
   // --- parametric core ---
-  DealDamage(amount~ : Amount, target~ : EffectTarget, hits~ : Int)
-  GainBlock(Int)
-  ApplyVulnerable(amount~ : Int, target~ : EffectTarget)
-  ApplyWeak(amount~ : Int, target~ : EffectTarget)
-  GainStrength(Int)
-  GainEnergy(Int)
-  DrawCards(Int)
-  LoseHP(Int)
+  DealDamage(amount~ : Amount, target~ : EffectTarget, hits~ : Int32)
+  GainBlock(Int32)
+  ApplyVulnerable(amount~ : Int32, target~ : EffectTarget)
+  ApplyWeak(amount~ : Int32, target~ : EffectTarget)
+  GainStrength(Int32)
+  GainEnergy(Int32)
+  DrawCards(Int32)
+  LoseHP(Int32)
   // --- powers / persistent ---
-  AddMetallicize(Int)
-  AddDemonForm(Int)
+  AddMetallicize(Int32)
+  AddDemonForm(Int32)
   SetBarricade
-  AddFeelNoPain(Int)
+  AddFeelNoPain(Int32)
   SetCorruption
-  AddTempStrength(Int) // Flex: +STR now, lost at end of turn
+  AddTempStrength(Int32) // Flex: +STR now, lost at end of turn
   // --- bespoke card nodes ---
-  ReduceEnemyStrength(amount~ : Int, target~ : EffectTarget) // Disarm
+  ReduceEnemyStrength(amount~ : Int32, target~ : EffectTarget) // Disarm
   DoubleStrength // Limit Break
   DoubleBlock // Entrench
-  IncreaseRampage(Int) // Rampage tail
+  IncreaseRampage(Int32) // Rampage tail
   AddCardToDiscard(CardId) // Anger
   RecallTopDiscardToDraw // Headbutt
   ExhaustRandomFromHand // True Grit
   DealDamageWithKillBonus(
     amount~ : Amount,
-    max_hp~ : Int,
+    max_hp~ : Int32,
     target~ : EffectTarget
   ) // Feed
-  WhirlwindDamage(per~ : Int) // Whirlwind: spend all energy, X hits to all
-  FiendFire(per~ : Int) // Fiend Fire: exhaust hand, `per` damage each
-  ReaperDamage(per~ : Int) // Reaper: hit all, heal unblocked
-} derive(Debug, Eq)
+  WhirlwindDamage(per~ : Int32) // Whirlwind: spend all energy, X hits to all
+  FiendFire(per~ : Int32) // Fiend Fire: exhaust hand, `per` damage each
+  ReaperDamage(per~ : Int32) // Reaper: hit all, heal unblocked
+}
 
 ///|
 /// Data-driven definition for every card. The behaviour lives here as data;
@@ -191,7 +194,7 @@ pub fn card_effects(id : CardId) -> Array[Effect]? {
 
 ///|
 /// Resolve an `Amount` to the base damage fed into the engine's damage path.
-fn eval_amount(state : BattleState, amount : Amount) -> Int {
+fn eval_amount(state : BattleState, amount : Amount) -> Int32 {
   match amount {
     Const(n) => n
     PlayerBlock => state.player.block
@@ -207,8 +210,8 @@ fn eval_amount(state : BattleState, amount : Amount) -> Int {
 fn resolve_index(
   state : BattleState,
   target : EffectTarget,
-  target_index : Int,
-) -> Int {
+  target_index : Int32,
+) -> Int32 {
   match target {
     FirstAliveEnemy => first_alive_enemy(state)
     _ => target_index
@@ -221,9 +224,9 @@ fn deal_damage(
   state : BattleState,
   amount : Amount,
   target : EffectTarget,
-  hits : Int,
-  target_index : Int,
-) -> Int {
+  hits : Int32,
+  target_index : Int32,
+) -> Int32 {
   let mut total = 0
   match target {
     AllEnemies => {
@@ -274,9 +277,9 @@ fn deal_damage(
 fn apply_status(
   state : BattleState,
   target : EffectTarget,
-  vulnerable : Int,
-  weak : Int,
-  target_index : Int,
+  vulnerable : Int32,
+  weak : Int32,
+  target_index : Int32,
 ) -> Unit {
   match target {
     AllEnemies =>
@@ -298,10 +301,11 @@ fn apply_status(
 
 ///|
 /// Summary of what an effect list did, used for logging and evaluation.
+#derive(Debug)
 pub(all) struct EffectOutcome {
-  mut damage : Int
-  mut block : Int
-} derive(Debug)
+  mut damage : Int32
+  mut block : Int32
+}
 
 ///|
 /// Core interpreter: apply an effect list to the battle state. This is the
@@ -310,7 +314,7 @@ pub(all) struct EffectOutcome {
 fn apply_effects(
   state : BattleState,
   effects : Array[Effect],
-  target_index : Int,
+  target_index : Int32,
 ) -> EffectOutcome {
   let out : EffectOutcome = { damage: 0, block: 0, }
   for effect in effects {
@@ -473,7 +477,7 @@ fn interpret_card(
   state : BattleState,
   card_id : CardId,
   effects : Array[Effect],
-  target_index : Int,
+  target_index : Int32,
 ) -> Unit {
   let def = card_def(card_id)
   let out = apply_effects(state, effects, target_index)

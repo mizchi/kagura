@@ -2,7 +2,7 @@
 // Geometry and palette live in hunter_model.mbt; motion never edits the bind mesh.
 
 ///|
-let char_num_bones : Int = 17
+let char_num_bones : Int32 = 17
 
 ///|
 let hunter_head_height : Double = 0.7
@@ -11,6 +11,7 @@ let hunter_head_height : Double = 0.7
 let run_anim_duration : Double = 0.48
 
 ///|
+#derive(Eq, Debug)
 enum CharAnimState {
   Idle
   Attacking
@@ -21,18 +22,20 @@ enum CharAnimState {
   Running
   Hurt
   Dodging
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend CharAnimState with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 struct CharacterModel {
   skeleton : @skeleton3d.Skeleton
   species : CharacterSpecies
   body_parts : Array[CharacterPart]
   mut outfit : CharacterOutfit
-  mut appearance_builds : Int
+  mut appearance_builds : Int32
   mut weapon : HunterWeaponSet
-  equipped_cache : Map[Int, CharacterEquippedMesh]
+  equipped_cache : Map[Int32, CharacterEquippedMesh]
   charge_player : @animation3d.AnimationPlayer
   mut attack_player : @animation3d.AnimationPlayer?
   // Composed once for rendering, preserving shared material batches.
@@ -45,18 +48,18 @@ struct CharacterModel {
   mut moving : Bool
   mut time : Double
   mut action_time : Double
-  mut attack_count : Int
-  mut dodge_count : Int
+  mut attack_count : Int32
+  mut dodge_count : Int32
   mut cleaver_combo : @game.CleaverComboStep
   mut attack_side : Double
   local_poses : Array[@transform3d.Transform3D]
   mut cached_skinning_matrices : Array[@math3d.Mat4]
   mut skinning_cache_dirty : Bool
-  mut skinning_cache_builds : Int
+  mut skinning_cache_builds : Int32
 }
 
 ///|
-fn build_character_skeleton(authored? : Bool = false) -> @skeleton3d.Skeleton {
+fn build_character_skeleton(authored~ : Bool = false) -> @skeleton3d.Skeleton {
   // World-space rest anchors: root, chest, R arm/forearm/weapon, head,
   // L arm/forearm, L thigh/shin, R thigh/shin, coat tails L/R.
   let anchors = [
@@ -102,7 +105,7 @@ fn build_character_skeleton(authored? : Bool = false) -> @skeleton3d.Skeleton {
 }
 
 ///|
-fn CharacterModel::new(species? : CharacterSpecies = Human) -> CharacterModel {
+fn CharacterModel::new(species~ : CharacterSpecies = Human) -> CharacterModel {
   let skeleton = build_character_skeleton()
   let outfit = CharacterOutfit::starter()
   let body_parts = character_base_parts.copy()
@@ -151,7 +154,7 @@ fn CharacterModel::new(species? : CharacterSpecies = Human) -> CharacterModel {
 ///|
 fn CharacterModel::trigger_attack(
   self : CharacterModel,
-  combo? : @game.CleaverComboStep = @game.Opening,
+  combo~ : @game.CleaverComboStep = @game.Opening,
 ) -> Unit {
   if self.anim_state == Dodging {
     return
@@ -221,7 +224,7 @@ fn CharacterModel::update(self : CharacterModel, dt : Double) -> Unit {
 ///|
 fn CharacterModel::rotate_bone(
   self : CharacterModel,
-  index : Int,
+  index : Int32,
   x : Double,
   y : Double,
   z : Double,
@@ -241,7 +244,9 @@ fn CharacterModel::compute_skinning(
   }
   for i in 0..<char_num_bones {
     // Sample existing authored clips and procedural poses in their original space.
-    self.local_poses[i] = reflect_hunter_pose(self.skeleton.bones[i].local_transform)
+    self.local_poses[i] = reflect_hunter_pose(
+      self.skeleton.bones[i].local_transform,
+    )
   }
   let phase = self.time * 2.0 * @math.PI / run_anim_duration
   let stride = if self.moving { @math.sin(phase) } else { 0.0 }

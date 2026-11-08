@@ -3,13 +3,13 @@
 // ============================================================
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
-let num_bones : Int = 6
+let num_bones : Int32 = 6
 
 ///|
 let bone_length : Double = 0.5
@@ -21,7 +21,7 @@ let tentacle_radius : Double = 0.12
 let anim_duration : Double = 4.0
 
 ///|
-let num_keyframes : Int = 32
+let num_keyframes : Int32 = 32
 
 // ============================================================
 // Tentacle data structure
@@ -97,8 +97,8 @@ fn build_tentacle_skeleton() -> @skeleton3d.Skeleton {
 fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let stride = @mesh3d.vertex3d_stride // 8: px py pz nx ny nz u v
   let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let joint_indices : Array[Int] = []
+  let indices : Array[Int32] = []
+  let joint_indices : Array[Int32] = []
   let weights : Array[Double] = []
   let mut vertex_count = 0
   // For each bone segment (skip root bone 0 - it has no length)
@@ -352,7 +352,7 @@ struct DemoState {
   input : @inpututil.InputHelper
   shader3d : @gfx.ShaderHandle
   shader3d_skinned : @gfx.ShaderHandle
-  mut frame : Int
+  mut frame : Int32
 }
 
 ///|

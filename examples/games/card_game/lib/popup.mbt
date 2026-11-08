@@ -1,14 +1,14 @@
 ///|
-let pile_modal_id : Int = 5000
+let pile_modal_id : Int32 = 5000
 
 ///|
-let pile_close_id : Int = 5001
+let pile_close_id : Int32 = 5001
 
 ///|
-let pile_next_id : Int = 5002
+let pile_next_id : Int32 = 5002
 
 ///|
-fn pile_opener_id(kind : PileKind) -> Int {
+fn pile_opener_id(kind : PileKind) -> Int32 {
   match kind {
     Deck => 3001
     Draw => 3002
@@ -85,12 +85,12 @@ fn Game::pile_cards(self : Game, kind : PileKind) -> Array[CardId] {
 }
 
 ///|
-fn GameLayout::pile_page_size(self : GameLayout) -> Int {
+fn GameLayout::pile_page_size(self : GameLayout) -> Int32 {
   (if self.w < 400.0 { 2 } else { 4 }) * (if self.h < 480.0 { 1 } else { 2 })
 }
 
 ///|
-fn Game::pile_pages(self : Game) -> Int {
+fn Game::pile_pages(self : Game) -> Int32 {
   guard self.popup is Some(kind) else { return 1 }
   if kind == Deck {
     return deck_page_count(self.run.get())
@@ -100,7 +100,7 @@ fn Game::pile_pages(self : Game) -> Int {
 }
 
 ///|
-fn Game::turn_pile_page(self : Game, direction : Int) -> Unit {
+fn Game::turn_pile_page(self : Game, direction : Int32) -> Unit {
   let pages = self.pile_pages()
   self.popup_page = (self.popup_page + pages + direction) % pages
 }

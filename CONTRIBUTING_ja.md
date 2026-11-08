@@ -20,6 +20,12 @@
 - [just](https://github.com/casey/just)
 - macOS native 実行時は `bash scripts/setup-wgpu-native.sh`
 
+検証済みツールチェーンは `moonc v0.10.20`（`moon 0.1.20261104`）です。
+`moon upgrade` と `moon update` の後に `just moon-deps` を実行すると、
+公開パッケージに残る旧 JSON マニフェストをダウンロード先で移行します。
+サンプル単体では `just moon-deps examples/games/flappy_bird` のように指定できます。
+`just check` / `just test` と CI はこの準備を自動で行います。
+
 ## 開発フロー
 
 1. 変更対象の設計/境界を確認する（`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`）
@@ -38,6 +44,11 @@ just check target=native
 just test target=native
 pnpm e2e:smoke
 ```
+
+`just check` は独立したエディタ、Wasm guest、同梱 GLFW も検査します。
+外部の `../crater` を使う `crater_paint` / `browser_headless` は、
+`just check-external-examples` で明示的に検査します。
+
 
 必要に応じて smoke 実行も確認してください。
 

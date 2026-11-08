@@ -139,7 +139,7 @@ fn bench_state_with_visible_enemy() -> GameState {
 }
 
 ///|
-fn bench_state_with_stress_enemies(count : Int) -> GameState {
+fn bench_state_with_stress_enemies(count : Int32) -> GameState {
   let state = GameState::new(seed=42)
   apply_enemy_stress_scenario(state.world, count)
   state
@@ -216,7 +216,7 @@ fn bench_state_with_collectible_item() -> GameState {
 fn build_basic_enemy_cluster(
   center_x : Double,
   center_y : Double,
-  count : Int,
+  count : Int32,
 ) -> Array[@game.Enemy] {
   let side = enemy_stress_grid_side(count)
   let spacing = tile_size * 0.75
@@ -242,7 +242,7 @@ fn build_basic_enemy_cluster(
 }
 
 ///|
-fn bench_state_with_enemy_ai_direct_chase(count : Int) -> GameState {
+fn bench_state_with_enemy_ai_direct_chase(count : Int32) -> GameState {
   let state = GameState::new(seed=42)
   state.world.enemies = build_basic_enemy_cluster(
     state.world.player.x + tile_size * 2.0,
@@ -253,7 +253,7 @@ fn bench_state_with_enemy_ai_direct_chase(count : Int) -> GameState {
 }
 
 ///|
-fn bench_state_with_enemy_ai_castup_phase(count : Int) -> GameState {
+fn bench_state_with_enemy_ai_castup_phase(count : Int32) -> GameState {
   let state = bench_state_with_stress_enemies(count)
   let target_x = state.world.player.x + tile_size
   let target_y = state.world.player.y
@@ -266,7 +266,7 @@ fn bench_state_with_enemy_ai_castup_phase(count : Int) -> GameState {
 }
 
 ///|
-fn bench_state_with_enemy_ai_tackle_phase(count : Int) -> GameState {
+fn bench_state_with_enemy_ai_tackle_phase(count : Int32) -> GameState {
   let state = bench_state_with_stress_enemies(count)
   let target_x = state.world.player.x + tile_size
   let target_y = state.world.player.y
@@ -286,7 +286,7 @@ fn bench_state_with_enemy_ai_tackle_phase(count : Int) -> GameState {
 }
 
 ///|
-fn bench_state_with_enemy_ai_path_rebuild(count : Int) -> GameState {
+fn bench_state_with_enemy_ai_path_rebuild(count : Int32) -> GameState {
   let state = bench_state_with_enemy_ai_direct_chase(count)
   let grid = @physics2d.clone_terrain_grid(state.world.dungeon.grid)
   @physics2d.append_circular_wall_blocker(
@@ -304,7 +304,7 @@ fn bench_state_with_enemy_ai_path_rebuild(count : Int) -> GameState {
 }
 
 ///|
-fn bench_state_with_enemy_ai_path_follow(count : Int) -> GameState {
+fn bench_state_with_enemy_ai_path_follow(count : Int32) -> GameState {
   let state = bench_state_with_enemy_ai_path_rebuild(count)
   state.world.projectiles = []
   state.world.events = []

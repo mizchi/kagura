@@ -21,11 +21,11 @@
 /// Rows are pooled across `clear()` — it runs every frame — so a steady contact
 /// count settles into zero allocation.
 pub struct ContactCache3D {
-  mut count : Int
-  mut slots : FixedArray[Int]
-  mut slot_mask : Int
-  id_a : Array[Int]
-  id_b : Array[Int]
+  mut count : Int32
+  mut slots : FixedArray[Int32]
+  mut slot_mask : Int32
+  id_a : Array[Int32]
+  id_b : Array[Int32]
   normal_x : Array[Double]
   normal_y : Array[Double]
   normal_z : Array[Double]
@@ -34,7 +34,7 @@ pub struct ContactCache3D {
 }
 
 ///|
-let contact_cache_initial_slots3d : Int = 64
+let contact_cache_initial_slots3d : Int32 = 64
 
 ///|
 pub fn ContactCache3D::new() -> ContactCache3D {
@@ -54,7 +54,7 @@ pub fn ContactCache3D::new() -> ContactCache3D {
 
 ///|
 /// Number of cached pairs.
-pub fn ContactCache3D::length(self : ContactCache3D) -> Int {
+pub fn ContactCache3D::length(self : ContactCache3D) -> Int32 {
   self.count
 }
 
@@ -65,7 +65,7 @@ pub fn ContactCache3D::clear(self : ContactCache3D) -> Unit {
 }
 
 ///|
-fn contact_cache_hash3d(id_a : Int, id_b : Int) -> Int {
+fn contact_cache_hash3d(id_a : Int32, id_b : Int32) -> Int32 {
   let lo = if id_a < id_b { id_a } else { id_b }
   let hi = if id_a < id_b { id_b } else { id_a }
   let mut h = (lo * 73856093) ^ (hi * 19349663)
@@ -79,9 +79,9 @@ fn contact_cache_hash3d(id_a : Int, id_b : Int) -> Int {
 /// Row index for a pair, or -1. Order of the two ids does not matter.
 pub fn ContactCache3D::find(
   self : ContactCache3D,
-  id_a : Int,
-  id_b : Int,
-) -> Int {
+  id_a : Int32,
+  id_b : Int32,
+) -> Int32 {
   let mask = self.slot_mask
   let mut slot = contact_cache_hash3d(id_a, id_b) & mask
   for ;; {
@@ -103,8 +103,8 @@ pub fn ContactCache3D::find(
 /// Whether a pair is cached. Convenience for tests; the hot path uses `find`.
 pub fn ContactCache3D::contains(
   self : ContactCache3D,
-  id_a : Int,
-  id_b : Int,
+  id_a : Int32,
+  id_b : Int32,
 ) -> Bool {
   self.find(id_a, id_b) >= 0
 }
@@ -130,8 +130,8 @@ fn ContactCache3D::grow_slots(self : ContactCache3D) -> Unit {
 /// Store the impulses for a pair, replacing any row already there.
 pub fn ContactCache3D::store(
   self : ContactCache3D,
-  id_a : Int,
-  id_b : Int,
+  id_a : Int32,
+  id_b : Int32,
   normal : @math3d.Vec3,
   normal_impulse : Double,
   tangent_impulse : Double,

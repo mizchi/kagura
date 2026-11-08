@@ -1,6 +1,6 @@
 ///|
 /// Editor calls change the frozen presentation; they never advance the mission.
-pub fn editor_scene(source : String, wave : Int) -> Bool {
+pub fn editor_scene(source : String, wave : Int32) -> Bool {
   if !load_scene(source, false) {
     return false
   }

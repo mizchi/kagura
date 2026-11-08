@@ -3,13 +3,13 @@
 // Each enemy kind gets a different mesh with unique proportions and decorations.
 
 ///|
-let enemy_bone_count : Int = 16
+let enemy_bone_count : Int32 = 16
 
 ///|
 let enemy_walk_duration : Double = 0.72
 
 ///|
-let enemy_walk_keyframes : Int = 18
+let enemy_walk_keyframes : Int32 = 18
 
 // Per-kind mesh data (pre-built, shared across instances)
 
@@ -28,8 +28,8 @@ struct EnemyModels {
   local_poses : Array[@transform3d.Transform3D]
   mut cached_skinning_matrices : Array[@math3d.Mat4]
   mut skinning_cache_dirty : Bool
-  mut skinning_cache_builds : Int
-  mut pose_generation : Int
+  mut skinning_cache_builds : Int32
+  mut pose_generation : Int32
   basic : EnemyMeshData
   fast : EnemyMeshData
   tank : EnemyMeshData
@@ -37,10 +37,10 @@ struct EnemyModels {
   ranged : EnemyMeshData
   boss : EnemyMeshData
   weapons : Array[EnemyWeaponSet]
-  equipped_meshes : Map[Int, EnemyMeshData]
+  equipped_meshes : Map[Int32, EnemyMeshData]
   attack_clips : Array[@scene3d.BakedSkinningClip]
-  attack_buckets : Map[Int, EnemyRenderBuckets]
-  active_attack_keys : Array[Int]
+  attack_buckets : Map[Int32, EnemyRenderBuckets]
+  active_attack_keys : Array[Int32]
   wolf : PoseRenderState
   zombie : PoseRenderState
 }
@@ -233,7 +233,7 @@ fn EnemyModels::get_skinned_mesh(
 }
 
 ///|
-fn enemy_attack_clip_index(motion : @game.EnemyAttackMotion) -> Int {
+fn enemy_attack_clip_index(motion : @game.EnemyAttackMotion) -> Int32 {
   if motion == @game.Charge {
     return shared_enemy_weapons.length()
   }
@@ -317,4 +317,4 @@ fn build_enemy_attack_clips() -> Array[@scene3d.BakedSkinningClip] {
 }
 
 ///|
-let enemy_attack_pose_stride : Int = 241
+let enemy_attack_pose_stride : Int32 = 241

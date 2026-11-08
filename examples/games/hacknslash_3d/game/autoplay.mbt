@@ -7,7 +7,7 @@ pub fn find_room_at(
   rooms : Array[@terrain.Room],
   x : Double,
   y : Double,
-) -> Int {
+) -> Int32 {
   let p : @terrain.Point = {
     x: (x / tile_size).to_int(),
     y: (y / tile_size).to_int(),
@@ -26,7 +26,7 @@ pub fn find_room_at(
 pub fn count_enemies_in_room(
   enemies : Array[Enemy],
   room : @terrain.Room,
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for enemy in enemies {
     if enemy.alive {
@@ -48,7 +48,7 @@ pub fn count_enemies_in_room(
 fn find_nearest_visible_enemy_with_nav_grid(
   world : GameWorld,
   nav_grid : @terrain.Grid2D,
-) -> (Int, Double) {
+) -> (Int32, Double) {
   let player_room = find_room_at(
     world.dungeon.rooms,
     world.player.x,
@@ -80,12 +80,12 @@ fn find_nearest_visible_enemy_with_nav_grid(
 }
 
 ///|
-pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int, Double) {
+pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int32, Double) {
   find_nearest_visible_enemy_with_nav_grid(world, world.dungeon.grid)
 }
 
 ///|
-fn find_nearest_alive_enemy(world : GameWorld) -> (Int, Double) {
+fn find_nearest_alive_enemy(world : GameWorld) -> (Int32, Double) {
   let mut best_idx = -1
   let mut best_dist_sq = 100000000.0
   for i, enemy in world.enemies {
@@ -106,7 +106,7 @@ fn find_nearest_alive_enemy(world : GameWorld) -> (Int, Double) {
 // Find the next uncleared room to visit
 
 ///|
-pub fn find_next_target_room(world : GameWorld) -> Int {
+pub fn find_next_target_room(world : GameWorld) -> Int32 {
   let rooms = world.dungeon.rooms
   let player_room = find_room_at(rooms, world.player.x, world.player.y)
   // Mark current room as cleared if no enemies
@@ -252,7 +252,7 @@ pub fn GameWorld::collect_equipment_pickup(
 ///|
 fn auto_equip_inventory_item(
   world : GameWorld,
-  index : Int,
+  index : Int32,
   item : ItemData,
 ) -> Unit {
   // DPS-based equip: simulate equipping and compare total DPS
@@ -467,9 +467,9 @@ fn auto_play_direction_to_goal_tile(
   world : GameWorld,
   nav_grid : @terrain.Grid2D,
   goal_tile : @terrain.Point,
-  enemy_idx : Int,
+  enemy_idx : Int32,
   enemy_dist_sq : Double,
-) -> (Double, Double, Int, Double) {
+) -> (Double, Double, Int32, Double) {
   let need_repath = match world.auto_nav_target {
     None => true
     Some(t) => t.x != goal_tile.x || t.y != goal_tile.y
@@ -528,9 +528,9 @@ fn auto_play_direction_to_world_target(
   world : GameWorld,
   target_x : Double,
   target_y : Double,
-  enemy_idx : Int,
+  enemy_idx : Int32,
   enemy_dist_sq : Double,
-) -> (Double, Double, Int, Double) {
+) -> (Double, Double, Int32, Double) {
   world.auto_nav_path = []
   world.auto_nav_index = 0
   world.auto_nav_target = None
@@ -601,7 +601,7 @@ fn compute_ideal_combat_range(world : GameWorld) -> Double {
 fn compute_kite_direction(
   world : GameWorld,
   nav_grid : @terrain.Grid2D,
-  primary_enemy_idx : Int,
+  primary_enemy_idx : Int32,
 ) -> (Double, Double) {
   let px = world.player.x
   let py = world.player.y
@@ -801,7 +801,7 @@ fn compute_kite_direction(
 // Returns (dx, dy, enemy_idx, enemy_dist_sq) — also returns vision result to avoid recomputation
 
 ///|
-pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
+pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int32, Double) {
   auto_play_input_with_nav_grid(world, world.dungeon.grid)
 }
 
@@ -809,7 +809,7 @@ pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
 fn auto_play_input_with_nav_grid(
   world : GameWorld,
   nav_grid : @terrain.Grid2D,
-) -> (Double, Double, Int, Double) {
+) -> (Double, Double, Int32, Double) {
   // 1. Check for visible enemies — if found, move toward nearest
   let (enemy_idx, enemy_dist_sq) = find_nearest_visible_enemy_with_nav_grid(
     world, nav_grid,
@@ -895,7 +895,7 @@ fn auto_play_input_with_nav_grid(
 ///|
 pub fn GameWorld::auto_activate_skills(
   self : GameWorld,
-  enemy_idx : Int,
+  enemy_idx : Int32,
 ) -> Unit {
   if enemy_idx < 0 {
     return
@@ -925,7 +925,7 @@ pub fn GameWorld::auto_activate_skills(
 ///|
 pub fn GameWorld::auto_activate_spell_slots(
   self : GameWorld,
-  enemy_idx : Int,
+  enemy_idx : Int32,
   enemy_dist_sq : Double,
 ) -> Unit {
   if enemy_idx < 0 {

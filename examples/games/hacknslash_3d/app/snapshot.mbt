@@ -6,7 +6,10 @@ extern "js" fn js_get_query_param(key : String) -> String =
   #| (key) => new URLSearchParams(location.search).get(key) ?? ""
 
 ///|
-extern "js" fn js_get_query_param_int(key : String, default_val : Int) -> Int =
+extern "js" fn js_get_query_param_int(
+  key : String,
+  default_val : Int32,
+) -> Int32 =
   #| (key, defaultVal) => { const v = new URLSearchParams(location.search).get(key); return v ? parseInt(v, 10) : defaultVal; }
 
 ///|
@@ -31,7 +34,7 @@ extern "js" fn js_get_query_param_bool(
   #| }
 
 ///|
-extern "js" fn js_set_snapshot_tick(count : Int) -> Unit =
+extern "js" fn js_set_snapshot_tick(count : Int32) -> Unit =
   #| (count) => { globalThis.__kaguraSnapshotTick = count; }
 
 ///|
@@ -40,12 +43,12 @@ fn get_snapshot_mode() -> String {
 }
 
 ///|
-fn get_snapshot_frames() -> Int {
+fn get_snapshot_frames() -> Int32 {
   js_get_query_param_int("frames", 60)
 }
 
 ///|
-fn get_snapshot_tick() -> Int {
+fn get_snapshot_tick() -> Int32 {
   js_get_query_param_int("tick", 0)
 }
 
@@ -105,7 +108,7 @@ fn get_initial_ssao_enabled() -> Bool {
 }
 
 ///|
-fn get_initial_stress_enemy_count() -> Int {
+fn get_initial_stress_enemy_count() -> Int32 {
   js_get_query_param_int("stress_enemies", 0)
 }
 

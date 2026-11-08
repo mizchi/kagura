@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_studio/app"
+
+import {
+  "mizchi/js_browser/dom",
+  "mizchi/signals",
+  "mizchi/three",
+}
+
+// Values
+pub fn build_scene() -> @three.Group
+
+pub fn dispatch(String) -> String
+
+pub fn dispose_switch(SwitchControl) -> Unit
+
+pub fn history(String, Int32) -> String
+
+pub fn mount(@dom.Element) -> Unit
+
+pub fn mount_switch(@dom.Element, String, Bool, (Bool) -> Unit) -> SwitchControl
+
+pub fn seek(Double) -> Unit
+
+pub fn select_node(String) -> Unit
+
+pub fn set_layout(String) -> Unit
+
+pub fn set_status(String) -> Unit
+
+pub fn snapshot() -> String
+
+pub fn update_switch(SwitchControl, Bool) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct SwitchControl {
+  state : @signals.Signal[Bool]
+  dispose : () -> Unit
+}
+
+// Type aliases
+
+// Traits

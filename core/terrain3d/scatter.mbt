@@ -2,7 +2,7 @@
 /// Stateless coordinate roll in [0, 1), independent of generation order and
 /// actor/loot RNG. Uses the height-field hash, with a half-open normalization
 /// suitable for choosing array indices. Negative coordinates and seeds work.
-pub fn coordinate_random(x : Int, z : Int, seed : Int) -> Double {
+pub fn coordinate_random(x : Int32, z : Int32, seed : Int32) -> Double {
   (terrain_hash(x, z, seed) & 0xFFFFFFU).to_double() / 16777216.0
 }
 
@@ -25,7 +25,7 @@ pub fn WarpedDensityField::sample(
   self : WarpedDensityField,
   x : Double,
   z : Double,
-  phase? : Double = 0.0,
+  phase~ : Double = 0.0,
 ) -> Double {
   let u = x + self.warp_x * @math.sin(z * self.warp_frequency_z + phase)
   let v = z + self.warp_z * @math.sin(x * self.warp_frequency_x - phase)
@@ -42,11 +42,11 @@ pub fn WarpedDensityField::sample(
 /// maximal packing. Apply road/water/footprint masks separately.
 /// Probability <=0 rejects, >=1 admits every local minimum; radius <0 means 0.
 pub fn priority_scatter_cell(
-  x : Int,
-  z : Int,
-  seed : Int,
+  x : Int32,
+  z : Int32,
+  seed : Int32,
   probability~ : Double,
-  radius? : Int = 1,
+  radius~ : Int32 = 1,
 ) -> Bool {
   let priority = coordinate_random(x, z, seed)
   if probability.is_nan() || probability <= 0.0 || priority > probability {

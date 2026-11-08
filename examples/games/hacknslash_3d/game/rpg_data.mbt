@@ -14,22 +14,22 @@ pub(all) enum AffixProfile {
 ///|
 fn a(
   name : String,
-  atk? : Int = 0,
-  def? : Int = 0,
-  hp? : Int = 0,
-  str? : Int = 0,
-  int_? : Int = 0,
-  dex? : Int = 0,
-  crit? : Double = 0.0,
-  ls? : Double = 0.0,
-  spd? : Double = 0.0,
-  cdr? : Double = 0.0,
-  str_scale? : Double = 0.0,
-  int_scale? : Double = 0.0,
-  dex_scale? : Double = 0.0,
-  spell_dmg? : Double = 0.0,
-  chain? : Int = 0,
-  tags? : Array[TagBonusEntry] = [],
+  atk~ : Int32 = 0,
+  def~ : Int32 = 0,
+  hp~ : Int32 = 0,
+  str~ : Int32 = 0,
+  int_~ : Int32 = 0,
+  dex~ : Int32 = 0,
+  crit~ : Double = 0.0,
+  ls~ : Double = 0.0,
+  spd~ : Double = 0.0,
+  cdr~ : Double = 0.0,
+  str_scale~ : Double = 0.0,
+  int_scale~ : Double = 0.0,
+  dex_scale~ : Double = 0.0,
+  spell_dmg~ : Double = 0.0,
+  chain~ : Int32 = 0,
+  tags~ : Array[TagBonusEntry] = [],
 ) -> Affix {
   {
     name,
@@ -304,7 +304,7 @@ pub fn suffix_table_for(profile : AffixProfile) -> Array[Affix] {
 }
 
 ///|
-pub fn scale_affix(affix : Affix, floor : Int) -> Affix {
+pub fn scale_affix(affix : Affix, floor : Int32) -> Affix {
   let scale = 1 + floor / 5
   {
     name: affix.name,
@@ -330,14 +330,14 @@ pub fn scale_affix(affix : Affix, floor : Int) -> Affix {
 // --- Item Generation ---
 
 ///|
-pub fn generate_item(seed : Int, floor : Int) -> ItemData {
+pub fn generate_item(seed : Int32, floor : Int32) -> ItemData {
   generate_item_with_profile(seed, floor, Classic)
 }
 
 ///|
 pub fn generate_item_with_profile(
-  seed : Int,
-  floor : Int,
+  seed : Int32,
+  floor : Int32,
   profile : AffixProfile,
 ) -> ItemData {
   generate_item_with_profile_and_drop_config(

@@ -5,11 +5,11 @@ let controller : @editor.Editor = @editor.Editor::new()
 let session : @editor.Session = controller.session
 
 ///|
-let revision : @luna.Signal[Int] = @luna.signal(0)
+let revision : @luna.Signal[Int32] = @luna.signal(0)
 
 ///|
 /// UI refresh also runs on rejected edits, without advancing document revision.
-let view_tick : @luna.Signal[Int] = @luna.signal(0)
+let view_tick : @luna.Signal[Int32] = @luna.signal(0)
 
 ///|
 let selection : @luna.Signal[String] = @luna.signal("hero")
@@ -70,17 +70,14 @@ pub fn dispatch(source : String) -> String {
 }
 
 ///|
-pub fn history(direction : String, expected : Int) -> String {
-  request({
-    "method": direction.to_json(),
-    "expectedRevision": expected.to_json(),
-  })
+pub fn history(direction : String, expected : Int32) -> String {
+  request({ "method": Json(direction), "expectedRevision": Json(expected) })
 }
 
 ///|
 fn command(value : Json) -> Unit {
   let envelope : Json = {
-    "expectedRevision": session.revision.to_json(),
+    "expectedRevision": Json(session.revision),
     "commands": [value],
   }
   ignore(dispatch(envelope.stringify()))
@@ -88,12 +85,12 @@ fn command(value : Json) -> Unit {
 
 ///|
 pub fn select_node(id : String) -> Unit {
-  ignore(request({ "method": "select", "id": id.to_json() }))
+  ignore(request({ "method": "select", "id": Json(id) }))
 }
 
 ///|
 pub fn seek(time : Double) -> Unit {
-  ignore(request({ "method": "seek", "time": time.to_json() }))
+  ignore(request({ "method": "seek", "time": Json(time) }))
 }
 
 ///|
@@ -112,9 +109,9 @@ fn add_node(asset : String) -> Unit {
   let id = "node-" + index.to_string()
   command({
     "op": "node.add",
-    "id": id.to_json(),
+    "id": Json(id),
     "name": "New object",
-    "asset": asset.to_json(),
+    "asset": Json(asset),
   })
   select_node(id)
 }
@@ -123,7 +120,7 @@ fn add_node(asset : String) -> Unit {
 fn transform_input(
   n : @editor.SceneNode,
   property : String,
-  axis : Int,
+  axis : Int32,
   value : Double,
 ) -> Unit {
   let replace = fn(source : Array[Double]) {
@@ -148,9 +145,9 @@ fn transform_input(
   }
   command({
     "op": "node.transform",
-    "id": n.id.to_json(),
-    "position": position.to_json(),
-    "rotation": rotation.to_json(),
-    "scale": scale.to_json(),
+    "id": Json(n.id),
+    "position": Json(position),
+    "rotation": Json(rotation),
+    "scale": Json(scale),
   })
 }

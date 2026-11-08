@@ -97,9 +97,9 @@ pub fn finalize_texture_upload(
 pub fn ensure_render_target(
   state : GpuState,
   device : @core.Any,
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> RenderTargetEntry {
   match state.render_targets.get(image_id) {
     Some(existing) =>
@@ -155,8 +155,8 @@ pub fn ensure_render_target(
 pub fn ensure_depth_texture(
   state : GpuState,
   device : @core.Any,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> DepthTextureEntry {
   let key = "\{width}x\{height}"
   match state.depth_textures.get(key) {

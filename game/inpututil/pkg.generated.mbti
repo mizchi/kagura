@@ -23,41 +23,41 @@ pub fn is_move_up(@inputstate.KeyInputState) -> Bool
 
 pub fn is_up_just_pressed(InputHelper) -> Bool
 
-pub let key_a : Int
+pub let key_a : Int32
 
-pub let key_comma : Int
+pub let key_comma : Int32
 
-pub let key_d : Int
+pub let key_d : Int32
 
-pub let key_down_glfw : Int
+pub let key_down_glfw : Int32
 
-pub let key_down_web : Int
+pub let key_down_web : Int32
 
-pub let key_e : Int
+pub let key_e : Int32
 
-pub let key_enter_glfw : Int
+pub let key_enter_glfw : Int32
 
-pub let key_enter_web : Int
+pub let key_enter_web : Int32
 
-pub let key_left_glfw : Int
+pub let key_left_glfw : Int32
 
-pub let key_left_web : Int
+pub let key_left_web : Int32
 
-pub let key_o : Int
+pub let key_o : Int32
 
-pub let key_right_glfw : Int
+pub let key_right_glfw : Int32
 
-pub let key_right_web : Int
+pub let key_right_web : Int32
 
-pub let key_s : Int
+pub let key_s : Int32
 
-pub let key_space : Int
+pub let key_space : Int32
 
-pub let key_up_glfw : Int
+pub let key_up_glfw : Int32
 
-pub let key_up_web : Int
+pub let key_up_web : Int32
 
-pub let key_w : Int
+pub let key_w : Int32
 
 pub fn new_input_helper() -> InputHelper
 

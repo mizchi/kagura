@@ -1,11 +1,11 @@
 ///|
 struct SaveDeletion {
-  slot : Int
+  slot : Int32
   data : String
 }
 
 ///|
-fn GameState::request_save_deletion(self : GameState, slot : Int) -> Unit {
+fn GameState::request_save_deletion(self : GameState, slot : Int32) -> Unit {
   if self.world.mode != @game.Title || slot < 0 || slot >= save_slot_count {
     return
   }

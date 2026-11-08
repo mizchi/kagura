@@ -1,7 +1,7 @@
 ///|
 struct TestSceneGame {
-  mut update_count : Int
-  mut view_count : Int
+  mut update_count : Int32
+  mut view_count : Int32
 }
 
 ///|

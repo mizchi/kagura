@@ -1,5 +1,5 @@
 ///|
-fn finish_test_strike(w : GameWorld) -> Int raise {
+fn finish_test_strike(w : GameWorld) -> Int32 raise {
   let mut frames = 0
   while w.weapon_attack is Some(_) || w.attack_timer > 0 {
     w.tick_player_weapon_attack()
@@ -16,8 +16,8 @@ test "cleaver advances once per attack with distinct damage and a committed heav
   w.player_stats = { ..w.player_stats, atk: 10, crit_chance: 0.0, }
   let e = make_enemy(136.0, 120.0, Basic, 1000, 0.0, 8.0)
   w.enemies = [e]
-  let damage : Array[Int] = []
-  let durations : Array[Int] = []
+  let damage : Array[Int32] = []
+  let durations : Array[Int32] = []
   for _ in 0..<4 {
     let hp = e.hp
     assert_true(w.request_basic_attack(0.0))

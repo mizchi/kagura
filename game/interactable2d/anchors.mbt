@@ -2,7 +2,7 @@
 pub(all) struct AnchorCandidate {
   center_x : Double
   center_y : Double
-  area : Int
+  area : Int32
   is_start : Bool
 }
 
@@ -10,7 +10,7 @@ pub(all) struct AnchorCandidate {
 pub fn AnchorCandidate::new(
   center_x : Double,
   center_y : Double,
-  area : Int,
+  area : Int32,
   is_start : Bool,
 ) -> AnchorCandidate {
   { center_x, center_y, area, is_start, }

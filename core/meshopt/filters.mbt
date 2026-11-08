@@ -5,7 +5,7 @@
 // as the C code, so results match the scalar C build bit for bit.
 
 ///|
-fn read_i8(buf : FixedArray[Byte], o : Int) -> Int {
+fn read_i8(buf : FixedArray[Byte], o : Int32) -> Int32 {
   let v = buf[o].to_int()
   if v >= 0x80 {
     v - 0x100
@@ -15,12 +15,12 @@ fn read_i8(buf : FixedArray[Byte], o : Int) -> Int {
 }
 
 ///|
-fn read_u16(buf : FixedArray[Byte], o : Int) -> Int {
+fn read_u16(buf : FixedArray[Byte], o : Int32) -> Int32 {
   buf[o].to_int() | (buf[o + 1].to_int() << 8)
 }
 
 ///|
-fn read_i16(buf : FixedArray[Byte], o : Int) -> Int {
+fn read_i16(buf : FixedArray[Byte], o : Int32) -> Int32 {
   let v = read_u16(buf, o)
   if v >= 0x8000 {
     v - 0x10000
@@ -30,7 +30,7 @@ fn read_i16(buf : FixedArray[Byte], o : Int) -> Int {
 }
 
 ///|
-fn write_u16(buf : FixedArray[Byte], o : Int, v : Int) -> Unit {
+fn write_u16(buf : FixedArray[Byte], o : Int32, v : Int32) -> Unit {
   buf[o] = (v & 0xff).to_byte()
   buf[o + 1] = ((v >> 8) & 0xff).to_byte()
 }
@@ -38,7 +38,7 @@ fn write_u16(buf : FixedArray[Byte], o : Int, v : Int) -> Unit {
 ///|
 /// `int(x + (x >= 0 ? 0.5f : -0.5f))`: round half away from zero, then
 /// truncate toward zero like the C cast.
-fn round_signed(x : Float) -> Int {
+fn round_signed(x : Float) -> Int32 {
   let half : Float = if x >= 0.0 { 0.5 } else { -0.5 }
   (x + half).to_int()
 }
@@ -46,8 +46,8 @@ fn round_signed(x : Float) -> Int {
 ///|
 fn check_filter_target(
   target : FixedArray[Byte],
-  count : Int,
-  stride : Int,
+  count : Int32,
+  stride : Int32,
 ) -> Unit raise MeshoptError {
   if count < 0 || target.length() < count * stride {
     raise InvalidArgument("target is smaller than count * stride")
@@ -59,8 +59,8 @@ fn check_filter_target(
 /// (16-bit components); the fourth component is left as is.
 pub fn decode_filter_oct(
   target : FixedArray[Byte],
-  count : Int,
-  stride : Int,
+  count : Int32,
+  stride : Int32,
 ) -> Unit raise MeshoptError {
   if stride != 4 && stride != 8 {
     raise InvalidArgument("octahedral filter stride must be 4 or 8")
@@ -101,8 +101,8 @@ pub fn decode_filter_oct(
 /// Quaternion filter for 16-bit rotations (`stride` must be 8).
 pub fn decode_filter_quat(
   target : FixedArray[Byte],
-  count : Int,
-  stride : Int,
+  count : Int32,
+  stride : Int32,
 ) -> Unit raise MeshoptError {
   if stride != 8 {
     raise InvalidArgument("quaternion filter stride must be 8")
@@ -138,8 +138,8 @@ pub fn decode_filter_quat(
 /// of 4.
 pub fn decode_filter_exp(
   target : FixedArray[Byte],
-  count : Int,
-  stride : Int,
+  count : Int32,
+  stride : Int32,
 ) -> Unit raise MeshoptError {
   if stride <= 0 || stride % 4 != 0 {
     raise InvalidArgument("exponential filter stride must be a multiple of 4")
@@ -166,8 +166,8 @@ pub fn decode_filter_exp(
 /// YCoCg color filter. `stride` is 4 (8-bit channels) or 8 (16-bit channels).
 pub fn decode_filter_color(
   target : FixedArray[Byte],
-  count : Int,
-  stride : Int,
+  count : Int32,
+  stride : Int32,
 ) -> Unit raise MeshoptError {
   if stride != 4 && stride != 8 {
     raise InvalidArgument("color filter stride must be 4 or 8")

@@ -1,5 +1,5 @@
 ///|
-fn tile_index_at(value : Double, tile_size : Double) -> Int {
+fn tile_index_at(value : Double, tile_size : Double) -> Int32 {
   @math.floor(value / tile_size).to_int()
 }
 
@@ -104,12 +104,12 @@ pub fn grid_find_nearest_visible_candidate_index(
   origin_y : Double,
   viewer_size : Double,
   max_range : Double,
-  candidate_count : Int,
-  is_candidate_valid : (Int) -> Bool,
-  get_candidate_x : (Int) -> Double,
-  get_candidate_y : (Int) -> Double,
+  candidate_count : Int32,
+  is_candidate_valid : (Int32) -> Bool,
+  get_candidate_x : (Int32) -> Double,
+  get_candidate_y : (Int32) -> Double,
   tile_size : Double,
-) -> (Int, Double) {
+) -> (Int32, Double) {
   let mut nearest_idx = -1
   let mut nearest_dist_sq = max_range * max_range
   for idx = 0; idx < candidate_count; idx = idx + 1 {

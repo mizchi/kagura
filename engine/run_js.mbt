@@ -5,11 +5,11 @@ pub fn run(
   on_frame? : () -> Unit,
   after_render? : (Double, Double) -> Unit,
   audio_ctx? : @audio.MixerAudioContext,
-  audio_frames_per_tick? : Int = 735,
-  width? : Int = 320,
-  height? : Int = 240,
-  title? : String = "kagura",
-  canvas? : String = "#app",
+  audio_frames_per_tick~ : Int32 = 735,
+  width~ : Int32 = 320,
+  height~ : Int32 = 240,
+  title~ : String = "kagura",
+  canvas~ : String = "#app",
 ) -> Unit {
   // Headless capture short-circuits before anything touches a canvas, a
   // platform driver or requestAnimationFrame, so the same bundle renders a
@@ -48,7 +48,7 @@ pub fn run(
     }
   }
   let ctx : EngineContext = { dst, shader, screen_w: width, screen_h: height, }
-  let tick : Ref[Int] = Ref(0)
+  let tick : Ref[Int32] = Ref(0)
   match audio_ctx {
     Some(_) => {
       let _ = @audio.audio_try_initialize(@audio.default_audio_format())

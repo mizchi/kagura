@@ -9,7 +9,7 @@ fn quad_command(
   h : Double,
   screen_w : Double,
   screen_h : Double,
-  uniform : Array[Int],
+  uniform : Array[Int32],
   blend : @gfx.BlendMode,
 ) -> @gfx.DrawTrianglesCommand {
   fn nx(px : Double) -> Double {
@@ -63,7 +63,11 @@ fn quad_command(
 }
 
 ///|
-fn pixel_at(target : RasterTarget, x : Int, y : Int) -> (Int, Int, Int, Int) {
+fn pixel_at(
+  target : RasterTarget,
+  x : Int32,
+  y : Int32,
+) -> (Int32, Int32, Int32, Int32) {
   let base = (y * target.width + x) * 4
   (
     target.pixels[base],

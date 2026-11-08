@@ -17,7 +17,10 @@ test "to_array/from_array roundtrip" {
 
 ///|
 test "param_names matches param count" {
-  assert_eq(@game.BalanceParams::param_names().length(), @game.balance_param_count)
+  assert_eq(
+    @game.BalanceParams::param_names().length(),
+    @game.balance_param_count,
+  )
 }
 
 ///|

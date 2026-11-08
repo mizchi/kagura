@@ -9,14 +9,14 @@ pub struct Editor {
 
 ///|
 pub fn Editor::new() -> Editor {
-  { session: Session::new(), selection: "hero", time: 0, layout: "scene" }
+  { session: Session::new(), selection: "hero", time: 0, layout: "scene", }
 }
 
 ///|
 /// Loading a document starts a fresh session; importing during editing is document.replace.
 pub fn Editor::from_document(value : Json) -> Editor raise {
   let document = decode_document(value)
-  let session = Session::{ document, revision: 0, past: [], future: [] }
+  let session = Session::{ document, revision: 0, past: [], future: [], }
   {
     session,
     selection: if find_node(document, "hero") is Some(_) {
@@ -33,15 +33,15 @@ pub fn Editor::from_document(value : Json) -> Editor raise {
 pub fn Editor::snapshot(self : Editor) -> Json {
   {
     "apiVersion": 1,
-    "revision": self.session.revision.to_json(),
+    "revision": Json(self.session.revision),
     "document": self.session.document.to_json(),
-    "selection": self.selection.to_json(),
+    "selection": Json(self.selection),
     "preview": ToJson::to_json(
       sample_action(self.session.document.action, self.time),
     ),
-    "canUndo": self.session.can_undo().to_json(),
-    "canRedo": self.session.can_redo().to_json(),
-    "layout": self.layout.to_json(),
+    "canUndo": Json(self.session.can_undo()),
+    "canRedo": Json(self.session.can_redo()),
+    "layout": Json(self.layout),
   }
 }
 
@@ -115,8 +115,8 @@ fn Editor::error_reply(self : Editor, error : Error) -> Json {
   }
   {
     "ok": false,
-    "error": { "code": code.to_json(), "message": message.to_json() },
-    "revision": self.session.revision.to_json(),
+    "error": { "code": Json(code), "message": Json(message) },
+    "revision": Json(self.session.revision),
   }
 }
 

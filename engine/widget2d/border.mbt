@@ -33,9 +33,9 @@ pub fn border_vertices(
   border : BorderWidths,
   screen_w : Double,
   screen_h : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut base = 0
   let ox0 = x
   let oy0 = y
@@ -86,9 +86,9 @@ pub fn filled_rect_vertices(
   h : Double,
   screen_w : Double,
   screen_h : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   push_ndc_quad(
     vertices,
     indices,
@@ -121,7 +121,7 @@ pub fn filled_rounded_rect_vertices(
   bl : Double,
   screen_w : Double,
   screen_h : Double,
-) -> (Array[Double], Array[Int]) {
+) -> (Array[Double], Array[Int32]) {
   let segments = 6 // segments per corner arc
   // If all radii are zero, fall back to simple rect
   if tl <= 0.0 && tr <= 0.0 && br <= 0.0 && bl <= 0.0 {
@@ -134,7 +134,7 @@ pub fn filled_rounded_rect_vertices(
   let br = @cmp.minimum(br, max_r)
   let bl = @cmp.minimum(bl, max_r)
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   // Center vertex (index 0)
   let cx = x + w / 2.0
   let cy = y + h / 2.0
@@ -144,7 +144,7 @@ pub fn filled_rounded_rect_vertices(
   vertices.push(0.5)
   let mut idx = 1
   // Helper: push a vertex and return its index
-  fn push_v(px : Double, py : Double) -> Int {
+  fn push_v(px : Double, py : Double) -> Int32 {
     vertices.push(px_to_ndc_x(px, screen_w))
     vertices.push(px_to_ndc_y(py, screen_h))
     vertices.push(0.0)
@@ -154,7 +154,7 @@ pub fn filled_rounded_rect_vertices(
     i
   }
   // Build perimeter vertices: top-left corner → top-right → bottom-right → bottom-left
-  let perimeter : Array[Int] = []
+  let perimeter : Array[Int32] = []
   // Top-left corner arc (center at x+tl, y+tl, from PI to PI*1.5)
   if tl > 0.0 {
     for i = 0; i <= segments; i = i + 1 {
@@ -228,8 +228,8 @@ fn px_to_ndc_y(py : Double, screen_h : Double) -> Double {
 ///|
 fn push_ndc_quad(
   vertices : Array[Double],
-  indices : Array[Int],
-  base : Int,
+  indices : Array[Int32],
+  base : Int32,
   x0 : Double,
   y0 : Double,
   x1 : Double,

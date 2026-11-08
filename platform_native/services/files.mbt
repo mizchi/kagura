@@ -2,13 +2,13 @@
 #borrow(path, env)
 extern "C" fn load_capture_file(
   path : Bytes,
-  size : Int,
+  size : Int32,
   env : Bytes,
-  env_length : Int,
-) -> Int = "kgr_capture_load"
+  env_length : Int32,
+) -> Int32 = "kgr_capture_load"
 
 ///|
-extern "C" fn capture_file_byte(index : Int) -> Int = "kgr_capture_byte"
+extern "C" fn capture_file_byte(index : Int32) -> Int32 = "kgr_capture_byte"
 
 ///|
 extern "C" fn release_capture_file() -> Unit = "kgr_capture_release"
@@ -17,10 +17,10 @@ extern "C" fn release_capture_file() -> Unit = "kgr_capture_release"
 #borrow(path, data)
 extern "C" fn write_capture_file(
   path : Bytes,
-  size : Int,
+  size : Int32,
   data : Bytes,
-  length : Int,
-) -> Int = "kgr_capture_write"
+  length : Int32,
+) -> Int32 = "kgr_capture_write"
 
 ///|
 fn read_file(path : String, override_env : String?) -> Bytes? {

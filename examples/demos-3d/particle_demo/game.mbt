@@ -1,8 +1,8 @@
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
 struct DemoState {
@@ -10,7 +10,7 @@ struct DemoState {
   emitters : Array[@particle3d.ParticleEmitter]
   particle_shader : @gfx.ShaderHandle
   mut time : Double
-  mut frame_count : Int
+  mut frame_count : Int32
   mut fps_timer : Double
   mut last_fps : Double
   mut prev_cursor_x : Double

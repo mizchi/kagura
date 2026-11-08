@@ -104,7 +104,7 @@ fn attr_double(
 }
 
 ///|
-fn attr_int(attr : @ui.Attr[Unit, SceneAttrValue], default_ : Int) -> Int {
+fn attr_int(attr : @ui.Attr[Unit, SceneAttrValue], default_ : Int32) -> Int32 {
   match resolve_attr(attr) {
     SceneInt(v) => v
     SceneDouble(v) => v.to_int()
@@ -300,8 +300,8 @@ fn render_rect_outline(
 }
 
 ///|
-fn string_to_char_codes(s : String) -> Array[Int] {
-  let codes : Array[Int] = []
+fn string_to_char_codes(s : String) -> Array[Int32] {
+  let codes : Array[Int32] = []
   for ch in s {
     let code = ch.to_int()
     // glyph_pattern uses 0-9 for digits, but ASCII for letters

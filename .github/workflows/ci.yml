@@ -53,7 +53,9 @@ jobs:
         with:
           node-version: "24"
       - name: Update MoonBit registry
-        run: moon update
+        run: |
+          moon update
+          node scripts/prepare-moon-deps.mjs
       - name: Setup wgpu-native and glfw
         if: matrix.target == 'native'
         run: |
@@ -116,7 +118,9 @@ jobs:
         with:
           version: 0.15.2
       - name: Update MoonBit registry
-        run: moon update
+        run: |
+          moon update
+          node scripts/prepare-moon-deps.mjs
       - name: Verify WASM guests
         run: just wasm-verify
 
@@ -130,6 +134,7 @@ jobs:
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - uses: taiki-e/install-action@just
       - name: Setup pnpm
         run: corepack enable
       - uses: actions/setup-node@v4
@@ -139,13 +144,17 @@ jobs:
       - name: Install E2E deps
         run: pnpm install --frozen-lockfile
       - name: Update MoonBit registry
-        run: moon update
+        run: |
+          moon update
+          node scripts/prepare-moon-deps.mjs
       - name: Format
         run: |
           moon fmt
           git diff --exit-code
       - name: Check
         run: moon check --deny-warn --target js
+      - name: Check standalone MoonBit modules
+        run: just check-extra-modules
       - name: Test
         run: moon test --target js
       - name: Inspection release artifact gate
@@ -225,7 +234,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - name: Update MoonBit registry
-        run: moon update
+        run: |
+          moon update
+          node scripts/prepare-moon-deps.mjs
       - name: Setup wgpu-native
         run: |
           bash scripts/setup-wgpu-native.sh
@@ -268,7 +279,9 @@ jobs:
         shell: bash
         run: bash scripts/setup-windows-native.sh
       - name: Update MoonBit registry
-        run: moon update
+        run: |
+          moon update
+          node scripts/prepare-moon-deps.mjs
       - name: Check
         run: moon check --target native
       - name: Test
@@ -298,7 +311,9 @@ jobs:
       - name: Install verification tools
         run: pnpm install --frozen-lockfile
       - name: Update MoonBit registry
-        run: moon update
+        run: |
+          moon update
+          node scripts/prepare-moon-deps.mjs
       - name: Setup wgpu-native and glfw
         run: bash scripts/setup-wgpu-native.sh
       # --deny-warn used to come from the check-test-matrix native leg, which no

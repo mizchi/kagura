@@ -6,27 +6,31 @@ pub fn export_hunter_motion_asset() -> String {
   let skeleton : Array[Json] = actor.skeleton.bones.map(bone => {
     let p = bone.local_transform
     {
-      "name": bone.name.to_json(),
-      "parent": bone.parent.to_json(),
-      "position": [p.position.x, p.position.y, p.position.z].to_json(),
-      "rotation": [p.rotation.x, p.rotation.y, p.rotation.z, p.rotation.w].to_json(),
-      "scale": [p.scale.x, p.scale.y, p.scale.z].to_json(),
+      "name": Json(bone.name),
+      "parent": Json(bone.parent),
+      "position": Json([p.position.x, p.position.y, p.position.z]),
+      "rotation": Json([p.rotation.x, p.rotation.y, p.rotation.z, p.rotation.w]),
+      "scale": Json([p.scale.x, p.scale.y, p.scale.z]),
     }
   })
   let models : Array[Json] = [
     {
       "id": "hunter",
       "name": "Hunter",
-      "parts": export_hunter_parts(character_outfit_parts(Human, actor.outfit)).to_json(),
+      "parts": Json(
+        export_hunter_parts(character_outfit_parts(Human, actor.outfit)),
+      ),
     },
   ]
   for species in [Goblin, Kobold, Skeleton] {
     models.push({
-      "id": ("hunter_" + species.id()).to_json(),
-      "name": species.id().to_json(),
-      "parts": export_hunter_parts(
-        character_outfit_parts(species, CharacterOutfit::starter()),
-      ).to_json(),
+      "id": Json("hunter_" + species.id()),
+      "name": Json(species.id()),
+      "parts": Json(
+        export_hunter_parts(
+          character_outfit_parts(species, CharacterOutfit::starter()),
+        ),
+      ),
     })
   }
   for
@@ -37,11 +41,13 @@ pub fn export_hunter_motion_asset() -> String {
       ("occult", Some(Occult)),
     ] {
     models.push({
-      "id": ("hunter_" + id).to_json(),
-      "name": ("Human / " + id).to_json(),
-      "parts": export_hunter_parts(
-        character_outfit_parts(Human, character_outfit_preset(style)),
-      ).to_json(),
+      "id": Json("hunter_" + id),
+      "name": Json("Human / " + id),
+      "parts": Json(
+        export_hunter_parts(
+          character_outfit_parts(Human, character_outfit_preset(style)),
+        ),
+      ),
     })
   }
   let weapons : Array[Json] = []
@@ -58,11 +64,11 @@ pub fn export_hunter_motion_asset() -> String {
       "raise_zombie", "flaming_skull",
     ])
     weapons.push({
-      "id": weapon.id.to_json(),
-      "name": profile.name.to_json(),
-      "parts": export_hunter_parts(weapon.parts).to_json(),
-      "clips": clip_ids.to_json(),
-      "defaultClip": id.to_json(),
+      "id": Json(weapon.id),
+      "name": Json(profile.name),
+      "parts": Json(export_hunter_parts(weapon.parts)),
+      "clips": Json(clip_ids),
+      "defaultClip": Json(id),
     })
     let steps = if weapon.kind == @game.Cleaver {
       [@game.Opening, @game.Return, @game.Finisher]
@@ -119,31 +125,39 @@ pub fn export_hunter_motion_asset() -> String {
             ("scale", scales[i]),
           ] {
           channels.push({
-            "joint": i.to_json(),
-            "target": target.to_json(),
-            "interpolation": (if target == "scale" { "step" } else { "linear" }).to_json(),
-            "times": times.to_json(),
-            "values": values.to_json(),
+            "joint": Json(i),
+            "target": Json(target),
+            "interpolation": Json(
+              if target == "scale" {
+                "step"
+              } else {
+                "linear"
+              },
+            ),
+            "times": Json(times),
+            "values": Json(values),
           })
         }
       }
       let events : Array[Json] = [
         {
-          "name": (if weapon.kind == @game.Bow || weapon.kind == @game.Focus {
-            "Release"
-          } else {
-            "Impact"
-          }).to_json(),
-          "time": (profile.windup.to_double() / 60.0).to_json(),
+          "name": Json(
+            if weapon.kind == @game.Bow || weapon.kind == @game.Focus {
+              "Release"
+            } else {
+              "Impact"
+            },
+          ),
+          "time": Json(profile.windup.to_double() / 60.0),
         },
       ]
       clips.push({
-        "id": id.to_json(),
-        "name": profile.action.to_json(),
-        "duration": actor.attack_duration().to_json(),
+        "id": Json(id),
+        "name": Json(profile.action),
+        "duration": Json(actor.attack_duration()),
         "fps": 60,
-        "channels": channels.to_json(),
-        "events": events.to_json(),
+        "channels": Json(channels),
+        "events": Json(events),
       })
     }
   }
@@ -154,8 +168,8 @@ pub fn export_hunter_motion_asset() -> String {
   weapons.push({
     "id": "shield_guard",
     "name": "狩人の盾 / ガード",
-    "parts": export_hunter_parts(hunter_guard_parts).to_json(),
-    "clips": ["guard"].to_json(),
+    "parts": Json(export_hunter_parts(hunter_guard_parts)),
+    "clips": Json(["guard"]),
     "defaultClip": "guard",
   })
   for
@@ -181,22 +195,22 @@ pub fn export_hunter_motion_asset() -> String {
       "format": "kagura.motion",
       "version": 2,
       "name": "ASHEN REALMS / Hunter",
-      "skeleton": skeleton.to_json(),
-      "models": models.to_json(),
-      "weapons": weapons.to_json(),
-      "clips": clips.to_json(),
+      "skeleton": Json(skeleton),
+      "models": Json(models),
+      "weapons": Json(weapons),
+      "clips": Json(clips),
     } : Json).stringify()
 }
 
 ///|
 fn export_hunter_parts(parts : Array[CharacterPart]) -> Array[Json] {
   parts.map(part => {
-    "name": part.name.to_json(),
-    "color": [part.color.x, part.color.y, part.color.z, part.color.w].to_json(),
-    "vertices": part.mesh.vertex_data.to_json(),
-    "indices": part.mesh.indices.to_json(),
-    "joints": part.skin.joint_indices.to_json(),
-    "weights": part.skin.weights.to_json(),
+    "name": Json(part.name),
+    "color": Json([part.color.x, part.color.y, part.color.z, part.color.w]),
+    "vertices": Json(part.mesh.vertex_data),
+    "indices": Json(part.mesh.indices),
+    "joints": Json(part.skin.joint_indices),
+    "weights": Json(part.skin.weights),
   })
 }
 
@@ -205,7 +219,7 @@ fn export_hunter_art_clip(
   id : String,
   name : String,
   state : CharAnimState,
-  contact : Int,
+  contact : Int32,
 ) -> Json {
   let actor = CharacterModel::new()
   let count = if state == Whirling {
@@ -249,22 +263,24 @@ fn export_hunter_art_clip(
         ("scale", scales[i]),
       ] {
       channels.push({
-        "joint": i.to_json(),
-        "target": target.to_json(),
+        "joint": Json(i),
+        "target": Json(target),
         "interpolation": "linear",
-        "times": times.to_json(),
-        "values": values.to_json(),
+        "times": Json(times),
+        "values": Json(values),
       })
     }
   }
   {
-    "id": id.to_json(),
-    "name": name.to_json(),
-    "duration": times[count - 1].to_json(),
+    "id": Json(id),
+    "name": Json(name),
+    "duration": Json(times[count - 1]),
     "fps": 60,
-    "channels": channels.to_json(),
-    "events": (
-      [{ "name": "Contact", "time": (contact.to_double() / 60.0).to_json() }] :
-      Array[Json]).to_json(),
+    "channels": Json(channels),
+    "events": Json(
+      (
+        [{ "name": "Contact", "time": Json(contact.to_double() / 60.0) }] :
+        Array[Json]),
+    ),
   }
 }

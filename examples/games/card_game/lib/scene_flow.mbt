@@ -30,7 +30,7 @@ fn Game::apply_motion_mode(self : Game) -> Unit {
 }
 
 ///|
-fn Game::scene_item_count(self : Game) -> Int {
+fn Game::scene_item_count(self : Game) -> Int32 {
   match self.scene {
     Title | Settings => 2
     CharacterSelect => 3
@@ -41,8 +41,8 @@ fn Game::scene_item_count(self : Game) -> Int {
 ///|
 fn GameLayout::scene_item_rect(
   self : GameLayout,
-  index : Int,
-  count : Int,
+  index : Int32,
+  count : Int32,
 ) -> UiRect {
   let width = ui_min(520.0, self.w - 48.0)
   let gap = if count == 4 { 6.0 } else { 10.0 }

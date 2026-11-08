@@ -1,5 +1,6 @@
 // Edit scene literals here or in Kagura Studio. Keep behavior outside the managed region.
 // kagura-scene:begin
+
 ///|
 pub fn training() -> @scene_document.Document {
   {
@@ -16,15 +17,14 @@ pub fn training() -> @scene_document.Document {
       recoilDuration: 0.3,
       recoilStrength: 0.4,
     },
-    resources: [{
+    resources: [
+      {
         id: "kagura.example",
         kind: "kagura.example",
         version: 1,
-        data: {
-          "example": "flappy_bird",
-          "query": Json::empty_object(),
-        },
-      }, {
+        data: { "example": "flappy_bird", "query": Json::empty_object() },
+      },
+      {
         id: "kagura.scene2d",
         kind: "kagura.scene2d",
         version: 1,
@@ -33,7 +33,8 @@ pub fn training() -> @scene_document.Document {
           "width": 320,
           "height": 240,
           "background": 8900331,
-          "objects": [{
+          "objects": [
+            {
               "id": "ground",
               "name": "Ground",
               "kind": "ground",
@@ -42,7 +43,8 @@ pub fn training() -> @scene_document.Document {
               "width": 320,
               "height": 20,
               "color": 9127187,
-            }, {
+            },
+            {
               "id": "bird",
               "name": "Bird",
               "kind": "bird",
@@ -51,9 +53,11 @@ pub fn training() -> @scene_document.Document {
               "width": 12,
               "height": 12,
               "color": 16766720,
-            }],
+            },
+          ],
         },
-      }],
+      },
+    ],
   }
 }
 // kagura-scene:end

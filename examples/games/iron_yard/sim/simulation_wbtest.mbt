@@ -56,7 +56,11 @@ test "swept segments and cylindrical wall contact prevent tunneling" {
     box_intersection(vec(-10.0, 1.0, 0.0), vec(20.0, 0.0, 0.0), wall),
     Some(0.475),
   )
-  let stage = { ..default_stage(), spawn: vec(-10.0, 0.0, 0.0), solids: [wall] }
+  let stage = {
+    ..default_stage(),
+    spawn: vec(-10.0, 0.0, 0.0),
+    solids: [wall],
+  }
   let mut p = new_pilot(stage)
   for _ in 0..<180 {
     p = advance_pilot(p, input(strafe=-1.0, boost=true), 1.0 / 60.0, stage, [])

@@ -50,9 +50,9 @@ pub fn ssao_uniform_dwords(
   radius : Double,
   bias : Double,
   intensity : Double,
-  screen_w : Int,
-  screen_h : Int,
-) -> Array[Int] {
+  screen_w : Int32,
+  screen_h : Int32,
+) -> Array[Int32] {
   [
     f32(radius),
     f32(bias),
@@ -70,13 +70,13 @@ pub fn ssao_uniform_dwords(
 pub fn new_ssao_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  color_src_id : Int,
-  depth_src_id : Int,
+  color_src_id : Int32,
+  depth_src_id : Int32,
   radius : Double,
   bias : Double,
   intensity : Double,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   new_fullscreen_quad_command(
     dst,

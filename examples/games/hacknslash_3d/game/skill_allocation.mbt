@@ -5,7 +5,7 @@ pub fn GameWorld::skill_allowed(self : GameWorld, id : SkillId) -> Bool {
 }
 
 ///|
-pub fn counter_cooldown_for_level(level : Int) -> Int {
+pub fn counter_cooldown_for_level(level : Int32) -> Int32 {
   counter_cooldown_frames - (level - 1).max(0).min(2) * 30
 }
 

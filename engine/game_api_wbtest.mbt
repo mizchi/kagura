@@ -1,7 +1,7 @@
 ///|
 struct TestEngineGame {
-  mut update_count : Int
-  mut draw_count : Int
+  mut update_count : Int32
+  mut draw_count : Int32
 }
 
 ///|

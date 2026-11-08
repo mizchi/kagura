@@ -1,5 +1,5 @@
 ///|
-fn test_atlas_source(page_image_id : Int) -> @atlas.AtlasDrawSource {
+fn test_atlas_source(page_image_id : Int32) -> @atlas.AtlasDrawSource {
   let repo = @atlas.new_simple_atlas_image_repository(8, 8, page_image_id)
   let key = @atlas.new_asset_key("renderer2d/source")
   let _ = @atlas.create_atlas_image(repo, key, @atlas.default_image_spec(2, 2))
@@ -108,7 +108,7 @@ test "append_rect_fill_geometry rebases batched rect indices" {
     screen_h=50,
   )
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   append_rect_fill_geometry(
     vertices,
     indices,
@@ -134,7 +134,7 @@ test "append_primitive_batch builds a single batched command" {
     screen_h=50,
   )
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   append_rect_fill_geometry(
     vertices,
     indices,

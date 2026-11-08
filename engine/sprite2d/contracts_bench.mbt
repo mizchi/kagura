@@ -10,9 +10,9 @@
 /// = 30 entries. The looked-up key is registered last, which is also the
 /// average case -- with no early exit the scan always visits all of them.
 fn bench_particle_repo(
-  atlas_id : Int,
+  atlas_id : Int32,
   key_name : String,
-  entries? : Int = 30,
+  entries~ : Int32 = 30,
 ) -> (@atlas.SimpleAtlasImageRepository, @atlas.AssetKey) {
   let repo = @atlas.new_simple_atlas_image_repository(64, 64, atlas_id)
   for i in 0..<(entries - 1) {
@@ -35,8 +35,8 @@ fn bench_particle_repo(
 fn bench_atlas_lookup(
   b : @bench.T,
   name : String,
-  atlas_id : Int,
-  entries : Int,
+  atlas_id : Int32,
+  entries : Int32,
 ) -> Unit {
   let (repo, key) = bench_particle_repo(atlas_id, "particle/lookup", entries~)
   b.bench(name~, fn() {
@@ -74,7 +74,7 @@ test "bench atlas draw source lookup 128 entries" (b : @bench.T) {
 ///|
 fn particle_pipeline_checksum(
   commands : Array[@gfx.DrawTrianglesCommand],
-) -> Int {
+) -> Int32 {
   let queue = @gfx.new_simple_command_queue()
   for command in commands {
     queue.enqueue_draw_triangles(command)
@@ -98,11 +98,11 @@ fn append_particle_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
-  i : Int,
-  uniform_dwords : Array[Int],
+  i : Int32,
+  uniform_dwords : Array[Int32],
 ) -> Unit {
   let left = (i % 256).to_double() * 2.0
   let top = (i / 256).to_double() * 2.0

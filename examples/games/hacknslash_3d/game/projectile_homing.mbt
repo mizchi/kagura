@@ -4,8 +4,8 @@ pub(all) struct ProjectileHomingProfile {
   seek_range : Double
   min_alignment : Double
   turn_radians : Double
-  delay_frames : Int
-  lifetime : Int
+  delay_frames : Int32
+  lifetime : Int32
 }
 
 ///|

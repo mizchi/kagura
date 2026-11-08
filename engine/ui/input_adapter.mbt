@@ -3,10 +3,10 @@
 
 ///|
 pub struct SimpleUIInputAdapter {
-  mut prev_pressed_mouse : Array[Int]
+  mut prev_pressed_mouse : Array[Int32]
   mut prev_cursor_x : Double
   mut prev_cursor_y : Double
-  mut prev_pressed_keys : Array[Int]
+  mut prev_pressed_keys : Array[Int32]
 }
 
 ///|
@@ -20,7 +20,7 @@ pub fn SimpleUIInputAdapter::new() -> SimpleUIInputAdapter {
 }
 
 ///|
-fn contains_int(arr : Array[Int], value : Int) -> Bool {
+fn contains_int(arr : Array[Int32], value : Int32) -> Bool {
   for item in arr {
     if item == value {
       return true

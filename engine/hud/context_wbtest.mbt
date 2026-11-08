@@ -62,7 +62,7 @@ test "append_rect_batch_geometry rebases indices" {
     text_renderer: None,
   }
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
 
   ctx.append_rect_batch_geometry(vertices, indices, 8.0, 16.0, 24.0, 32.0)
   ctx.append_rect_batch_geometry(vertices, indices, 40.0, 48.0, 12.0, 20.0)
@@ -98,7 +98,7 @@ test "push_rect_batch_command builds single draw command" {
   }
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
 
   ctx.append_rect_batch_geometry(vertices, indices, 8.0, 16.0, 24.0, 32.0)
   ctx.append_rect_batch_geometry(vertices, indices, 40.0, 48.0, 12.0, 20.0)

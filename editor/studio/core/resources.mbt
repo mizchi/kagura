@@ -1,11 +1,12 @@
 ///|
 /// Versioned game-owned JSON. Domain-specific validation belongs to the game's command adapter.
+#derive(ToJson, FromJson, Eq, Debug)
 pub(all) struct Resource {
   id : String
   kind : String
-  version : Int
+  version : Int32
   data : Json
-} derive(ToJson, FromJson, Eq, Debug)
+}
 
 ///|
 fn decode_resource(value : Json) -> Resource raise {
@@ -39,7 +40,10 @@ fn validate_resources(resources : Array[Resource]) -> Unit raise EditorError {
 }
 
 ///|
-fn validate_resource_json(value : Json, depth : Int) -> Unit raise EditorError {
+fn validate_resource_json(
+  value : Json,
+  depth : Int32,
+) -> Unit raise EditorError {
   require(depth <= 32, "Resource data exceeds nesting limit")
   match value {
     Number(n, ..) =>
@@ -58,3 +62,15 @@ fn validate_resource_json(value : Json, depth : Int) -> Unit raise EditorError {
     _ => ()
   }
 }
+
+///|
+pub extend Resource with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Resource with @moonbitlang/core/json.FromJson::{from_json}
+
+///|
+pub extend Resource with @moonbitlang/core/json.ToJson::{to_json}
+
+///|
+pub extend Resource with Eq::{not_equal, equal}

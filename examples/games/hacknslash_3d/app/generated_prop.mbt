@@ -13,16 +13,16 @@ fn parse_generated_prop_asset_from_glb_bytes(
 ///|
 fn generated_prop_placement(
   source_path : String,
-  floor? : Int = 1,
-  anchor? : GeneratedPropAnchor = StartRoomCenter,
-  role? : GeneratedPropRole = @interactable2d.Decoration,
-  pickup_effect? : GeneratedPropPickupEffect = ScorePickup,
-  pickup_rarity? : @game.ItemRarity? = None,
-  pickup_slot? : @game.EquipSlot? = None,
-  scale? : Double = 1.0,
-  yaw_degrees? : Double = 0.0,
-  x_offset_tiles? : Double = 2.0,
-  z_offset_tiles? : Double = 0.0,
+  floor~ : Int32 = 1,
+  anchor~ : GeneratedPropAnchor = StartRoomCenter,
+  role~ : GeneratedPropRole = @interactable2d.Decoration,
+  pickup_effect~ : GeneratedPropPickupEffect = ScorePickup,
+  pickup_rarity~ : @game.ItemRarity? = None,
+  pickup_slot~ : @game.EquipSlot? = None,
+  scale~ : Double = 1.0,
+  yaw_degrees~ : Double = 0.0,
+  x_offset_tiles~ : Double = 2.0,
+  z_offset_tiles~ : Double = 0.0,
 ) -> GeneratedPropPlacement {
   {
     source_path,
@@ -46,7 +46,7 @@ fn default_generated_prop_manifest() -> Array[GeneratedPropPlacement] {
 
 ///|
 fn default_generated_prop_manifest_for_floor(
-  floor : Int,
+  floor : Int32,
 ) -> Array[GeneratedPropPlacement] {
   let _ = floor
   []
@@ -104,7 +104,7 @@ fn generated_prop_role_is_pickup(role : GeneratedPropRole) -> Bool {
 fn generated_prop_pickup_effect_seed(
   world : @game.GameWorld,
   placement : GeneratedPropPlacement,
-) -> Int {
+) -> Int32 {
   let mut hash = world.seed * 131 + placement.floor * 17
   for ch in placement.source_path {
     hash = hash * 31 + ch.to_int()
@@ -115,7 +115,7 @@ fn generated_prop_pickup_effect_seed(
 }
 
 ///|
-fn generated_prop_item_rarity_multiplier(rarity : @game.ItemRarity) -> Int {
+fn generated_prop_item_rarity_multiplier(rarity : @game.ItemRarity) -> Int32 {
   match rarity {
     @game.Common => 1
     @game.Uncommon => 2
@@ -135,7 +135,7 @@ fn generated_prop_item_slot_name(slot : @game.EquipSlot) -> String {
 }
 
 ///|
-fn generated_prop_item_slot_index(slot : @game.EquipSlot) -> Int {
+fn generated_prop_item_slot_index(slot : @game.EquipSlot) -> Int32 {
   match slot {
     @game.Weapon => 0
     @game.Armor | @game.Helmet | @game.Gloves | @game.Boots | @game.Offhand => 1
@@ -147,8 +147,8 @@ fn generated_prop_item_slot_index(slot : @game.EquipSlot) -> Int {
 fn generated_prop_item_base_stats(
   slot : @game.EquipSlot,
   rarity : @game.ItemRarity,
-  floor : Int,
-) -> (Int, Int, Int) {
+  floor : Int32,
+) -> (Int32, Int32, Int32) {
   let rarity_mult = generated_prop_item_rarity_multiplier(rarity)
   let base = 1 + floor / 3
   match slot {
@@ -160,7 +160,7 @@ fn generated_prop_item_base_stats(
 }
 
 ///|
-fn generated_prop_item_icon_id(seed : Int, slot : @game.EquipSlot) -> Int {
+fn generated_prop_item_icon_id(seed : Int32, slot : @game.EquipSlot) -> Int32 {
   let variant = (seed / 7).abs() % 3
   generated_prop_item_slot_index(slot) + variant
 }
@@ -537,8 +537,8 @@ fn GameState::append_generated_prop_draw_commands(
   self : GameState,
   camera : @camera3d.Camera3D,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   for prop in self.generated_props {

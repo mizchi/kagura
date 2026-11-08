@@ -1,7 +1,11 @@
 ///|
-fn make_bench_sprites(count : Int, w : Int, h : Int) -> Array[SpriteInput] {
+fn make_bench_sprites(
+  count : Int32,
+  w : Int32,
+  h : Int32,
+) -> Array[SpriteInput] {
   let inputs : Array[SpriteInput] = []
-  let pixels : Array[Int] = Array::make(w * h * 4, 128)
+  let pixels : Array[Int32] = Array::make(w * h * 4, 128)
   let spec = @atlas.image_spec_with_rgba8(w, h, pixels)
   for i in 0..<count {
     inputs.push({ key: "bench_" + i.to_string(), spec, })

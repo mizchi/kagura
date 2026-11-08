@@ -5,13 +5,14 @@
 /// - mizchi/layout
 
 ///|
+#derive(Debug, Eq)
 pub struct UINodeId {
-  value : Int
-} derive(Debug, Eq)
+  value : Int32
+}
 
 ///|
 /// Construct an application-owned identity when a UI is not backed by UITree.
-pub fn UINodeId::new(value : Int) -> UINodeId {
+pub fn UINodeId::new(value : Int32) -> UINodeId {
   { value, }
 }
 
@@ -21,12 +22,13 @@ pub impl Show for UINodeId with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct LayoutConstraint {
   min_width : Double
   min_height : Double
   max_width : Double
   max_height : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for LayoutConstraint with fn output(self, logger) {
@@ -34,12 +36,23 @@ pub impl Show for LayoutConstraint with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct LayoutRect {
   x : Double
   y : Double
   width : Double
   height : Double
-} derive(Debug)
+}
+
+///|
+pub fn LayoutRect::new(
+  x : Double,
+  y : Double,
+  width : Double,
+  height : Double,
+) -> LayoutRect {
+  { x, y, width, height, }
+}
 
 ///|
 pub impl Show for LayoutRect with fn output(self, logger) {
@@ -47,10 +60,11 @@ pub impl Show for LayoutRect with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct LayoutResult {
   node_id : UINodeId
   rect : LayoutRect
-} derive(Debug)
+}
 
 ///|
 pub impl Show for LayoutResult with fn output(self, logger) {
@@ -58,17 +72,18 @@ pub impl Show for LayoutResult with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub enum UIEvent {
   PointerDown(Double, Double)
   PointerUp(Double, Double)
   PointerMove(Double, Double)
   Scroll(Double, Double)
-  KeyDown(Int)
-  KeyUp(Int)
+  KeyDown(Int32)
+  KeyUp(Int32)
   PointerCancel
   Click(UINodeId)
   Drag(UIDragEvent)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for UIEvent with fn output(self, logger) {
@@ -158,10 +173,11 @@ pub fn hit_test_all(
 }
 
 ///|
+#derive(Debug)
 pub(all) enum UIFocusEvent {
   FocusGained(UINodeId)
   FocusLost(UINodeId)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for UIFocusEvent with fn output(self, logger) {
@@ -229,7 +245,7 @@ pub fn UIFocusManager::blur(self : UIFocusManager) -> Array[UIFocusEvent] {
 }
 
 ///|
-fn UIFocusManager::find_focus_index(self : UIFocusManager) -> Int {
+fn UIFocusManager::find_focus_index(self : UIFocusManager) -> Int32 {
   match self.focused {
     None => -1
     Some(id) => {

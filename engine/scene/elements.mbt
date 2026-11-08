@@ -2,19 +2,20 @@
 /// Role/focus annotate logical UI state for snapshots; callers dispatch keys.
 /// A focused rectangle is also focusable. Rendering geometry is unchanged.
 pub fn rect(
-  key? : String = "",
-  name? : String = key,
-  x? : Double = 0.0,
-  y? : Double = 0.0,
+  key~ : String = "",
+  name~ : String = key,
+  x~ : Double = 0.0,
+  y~ : Double = 0.0,
   w~ : Double,
   h~ : Double,
-  fill? : Int = 0xFFFFFF,
-  alpha? : Double = 1.0,
-  role? : String = "",
-  focusable? : Bool = false,
-  focused? : Bool = false,
-  focus_index? : Int = 0,
-  children? : Array[SceneNode] = [],
+  fill~ : Int32 = 0xFFFFFF,
+  alpha~ : Double = 1.0,
+  role~ : String = "",
+  focusable~ : Bool = false,
+  focused~ : Bool = false,
+  focus_index~ : Int32 = 0,
+  interaction? : @kagura_ui.UIInteractionState,
+  children~ : Array[SceneNode] = [],
 ) -> SceneNode {
   let attrs = [
     ("x", @ui.attr_static(SceneDouble(x))),
@@ -26,6 +27,9 @@ pub fn rect(
   ]
   if role != "" {
     attrs.push(("role", @ui.attr_static(SceneText(role))))
+  }
+  if interaction is Some(state) {
+    attrs.push(("interaction", @ui.attr_static(SceneInteraction(state))))
   }
   if focusable || focused {
     attrs.push(("focusable", @ui.attr_static(SceneInt(1))))
@@ -39,13 +43,13 @@ pub fn rect(
 
 ///|
 pub fn label(
-  key? : String = "",
-  name? : String = key,
-  x? : Double = 0.0,
-  y? : Double = 0.0,
+  key~ : String = "",
+  name~ : String = key,
+  x~ : Double = 0.0,
+  y~ : Double = 0.0,
   content~ : String,
-  color? : Int = 0xFFFFFF,
-  scale? : Double = 1.0,
+  color~ : Int32 = 0xFFFFFF,
+  scale~ : Double = 1.0,
 ) -> SceneNode {
   @ui.h(
     "label",
@@ -62,11 +66,11 @@ pub fn label(
 
 ///|
 pub fn group(
-  key? : String = "",
-  name? : String = key,
-  x? : Double = 0.0,
-  y? : Double = 0.0,
-  ui_hidden? : Bool = false,
+  key~ : String = "",
+  name~ : String = key,
+  x~ : Double = 0.0,
+  y~ : Double = 0.0,
+  ui_hidden~ : Bool = false,
   children~ : Array[SceneNode],
 ) -> SceneNode {
   let attrs = [
@@ -82,14 +86,14 @@ pub fn group(
 
 ///|
 pub fn line(
-  key? : String = "",
-  name? : String = key,
+  key~ : String = "",
+  name~ : String = key,
   x0~ : Double,
   y0~ : Double,
   x1~ : Double,
   y1~ : Double,
-  width? : Double = 1.0,
-  color? : Int = 0xFFFFFF,
+  width~ : Double = 1.0,
+  color~ : Int32 = 0xFFFFFF,
 ) -> SceneNode {
   @ui.h(
     "line",
@@ -107,14 +111,14 @@ pub fn line(
 
 ///|
 pub fn rect_outline(
-  key? : String = "",
-  name? : String = key,
+  key~ : String = "",
+  name~ : String = key,
   x~ : Double,
   y~ : Double,
   w~ : Double,
   h~ : Double,
-  line_width? : Double = 1.0,
-  color? : Int = 0xFFFFFF,
+  line_width~ : Double = 1.0,
+  color~ : Int32 = 0xFFFFFF,
 ) -> SceneNode {
   @ui.h(
     "rect_outline",

@@ -1,8 +1,8 @@
 ///|
 fn build_hunting_chunks(
   dungeon : @game.DungeonData,
-  seed : Int,
-  region? : Int = -1,
+  seed : Int32,
+  region~ : Int32 = -1,
 ) -> Array[DungeonChunk] {
   let chunks : Array[DungeonChunk] = []
   for cz in 0..<((dungeon.grid.height + chunk_size - 1) / chunk_size) {
@@ -16,17 +16,17 @@ fn build_hunting_chunks(
 ///|
 fn build_hunting_chunk(
   dungeon : @game.DungeonData,
-  seed : Int,
-  cx : Int,
-  cz : Int,
-  region? : Int = -1,
+  seed : Int32,
+  cx : Int32,
+  cz : Int32,
+  region~ : Int32 = -1,
 ) -> DungeonChunk {
   let props = (if dungeon.landscape is Some(_) {
     @game.landscape_props(seed)
   } else {
     @game.hunting_site_props(seed)
   }).filter(p => @game.hunting_prop_present(p, dungeon.grid))
-  let occupied : Map[Int, Bool] = Map([])
+  let occupied : Map[Int32, Bool] = Map([])
   for prop in props {
     for z in prop.z..<(prop.z + prop.depth) {
       for x in prop.x..<(prop.x + prop.width) {
@@ -45,7 +45,7 @@ fn build_hunting_chunk(
   let accum = Array::makei(hunting_palette.length(), fn(_) {
     @procedural3d.RigidGeometry::new()
   })
-  let grass : Array[(Int, Int, Int)] = []
+  let grass : Array[(Int32, Int32, Int32)] = []
   for z in (cz * chunk_size)..<@cmp.minimum(h, (cz + 1) * chunk_size) {
     for x in (cx * chunk_size)..<@cmp.minimum(w, (cx + 1) * chunk_size) {
       if region >= 0 &&
@@ -96,7 +96,7 @@ fn build_hunting_chunk(
         0
       }
       // Surface triangles share their diagonal with HeightField.sample/raycast.
-      fn ground_corner(gx : Int, gz : Int) -> @math3d.Vec3 {
+      fn ground_corner(gx : Int32, gz : Int32) -> @math3d.Vec3 {
         if landscape is Some(land) {
           return @math3d.Vec3::new(
             gx.to_double(),
@@ -311,7 +311,7 @@ fn build_hunting_chunk(
   }
   let groups : Array[DungeonMeshGroup] = []
   let all_v : Array[Double] = []
-  let all_i : Array[Int] = []
+  let all_i : Array[Int32] = []
   for i in 0..<accum.length() {
     for vertex in 0..<(accum[i].vertices.length() / 8) {
       accum[i].vertices[vertex * 8 + 6] = i.to_double()
@@ -351,7 +351,7 @@ fn build_hunting_chunk(
 ///|
 fn build_visible_hunting_mesh_cache(
   chunks : Array[DungeonChunk],
-  combined? : Bool = true,
+  combined~ : Bool = true,
 ) -> VisibleDungeonMeshCache {
   let palette = if chunks.is_empty() {
     hunting_palette
@@ -471,7 +471,7 @@ fn hunting_broken_paving(
   g : @procedural3d.RigidGeometry,
   x : Double,
   z : Double,
-  hash : Int,
+  hash : Int32,
 ) -> Unit {
   for
     i, rect in [

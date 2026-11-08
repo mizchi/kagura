@@ -28,8 +28,10 @@ fn GameState::handle_pause_input(self : GameState) -> Bool {
   if self.world.mode != @game.Playing {
     return false
   }
-  if self.paused && self.world.ui_mode == @game.UIMode::None &&
-    !self.camera_settings.editing && !self.terrain_lab.editing &&
+  if self.paused &&
+    self.world.ui_mode == @game.UIMode::None &&
+    !self.camera_settings.editing &&
+    !self.terrain_lab.editing &&
     @inputstate.is_key_just_pressed(self.input.key_state, 72) {
     self.return_to_save_select()
     return true

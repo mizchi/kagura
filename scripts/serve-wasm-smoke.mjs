@@ -1,3 +1,4 @@
+import {prepareMoonDeps} from './prepare-moon-deps.mjs';
 import { spawnSync } from "node:child_process";
 import { createServer } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -37,6 +38,7 @@ const buildRuntimeSmoke = (target) => {
     console.error("[e2e] runtime_smoke example not found");
     process.exit(1);
   }
+  prepareMoonDeps(dir);
   const result = spawnSync(
     "moon",
     ["build", ".", "--target", target],
@@ -66,6 +68,7 @@ const buildJsExample = (name) => {
   }
   // Ensure dependencies are resolved (CI may not have run moon update in example dirs)
   spawnSync("moon", ["update"], { cwd: dir, stdio: "inherit" });
+  prepareMoonDeps(dir);
   const result = spawnSync("moon", ["build", existsSync(join(dir, "moon.pkg")) ? "." : "src", "--target", "js"], {
     cwd: dir,
     stdio: "inherit",

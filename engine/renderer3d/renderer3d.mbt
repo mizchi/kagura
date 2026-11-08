@@ -10,10 +10,10 @@ pub(all) struct RenderShaders3D {
 ///|
 pub fn RenderShaders3D::new(
   shader3d~ : @gfx.ShaderHandle,
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> RenderShaders3D {
   {
     shader3d,
@@ -27,8 +27,8 @@ pub fn RenderShaders3D::new(
 ///|
 pub(all) struct RenderFrame3D {
   dst : @gfx.ImageHandle
-  screen_w : Int
-  screen_h : Int
+  screen_w : Int32
+  screen_h : Int32
   shaders : RenderShaders3D
 }
 
@@ -36,12 +36,12 @@ pub(all) struct RenderFrame3D {
 pub fn RenderFrame3D::new(
   dst~ : @gfx.ImageHandle,
   shader3d~ : @gfx.ShaderHandle,
-  screen_w~ : Int,
-  screen_h~ : Int,
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  screen_w~ : Int32,
+  screen_h~ : Int32,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> RenderFrame3D {
   {
     dst,
@@ -107,12 +107,12 @@ pub fn render_scene3d_to_dst(
   scene : @scene3d.Scene3D,
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  screen_w : Int32,
+  screen_h : Int32,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   render_scene3d(
     scene,
@@ -134,7 +134,7 @@ pub fn render_scene3d_graph(
   graph : @scene3d.SceneGraph,
   camera : @camera3d.Camera3D,
   frame : RenderFrame3D,
-  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
 ) -> Array[@gfx.DrawTrianglesCommand] {
   @scene3d.render_scene3d_graph_gpu(
     graph,
@@ -157,7 +157,7 @@ pub fn append_scene3d_graph_commands(
   graph : @scene3d.SceneGraph,
   camera : @camera3d.Camera3D,
   frame : RenderFrame3D,
-  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
 ) -> Unit {
   append_all(commands, render_scene3d_graph(graph, camera, frame, lighting~))
 }
@@ -166,15 +166,15 @@ pub fn append_scene3d_graph_commands(
 pub fn render_scene3d_graph_to_dst(
   graph : @scene3d.SceneGraph,
   camera : @camera3d.Camera3D,
-  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
-  screen_w : Int,
-  screen_h : Int,
-  shader3d_textured? : @gfx.ShaderHandle? = None,
-  shader3d_pbr? : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
-  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  screen_w : Int32,
+  screen_h : Int32,
+  shader3d_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr~ : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_skinned~ : @gfx.ShaderHandle? = None,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   render_scene3d_graph(
     graph,
@@ -198,8 +198,8 @@ pub fn render_scene3d_to_pipeline(
   scene : @scene3d.Scene3D,
   pipeline : @render_pipeline3d.RenderPipeline3D,
   frame : RenderFrame3D,
-  depth_casters? : Array[@shadow3d.ShadowCaster] = [],
-  hit_flash? : Double = 0.0,
+  depth_casters~ : Array[@shadow3d.ShadowCaster] = [],
+  hit_flash~ : Double = 0.0,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   append_scene3d_commands(
@@ -227,9 +227,9 @@ pub fn render_scene3d_graph_to_pipeline(
   camera : @camera3d.Camera3D,
   pipeline : @render_pipeline3d.RenderPipeline3D,
   frame : RenderFrame3D,
-  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
-  depth_casters? : Array[@shadow3d.ShadowCaster] = [],
-  hit_flash? : Double = 0.0,
+  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  depth_casters~ : Array[@shadow3d.ShadowCaster] = [],
+  hit_flash~ : Double = 0.0,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   append_scene3d_graph_commands(

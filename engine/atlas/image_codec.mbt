@@ -3,11 +3,12 @@
 /// Keeps kagura's ImageSpec as the primary data shape.
 
 ///|
+#derive(Debug)
 pub enum RasterResizeMethod {
   Nearest
   Bilinear
   Bicubic
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RasterResizeMethod with fn output(self, logger) {
@@ -15,11 +16,12 @@ pub impl Show for RasterResizeMethod with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug, Eq)
 pub enum RasterImageFormat {
   Png
   Jpeg
   Bmp
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for RasterImageFormat with fn output(self, logger) {
@@ -57,7 +59,7 @@ pub fn raster_image_format_bmp() -> RasterImageFormat {
 }
 
 ///|
-fn clamp_u8_channel_for_bytes(channel : Int) -> Int {
+fn clamp_u8_channel_for_bytes(channel : Int32) -> Int32 {
   if channel < 0 {
     0
   } else if channel > 255 {
@@ -68,8 +70,8 @@ fn clamp_u8_channel_for_bytes(channel : Int) -> Int {
 }
 
 ///|
-fn bytes_to_rgba8_channels(data : Bytes) -> Array[Int] {
-  let channels : Array[Int] = []
+fn bytes_to_rgba8_channels(data : Bytes) -> Array[Int32] {
+  let channels : Array[Int32] = []
   for byte in data.to_array() {
     channels.push(byte.to_int())
   }
@@ -77,7 +79,7 @@ fn bytes_to_rgba8_channels(data : Bytes) -> Array[Int] {
 }
 
 ///|
-fn rgba8_channels_to_bytes(channels : Array[Int]) -> Bytes {
+fn rgba8_channels_to_bytes(channels : Array[Int32]) -> Bytes {
   let out : Array[Byte] = []
   for channel in channels {
     out.push(clamp_u8_channel_for_bytes(channel).to_byte())
@@ -107,7 +109,7 @@ fn image_spec_to_image_data(spec : ImageSpec) -> @image.ImageData {
   let channels = if normalized.length() >= expected {
     normalized
   } else {
-    let fallback : Array[Int] = []
+    let fallback : Array[Int32] = []
     for _ in 0..<expected {
       fallback.push(0)
     }
@@ -132,7 +134,7 @@ fn to_image_resize_method(
 }
 
 ///|
-fn bytes_has_prefix(bytes : Bytes, prefix : Array[Int]) -> Bool {
+fn bytes_has_prefix(bytes : Bytes, prefix : Array[Int32]) -> Bool {
   if bytes.length() < prefix.length() {
     return false
   }
@@ -259,7 +261,7 @@ pub fn encode_png_image_spec(
 ///|
 pub fn encode_jpeg_image_spec(
   spec : ImageSpec,
-  quality? : Int,
+  quality? : Int32,
 ) -> Bytes raise @image.EncodeError {
   @image.encode_jpeg(image_spec_to_image_data(spec), quality?)
 }
@@ -286,8 +288,8 @@ pub fn encode_image_spec(
 ///|
 pub fn resize_image_spec(
   spec : ImageSpec,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   resize_method : RasterResizeMethod,
 ) -> ImageSpec raise @image.EncodeError {
   let safe_width = if width <= 0 { 1 } else { width }

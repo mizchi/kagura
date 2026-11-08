@@ -6,7 +6,7 @@ pub(all) struct RoundTripImportedNode {
   scale : @math3d.Vec3
   color : @math3d.Vec4
   primitive_kind : String?
-  stamp_count : Int?
+  stamp_count : Int32?
 }
 
 ///|
@@ -20,7 +20,7 @@ pub(all) struct RoundTripImport {
 pub(all) struct RoundTripDiffReport {
   filename : String
   imported_document_name : String
-  recognized_node_count : Int
+  recognized_node_count : Int32
   missing_source_ids : Array[String]
   extra_source_ids : Array[String]
   moved_source_ids : Array[String]
@@ -48,7 +48,7 @@ fn roundtrip_json_string(val : Json) -> String {
 }
 
 ///|
-fn roundtrip_json_int_opt(val : Json) -> Int? {
+fn roundtrip_json_int_opt(val : Json) -> Int32? {
   match val {
     Number(n, ..) => Some(n.to_int())
     _ => None
@@ -300,7 +300,7 @@ pub fn compare_roundtrip_import(
 }
 
 ///|
-fn roundtrip_changed_count(report : RoundTripDiffReport) -> Int {
+fn roundtrip_changed_count(report : RoundTripDiffReport) -> Int32 {
   report.moved_source_ids.length() +
   report.rescaled_source_ids.length() +
   report.color_mismatches.length() +

@@ -2,17 +2,17 @@
 // that blocks movement is authored into the same grid consumed by pathfinding.
 
 ///|
-pub fn hunting_hash(x : Int, z : Int, seed : Int) -> Int {
+pub fn hunting_hash(x : Int32, z : Int32, seed : Int32) -> Int32 {
   ((x * 7919 + z * 104729 + seed % 10000 * 31) % 10007 + 10007) % 10007
 }
 
 ///|
-pub fn hunting_road_z(x : Int) -> Double {
+pub fn hunting_road_z(x : Int32) -> Double {
   40.0 + @math.sin(x.to_double() * 0.09) * 9.0
 }
 
 ///|
-pub fn hunting_landmark(x : Int, z : Int) -> Bool {
+pub fn hunting_landmark(x : Int32, z : Int32) -> Bool {
   (x == 27 && z == 46) || (x == 51 && z == 28) || (x == 87 && z == 48)
 }
 
@@ -28,7 +28,7 @@ pub fn hunting_clearings() -> Array[@terrain.Room] {
 }
 
 ///|
-pub fn generate_hunting_grounds(seed : Int) -> DungeonData {
+pub fn generate_hunting_grounds(seed : Int32) -> DungeonData {
   let grid = @terrain.Grid2D::make(map_cols, map_rows, @terrain.Floor)
   let rooms = hunting_clearings()
   for z in 0..<map_rows {
@@ -80,7 +80,7 @@ fn append_hunting_approach_enemies(
   enemies : Array[Enemy],
   dungeon : DungeonData,
   params : BalanceParams,
-  floor : Int,
+  floor : Int32,
 ) -> Unit {
   // The dungeon spawner skips the starting room. In an open woodland this
   // left the whole initial camera empty; put a small pack ahead of the hunter.

@@ -1,11 +1,12 @@
 ///|
+#derive(Eq, Debug, ToJson, FromJson)
 pub(all) enum TerrainPattern {
   Flat
   Perlin
   DiamondSquare
   Voronoi
   Hybrid
-} derive(Eq, Debug, ToJson, FromJson)
+}
 
 ///|
 pub extend TerrainPattern with Eq::{equal, not_equal}
@@ -20,13 +21,14 @@ pub extend TerrainPattern with ToJson::{to_json}
 pub extend TerrainPattern with @moonbitlang/core/json.FromJson::{from_json}
 
 ///|
+#derive(Eq, ToJson, FromJson)
 pub(all) struct TerrainConfig {
   pattern : TerrainPattern
-  seed : Int
+  seed : Int32
   amplitude : Double
   scale : Double
   roughness : Double
-} derive(Eq, ToJson, FromJson)
+}
 
 ///|
 pub extend TerrainConfig with Eq::{equal, not_equal}
@@ -68,15 +70,15 @@ pub fn TerrainConfig::validated(self : TerrainConfig) -> TerrainConfig {
 /// Unit-spaced corner samples. Each cell is split along (0,0)→(1,1).
 /// Rendering and collision must use this same triangulation, not bilinear heights.
 pub struct HeightField {
-  cells_x : Int
-  cells_z : Int
+  cells_x : Int32
+  cells_z : Int32
   values : Array[Double]
 }
 
 ///|
 pub fn HeightField::new(
-  cells_x : Int,
-  cells_z : Int,
+  cells_x : Int32,
+  cells_z : Int32,
   values : Array[Double],
 ) -> HeightField {
   guard cells_x > 0 &&
@@ -88,7 +90,7 @@ pub fn HeightField::new(
 }
 
 ///|
-pub fn HeightField::at(self : HeightField, x : Int, z : Int) -> Double {
+pub fn HeightField::at(self : HeightField, x : Int32, z : Int32) -> Double {
   self.values[z.clamp(min=0, max=self.cells_z) * (self.cells_x + 1) +
   x.clamp(min=0, max=self.cells_x)]
 }
@@ -96,8 +98,8 @@ pub fn HeightField::at(self : HeightField, x : Int, z : Int) -> Double {
 ///|
 pub fn HeightField::set(
   self : HeightField,
-  x : Int,
-  z : Int,
+  x : Int32,
+  z : Int32,
   value : Double,
 ) -> Unit {
   self.values[z * (self.cells_x + 1) + x] = value
@@ -129,10 +131,10 @@ pub fn HeightField::sample(
 ///|
 pub fn HeightField::crop(
   self : HeightField,
-  x : Int,
-  z : Int,
-  cells_x : Int,
-  cells_z : Int,
+  x : Int32,
+  z : Int32,
+  cells_x : Int32,
+  cells_z : Int32,
 ) -> HeightField {
   HeightField::new(
     cells_x,
@@ -175,12 +177,13 @@ pub fn HeightField::limit_slope(self : HeightField, rise : Double) -> Unit {
 }
 
 ///|
+#derive(ToJson)
 pub(all) struct HeightFieldStats {
   minimum : Double
   maximum : Double
   max_slope : Double
-  triangles : Int
-} derive(ToJson)
+  triangles : Int32
+}
 
 ///|
 pub extend HeightFieldStats with ToJson::{to_json}
@@ -204,8 +207,8 @@ pub fn HeightField::statistics(self : HeightField) -> HeightFieldStats {
 
 ///|
 pub fn generate_height_field(
-  cells_x : Int,
-  cells_z : Int,
+  cells_x : Int32,
+  cells_z : Int32,
   config : TerrainConfig,
 ) -> HeightField {
   let cells_x = cells_x.clamp(min=1, max=512)

@@ -17,6 +17,7 @@
 /// - Weak Potion: Apply 3 Weak to target enemy
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum PotionId {
   FirePotion // 20 damage to target
   BlockPotion // 12 block
@@ -25,7 +26,7 @@ pub(all) enum PotionId {
   FruitJuice // +5 max HP (used outside combat)
   ExplosivePotion // 10 damage to ALL
   WeakPotion // Apply 3 Weak to target
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for PotionId with fn output(self, logger) {
@@ -33,13 +34,14 @@ pub impl Show for PotionId with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct PotionDef {
   id : PotionId
   name : String
   description : String
   needs_target : Bool // true = target an enemy
   usable_in_combat : Bool // false = map-only (e.g. Fruit Juice)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for PotionDef with fn output(self, logger) {
@@ -109,14 +111,14 @@ pub fn potion_def(id : PotionId) -> PotionDef {
 }
 
 ///|
-let max_potions : Int = 3
+let max_potions : Int32 = 3
 
 ///|
 /// Apply a potion effect during combat
 pub fn use_potion_in_combat(
   state : BattleState,
   potion : PotionId,
-  target_index : Int,
+  target_index : Int32,
 ) -> Bool {
   let def = potion_def(potion)
   if !def.usable_in_combat {
@@ -195,7 +197,7 @@ fn potion_pool() -> Array[PotionId] {
 
 ///|
 /// Generate a random potion reward
-pub fn random_potion(seed : Int) -> PotionId {
+pub fn random_potion(seed : Int32) -> PotionId {
   let pool = potion_pool()
   let idx = seed.abs() % pool.length()
   pool[idx]

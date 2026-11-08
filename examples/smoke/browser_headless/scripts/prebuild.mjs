@@ -1,28 +1,32 @@
-// Combined prebuild: kagura native link flags + V8 bridge
-import { execSync } from "node:child_process";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+// Combined native link configuration for Kagura and the V8 host adapter.
+import {execFileSync} from 'node:child_process';
+import {resolve, join} from 'node:path';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(__dirname, "..");
+const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
-// Run kagura prebuild and capture output
-const kaguraOut = execSync(
-  `node ${path.resolve(root, "../../scripts/moon-prebuild-native-link-flags.cjs")}`,
-  { cwd: root, encoding: "utf-8" }
-).trim();
-const kaguraVars = JSON.parse(kaguraOut).vars || {};
+export function combinePrebuild(input = {}, {moduleRoot = root, run = execFileSync} = {}) {
+  const scripts = [
+    resolve(moduleRoot, '../../../scripts/moon-prebuild-native-link-flags.cjs'),
+    join(moduleRoot, 'scripts/mizchi-v8-consumer-prebuild.mjs'),
+  ];
+  const vars = {};
+  for (const script of scripts) {
+    const output = run(process.execPath, [script], {
+      cwd: moduleRoot,
+      input: JSON.stringify(input),
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    }).trim();
+    const last = output.split('\n').at(-1);
+    Object.assign(vars, JSON.parse(last).vars ?? {});
+  }
+  return {vars};
+}
 
-// Run V8 prebuild and capture output
-const v8Out = execSync(
-  `node ${path.resolve(__dirname, "mizchi-v8-consumer-prebuild.mjs")}`,
-  { cwd: root, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] }
-).trim();
-// V8 prebuild may have cargo output before JSON; extract last line
-const v8Lines = v8Out.split("\n");
-const v8Json = v8Lines[v8Lines.length - 1];
-const v8Vars = JSON.parse(v8Json).vars || {};
-
-// Merge
-const merged = { vars: { ...kaguraVars, ...v8Vars } };
-process.stdout.write(JSON.stringify(merged));
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  let raw = '';
+  for await (const chunk of process.stdin) raw += chunk;
+  const input = raw.trim() ? JSON.parse(raw) : {};
+  process.stdout.write(JSON.stringify(combinePrebuild(input, {moduleRoot: input.paths?.module_root ?? root})));
+}

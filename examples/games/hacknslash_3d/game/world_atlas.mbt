@@ -1,16 +1,19 @@
 // Bounded outdoor world. Simulation state is retained independently of render resources.
 
 ///|
+#derive(ToJson)
 pub(all) struct WorldRegion {
-  id : Int
+  id : Int32
   name : String
   subtitle : String
-  x : Int
-  z : Int
-  tier : Int
-} derive(ToJson)
+  x : Int32
+  z : Int32
+  tier : Int32
+}
+
 ///|
 pub extend WorldRegion with ToJson::{to_json}
+
 ///|
 pub let world_regions : Array[WorldRegion] = [
   {
@@ -49,8 +52,8 @@ pub let world_regions : Array[WorldRegion] = [
 
 ///|
 pub(all) struct RegionState {
-  id : Int
-  seed : Int
+  id : Int32
+  seed : Int32
   dungeon : DungeonData
   enemies : Array[Enemy]
   items : Array[ItemDrop]
@@ -64,19 +67,22 @@ pub(all) struct RegionState {
 pub(all) struct WorldAtlas {
   mut elevation : HuntingElevation?
   mut plains_relief : Double
-  generator_version : Int
-  world_seed : Int
-  mut current : Int
-  mut last_waypoint : Int
+  generator_version : Int32
+  world_seed : Int32
+  mut current : Int32
+  mut last_waypoint : Int32
   regions : Array[RegionState?]
   unlocked : Array[Bool]
   visited : Array[Bool]
-  mut travel_target : Int?
-  mut revision : Int
+  mut travel_target : Int32?
+  mut revision : Int32
 }
 
 ///|
-pub fn WorldAtlas::new(seed : Int, generator_version? : Int = 3) -> WorldAtlas {
+pub fn WorldAtlas::new(
+  seed : Int32,
+  generator_version~ : Int32 = 3,
+) -> WorldAtlas {
   {
     elevation: None,
     plains_relief: 1.0,
@@ -93,7 +99,7 @@ pub fn WorldAtlas::new(seed : Int, generator_version? : Int = 3) -> WorldAtlas {
 }
 
 ///|
-pub fn region_neighbor(id : Int, dx : Int, dz : Int) -> Int? {
+pub fn region_neighbor(id : Int32, dx : Int32, dz : Int32) -> Int32? {
   if id < 0 || id >= world_regions.length() || dx.abs() + dz.abs() != 1 {
     return None
   }
@@ -107,12 +113,12 @@ pub fn region_neighbor(id : Int, dx : Int, dz : Int) -> Int? {
 }
 
 ///|
-pub fn region_seed(seed : Int, id : Int) -> Int {
+pub fn region_seed(seed : Int32, id : Int32) -> Int32 {
   seed + id * 1013
 }
 
 ///|
-pub fn world_waypoint_position(id : Int) -> (Double, Double) {
+pub fn world_waypoint_position(id : Int32) -> (Double, Double) {
   let (x, z) = match id {
     1 => (43.5, 62.5)
     2 => (59.5, 29.5)
@@ -124,10 +130,10 @@ pub fn world_waypoint_position(id : Int) -> (Double, Double) {
 
 ///|
 pub fn generate_world_region(
-  seed : Int,
-  id : Int,
-  generator_version? : Int = 3,
-  plains_relief? : Double = 1.0,
+  seed : Int32,
+  id : Int32,
+  generator_version~ : Int32 = 3,
+  plains_relief~ : Double = 1.0,
 ) -> DungeonData {
   let dungeon = generate_hunting_grounds(seed)
   let grid = dungeon.grid
@@ -191,7 +197,7 @@ pub fn GameWorld::capture_region(self : GameWorld) -> Unit {
 }
 
 ///|
-pub fn GameWorld::reset_world_atlas(self : GameWorld, seed : Int) -> Unit {
+pub fn GameWorld::reset_world_atlas(self : GameWorld, seed : Int32) -> Unit {
   self.atlas = if self.hunting_grounds && self.authored_scene is None {
     Some(WorldAtlas::new(seed))
   } else {
@@ -204,7 +210,7 @@ pub fn GameWorld::reset_world_atlas(self : GameWorld, seed : Int) -> Unit {
 }
 
 ///|
-pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
+pub fn GameWorld::prepare_region(self : GameWorld, id : Int32) -> Bool {
   guard self.atlas is Some(atlas) else { return false }
   if self.authored_scene is Some(_) || id < 0 || id >= world_regions.length() {
     return false
@@ -254,7 +260,7 @@ pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
 
 ///|
 /// Only nearby neighbors are requested. Generating one never activates or discovers it.
-pub fn GameWorld::preload_regions(self : GameWorld) -> Array[Int] {
+pub fn GameWorld::preload_regions(self : GameWorld) -> Array[Int32] {
   guard self.atlas is Some(atlas) else { return [] }
   if self.authored_scene is Some(_) {
     return []
@@ -264,7 +270,7 @@ pub fn GameWorld::preload_regions(self : GameWorld) -> Array[Int] {
   }
   let x = self.player.x / tile_size
   let z = self.player.y / tile_size
-  let requests : Array[Int] = []
+  let requests : Array[Int32] = []
   for
     (dx, dz, close) in [
       (-1, 0, x < 24.0),
@@ -284,7 +290,7 @@ pub fn GameWorld::preload_regions(self : GameWorld) -> Array[Int] {
 ///|
 pub fn GameWorld::boundary_destination(
   self : GameWorld,
-) -> (Int, Double, Double)? {
+) -> (Int32, Double, Double)? {
   guard self.atlas is Some(atlas) else { return None }
   if self.arts.guarding ||
     self.arts.action is Some(_) ||
@@ -347,7 +353,7 @@ pub fn GameWorld::activate_nearby_waypoint(self : GameWorld) -> Bool {
 }
 
 ///|
-pub fn GameWorld::request_waypoint(self : GameWorld, id : Int) -> Bool {
+pub fn GameWorld::request_waypoint(self : GameWorld, id : Int32) -> Bool {
   guard self.atlas is Some(atlas) else { return false }
   if self.hunter_action_locked() ||
     self.mode != Playing ||
@@ -370,7 +376,7 @@ pub fn GameWorld::request_waypoint(self : GameWorld, id : Int) -> Bool {
 /// Render ownership stays outside the game. The app commits only once its prepared mesh is ready.
 pub fn GameWorld::enter_region(
   self : GameWorld,
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
 ) -> Bool {

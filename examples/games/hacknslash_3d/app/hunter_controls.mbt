@@ -1,7 +1,7 @@
 // Input-to-camera mapping is pure; world movement uses the resulting yaw.
 
 ///|
-fn hunter_render_size(width : Double, height : Double) -> (Int, Int) {
+fn hunter_render_size(width : Double, height : Double) -> (Int32, Int32) {
   let w = @cmp.maximum(1.0, width)
   let h = @cmp.maximum(1.0, height)
   let scale = @cmp.minimum(1.25, (921600.0 / (w * h)).sqrt())
@@ -13,7 +13,7 @@ fn hunter_responsive_camera(
   camera : @camera3d.OrbitCamera,
   width : Double,
   height : Double,
-  tps? : Bool = false,
+  tps~ : Bool = false,
 ) -> @camera3d.OrbitCamera {
   let aspect = width / @cmp.maximum(1.0, height)
   let portrait = @cmp.minimum(1.6, @cmp.maximum(1.0, 1.0 / aspect))
@@ -48,7 +48,7 @@ fn hunter_camera_input(
   was_dragging : Bool,
   scale_x : Double,
   scale_y : Double,
-  tps? : Bool = false,
+  tps~ : Bool = false,
 ) -> @camera3d.OrbitCamera {
   let dragging = input.pressed_mouse_buttons.contains(1)
   let yaw_delta = (if input.pressed_keys.contains(81) { 0.025 } else { 0.0 }) +
@@ -129,7 +129,7 @@ fn hunter_aim_angle(
   player_y : Double,
   ground_y : Double,
   fallback : Double,
-  dungeon? : @game.DungeonData? = None,
+  dungeon~ : @game.DungeonData? = None,
 ) -> Double {
   guard hunter_ground_point(camera, cursor_x, cursor_y, ground_y, dungeon~)
     is Some((x, y)) else {

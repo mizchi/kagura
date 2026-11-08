@@ -2,10 +2,11 @@
 /// UI node tree and style definitions.
 
 ///|
+#derive(Debug)
 pub(all) enum UIDirection {
   Row
   Column
-} derive(Debug)
+}
 
 ///|
 pub impl Show for UIDirection with fn output(self, logger) {
@@ -13,11 +14,12 @@ pub impl Show for UIDirection with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) enum UISizing {
   Fixed(Double)
   Percent(Double)
   Auto
-} derive(Debug)
+}
 
 ///|
 pub impl Show for UISizing with fn output(self, logger) {
@@ -25,10 +27,11 @@ pub impl Show for UISizing with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) enum UIFlexWrap {
   NoWrap
   Wrap
-} derive(Debug)
+}
 
 ///|
 pub impl Show for UIFlexWrap with fn output(self, logger) {
@@ -36,6 +39,7 @@ pub impl Show for UIFlexWrap with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum UIAlignment {
   Start
   End
@@ -47,7 +51,7 @@ pub(all) enum UIAlignment {
   SpaceEvenly
   Stretch
   Baseline
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for UIAlignment with fn output(self, logger) {
@@ -55,6 +59,7 @@ pub impl Show for UIAlignment with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct UINodeStyle {
   direction : UIDirection
   width : UISizing
@@ -67,7 +72,7 @@ pub(all) struct UINodeStyle {
   align : UIAlignment
   justify_content : UIAlignment
   flex_wrap : UIFlexWrap
-} derive(Debug)
+}
 
 ///|
 pub impl Show for UINodeStyle with fn output(self, logger) {
@@ -92,11 +97,12 @@ pub fn default_node_style() -> UINodeStyle {
 }
 
 ///|
+#derive(Debug)
 pub struct UINode {
   id : UINodeId
   style : UINodeStyle
   children : Array[UINodeId]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for UINode with fn output(self, logger) {
@@ -105,8 +111,8 @@ pub impl Show for UINode with fn output(self, logger) {
 
 ///|
 pub struct UITree {
-  nodes : Map[Int, UINode]
-  mut next_id : Int
+  nodes : Map[Int32, UINode]
+  mut next_id : Int32
 }
 
 ///|
@@ -133,7 +139,7 @@ pub fn UITree::get_node(self : UITree, id : UINodeId) -> UINode? {
 }
 
 ///|
-pub fn UITree::node_count(self : UITree) -> Int {
+pub fn UITree::node_count(self : UITree) -> Int32 {
   self.nodes.length()
 }
 
@@ -151,7 +157,7 @@ fn ui_clamp(value : Double, min_val : Double, max_val : Double) -> Double {
 fn ui_compute_justify(
   justify : UIAlignment,
   free_space : Double,
-  item_count : Int,
+  item_count : Int32,
 ) -> (Double, Double) {
   if item_count == 0 {
     return (0.0, 0.0)

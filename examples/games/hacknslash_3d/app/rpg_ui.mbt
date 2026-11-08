@@ -51,7 +51,7 @@ fn format_affix_stats(a : @game.Affix) -> String {
 }
 
 ///|
-fn format_signed(v : Int) -> String {
+fn format_signed(v : Int32) -> String {
   if v > 0 {
     "+" + v.to_string()
   } else {
@@ -60,7 +60,7 @@ fn format_signed(v : Int) -> String {
 }
 
 ///|
-fn diff_color(diff : Int) -> Int {
+fn diff_color(diff : Int32) -> Int32 {
   if diff > 0 {
     0x44FF44 // green = improvement
   } else {
@@ -69,7 +69,7 @@ fn diff_color(diff : Int) -> Int {
 }
 
 ///|
-fn format_diff(diff : Int) -> String {
+fn format_diff(diff : Int32) -> String {
   if diff > 0 {
     "+" + diff.to_string()
   } else {
@@ -82,11 +82,11 @@ fn draw_stat_with_diff(
   ctx : @hud.HudContext,
   cmds : Array[@gfx.DrawTrianglesCommand],
   label : String,
-  current : Int,
-  preview : Int?,
+  current : Int32,
+  preview : Int32?,
   x : Double,
   y : Double,
-  color : Int,
+  color : Int32,
 ) -> Unit {
   let base_text = label + ":" + current.to_string()
   ctx.draw_text(cmds, base_text, ui_font, x, y, color)
@@ -116,11 +116,11 @@ fn draw_stat_pct_with_diff(
   ctx : @hud.HudContext,
   cmds : Array[@gfx.DrawTrianglesCommand],
   label : String,
-  current_pct : Int,
-  preview_pct : Int?,
+  current_pct : Int32,
+  preview_pct : Int32?,
   x : Double,
   y : Double,
-  color : Int,
+  color : Int32,
 ) -> Unit {
   let base_text = label + ":" + current_pct.to_string() + "%"
   ctx.draw_text(cmds, base_text, ui_font, x, y, color)
@@ -745,7 +745,7 @@ fn draw_circle_node(
   cx : Double,
   cy : Double,
   radius : Double,
-  color : Int,
+  color : Int32,
 ) -> Unit {
   // Approximate circle with overlapping rects (cross pattern)
   let r = radius

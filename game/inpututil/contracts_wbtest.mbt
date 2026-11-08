@@ -1,5 +1,5 @@
 ///|
-fn snapshot_with_pressed_keys(keys : Array[Int]) -> @core.InputSnapshot {
+fn snapshot_with_pressed_keys(keys : Array[Int32]) -> @core.InputSnapshot {
   @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, keys)
 }
 

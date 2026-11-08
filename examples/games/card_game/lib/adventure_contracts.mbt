@@ -1,4 +1,5 @@
 ///|
+#derive(Debug, Eq)
 pub(all) enum RoomKind {
   RoomBattle
   RoomElite
@@ -8,40 +9,43 @@ pub(all) enum RoomKind {
   RoomEvent
   RoomShop
   RoomTreasure
-} derive(Debug, Eq)
+}
 
 ///|
+#derive(Debug, Eq)
 pub(all) struct RouteNode {
-  id : Int
-  floor : Int
-  lane : Int
+  id : Int32
+  floor : Int32
+  lane : Int32
   kind : RoomKind
-  next : Array[Int]
-} derive(Debug, Eq)
+  next : Array[Int32]
+}
 
 ///|
+#derive(Debug)
 pub(all) struct RouteState {
-  act : Int
+  act : Int32
   nodes : Array[RouteNode]
-  mut current : Int?
-  visited : Array[Int]
-} derive(Debug)
+  mut current : Int32?
+  visited : Array[Int32]
+}
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum EventId {
   HealingSpring
   LostPurse
   BloodAltar
   ForgottenLibrary
-} derive(Debug, Eq)
+}
 
 ///|
 priv enum EventEffect {
-  Heal(Int, Int)
-  RaiseMaxHp(Int, Int)
-  TakeGold(Int, Int)
-  EventCard(CardId, Int)
-  EventRelic(RelicId, Int, Int)
+  Heal(Int32, Int32)
+  RaiseMaxHp(Int32, Int32)
+  TakeGold(Int32, Int32)
+  EventCard(CardId, Int32)
+  EventRelic(RelicId, Int32, Int32)
   LeaveEvent
 }
 
@@ -53,35 +57,39 @@ priv struct EventOption {
 }
 
 ///|
+#derive(Debug)
 pub(all) enum ShopItem {
   ShopCard(CardId)
   ShopRelic(RelicId)
   ShopPotion(PotionId)
-} derive(Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) struct ShopOffer {
   item : ShopItem
-  price : Int
+  price : Int32
   mut sold : Bool
-} derive(Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) struct ShopState {
   offers : Array[ShopOffer]
-} derive(Debug)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum RunChoiceAction {
-  PickNode(Int)
-  ResolveEvent(Int)
-  BuyShop(Int)
+  PickNode(Int32)
+  ResolveEvent(Int32)
+  BuyShop(Int32)
   OpenCardRemoval
-  RemoveDeckCard(Int)
+  RemoveDeckCard(Int32)
   CancelRemoval
   LeaveShop
-  TakeRelic(Int)
-} derive(Eq)
+  TakeRelic(Int32)
+}
 
 ///|
 pub struct RunChoice {

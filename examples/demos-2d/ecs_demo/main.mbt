@@ -2,10 +2,10 @@
 // WASD/Arrow keys to move, enemies chase the player
 
 ///|
-let screen_w : Int = 320
+let screen_w : Int32 = 320
 
 ///|
-let screen_h : Int = 240
+let screen_h : Int32 = 240
 
 ///|
 let player_speed : Double = 2.0
@@ -17,7 +17,7 @@ let enemy_speed : Double = 0.8
 let entity_size : Double = 12.0
 
 ///|
-let enemy_count : Int = 8
+let enemy_count : Int32 = 8
 
 ///|
 let push_radius : Double = 14.0
@@ -26,7 +26,7 @@ let push_radius : Double = 14.0
 let push_strength : Double = 1.5
 
 ///|
-fn pseudo_random(seed : Int) -> Double {
+fn pseudo_random(seed : Int32) -> Double {
   let n = (seed * 1103515245 + 12345).land(0x7FFFFFFF)
   n.to_double() / 2147483647.0
 }

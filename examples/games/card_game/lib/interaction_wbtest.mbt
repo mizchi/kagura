@@ -27,7 +27,7 @@ fn pointer_input(x : Double, y : Double, down : Bool) -> @core.InputSnapshot {
 }
 
 ///|
-fn key_input(keys : Array[Int]) -> @core.InputSnapshot {
+fn key_input(keys : Array[Int32]) -> @core.InputSnapshot {
   @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, keys)
 }
 
@@ -45,7 +45,7 @@ fn interaction_game() -> Game {
 }
 
 ///|
-fn press_card(game : Game, index : Int) -> Unit {
+fn press_card(game : Game, index : Int32) -> Unit {
   let b = game.run.get().battle.unwrap()
   let r = game.layout.card_rect(index, b.hand.length())
   game.update(pointer_input(r.cx(), r.cy(), true))

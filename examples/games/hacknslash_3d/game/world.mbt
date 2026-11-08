@@ -9,65 +9,65 @@ pub(all) struct GameWorld {
   mut archetype : CharacterArchetype
   build_policy : ArchetypeBuildPolicy
   mut mode : GameMode
-  mut frame_count : Int
-  mut seed : Int
-  mut floor : Int
-  mut score : Int
+  mut frame_count : Int32
+  mut seed : Int32
+  mut floor : Int32
+  mut score : Int32
   player : Player
   mut enemies : Array[Enemy]
   mut chests : Array[TreasureChest]
   mut items : Array[ItemDrop]
-  mut next_pickup_id : Int
+  mut next_pickup_id : Int32
   mut projectiles : Array[Projectile]
   mut dungeon : DungeonData
-  mut attack_timer : Int
+  mut attack_timer : Int32
   mut player_weapon : PlayerWeaponKind
   mut hunter_preset : HunterPreset
-  mut hunter_slots : Array[Int]
+  mut hunter_slots : Array[Int32]
   mut cleaver_next : CleaverComboStep
-  mut cleaver_combo_timer : Int
+  mut cleaver_combo_timer : Int32
   mut weapon_attack : PlayerWeaponAttack?
   mut player_charge : PlayerCharge?
   summons : PlayerSummons
   arts : HunterArts
-  mut charge_cooldown : Int
+  mut charge_cooldown : Int32
   mut screen_flash : Double
-  mut floor_announce_timer : Int
-  mut chain_lightning_cooldown_timer : Int
-  mut homing_missile_cooldown_timer : Int
-  mut splitting_fireball_cooldown_timer : Int
-  mut ice_nova_cooldown_timer : Int
+  mut floor_announce_timer : Int32
+  mut chain_lightning_cooldown_timer : Int32
+  mut homing_missile_cooldown_timer : Int32
+  mut splitting_fireball_cooldown_timer : Int32
+  mut ice_nova_cooldown_timer : Int32
   inventory : Inventory
   equipment : Equipment
   skills : SkillTree
   mut level_progress : LevelProgression
   mut player_stats : PlayerStats
   mut ui_mode : UIMode
-  mut ui_cursor : Int
+  mut ui_cursor : Int32
   mut manual_combat : Bool
   mut auto_play : Bool
   mut auto_nav_target : @terrain.Point?
   mut auto_nav_path : Array[@terrain.Point]
-  mut auto_nav_index : Int
+  mut auto_nav_index : Int32
   mut auto_cleared_rooms : Array[Bool]
   mut reward_cleared_rooms : Array[Bool]
   mut discovered_rooms : Array[Bool]
-  mut discovered_rooms_version : Int
-  mut select_cursor : Int
+  mut discovered_rooms_version : Int32
+  mut select_cursor : Int32
   mut cursor_x : Double
   mut cursor_y : Double
   mut telegraph_markers : Array[TelegraphMarker]
   mut item_log : Array[ItemLogEntry]
   mut events : Array[GameEvent]
-  mut enemy_separation_cell_heads : Array[Int]
-  mut enemy_separation_next_indices : Array[Int]
-  mut enemy_separation_cell_indices : Array[Int]
+  mut enemy_separation_cell_heads : Array[Int32]
+  mut enemy_separation_next_indices : Array[Int32]
+  mut enemy_separation_cell_indices : Array[Int32]
 }
 
 ///|
 fn initial_discovered_rooms_for_dungeon(
   dungeon : DungeonData,
-) -> (Array[Bool], Int) {
+) -> (Array[Bool], Int32) {
   let discovered = Array::make(dungeon.rooms.length(), false)
   let start_room = find_room_at(dungeon.rooms, dungeon.start_x, dungeon.start_y)
   if start_room >= 0 {
@@ -79,11 +79,11 @@ fn initial_discovered_rooms_for_dungeon(
 
 ///|
 pub fn GameWorld::new(
-  seed~ : Int,
-  params? : BalanceParams = BalanceParams::default(),
-  archetype? : CharacterArchetype = default_character_archetype(),
-  build_policy? : ArchetypeBuildPolicy = default_archetype_build_policy(),
-  hunting_grounds? : Bool = false,
+  seed~ : Int32,
+  params~ : BalanceParams = BalanceParams::default(),
+  archetype~ : CharacterArchetype = default_character_archetype(),
+  build_policy~ : ArchetypeBuildPolicy = default_archetype_build_policy(),
+  hunting_grounds~ : Bool = false,
 ) -> GameWorld {
   let dungeon = if hunting_grounds {
     generate_world_region(seed, 0)
@@ -268,7 +268,7 @@ pub fn GameWorld::drain_events(self : GameWorld) -> Array[GameEvent] {
 ///|
 pub fn GameWorld::deal_player_damage(
   self : GameWorld,
-  raw_dmg : Int,
+  raw_dmg : Int32,
   source? : (Double, Double),
 ) -> Unit {
   // Counter stance: immune to all damage
@@ -300,8 +300,8 @@ pub fn GameWorld::deal_player_damage(
 ///|
 pub fn GameWorld::apply_dungeon(
   self : GameWorld,
-  seed : Int,
-  floor : Int,
+  seed : Int32,
+  floor : Int32,
 ) -> Unit {
   self.summons.clear()
   self.cancel_hunter_action()
@@ -411,8 +411,8 @@ pub fn GameWorld::open_levelup_ui_if_needed(self : GameWorld) -> Unit {
 ///|
 pub fn GameWorld::apply_levelup_offer_choice(
   self : GameWorld,
-  offer_index : Int,
-  offer_seed : Int,
+  offer_index : Int32,
+  offer_seed : Int32,
 ) -> Bool {
   if !self.level_progress.choose_offer(
       self.skills,
@@ -493,17 +493,17 @@ pub fn compact_items(arr : Array[ItemDrop]) -> Unit {
 ///|
 
 ///|
-fn enemy_separation_grid_cols() -> Int {
+fn enemy_separation_grid_cols() -> Int32 {
   world_w.to_int() / 20 + 2
 }
 
 ///|
-fn enemy_separation_grid_rows() -> Int {
+fn enemy_separation_grid_rows() -> Int32 {
   world_h.to_int() / 20 + 2
 }
 
 ///|
-fn enemy_separation_grid_axis_index(pos : Double, max_cells : Int) -> Int {
+fn enemy_separation_grid_axis_index(pos : Double, max_cells : Int32) -> Int32 {
   let raw = (pos / 20.0).to_int()
   @cmp.maximum(0, @cmp.minimum(max_cells - 1, raw))
 }
@@ -512,9 +512,9 @@ fn enemy_separation_grid_axis_index(pos : Double, max_cells : Int) -> Int {
 fn enemy_separation_grid_index(
   x : Double,
   y : Double,
-  cols : Int,
-  rows : Int,
-) -> Int {
+  cols : Int32,
+  rows : Int32,
+) -> Int32 {
   let col = enemy_separation_grid_axis_index(x, cols)
   let row = enemy_separation_grid_axis_index(y, rows)
   row * cols + col
@@ -524,8 +524,8 @@ fn enemy_separation_grid_index(
 fn resolve_enemy_enemy_pair(
   enemies : Array[Enemy],
   grid : @terrain.Grid2D,
-  a_idx : Int,
-  b_idx : Int,
+  a_idx : Int32,
+  b_idx : Int32,
 ) -> Unit {
   resolve_creature_pair(enemies[a_idx], enemies[b_idx], grid)
 }
@@ -582,10 +582,10 @@ fn GameWorld::prepare_enemy_separation_scratch(self : GameWorld) -> Unit {
 ///|
 fn GameWorld::resolve_enemy_enemy_cell_neighbors(
   self : GameWorld,
-  a_idx : Int,
-  cell : Int,
-  cols : Int,
-  rows : Int,
+  a_idx : Int32,
+  cell : Int32,
+  cols : Int32,
+  rows : Int32,
 ) -> Unit {
   let col = cell % cols
   let row = cell / cols
@@ -1161,10 +1161,10 @@ pub fn GameWorld::tick_floor_completion_phase(self : GameWorld) -> Unit {
 }
 
 ///|
-let room_clear_reward_area_threshold : Int = 80
+let room_clear_reward_area_threshold : Int32 = 80
 
 ///|
-let room_clear_large_area_threshold : Int = 150
+let room_clear_large_area_threshold : Int32 = 150
 
 ///|
 pub fn GameWorld::tick_room_clear_rewards(self : GameWorld) -> Unit {
@@ -1262,16 +1262,16 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
 }
 
 ///|
-let item_log_duration : Int = 180 // ~3 seconds at 60fps
+let item_log_duration : Int32 = 180 // ~3 seconds at 60fps
 
 ///|
-let item_log_max_entries : Int = 8
+let item_log_max_entries : Int32 = 8
 
 ///|
 pub fn GameWorld::push_item_log(
   self : GameWorld,
   text : String,
-  color : Int,
+  color : Int32,
 ) -> Unit {
   self.item_log.push({ text, color, frames_remaining: item_log_duration, })
   // Trim oldest if over limit

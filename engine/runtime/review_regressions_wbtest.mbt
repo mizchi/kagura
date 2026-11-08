@@ -1,6 +1,6 @@
 ///|
 fn make_runtime_test_clock(samples : Array[Double]) -> () -> Double {
-  let index : Ref[Int] = Ref(0)
+  let index : Ref[Int32] = Ref(0)
   fn() {
     if index.val < samples.length() {
       let value = samples[index.val]
@@ -16,10 +16,10 @@ fn make_runtime_test_clock(samples : Array[Double]) -> () -> Double {
 
 ///|
 fn install_resizing_probe_web_hooks(
-  resized_widths : Ref[Array[Int]],
-  resized_heights : Ref[Array[Int]],
+  resized_widths : Ref[Array[Int32]],
+  resized_heights : Ref[Array[Int32]],
 ) -> Unit {
-  let poll_count : Ref[Int] = Ref(0)
+  let poll_count : Ref[Int32] = Ref(0)
   @platform.set_web_canvas_hooks(
     @platform.new_web_canvas_hooks(
       fn(_canvas_selector, _options) { true },
@@ -66,7 +66,7 @@ fn install_resizing_probe_web_hooks(
 ///|
 test "run_loop uses runtime clock deltas instead of a fixed frame step" {
   install_test_web_hooks_with_tick_input(max_polls=3)
-  let observed_ticks : Ref[Array[Int]] = Ref([])
+  let observed_ticks : Ref[Array[Int32]] = Ref([])
   let hooks = new_runtime_hooks(fn(tick, _input) {
     observed_ticks.val.push(tick)
   })
@@ -94,8 +94,8 @@ test "run_loop uses runtime clock deltas instead of a fixed frame step" {
 
 ///|
 test "run_loop applies Game.layout logical size to graphics resize" {
-  let resized_widths : Ref[Array[Int]] = Ref([])
-  let resized_heights : Ref[Array[Int]] = Ref([])
+  let resized_widths : Ref[Array[Int32]] = Ref([])
+  let resized_heights : Ref[Array[Int32]] = Ref([])
   install_resizing_probe_web_hooks(resized_widths, resized_heights)
   set_runtime_clock_provider(make_runtime_test_clock([0.0, 0.0, 16.7]))
   let game = @application.new_noop_game(160, 120)
@@ -119,7 +119,7 @@ test "run_loop applies Game.layout logical size to graphics resize" {
 ///|
 test "run_loop honors RunOptions.screen_cleared_every_frame" {
   install_test_web_hooks(max_polls=1)
-  let clear_enabled : Ref[Array[Int]] = Ref([])
+  let clear_enabled : Ref[Array[Int32]] = Ref([])
   @gfx.set_web_graphics_hooks(
     @gfx.new_web_graphics_hooks(
       fn(_kind, _width, _height) { true },

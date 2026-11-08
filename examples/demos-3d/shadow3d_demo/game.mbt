@@ -5,10 +5,10 @@
 // Two-pass rendering: depth pass (shadow map) + lit pass.
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 // ============================================================
 // DemoState
@@ -29,7 +29,7 @@ struct DemoState {
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
-  mut frame : Int
+  mut frame : Int32
 }
 
 ///|

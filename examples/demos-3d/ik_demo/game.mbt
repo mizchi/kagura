@@ -6,16 +6,16 @@
 // 3. AnimationStateMachine3D: idle↔walk with crossfade
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
 let arm_bone_length : Double = 0.8
 
 ///|
-let tentacle_bones : Int = 6
+let tentacle_bones : Int32 = 6
 
 ///|
 let tentacle_bone_len : Double = 0.5
@@ -75,8 +75,8 @@ fn build_arm_skeleton() -> @skeleton3d.Skeleton {
 fn build_arm_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let r = 0.15
   let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let joint_indices : Array[Int] = []
+  let indices : Array[Int32] = []
+  let joint_indices : Array[Int32] = []
   let weights : Array[Double] = []
   let mut vc = 0
   for bone_i in 1..<3 {
@@ -238,8 +238,8 @@ fn build_tentacle_skeleton() -> @skeleton3d.Skeleton {
 ///|
 fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let joint_indices : Array[Int] = []
+  let indices : Array[Int32] = []
+  let joint_indices : Array[Int32] = []
   let wts : Array[Double] = []
   let mut vc = 0
   for seg in 1..<tentacle_bones {
@@ -358,7 +358,7 @@ struct DemoState {
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
   shader3d : @gfx.ShaderHandle
-  mut frame : Int
+  mut frame : Int32
   mut time : Double
 }
 
@@ -482,7 +482,7 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
   for i in 0..<tentacle_bones {
     self.fab_poses[i] = self.fab_skeleton.bones[i].local_transform
   }
-  let chain : Array[Int] = []
+  let chain : Array[Int32] = []
   for i in 0..<tentacle_bones {
     chain.push(i)
   }

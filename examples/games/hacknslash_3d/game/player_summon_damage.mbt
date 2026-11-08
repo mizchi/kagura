@@ -1,5 +1,5 @@
 ///|
-fn hurt_summoned_zombie(zombie : SummonedZombie, damage : Int) -> Unit {
+fn hurt_summoned_zombie(zombie : SummonedZombie, damage : Int32) -> Unit {
   let body = zombie.body
   if !body.alive || body.damage_timer > 0 {
     return
@@ -17,7 +17,7 @@ fn GameWorld::damage_summons_circle(
   x : Double,
   y : Double,
   radius : Double,
-  damage : Int,
+  damage : Int32,
 ) -> Unit {
   for zombie in self.summons.zombies {
     let body = zombie.body

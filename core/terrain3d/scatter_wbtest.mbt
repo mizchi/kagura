@@ -1,8 +1,8 @@
 ///|
 test "coordinate rolls stay half-open and scatter has no query-order or chunk dependency" {
   for seed in [42, -19] {
-    let whole : Array[(Int, Int)] = []
-    let chunks : Array[(Int, Int)] = []
+    let whole : Array[(Int32, Int32)] = []
+    let chunks : Array[(Int32, Int32)] = []
     for x in -20..<20 {
       for z in -20..<20 {
         let roll = coordinate_random(x, z, seed)

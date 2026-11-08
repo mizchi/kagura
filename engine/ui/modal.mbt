@@ -1,11 +1,12 @@
 ///|
 /// Rendering and payloads belong to the caller. This controller owns the modal
 /// stack, input scope, focus trap and the focus to restore on dismissal.
+#derive(Debug, Eq)
 pub(all) enum UIModalCloseReason {
   Explicit
   Cancel
   Backdrop
-} derive(Debug, Eq)
+}
 
 ///|
 pub struct UIModalSnapshot {
@@ -44,8 +45,8 @@ pub fn UIModalController::new() -> UIModalController {
 pub fn UIModalController::open(
   self : UIModalController,
   id : UINodeId,
-  opener? : UINodeId? = None,
-  focusable? : Array[UINodeId] = [],
+  opener~ : UINodeId? = None,
+  focusable~ : Array[UINodeId] = [],
 ) -> Bool {
   if self.stack.any(frame => frame.id == id) {
     return false
@@ -94,7 +95,7 @@ pub fn UIModalController::focus(
 ///|
 pub fn UIModalController::cycle(
   self : UIModalController,
-  direction : Int,
+  direction : Int32,
 ) -> Unit {
   guard self.stack.last() is Some(frame) else { return }
   let n = frame.focusable.length()

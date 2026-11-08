@@ -6,16 +6,16 @@ let web_hooks_installed : Ref[Bool] = Ref(false)
 
 ///|
 priv struct SyncedSourceGeneration {
-  image_id : Int
-  generation : Int
+  image_id : Int32
+  generation : Int32
 }
 
 ///|
 priv struct SourceImageCacheEntry {
-  image_id : Int
-  width : Int
-  height : Int
-  pixels_rgba8 : Array[Int]
+  image_id : Int32
+  width : Int32
+  height : Int32
+  pixels_rgba8 : Array[Int32]
 }
 
 ///|
@@ -25,10 +25,10 @@ let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref([])
 let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref([])
 
 ///|
-let gpu_texture_dirty : Ref[Array[Int]] = Ref([])
+let gpu_texture_dirty : Ref[Array[Int32]] = Ref([])
 
 ///|
-fn should_prevent_canvas_scroll_key(key : Int) -> Bool {
+fn should_prevent_canvas_scroll_key(key : Int32) -> Bool {
   key == 32 ||
   key == 33 ||
   key == 34 ||
@@ -41,7 +41,7 @@ fn should_prevent_canvas_scroll_key(key : Int) -> Bool {
 }
 
 ///|
-fn mark_gpu_texture_dirty(image_id : Int) -> Unit {
+fn mark_gpu_texture_dirty(image_id : Int32) -> Unit {
   for id in gpu_texture_dirty.val {
     if id == image_id {
       return
@@ -56,7 +56,7 @@ fn clear_gpu_texture_dirty() -> Unit {
 }
 
 ///|
-fn normalized_size(value : Int) -> Int {
+fn normalized_size(value : Int32) -> Int32 {
   if value <= 0 {
     1
   } else {
@@ -65,7 +65,7 @@ fn normalized_size(value : Int) -> Int {
 }
 
 ///|
-fn normalized_source_generation(generation : Int) -> Int {
+fn normalized_source_generation(generation : Int32) -> Int32 {
   if generation <= 0 {
     1
   } else {
@@ -74,7 +74,7 @@ fn normalized_source_generation(generation : Int) -> Int {
 }
 
 ///|
-fn synced_source_generation_at(image_id : Int) -> Int {
+fn synced_source_generation_at(image_id : Int32) -> Int32 {
   let mut generation = 0
   for entry in synced_source_generations.val {
     if entry.image_id == image_id {
@@ -85,7 +85,7 @@ fn synced_source_generation_at(image_id : Int) -> Int {
 }
 
 ///|
-fn set_synced_source_generation(image_id : Int, generation : Int) -> Unit {
+fn set_synced_source_generation(image_id : Int32, generation : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   let mut replaced = false
   let safe_generation = normalized_source_generation(generation)
@@ -109,7 +109,7 @@ fn clear_synced_source_generations() -> Unit {
 }
 
 ///|
-fn drop_synced_source_generation(image_id : Int) -> Unit {
+fn drop_synced_source_generation(image_id : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   for entry in synced_source_generations.val {
     if entry.image_id != image_id {
@@ -120,22 +120,22 @@ fn drop_synced_source_generation(image_id : Int) -> Unit {
 }
 
 ///|
-fn expected_rgba8_channel_count(width : Int, height : Int) -> Int {
+fn expected_rgba8_channel_count(width : Int32, height : Int32) -> Int32 {
   normalized_size(width) * normalized_size(height) * 4
 }
 
 ///|
 fn has_valid_rgba8_payload(
-  rgba8_channels : Array[Int],
-  width : Int,
-  height : Int,
+  rgba8_channels : Array[Int32],
+  width : Int32,
+  height : Int32,
 ) -> Bool {
   let expected = expected_rgba8_channel_count(width, height)
   expected > 0 && rgba8_channels.length() >= expected
 }
 
 ///|
-fn clamp_u8_channel(value : Int) -> Int {
+fn clamp_u8_channel(value : Int32) -> Int32 {
   if value < 0 {
     0
   } else if value > 255 {
@@ -147,12 +147,12 @@ fn clamp_u8_channel(value : Int) -> Int {
 
 ///|
 fn normalized_rgba8_channels(
-  rgba8_channels : Array[Int],
-  width : Int,
-  height : Int,
-) -> Array[Int] {
+  rgba8_channels : Array[Int32],
+  width : Int32,
+  height : Int32,
+) -> Array[Int32] {
   let expected = expected_rgba8_channel_count(width, height)
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   if expected <= 0 || rgba8_channels.length() < expected {
     out
   } else {
@@ -164,7 +164,7 @@ fn normalized_rgba8_channels(
 }
 
 ///|
-fn source_image_cache_entry_at(image_id : Int) -> SourceImageCacheEntry? {
+fn source_image_cache_entry_at(image_id : Int32) -> SourceImageCacheEntry? {
   let mut out : SourceImageCacheEntry? = None
   for entry in source_image_cache.val {
     if entry.image_id == image_id {
@@ -237,9 +237,9 @@ extern "js" fn js_headless_render_requested() -> Bool =
 
 ///|
 extern "js" fn js_publish_source_image(
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
   pixels : Bytes,
 ) -> Unit =
   #| (image_id, width, height, pixels) => {
@@ -257,8 +257,8 @@ fn clear_source_image_cache() -> Unit {
 ///|
 extern "js" fn js_prepare_surface(
   selector : String,
-  fallback_width : Int,
-  fallback_height : Int,
+  fallback_width : Int32,
+  fallback_height : Int32,
 ) -> Bool =
   #| (selector, fallbackWidth, fallbackHeight) => {
   #|   const root = globalThis;
@@ -339,14 +339,14 @@ extern "js" fn js_prepare_surface(
   #| }
 
 ///|
-extern "js" fn js_surface_id() -> Int =
+extern "js" fn js_surface_id() -> Int32 =
   #| () => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   return state == null ? 1 : (Number(state.surfaceId ?? 1) | 0);
   #| }
 
 ///|
-extern "js" fn js_surface_width(fallback_width : Int) -> Int =
+extern "js" fn js_surface_width(fallback_width : Int32) -> Int32 =
   #| (fallbackWidth) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return fallbackWidth;
@@ -354,7 +354,7 @@ extern "js" fn js_surface_width(fallback_width : Int) -> Int =
   #| }
 
 ///|
-extern "js" fn js_surface_height(fallback_height : Int) -> Int =
+extern "js" fn js_surface_height(fallback_height : Int32) -> Int32 =
   #| (fallbackHeight) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return fallbackHeight;
@@ -781,7 +781,7 @@ extern "js" fn js_is_fullscreen(selector : String, fallback : Bool) -> Bool =
   #| }
 
 ///|
-extern "js" fn js_set_cursor_mode(selector : String, mode : Int) -> Int =
+extern "js" fn js_set_cursor_mode(selector : String, mode : Int32) -> Int32 =
   #| (selector, mode) => {
   #|   const root = globalThis;
   #|   if (typeof root.__kaguraEnsureWindowState === "function") {
@@ -816,7 +816,7 @@ extern "js" fn js_set_cursor_mode(selector : String, mode : Int) -> Int =
   #| }
 
 ///|
-extern "js" fn js_cursor_mode(selector : String, fallback : Int) -> Int =
+extern "js" fn js_cursor_mode(selector : String, fallback : Int32) -> Int32 =
   #| (selector, fallback) => {
   #|   const root = globalThis;
   #|   if (typeof root.__kaguraEnsureWindowState === "function") {
@@ -927,7 +927,7 @@ extern "js" fn js_clear_input_wheel() -> Unit =
   #| }
 
 ///|
-extern "js" fn js_input_pressed_key_count() -> Int =
+extern "js" fn js_input_pressed_key_count() -> Int32 =
   #| () => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.pressedKeys)) return 0;
@@ -935,7 +935,7 @@ extern "js" fn js_input_pressed_key_count() -> Int =
   #| }
 
 ///|
-extern "js" fn js_input_pressed_key_at(index : Int) -> Int =
+extern "js" fn js_input_pressed_key_at(index : Int32) -> Int32 =
   #| (index) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.pressedKeys)) return 0;
@@ -945,7 +945,7 @@ extern "js" fn js_input_pressed_key_at(index : Int) -> Int =
   #| }
 
 ///|
-extern "js" fn js_input_pressed_mouse_button_count() -> Int =
+extern "js" fn js_input_pressed_mouse_button_count() -> Int32 =
   #| () => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.pressedMouseButtons)) return 0;
@@ -953,7 +953,7 @@ extern "js" fn js_input_pressed_mouse_button_count() -> Int =
   #| }
 
 ///|
-extern "js" fn js_input_pressed_mouse_button_at(index : Int) -> Int =
+extern "js" fn js_input_pressed_mouse_button_at(index : Int32) -> Int32 =
   #| (index) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.pressedMouseButtons)) return -1;
@@ -963,7 +963,7 @@ extern "js" fn js_input_pressed_mouse_button_at(index : Int) -> Int =
   #| }
 
 ///|
-extern "js" fn js_input_touch_count() -> Int =
+extern "js" fn js_input_touch_count() -> Int32 =
   #| () => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.touches)) return 0;
@@ -971,7 +971,7 @@ extern "js" fn js_input_touch_count() -> Int =
   #| }
 
 ///|
-extern "js" fn js_input_touch_id_at(index : Int) -> Int =
+extern "js" fn js_input_touch_id_at(index : Int32) -> Int32 =
   #| (index) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.touches)) return 0;
@@ -982,7 +982,7 @@ extern "js" fn js_input_touch_id_at(index : Int) -> Int =
   #| }
 
 ///|
-extern "js" fn js_input_touch_x_at(index : Int) -> Double =
+extern "js" fn js_input_touch_x_at(index : Int32) -> Double =
   #| (index) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.touches)) return 0;
@@ -993,7 +993,7 @@ extern "js" fn js_input_touch_x_at(index : Int) -> Double =
   #| }
 
 ///|
-extern "js" fn js_input_touch_y_at(index : Int) -> Double =
+extern "js" fn js_input_touch_y_at(index : Int32) -> Double =
   #| (index) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null || !Array.isArray(state.touches)) return 0;
@@ -1004,7 +1004,7 @@ extern "js" fn js_input_touch_y_at(index : Int) -> Double =
   #| }
 
 ///|
-extern "js" fn js_input_gamepad_count() -> Int =
+extern "js" fn js_input_gamepad_count() -> Int32 =
   #| () => {
   #|   const root=globalThis,state=root.__kaguraWebRuntime??(root.__kaguraWebRuntime={});
   #|   const test=Array.isArray(state.testGamepads)&&state.testGamepads.length>0;
@@ -1029,30 +1029,30 @@ extern "js" fn js_input_gamepad_count() -> Int =
   #| }
 
 ///|
-extern "js" fn js_input_gamepad_id_at(index : Int) -> Int =
+extern "js" fn js_input_gamepad_id_at(index : Int32) -> Int32 =
   #| index => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.index ?? -1
 
 ///|
 extern "js" fn js_input_gamepad_pressed_button_count(
-  gamepad_index : Int,
-) -> Int =
+  gamepad_index : Int32,
+) -> Int32 =
   #| index => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.pressedButtons.length ?? 0
 
 ///|
 extern "js" fn js_input_gamepad_pressed_button_at(
-  gamepad_index : Int,
-  button_index : Int,
-) -> Int =
+  gamepad_index : Int32,
+  button_index : Int32,
+) -> Int32 =
   #| (index,button) => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.pressedButtons[button] ?? -1
 
 ///|
-extern "js" fn js_input_gamepad_axis_count(gamepad_index : Int) -> Int =
+extern "js" fn js_input_gamepad_axis_count(gamepad_index : Int32) -> Int32 =
   #| index => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.axes.length ?? 0
 
 ///|
 extern "js" fn js_input_gamepad_axis_at(
-  gamepad_index : Int,
-  axis_index : Int,
+  gamepad_index : Int32,
+  axis_index : Int32,
 ) -> Double =
   #| (index,axis) => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.axes[axis] ?? 0
 
@@ -1065,7 +1065,7 @@ extern "js" fn test_gamepad_browser_setup() -> Unit =
   #| }
 
 ///|
-extern "js" fn test_gamepad_browser_reads() -> Int =
+extern "js" fn test_gamepad_browser_reads() -> Int32 =
   #| () => globalThis.__padBrowserTest.reads
 
 ///|
@@ -1125,8 +1125,8 @@ extern "js" fn js_request_attention() -> Unit =
 ///|
 extern "js" fn js_try_initialize_webgpu(
   selector : String,
-  fallback_width : Int,
-  fallback_height : Int,
+  fallback_width : Int32,
+  fallback_height : Int32,
 ) -> Bool =
   #| (selector, fallbackWidth, fallbackHeight) => {
   #|   const root = globalThis;
@@ -1315,16 +1315,16 @@ extern "js" fn js_webgpu_begin(
 
 ///|
 extern "js" fn js_gfx_draw_begin(
-  vertex_count : Int,
-  index_count : Int,
-  src_image_id : Int,
-  uniform_r : Int,
-  uniform_g : Int,
-  uniform_b : Int,
-  uniform_a : Int,
-  dst_id : Int,
-  dst_width : Int,
-  dst_height : Int,
+  vertex_count : Int32,
+  index_count : Int32,
+  src_image_id : Int32,
+  uniform_r : Int32,
+  uniform_g : Int32,
+  uniform_b : Int32,
+  uniform_a : Int32,
+  dst_id : Int32,
+  dst_width : Int32,
+  dst_height : Int32,
 ) -> Unit =
   #| (vertexCount, indexCount, srcImageId, uniformR, uniformG, uniformB, uniformA, dstId, dstW, dstH) => {
   #|   const state = globalThis.__kaguraWebRuntime;
@@ -1347,7 +1347,7 @@ extern "js" fn js_gfx_draw_begin(
 
 ///|
 extern "js" fn js_gfx_draw_vertex(
-  offset : Int,
+  offset : Int32,
   x : Double,
   y : Double,
   u : Double,
@@ -1366,7 +1366,7 @@ extern "js" fn js_gfx_draw_vertex(
   #| }
 
 ///|
-extern "js" fn js_gfx_draw_index(offset : Int, value : Int) -> Unit =
+extern "js" fn js_gfx_draw_index(offset : Int32, value : Int32) -> Unit =
   #| (offset, value) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return;
@@ -1392,38 +1392,33 @@ extern "js" fn js_is_custom_shader(source : String) -> Bool =
   #| source => source.includes("@vertex")
 
 ///|
-// JS-target arrays cross the FFI once per command, never once per scalar.
-// Opaque borrowed handles use the same JS Array representation as core's
-// arraycore_js.mbt. No resize or mutation is allowed on the JavaScript side.
-#external
-priv type JsDoubleArray
+// Growable MoonBit arrays have an opaque runtime representation. Materialize
+// fixed arrays at the JavaScript boundary, once per command.
+fn pack_doubles(values : Array[Double]) -> FixedArray[Double] {
+  FixedArray::from_array(values[:])
+}
 
 ///|
-#external
-priv type JsIntArray
-
-///|
-fn borrow_doubles(values : Array[Double]) -> JsDoubleArray = "%identity"
-
-///|
-fn borrow_ints(values : Array[Int]) -> JsIntArray = "%identity"
+fn pack_ints(values : Array[Int32]) -> FixedArray[Int32] {
+  FixedArray::from_array(values[:])
+}
 
 ///|
 extern "js" fn js_gfx_custom_draw_submit(
-  shader_id : Int,
+  shader_id : Int32,
   shader_source : String,
-  vertices : JsDoubleArray,
-  indices : JsIntArray,
-  uniforms : JsIntArray,
-  sources : JsIntArray,
-  dst_id : Int,
-  dst_width : Int,
-  dst_height : Int,
-  blend_mode : Int,
-  instance_count : Int,
-  vertex_stride_hint : Int,
-  first_index : Int,
-  index_count : Int,
+  vertices : FixedArray[Double],
+  indices : FixedArray[Int32],
+  uniforms : FixedArray[Int32],
+  sources : FixedArray[Int32],
+  dst_id : Int32,
+  dst_width : Int32,
+  dst_height : Int32,
+  blend_mode : Int32,
+  instance_count : Int32,
+  vertex_stride_hint : Int32,
+  first_index : Int32,
+  index_count : Int32,
 ) -> Unit =
   #| (shaderId, shaderSource, vertices, indices, uniforms, sources, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint, firstIndex, indexCount) => {
   #|   const gpu = globalThis.__kaguraWebRuntime?.webgpu;
@@ -1447,9 +1442,9 @@ extern "js" fn js_gfx_custom_draw_submit(
 
 ///|
 extern "js" fn js_gfx_upload_texture_begin(
-  image_id : Int,
-  width : Int,
-  height : Int,
+  image_id : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit =
   #| (imageId, width, height) => {
   #|   const state = globalThis.__kaguraWebRuntime;
@@ -1466,11 +1461,11 @@ extern "js" fn js_gfx_upload_texture_begin(
 
 ///|
 extern "js" fn js_gfx_upload_texture_pixel(
-  offset : Int,
-  r : Int,
-  g : Int,
-  b : Int,
-  a : Int,
+  offset : Int32,
+  r : Int32,
+  g : Int32,
+  b : Int32,
+  a : Int32,
 ) -> Unit =
   #| (offset, r, g, b, a) => {
   #|   const state = globalThis.__kaguraWebRuntime;
@@ -1894,7 +1889,7 @@ extern "js" fn test_setup_present_state(
   #| }
 
 ///|
-extern "js" fn test_drain_present_raf() -> Int =
+extern "js" fn test_drain_present_raf() -> Int32 =
   #| () => {
   #|   const root = globalThis;
   #|   const queue = root.__kaguraPresentTestQueue;
@@ -1911,7 +1906,7 @@ extern "js" fn test_drain_present_raf() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_raf_queue_length() -> Int =
+extern "js" fn test_present_raf_queue_length() -> Int32 =
   #| () => {
   #|   const queue = globalThis.__kaguraPresentTestQueue;
   #|   if (!Array.isArray(queue)) return 0;
@@ -1919,7 +1914,7 @@ extern "js" fn test_present_raf_queue_length() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_submit_count() -> Int =
+extern "js" fn test_present_submit_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1927,7 +1922,7 @@ extern "js" fn test_present_submit_count() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_configure_count() -> Int =
+extern "js" fn test_present_configure_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1935,7 +1930,7 @@ extern "js" fn test_present_configure_count() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_clear_count() -> Int =
+extern "js" fn test_present_clear_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1943,7 +1938,7 @@ extern "js" fn test_present_clear_count() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_draw_count() -> Int =
+extern "js" fn test_present_draw_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1951,7 +1946,7 @@ extern "js" fn test_present_draw_count() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_buffer_create_count() -> Int =
+extern "js" fn test_present_buffer_create_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1959,7 +1954,7 @@ extern "js" fn test_present_buffer_create_count() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_buffer_destroy_count() -> Int =
+extern "js" fn test_present_buffer_destroy_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1967,7 +1962,7 @@ extern "js" fn test_present_buffer_destroy_count() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_bind_group_create_count() -> Int =
+extern "js" fn test_present_bind_group_create_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1975,7 +1970,7 @@ extern "js" fn test_present_bind_group_create_count() -> Int =
   #| }
 
 ///|
-extern "js" fn test_present_texture_destroy_count() -> Int =
+extern "js" fn test_present_texture_destroy_count() -> Int32 =
   #| () => {
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
@@ -1991,7 +1986,7 @@ extern "js" fn test_last_webgpu_shader_source() -> String =
   #| }
 
 ///|
-extern "js" fn test_last_pipeline_id(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_pipeline_id(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2001,7 +1996,7 @@ extern "js" fn test_last_pipeline_id(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_uniform_hash(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_uniform_hash(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2011,7 +2006,7 @@ extern "js" fn test_last_uniform_hash(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_blend_mode(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_blend_mode(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 1;
@@ -2021,7 +2016,7 @@ extern "js" fn test_last_blend_mode(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_dst_image_id(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_dst_image_id(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2031,7 +2026,7 @@ extern "js" fn test_last_dst_image_id(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_shader_id(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_shader_id(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2041,7 +2036,7 @@ extern "js" fn test_last_shader_id(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_index_offset(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_index_offset(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2051,7 +2046,7 @@ extern "js" fn test_last_index_offset(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_region_count(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_region_count(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2061,7 +2056,7 @@ extern "js" fn test_last_region_count(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_total_index_count(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_total_index_count(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2071,7 +2066,7 @@ extern "js" fn test_last_total_index_count(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_vertex_float_count(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_vertex_float_count(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2081,7 +2076,7 @@ extern "js" fn test_last_vertex_float_count(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_index_count(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_index_count(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2091,7 +2086,7 @@ extern "js" fn test_last_index_count(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_src_image_count(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_src_image_count(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2101,7 +2096,7 @@ extern "js" fn test_last_src_image_count(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_uniform_dword_count(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_uniform_dword_count(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2111,7 +2106,7 @@ extern "js" fn test_last_uniform_dword_count(use_webgpu : Bool) -> Int =
   #| }
 
 ///|
-extern "js" fn test_last_payload_has_triangle(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_payload_has_triangle(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2141,7 +2136,7 @@ extern "js" fn test_last_payload_uniform_r(use_webgpu : Bool) -> Double =
   #| }
 
 ///|
-extern "js" fn test_last_payload_texture_seed(use_webgpu : Bool) -> Int =
+extern "js" fn test_last_payload_texture_seed(use_webgpu : Bool) -> Int32 =
   #| (useWebGpu) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return 0;
@@ -2156,9 +2151,9 @@ extern "js" fn test_set_input_state(
   cursor_y : Double,
   wheel_x : Double,
   wheel_y : Double,
-  key0 : Int,
-  key1 : Int,
-  key_count : Int,
+  key0 : Int32,
+  key1 : Int32,
+  key_count : Int32,
 ) -> Unit =
   #| (cursorX, cursorY, wheelX, wheelY, key0, key1, keyCount) => {
   #|   const root = globalThis;
@@ -2186,23 +2181,23 @@ extern "js" fn test_set_extended_input_state(
   cursor_y : Double,
   wheel_x : Double,
   wheel_y : Double,
-  key0 : Int,
-  key1 : Int,
-  key_count : Int,
-  mouse_button0 : Int,
-  mouse_button_count : Int,
-  _touch_count : Int,
-  touch0_id : Int,
+  key0 : Int32,
+  key1 : Int32,
+  key_count : Int32,
+  mouse_button0 : Int32,
+  mouse_button_count : Int32,
+  _touch_count : Int32,
+  touch0_id : Int32,
   touch0_x : Double,
   touch0_y : Double,
-  gamepad_count : Int,
-  gamepad0_id : Int,
-  gamepad0_axis_count : Int,
+  gamepad_count : Int32,
+  gamepad0_id : Int32,
+  gamepad0_axis_count : Int32,
   gamepad0_axis0 : Double,
   gamepad0_axis1 : Double,
-  gamepad0_button_count : Int,
-  gamepad0_button0 : Int,
-  gamepad0_button1 : Int,
+  gamepad0_button_count : Int32,
+  gamepad0_button0 : Int32,
+  gamepad0_button1 : Int32,
 ) -> Unit =
   #| (
   #|   cursorX,
@@ -2572,12 +2567,15 @@ test "bridge_web_capture_input reads mouse touch and gamepad state" {
 }
 
 ///|
-fn sync_surface_info(fallback_width : Int, fallback_height : Int) -> Bool {
+fn sync_surface_info(fallback_width : Int32, fallback_height : Int32) -> Bool {
   js_prepare_surface(web_canvas_selector.val, fallback_width, fallback_height)
 }
 
 ///|
-extern "js" fn js_set_presentation_viewport(width : Int, height : Int) -> Unit =
+extern "js" fn js_set_presentation_viewport(
+  width : Int32,
+  height : Int32,
+) -> Unit =
   #| (width, height) => globalThis.__kaguraPresentation?.setGameViewport?.(width, height)
 
 ///|
@@ -2607,7 +2605,7 @@ fn bridge_web_should_close() -> Bool {
 }
 
 ///|
-fn bridge_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
+fn bridge_web_outside_size(width : Int32, height : Int32) -> @core.OutsideSize {
   let _ = sync_surface_info(width, height)
   @core.new_outside_size(
     js_surface_width(width).to_double(),
@@ -2631,8 +2629,8 @@ fn bridge_web_current_surface(
 ///|
 fn bridge_web_gfx_try_initialize(
   kind : @gfx.GraphicsBackendKind,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Bool {
   match kind {
     @gfx.GraphicsBackendKind::WebGpu => {
@@ -2713,10 +2711,10 @@ fn bridge_web_gfx_on_draw(
       js_gfx_custom_draw_submit(
         command.shader.id,
         command.shader.source,
-        borrow_doubles(command.vertex_data),
-        borrow_ints(command.indices),
-        borrow_ints(command.uniform_dwords),
-        borrow_ints(command.src_image_ids),
+        pack_doubles(command.vertex_data),
+        pack_ints(command.indices),
+        pack_ints(command.uniform_dwords),
+        pack_ints(command.src_image_ids),
         command.dst.id,
         command.dst.width,
         command.dst.height,
@@ -2789,8 +2787,8 @@ fn bridge_web_gfx_on_draw(
 fn bridge_web_gfx_on_resize(
   active : Bool,
   _kind : @gfx.GraphicsBackendKind,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   if active {
     let _ = js_prepare_surface(web_canvas_selector.val, width, height)
@@ -2799,15 +2797,18 @@ fn bridge_web_gfx_on_resize(
 }
 
 ///|
-fn bridge_web_capture_input(active : Bool, _tick : Int) -> @core.InputSnapshot {
+fn bridge_web_capture_input(
+  active : Bool,
+  _tick : Int32,
+) -> @core.InputSnapshot {
   if active {
     js_ensure_window_state(web_canvas_selector.val)
-    let pressed_keys : Array[Int] = []
+    let pressed_keys : Array[Int32] = []
     let key_count = js_input_pressed_key_count()
     for i in 0..<key_count {
       pressed_keys.push(js_input_pressed_key_at(i))
     }
-    let pressed_mouse_buttons : Array[Int] = []
+    let pressed_mouse_buttons : Array[Int32] = []
     let mouse_button_count = js_input_pressed_mouse_button_count()
     for i in 0..<mouse_button_count {
       let button = js_input_pressed_mouse_button_at(i)
@@ -2837,7 +2838,7 @@ fn bridge_web_capture_input(active : Bool, _tick : Int) -> @core.InputSnapshot {
         axes.push(js_input_gamepad_axis_at(i, j))
       }
 
-      let pressed_buttons : Array[Int] = []
+      let pressed_buttons : Array[Int32] = []
       let button_count = js_input_gamepad_pressed_button_count(i)
       for j in 0..<button_count {
         let button_id = js_input_gamepad_pressed_button_at(i, j)
@@ -3022,7 +3023,7 @@ fn bridge_web_request_attention(
 // ---------------------------------------------------------------------------
 
 ///|
-extern "js" fn js_load_font_data(name : String) -> Int =
+extern "js" fn js_load_font_data(name : String) -> Int32 =
   #| (name) => {
   #|   const root = globalThis;
   #|   const state = root.__kaguraWebRuntime;
@@ -3034,7 +3035,7 @@ extern "js" fn js_load_font_data(name : String) -> Int =
   #| }
 
 ///|
-extern "js" fn js_load_font_data_byte(offset : Int) -> Int =
+extern "js" fn js_load_font_data_byte(offset : Int32) -> Int32 =
   #| (offset) => {
   #|   const root = globalThis;
   #|   const state = root.__kaguraWebRuntime;
@@ -3044,12 +3045,12 @@ extern "js" fn js_load_font_data_byte(offset : Int) -> Int =
   #| }
 
 ///|
-fn bridge_load_font_data(name : String) -> Array[Int]? {
+fn bridge_load_font_data(name : String) -> Array[Int32]? {
   let size = js_load_font_data(name)
   if size <= 0 {
     return None
   }
-  let data : Array[Int] = Array::make(size, 0)
+  let data : Array[Int32] = Array::make(size, 0)
   for i in 0..<size {
     data[i] = js_load_font_data_byte(i)
   }
@@ -3062,8 +3063,8 @@ fn bridge_load_font_data(name : String) -> Array[Int]? {
 
 ///|
 extern "js" fn js_audio_try_initialize(
-  sample_rate : Int,
-  channels : Int,
+  sample_rate : Int32,
+  channels : Int32,
 ) -> Bool =
   #| (sampleRate, channels) => {
   #|   try {
@@ -3080,7 +3081,7 @@ extern "js" fn js_audio_try_initialize(
   #| }
 
 ///|
-extern "js" fn js_audio_write_frames(frames : Int) -> Int =
+extern "js" fn js_audio_write_frames(frames : Int32) -> Int32 =
   #| (frames) => {
   #|   const root = globalThis;
   #|   const a = root.__kaguraWebRuntime?.audio;
@@ -3090,8 +3091,8 @@ extern "js" fn js_audio_write_frames(frames : Int) -> Int =
 
 ///|
 extern "js" fn js_audio_write_sample(
-  pos : Int,
-  channel : Int,
+  pos : Int32,
+  channel : Int32,
   value : Double,
 ) -> Unit =
   #| (pos, channel, value) => {
@@ -3103,7 +3104,7 @@ extern "js" fn js_audio_write_sample(
   #| }
 
 ///|
-extern "js" fn js_audio_advance_write(frames : Int) -> Unit =
+extern "js" fn js_audio_advance_write(frames : Int32) -> Unit =
   #| (frames) => {
   #|   const a = globalThis.__kaguraWebRuntime?.audio;
   #|   if (!a) return;
@@ -3113,7 +3114,7 @@ extern "js" fn js_audio_advance_write(frames : Int) -> Unit =
   #| }
 
 ///|
-extern "js" fn js_audio_get_write_pos() -> Int =
+extern "js" fn js_audio_get_write_pos() -> Int32 =
   #| () => {
   #|   const root = globalThis;
   #|   const a = root.__kaguraWebRuntime?.audio;
@@ -3164,7 +3165,10 @@ fn bridge_audio_try_initialize(format : @audio.AudioFormat) -> Bool {
 }
 
 ///|
-fn bridge_audio_write_frames(output : FixedArray[Float], frames : Int) -> Int {
+fn bridge_audio_write_frames(
+  output : FixedArray[Float],
+  frames : Int32,
+) -> Int32 {
   let channels = 2
   let write_pos = js_audio_get_write_pos()
   for i in 0..<frames {
@@ -3254,6 +3258,7 @@ pub fn install(canvas_selector : String) -> Unit {
 ///|
 pub fn uninstall() -> Unit {
   web_hooks_installed.val = false
+  clear_pointer_inputs()
   clear_source_image_cache()
   clear_synced_source_generations()
   clear_gpu_texture_dirty()
@@ -3278,7 +3283,7 @@ pub fn shutdown() -> Unit {
 
 ///|
 pub fn register_source_image_palette(
-  source_image_id : Int,
+  source_image_id : Int32,
   _palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   if source_image_id < 0 {
@@ -3286,7 +3291,7 @@ pub fn register_source_image_palette(
   }
   let mut width = 1
   let mut height = 1
-  let mut pixels_rgba8 : Array[Int] = []
+  let mut pixels_rgba8 : Array[Int32] = []
   match source_image_cache_entry_at(source_image_id) {
     Some(entry) => {
       width = entry.width
@@ -3306,7 +3311,7 @@ pub fn register_source_image_palette(
 
 ///|
 pub fn register_source_image_solid_color(
-  source_image_id : Int,
+  source_image_id : Int32,
   color : @atlas.Rgba,
 ) -> Unit {
   register_source_image_palette(
@@ -3317,10 +3322,10 @@ pub fn register_source_image_solid_color(
 
 ///|
 pub fn register_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Unit {
   if source_image_id < 0 {
     return
@@ -3345,14 +3350,14 @@ pub fn register_source_image_rgba8(
 
 ///|
 pub fn patch_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  dirty_x : Int,
-  dirty_y : Int,
-  dirty_width : Int,
-  dirty_height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  dirty_x : Int32,
+  dirty_y : Int32,
+  dirty_width : Int32,
+  dirty_height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Bool {
   if source_image_id < 0 {
     return false
@@ -3436,7 +3441,7 @@ pub fn clear_source_image_palettes() -> Unit {
 ///|
 pub fn sync_source_image_palettes(
   bindings : Array[@atlas.ImagePaletteBinding],
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for binding in bindings {
     if binding.image_id >= 0 {
@@ -3450,12 +3455,12 @@ pub fn sync_source_image_palettes(
 ///|
 pub fn sync_source_image_palettes_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_image_palettes(@atlas.list_image_palette_bindings(repository))
 }
 
 ///|
-pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
+pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int32 {
   let mut count = 0
   for binding in bindings {
     if binding.image_id < 0 {
@@ -3513,14 +3518,14 @@ pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
 ///|
 pub fn sync_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_images(@atlas.list_source_image_bindings(repository))
 }
 
 ///|
 pub fn sync_dirty_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   let count = sync_source_images(
     @atlas.list_dirty_source_image_bindings(repository),
   )
@@ -3531,7 +3536,7 @@ pub fn sync_dirty_source_images_from_repository(
 ///|
 pub fn sync_dirty_atlas_pages_from_repository(
   repository : @atlas.SimpleAtlasImageRepository,
-) -> Int {
+) -> Int32 {
   let count = sync_source_images(
     @atlas.list_dirty_atlas_page_bindings(repository),
   )
@@ -3540,17 +3545,17 @@ pub fn sync_dirty_atlas_pages_from_repository(
 }
 
 ///|
-pub fn source_image_cache_count() -> Int {
+pub fn source_image_cache_count() -> Int32 {
   source_image_cache.val.length()
 }
 
 ///|
-pub fn source_image_generation(image_id : Int) -> Int {
+pub fn source_image_generation(image_id : Int32) -> Int32 {
   synced_source_generation_at(image_id)
 }
 
 ///|
-pub fn source_image_width(image_id : Int) -> Int {
+pub fn source_image_width(image_id : Int32) -> Int32 {
   match source_image_cache_entry_at(image_id) {
     Some(entry) => entry.width
     None => 0
@@ -3558,7 +3563,7 @@ pub fn source_image_width(image_id : Int) -> Int {
 }
 
 ///|
-pub fn source_image_height(image_id : Int) -> Int {
+pub fn source_image_height(image_id : Int32) -> Int32 {
   match source_image_cache_entry_at(image_id) {
     Some(entry) => entry.height
     None => 0
@@ -3567,11 +3572,11 @@ pub fn source_image_height(image_id : Int) -> Int {
 
 ///|
 pub fn source_image_pixel_channel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  channel_index : Int,
-) -> Int {
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  channel_index : Int32,
+) -> Int32 {
   if channel_index < 0 || channel_index > 3 {
     return -1
   }

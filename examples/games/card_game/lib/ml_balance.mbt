@@ -20,12 +20,13 @@
 
 ///|
 /// Detected player build archetype
+#derive(Debug, Eq)
 pub(all) enum Archetype {
   Strength // STR scaling + multi-hit
   Block // Block stacking + Body Slam
   Exhaust // Thin deck + exhaust synergy
   Balanced // No dominant archetype
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for Archetype with fn output(self, logger) {
@@ -80,6 +81,7 @@ pub fn detect_archetype(deck : Array[CardId]) -> Archetype {
 ///|
 /// Feature vector for ML: captures game state as numeric features
 /// Total: 20 features
+#derive(Debug)
 pub(all) struct GameFeatures {
   // Player state (5)
   player_hp_pct : Double // HP / MaxHP
@@ -105,7 +107,7 @@ pub(all) struct GameFeatures {
   discard_size : Double // Cards in discard
   powers_active : Double // Number of active power effects
   archetype_score : Double // 0=balanced, 1=str, 2=blk, 3=exh
-} derive(Debug)
+}
 
 ///|
 pub impl Show for GameFeatures with fn output(self, logger) {
@@ -255,6 +257,7 @@ fn features_to_array(f : GameFeatures) -> Array[Double] {
 
 ///|
 /// Parameter that can be perturbed for sensitivity analysis
+#derive(Debug)
 pub(all) enum BalanceParam {
   PlayerHP // Player starting HP
   PlayerEnergy // Player starting energy
@@ -262,7 +265,7 @@ pub(all) enum BalanceParam {
   EnemyDamage(EnemyId) // Specific enemy's damage multiplier
   CardDamage(CardId) // Card's base damage
   CardBlock(CardId) // Card's base block
-} derive(Debug)
+}
 
 ///|
 pub impl Show for BalanceParam with fn output(self, logger) {
@@ -271,12 +274,13 @@ pub impl Show for BalanceParam with fn output(self, logger) {
 
 ///|
 /// Result of sensitivity analysis
+#derive(Debug)
 pub(all) struct SensitivityResult {
   param : String
   base_win_rate : Double
   perturbed_win_rate : Double
   sensitivity : Double // (perturbed - base) / delta
-} derive(Debug)
+}
 
 ///|
 pub impl Show for SensitivityResult with fn output(self, logger) {
@@ -288,9 +292,9 @@ pub impl Show for SensitivityResult with fn output(self, logger) {
 fn simulate_battle_perturbed(
   encounter : EncounterId,
   strategy : PlayStrategy,
-  seed : Int,
+  seed : Int32,
   param : BalanceParam,
-  delta : Int,
+  delta : Int32,
 ) -> SimResult {
   let enemy_ids = encounter_enemies(encounter)
   let state = BattleState::new(enemy_ids, seed~)
@@ -369,9 +373,9 @@ fn simulate_battle_perturbed(
 fn run_perturbed_simulations(
   encounter : EncounterId,
   strategy : PlayStrategy,
-  count : Int,
+  count : Int32,
   param : BalanceParam,
-  delta : Int,
+  delta : Int32,
 ) -> SimSummary {
   let mut wins = 0
   let mut total_turns = 0
@@ -420,8 +424,8 @@ fn run_perturbed_simulations(
 pub fn analyze_sensitivity(
   encounter : EncounterId,
   param : BalanceParam,
-  delta : Int,
-  sim_count : Int,
+  delta : Int32,
+  sim_count : Int32,
 ) -> SensitivityResult {
   // Base win rate
   let base = run_simulations(encounter, Smart, sim_count)
@@ -462,8 +466,8 @@ pub fn analyze_sensitivity(
 ///|
 pub fn simulate_ensemble(
   encounter : EncounterId,
-  count : Int,
-  relics? : Array[RelicId] = [],
+  count : Int32,
+  relics~ : Array[RelicId] = [],
 ) -> SimSummary {
   let mut wins = 0
   let mut total_turns = 0
@@ -514,15 +518,16 @@ pub fn simulate_ensemble(
 /// Generate a comprehensive balance report for all encounters
 
 ///|
+#derive(Debug)
 pub(all) struct BalanceReport {
   encounter : String
   tier : String
-  smart_win_pct : Int
-  smart_avg_hp : Int
-  ensemble_win_pct : Int
-  ensemble_avg_hp : Int
+  smart_win_pct : Int32
+  smart_avg_hp : Int32
+  ensemble_win_pct : Int32
+  ensemble_avg_hp : Int32
   difficulty_score : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for BalanceReport with fn output(self, logger) {

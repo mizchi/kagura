@@ -7,7 +7,7 @@
 // Encode a Double as the IEEE 754 f32 bit pattern (round to nearest-even).
 // See comment in light3d/contracts.mbt — same rationale (avoid the int64
 // emulation cost of gfx.double_to_f32_bits on the JS target).
-fn f32(v : Double) -> Int {
+fn f32(v : Double) -> Int32 {
   Float::from_double(v).reinterpret_as_int()
 }
 
@@ -15,7 +15,7 @@ fn f32(v : Double) -> Int {
 // hash chain can run inline without allocating a values array.
 
 ///|
-fn mix_cache_key(seed : Int, value : Int) -> Int {
+fn mix_cache_key(seed : Int32, value : Int32) -> Int32 {
   seed * 16777619 + value + 31
 }
 
@@ -24,7 +24,7 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // round-trip in @gfx.double_to_f32_bits.
 
 ///|
-fn double_cache_bits(v : Double) -> Int {
+fn double_cache_bits(v : Double) -> Int32 {
   (v * 4096.0).to_int()
 }
 
@@ -33,8 +33,8 @@ fn shadow_depth_resource_cache_key(
   shadow_map : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   mesh : @mesh3d.Mesh3D,
-  uniform_dwords : Array[Int],
-) -> Int {
+  uniform_dwords : Array[Int32],
+) -> Int32 {
   let mut hash = 0x53484450
   hash = mix_cache_key(hash, shadow_map.id)
   hash = mix_cache_key(hash, shadow_map.width)
@@ -65,7 +65,7 @@ fn shadow_depth_resource_cache_key(
 
 ///|
 pub struct ShadowConfig {
-  map_size : Int
+  map_size : Int32
   half_extent : Double
   near : Double
   far : Double
@@ -77,7 +77,7 @@ pub struct ShadowConfig {
 
 ///|
 pub fn ShadowConfig::new(
-  map_size : Int,
+  map_size : Int32,
   half_extent : Double,
   near : Double,
   far : Double,
@@ -166,7 +166,7 @@ pub fn light_space_matrix(
 /// Renders linear depth to R, or packs 24-bit depth into RGB on UNORM targets.
 /// The receiver must use the same packed_depth setting.
 /// Uniform: light_mvp (16 dwords).
-pub fn shader_shadow_depth_wgsl(packed_depth? : Bool = false) -> String {
+pub fn shader_shadow_depth_wgsl(packed_depth~ : Bool = false) -> String {
   "struct Uniforms {\n" +
   "  light_mvp: mat4x4<f32>,\n" +
   "};\n\n" +
@@ -202,9 +202,9 @@ pub fn shader_shadow_depth_wgsl(packed_depth? : Bool = false) -> String {
 pub fn shadow_depth_uniform_dwords(
   model : @math3d.Mat4,
   light_vp : @math3d.Mat4,
-) -> Array[Int] {
+) -> Array[Int32] {
   let light_mvp = light_vp.multiply(model)
-  let dwords : Array[Int] = []
+  let dwords : Array[Int32] = []
   for i in 0..<16 {
     dwords.push(f32(light_mvp.elements[i]))
   }
@@ -221,7 +221,7 @@ pub fn new_shadow_depth_command(
   mesh : @mesh3d.Mesh3D,
   model : @math3d.Mat4,
   light_vp : @math3d.Mat4,
-  cache_resources? : Bool = true,
+  cache_resources~ : Bool = true,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = shadow_depth_uniform_dwords(model, light_vp)
   let dst_region = @gfx.new_dst_region(
@@ -278,7 +278,7 @@ pub fn shadow_depth_pass_commands(
   casters : Array[ShadowCaster],
   lighting : @light3d.LightingEnvironment,
   config : ShadowConfig,
-  cache_resources? : Bool = true,
+  cache_resources~ : Bool = true,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let light_vp = light_space_matrix(
     lighting.directional.direction,
@@ -326,7 +326,7 @@ fn shadow_lit_uniform_struct_wgsl() -> String {
 }
 
 ///|
-pub fn shadow_sampling_wgsl(packed_depth? : Bool = false) -> String {
+pub fn shadow_sampling_wgsl(packed_depth~ : Bool = false) -> String {
   "fn calc_shadow(world_pos: vec3<f32>) -> f32 {\n" +
   "  let light_space = uniforms.light_vp * vec4<f32>(world_pos, 1.0);\n" +
   "  let proj_coords = light_space.xyz / light_space.w;\n" +
@@ -380,7 +380,7 @@ fn lit_fragment_lighting_wgsl() -> String {
 ///|
 /// WGSL shader for lit 3D rendering with shadow mapping and texture.
 /// Uniform: 76 dwords. Textures: @binding(1) diffuse, @binding(3) shadow map.
-pub fn shader3d_shadow_lit_wgsl(packed_depth? : Bool = false) -> String {
+pub fn shader3d_shadow_lit_wgsl(packed_depth~ : Bool = false) -> String {
   shadow_lit_uniform_struct_wgsl() +
   "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
   "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
@@ -421,7 +421,7 @@ pub fn shader3d_shadow_lit_wgsl(packed_depth? : Bool = false) -> String {
 /// WGSL shader for lit 3D rendering with shadow mapping, no texture (white base).
 /// Uniform: 76 dwords. Textures: @binding(3) shadow map.
 pub fn shader3d_shadow_lit_untextured_wgsl(
-  packed_depth? : Bool = false,
+  packed_depth~ : Bool = false,
 ) -> String {
   shadow_lit_uniform_struct_wgsl() +
   "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
@@ -467,9 +467,9 @@ pub fn shadow_lit_uniform_dwords(
   lighting : @light3d.LightingEnvironment,
   light_vp : @math3d.Mat4,
   config : ShadowConfig,
-) -> Array[Int] {
+) -> Array[Int32] {
   let mvp = view_projection.multiply(model)
-  let dwords : Array[Int] = []
+  let dwords : Array[Int32] = []
   // MVP (16 dwords)
   for i in 0..<16 {
     dwords.push(f32(mvp.elements[i]))
@@ -511,9 +511,9 @@ pub fn new_shadow_lit_mesh_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
-  index_offset : Int,
-  pipeline_id : Int,
-  uniform_hash : Int,
+  index_offset : Int32,
+  pipeline_id : Int32,
+  uniform_hash : Int32,
   blend : @gfx.BlendMode,
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
@@ -521,8 +521,8 @@ pub fn new_shadow_lit_mesh_draw_command(
   lighting : @light3d.LightingEnvironment,
   light_vp : @math3d.Mat4,
   config : ShadowConfig,
-  diffuse_image_id : Int,
-  shadow_map_image_id : Int,
+  diffuse_image_id : Int32,
+  shadow_map_image_id : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = shadow_lit_uniform_dwords(
     model_matrix, view_projection, lighting, light_vp, config,

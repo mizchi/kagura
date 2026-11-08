@@ -3,21 +3,21 @@
 // ============================================================
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 // Key codes
 
 ///|
-let key_tab : Int = 9
+let key_tab : Int32 = 9
 
 ///|
-let key_shift_web : Int = 16
+let key_shift_web : Int32 = 16
 
 ///|
-let key_shift_glfw : Int = 340
+let key_shift_glfw : Int32 = 340
 
 // Layout sizes
 
@@ -59,22 +59,22 @@ enum NodeRole {
 
 ///|
 struct DemoState {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   focus_mgr : @ui.UIFocusManager
   input : @inpututil.InputHelper
   gamepad_input : @inputstate.GamepadInputState
   focus_ids : Array[@ui.UINodeId]
-  node_roles : Map[Int, NodeRole]
-  button_labels : Map[Int, Array[Int]]
+  node_roles : Map[Int32, NodeRole]
+  button_labels : Map[Int32, Array[Int32]]
   layouts : Array[@ui.LayoutResult]
   /// Structural path per node, precomputed from the tree for the UI snapshot.
   /// `layouts` is flat, so without this the published paths would carry no
   /// hierarchy and the tooling could not tell a child from a sibling.
-  node_paths : Map[Int, String]
+  node_paths : Map[Int32, String]
   mut hovered_id : @ui.UINodeId?
   mut mouse_down : Bool
-  mut frame : Int
+  mut frame : Int32
 }
 
 // ============================================================
@@ -83,12 +83,12 @@ struct DemoState {
 
 ///|
 fn DemoState::new(
-  width? : Int = screen_w,
-  height? : Int = screen_h,
+  width~ : Int32 = screen_w,
+  height~ : Int32 = screen_h,
 ) -> DemoState {
   let tree = @ui.UITree::new()
-  let node_roles : Map[Int, NodeRole] = Map([])
-  let button_labels : Map[Int, Array[Int]] = Map([])
+  let node_roles : Map[Int32, NodeRole] = Map([])
+  let button_labels : Map[Int32, Array[Int32]] = Map([])
   let focusable_ids : Array[@ui.UINodeId] = []
   let sw = width.to_double()
   let content_h = height.to_double() - header_h - footer_h
@@ -100,7 +100,7 @@ fn DemoState::new(
   let right_btn_w = right_panel_w - panel_padding * 2.0
 
   // Helper: create a button node
-  fn make_button(label_chars : Array[Int], w : Double) -> @ui.UINodeId {
+  fn make_button(label_chars : Array[Int32], w : Double) -> @ui.UINodeId {
     let id = tree.add_node(
       {
         ..@ui.default_node_style(),
@@ -318,7 +318,11 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   }
   // Standard gamepad D-pad: down moves forward, up moves backward.
   for pad in input.gamepads {
-    if @inputstate.is_gamepad_button_just_pressed(self.gamepad_input, pad.id, 13) {
+    if @inputstate.is_gamepad_button_just_pressed(
+        self.gamepad_input,
+        pad.id,
+        13,
+      ) {
       let _ = self.focus_mgr.focus_next()
     } else if @inputstate.is_gamepad_button_just_pressed(
         self.gamepad_input,
@@ -359,7 +363,7 @@ fn append_demo_rect(
 fn append_demo_text(
   cmds : Array[@gfx.DrawTrianglesCommand],
   frame : @renderer2d.RenderFrame2D,
-  chars : Array[Int],
+  chars : Array[Int32],
   cx : Double,
   cy : Double,
   color : @gfx.Color,
@@ -528,8 +532,8 @@ fn DemoState::draw(
 // ============================================================
 
 ///|
-fn ascii(s : String) -> Array[Int] {
-  let result : Array[Int] = []
+fn ascii(s : String) -> Array[Int32] {
+  let result : Array[Int32] = []
   for i = 0; i < s.length(); i = i + 1 {
     let c = s[i].to_int()
     // glyph_pattern expects 0-9 for digits, ASCII for letters/symbols

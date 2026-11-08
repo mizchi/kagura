@@ -4,36 +4,36 @@
 // Copyright (c) 2016-2026 Arseny Kapoulkine; see THIRD_PARTY.md.
 
 ///|
-const VERTEX_HEADER : Int = 0xa0
+const VERTEX_HEADER : Int32 = 0xa0
 
 ///|
-const VERTEX_BLOCK_SIZE_BYTES : Int = 8192
+const VERTEX_BLOCK_SIZE_BYTES : Int32 = 8192
 
 ///|
-const VERTEX_BLOCK_MAX_SIZE : Int = 256
+const VERTEX_BLOCK_MAX_SIZE : Int32 = 256
 
 ///|
-const BYTE_GROUP_SIZE : Int = 16
+const BYTE_GROUP_SIZE : Int32 = 16
 
 ///|
 /// Every byte group reads at most 24 bytes; the tail padding guarantees the
 /// check below never rejects a well-formed stream.
-const BYTE_GROUP_DECODE_LIMIT : Int = 24
+const BYTE_GROUP_DECODE_LIMIT : Int32 = 24
 
 ///|
-const TAIL_MIN_SIZE_V0 : Int = 32
+const TAIL_MIN_SIZE_V0 : Int32 = 32
 
 ///|
-const TAIL_MIN_SIZE_V1 : Int = 24
+const TAIL_MIN_SIZE_V1 : Int32 = 24
 
 ///|
-let bits_v0 : FixedArray[Int] = [0, 2, 4, 8]
+let bits_v0 : FixedArray[Int32] = [0, 2, 4, 8]
 
 ///|
-let bits_v1 : FixedArray[Int] = [0, 1, 2, 4, 8]
+let bits_v1 : FixedArray[Int32] = [0, 1, 2, 4, 8]
 
 ///|
-fn vertex_block_size(vertex_size : Int) -> Int {
+fn vertex_block_size(vertex_size : Int32) -> Int32 {
   let result = (VERTEX_BLOCK_SIZE_BYTES / vertex_size) &
     (BYTE_GROUP_SIZE - 1).lnot()
   if result < VERTEX_BLOCK_MAX_SIZE {
@@ -49,11 +49,11 @@ fn vertex_block_size(vertex_size : Int) -> Int {
 /// `BYTE_GROUP_DECODE_LIMIT` bytes remain.
 fn decode_bytes_group(
   source : BytesView,
-  data : Int,
+  data : Int32,
   buffer : FixedArray[Byte],
-  at : Int,
-  bits : Int,
-) -> Int {
+  at : Int32,
+  bits : Int32,
+) -> Int32 {
   match bits {
     0 => {
       buffer.fill(0, start=at, end=at + BYTE_GROUP_SIZE)
@@ -114,13 +114,13 @@ fn decode_bytes_group(
 ///|
 fn decode_bytes(
   source : BytesView,
-  data : Int,
+  data : Int32,
   buffer : FixedArray[Byte],
-  at : Int,
-  buffer_size : Int,
-  bits : FixedArray[Int],
-  bits_offset : Int,
-) -> Int raise MeshoptError {
+  at : Int32,
+  buffer_size : Int32,
+  bits : FixedArray[Int32],
+  bits_offset : Int32,
+) -> Int32 raise MeshoptError {
   let data_end = source.length()
   // Two header bits per group, rounded up to whole bytes.
   let header_size = (buffer_size / BYTE_GROUP_SIZE + 3) / 4
@@ -147,7 +147,7 @@ fn decode_bytes(
 }
 
 ///|
-fn unzigzag(v : Int, mask : Int) -> Int {
+fn unzigzag(v : Int32, mask : Int32) -> Int32 {
   ((v >> 1) ^ -(v & 1)) & mask
 }
 
@@ -158,13 +158,13 @@ fn unzigzag(v : Int, mask : Int) -> Int {
 fn decode_deltas(
   buffer : FixedArray[Byte],
   target : FixedArray[Byte],
-  target_offset : Int,
-  vertex_count : Int,
-  vertex_size : Int,
+  target_offset : Int32,
+  vertex_count : Int32,
+  vertex_size : Int32,
   last_vertex : FixedArray[Byte],
-  k : Int,
-  width : Int,
-  rot : Int,
+  k : Int32,
+  width : Int32,
+  rot : Int32,
 ) -> Unit {
   let mut kk = 0
   while kk < 4 {
@@ -215,16 +215,16 @@ fn decode_deltas(
 ///|
 fn decode_vertex_block(
   source : BytesView,
-  data : Int,
+  data : Int32,
   target : FixedArray[Byte],
-  target_offset : Int,
-  vertex_count : Int,
-  vertex_size : Int,
+  target_offset : Int32,
+  vertex_count : Int32,
+  vertex_size : Int32,
   last_vertex : FixedArray[Byte],
-  channels : Int,
-  version : Int,
+  channels : Int32,
+  version : Int32,
   buffer : FixedArray[Byte],
-) -> Int raise MeshoptError {
+) -> Int32 raise MeshoptError {
   let data_end = source.length()
   let aligned = (vertex_count + BYTE_GROUP_SIZE - 1) &
     (BYTE_GROUP_SIZE - 1).lnot()
@@ -319,8 +319,8 @@ fn decode_vertex_block(
 /// `vertex_size` must be a multiple of 4 no larger than 256.
 pub fn decode_vertex_buffer(
   target : FixedArray[Byte],
-  vertex_count : Int,
-  vertex_size : Int,
+  vertex_count : Int32,
+  vertex_size : Int32,
   source : BytesView,
 ) -> Unit raise MeshoptError {
   if vertex_size <= 0 || vertex_size > 256 || vertex_size % 4 != 0 {

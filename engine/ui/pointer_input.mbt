@@ -5,7 +5,7 @@ pub struct UIPointerInputAdapter {
   keys : @inputstate.KeyInputState
   mouse : @inputstate.MouseButtonInputState
   touches : @inputstate.TouchInputState
-  mut owned_touch : Int?
+  mut owned_touch : Int32?
   mut frame : UIPointerFrame
 }
 

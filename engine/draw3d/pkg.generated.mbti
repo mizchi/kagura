@@ -10,51 +10,51 @@ import {
 }
 
 // Values
-pub fn instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int]
+pub fn instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int32]
 
-pub fn instanced_monochrome_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], @math3d.Vec4) -> Array[Int]
+pub fn instanced_monochrome_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], @math3d.Vec4) -> Array[Int32]
 
-pub fn instanced_monochrome_max_instances() -> Int
+pub fn instanced_monochrome_max_instances() -> Int32
 
-pub fn lit_colored_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Vec4) -> Array[Int]
+pub fn lit_colored_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Vec4) -> Array[Int32]
 
-pub fn lit_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment) -> Array[Int]
+pub fn lit_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment) -> Array[Int32]
 
-pub fn mat4_to_uniform_dwords(@math3d.Mat4) -> Array[Int]
+pub fn mat4_to_uniform_dwords(@math3d.Mat4) -> Array[Int32]
 
-pub fn mvp_uniform_dwords(@math3d.Mat4, @math3d.Mat4) -> Array[Int]
+pub fn mvp_uniform_dwords(@math3d.Mat4, @math3d.Mat4) -> Array[Int32]
 
-pub fn new_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_instanced_monochrome_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], @math3d.Vec4, src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_instanced_monochrome_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], @math3d.Vec4, src_image_ids? : Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_lit_colored_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Vec4, Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_lit_colored_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Vec4, Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_lit_mesh_draw_command_with_light_dwords(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, Array[Int], Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_lit_mesh_draw_command_with_light_dwords(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, Array[Int32], Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_lit_normalmap_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Int, Int) -> @gfx.DrawTrianglesCommand
+pub fn new_lit_normalmap_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Int32, Int32) -> @gfx.DrawTrianglesCommand
 
-pub fn new_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_particle_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_particle_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, Array[Double], Array[Int32], @math3d.Mat4, Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, Array[Int], environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool, storage? : Array[Int]?) -> @gfx.DrawTrianglesCommand
+pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, Array[Int32], environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool, storage? : Array[Int32]?) -> @gfx.DrawTrianglesCommand
 
-pub fn new_skinned_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_skinned_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int32], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_skinned_instanced_monochrome_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], @math3d.Vec4, src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_skinned_instanced_monochrome_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int32], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], @math3d.Vec4, src_image_ids? : Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_skinned_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_skinned_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, Array[Double], Array[Int32], @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int32]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_skinned_lit_mesh_draw_command_from_skin(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @skeleton3d.SkinData, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_skinned_lit_mesh_draw_command_from_skin(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @skeleton3d.SkinData, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int32]) -> @gfx.DrawTrianglesCommand
 
 pub fn new_sky_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Vec3, SkySettings) -> @gfx.DrawTrianglesCommand
 
-pub fn particle_uniform_dwords(@math3d.Mat4) -> Array[Int]
+pub fn particle_uniform_dwords(@math3d.Mat4) -> Array[Int32]
 
-pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool, storage? : Array[Int]?) -> Array[Int]
+pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool, storage? : Array[Int32]?) -> Array[Int32]
 
 pub fn shader3d_lit_colored_wgsl() -> String
 
@@ -90,13 +90,13 @@ pub fn shader3d_standard_wgsl(linear_output? : Bool, srgb_texture? : Bool) -> St
 
 pub fn shader3d_visibility_wgsl() -> String
 
-pub fn skinned_instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int]
+pub fn skinned_instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int32]
 
-pub fn skinned_instanced_max_instances() -> Int
+pub fn skinned_instanced_max_instances() -> Int32
 
-pub fn skinned_instanced_monochrome_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], @math3d.Vec4) -> Array[Int]
+pub fn skinned_instanced_monochrome_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], @math3d.Vec4) -> Array[Int32]
 
-pub fn skinned_lit_uniform_dwords() -> Int
+pub fn skinned_lit_uniform_dwords() -> Int32
 
 pub fn sky_mesh() -> @mesh3d.Mesh3D
 
@@ -112,18 +112,18 @@ pub(all) struct CameraOcclusion {
   softness : Double
   end_fraction : Double
 }
-pub fn CameraOcclusion::append_uniform_dwords(Self, Array[Int]) -> Unit
+pub fn CameraOcclusion::append_uniform_dwords(Self, Array[Int32]) -> Unit
 
 pub struct InstancedMeshBatch {
   // private fields
 }
-pub fn InstancedMeshBatch::append_draw_commands(Self, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @math3d.Mat4, @light3d.LightingEnvironment, Array[@gfx.DrawTrianglesCommand], blend? : @gfx.BlendMode) -> Unit
+pub fn InstancedMeshBatch::append_draw_commands(Self, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32, @math3d.Mat4, @light3d.LightingEnvironment, Array[@gfx.DrawTrianglesCommand], blend? : @gfx.BlendMode) -> Unit
 pub fn InstancedMeshBatch::clear(Self) -> Unit
-pub fn InstancedMeshBatch::length(Self) -> Int
+pub fn InstancedMeshBatch::length(Self) -> Int32
 pub fn InstancedMeshBatch::new(@mesh3d.Mesh3D) -> Self
 pub fn InstancedMeshBatch::push(Self, @math3d.Mat4, color? : @math3d.Vec4) -> Unit
 pub fn InstancedMeshBatch::push_segment(Self, @math3d.Vec3, @math3d.Vec3, Double, color? : @math3d.Vec4) -> Bool
-pub fn InstancedMeshBatch::triangle_count(Self) -> Int
+pub fn InstancedMeshBatch::triangle_count(Self) -> Int32
 
 pub(all) struct PbrEnvironment {
   ground : @math3d.Vec3

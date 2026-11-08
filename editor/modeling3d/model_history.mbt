@@ -16,7 +16,7 @@ fn is_sculpt_stamp_enabled(layer : SculptLayer, stamp_id : String) -> Bool {
 ///|
 fn model_document_with_sculpt_layer(
   doc : ModelDocument,
-  layer_index : Int,
+  layer_index : Int32,
   next_layer : SculptLayer,
 ) -> ModelDocument {
   let layers = doc.sculpt_layers.copy()
@@ -43,7 +43,7 @@ fn without_string(items : Array[String], value : String) -> Array[String] {
 ///|
 fn toggle_sculpt_stamp_muted(
   doc : ModelDocument,
-  layer_index : Int,
+  layer_index : Int32,
   stamp_id : String,
 ) -> ModelDocument {
   match doc.sculpt_layers.get(layer_index) {
@@ -71,8 +71,8 @@ fn toggle_sculpt_stamp_muted(
 ///|
 pub fn toggle_recent_sculpt_stamp_muted(
   doc : ModelDocument,
-  layer_index : Int,
-  history_index : Int,
+  layer_index : Int32,
+  history_index : Int32,
 ) -> ModelDocument {
   if history_index < 0 {
     return doc
@@ -97,7 +97,7 @@ pub fn toggle_recent_sculpt_stamp_muted(
 ///|
 pub fn undo_last_sculpt_stamp(
   doc : ModelDocument,
-  layer_index : Int,
+  layer_index : Int32,
 ) -> ModelDocument {
   match doc.sculpt_layers.get(layer_index) {
     None => doc

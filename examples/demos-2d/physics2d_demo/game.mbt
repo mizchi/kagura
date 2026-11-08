@@ -7,10 +7,10 @@
 // Y-down screen coordinates: physics Y mapped to screen Y inverted.
 
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 // Physics space: centered at screen center, 1 physics unit = 40 pixels
 
@@ -18,7 +18,7 @@ let screen_h : Int = 480
 let px_per_unit : Double = 40.0
 
 ///|
-let circle_segments : Int = 16
+let circle_segments : Int32 = 16
 
 // ============================================================
 // DemoState
@@ -28,21 +28,21 @@ let circle_segments : Int = 16
 struct DemoState {
   world : @physics2d.PhysicsWorld2D
   input : @inpututil.InputHelper
-  mut frame : Int
-  mut next_id : Int
+  mut frame : Int32
+  mut next_id : Int32
 }
 
 // Palette for dynamic body colors (cycled)
 
 ///|
-let dynamic_colors : Array[Int] = [
+let dynamic_colors : Array[Int32] = [
   0xE04040, 0x40A0E0, 0xE0C040, 0x40E070, 0xC060D0, 0xE08040, 0x60D0D0, 0xD06080,
   0x80D060, 0xA0A0E0,
 ]
 
 ///|
 fn make_static_body(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   hx : Double,
@@ -76,7 +76,7 @@ fn make_static_body(
 
 ///|
 fn make_dynamic_circle(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   radius : Double,
@@ -94,7 +94,7 @@ fn make_dynamic_circle(
 
 ///|
 fn make_dynamic_box(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   hx : Double,
@@ -220,12 +220,12 @@ fn physics_to_screen_y(py : Double) -> Double {
 // ============================================================
 
 ///|
-fn hex_to_color(hex : Int) -> @gfx.Color {
+fn hex_to_color(hex : Int32) -> @gfx.Color {
   @renderer2d.color_from_hex(hex)
 }
 
 ///|
-fn get_body_color(id : Int) -> @gfx.Color {
+fn get_body_color(id : Int32) -> @gfx.Color {
   let hex = if id < 3 {
     0x666666 // static bodies: gray
   } else {
@@ -247,7 +247,7 @@ fn draw_filled_circle(
 ) -> Unit {
   let n = circle_segments
   let vertices : Array[Double] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   // Center vertex in NDC
   let ndc_cx = cx / sw * 2.0 - 1.0
   let ndc_cy = 1.0 - cy / sh * 2.0
@@ -312,7 +312,7 @@ fn draw_rotated_box(
     vertices.push(0.5)
     vertices.push(0.5)
   }
-  let indices : Array[Int] = [0, 1, 2, 0, 2, 3]
+  let indices : Array[Int32] = [0, 1, 2, 0, 2, 3]
   @renderer2d.append_primitive_batch(cmds, frame, vertices, indices, color)
 }
 

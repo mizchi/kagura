@@ -1,28 +1,28 @@
 ///|
-let screen_w : Int = 720
+let screen_w : Int32 = 720
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
-let hist_max : Int = 140
+let hist_max : Int32 = 140
 
 // Web key codes.
 
 ///|
-let key_space : Int = 32
+let key_space : Int32 = 32
 
 ///|
-let key_right : Int = 39
+let key_right : Int32 = 39
 
 ///|
-let key_r : Int = 82
+let key_r : Int32 = 82
 
 ///|
-let key_up : Int = 38
+let key_up : Int32 = 38
 
 ///|
-let key_down : Int = 40
+let key_down : Int32 = 40
 
 // The web runtime reports cursor coordinates in canvas CSS pixels, which differ
 // from the logical (screen_w x screen_h) space the diagram is laid out in when
@@ -42,19 +42,19 @@ struct DemoState {
   sim : @mac.SimState
   input : @inpututil.InputHelper
   mut playing : Bool
-  mut frames_per_step : Int // lower = faster auto-stepping
-  mut acc : Int
+  mut frames_per_step : Int32 // lower = faster auto-stepping
+  mut acc : Int32
   mut anim : Double // 0..1 flow-particle phase, reset each step
-  mut hovered : Int // hovered node index, -1 = none
-  history : Array[Array[Int]] // per-node ring buffer of values
-  mut hist_head : Int // next write index
-  mut hist_len : Int // valid sample count (<= hist_max)
+  mut hovered : Int32 // hovered node index, -1 = none
+  history : Array[Array[Int32]] // per-node ring buffer of values
+  mut hist_head : Int32 // next write index
+  mut hist_len : Int32 // valid sample count (<= hist_max)
 }
 
 ///|
 fn DemoState::new() -> DemoState {
   let diagram = build_sample()
-  let history : Array[Array[Int]] = []
+  let history : Array[Array[Int32]] = []
   for _ in 0..<diagram.nodes.length() {
     history.push(Array::make(hist_max, 0))
   }
@@ -89,7 +89,7 @@ fn DemoState::record(self : DemoState) -> Unit {
 
 ///|
 /// The k-th oldest recorded value for node `node` (0 = oldest sample).
-fn DemoState::sample(self : DemoState, node : Int, k : Int) -> Int {
+fn DemoState::sample(self : DemoState, node : Int32, k : Int32) -> Int32 {
   let start = (self.hist_head - self.hist_len + hist_max * 2) % hist_max
   self.history[node][(start + k) % hist_max]
 }

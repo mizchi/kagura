@@ -5,8 +5,8 @@
 ///|
 extern "js" fn js_fetch_url(
   url : String,
-  fetch_id : Int,
-  on_done : (Int, Int) -> Unit,
+  fetch_id : Int32,
+  on_done : (Int32, Int32) -> Unit,
 ) -> Unit =
   #| (url, id, onDone) => {
   #|   if (!globalThis.__kagura_fetch) globalThis.__kagura_fetch = {};
@@ -20,15 +20,15 @@ extern "js" fn js_fetch_url(
   #| }
 
 ///|
-extern "js" fn js_fetch_buf_byte(fetch_id : Int, index : Int) -> Int =
+extern "js" fn js_fetch_buf_byte(fetch_id : Int32, index : Int32) -> Int32 =
   #| (id, i) => globalThis.__kagura_fetch[id][i]
 
 ///|
-extern "js" fn js_fetch_buf_clear(fetch_id : Int) -> Unit =
+extern "js" fn js_fetch_buf_clear(fetch_id : Int32) -> Unit =
   #| (id) => { delete globalThis.__kagura_fetch[id]; }
 
 ///|
-let fetch_id_counter : Ref[Int] = Ref(0)
+let fetch_id_counter : Ref[Int32] = Ref(0)
 
 ///|
 pub fn fetch_bytes(url : String, callback : (Bytes?) -> Unit) -> Unit {

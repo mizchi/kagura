@@ -62,7 +62,7 @@ fn update_enemy_bolt_castup(
   projectiles : Array[Projectile],
   events : Array[GameEvent],
   params : BalanceParams,
-  floor : Int,
+  floor : Int32,
 ) -> Bool {
   if enemy.pending_bolt_timer <= 0 {
     return false
@@ -236,12 +236,12 @@ pub fn update_enemy_ai(
   player : Player,
   grid : @terrain.Grid2D,
   rooms : Array[@terrain.Room],
-  frame_count : Int,
+  frame_count : Int32,
   projectiles : Array[Projectile],
   events : Array[GameEvent],
-  params? : BalanceParams = BalanceParams::default(),
-  floor? : Int = 1,
-  zombies? : Array[SummonedZombie] = [],
+  params~ : BalanceParams = BalanceParams::default(),
+  floor~ : Int32 = 1,
+  zombies~ : Array[SummonedZombie] = [],
 ) -> Unit {
   let chase_range_sq = params.chase_range * params.chase_range
   update_enemy_camps(enemies, player, grid, zombies)

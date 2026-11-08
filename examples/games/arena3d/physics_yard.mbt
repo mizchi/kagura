@@ -1,15 +1,15 @@
 ///|
-let rain_interval : Int = 54
+let rain_interval : Int32 = 54
 
 ///|
-let rain_capacity : Int = 24
+let rain_capacity : Int32 = 24
 
 ///|
 /// A slide prefab's position and scale describe its axis-aligned bounds. Its
 /// deck and rails share the same rotation in physics and rendering.
 fn GameState::add_slide(
   self : GameState,
-  id : Int,
+  id : Int32,
   key : String,
   position : @math3d.Vec3,
   size : @math3d.Vec3,
@@ -60,12 +60,12 @@ fn GameState::add_slide(
 ///|
 fn GameState::add_stage_part(
   self : GameState,
-  id : Int,
+  id : Int32,
   key : String,
   position : @math3d.Vec3,
   scale : @math3d.Vec3,
   rotation : @math3d.Quaternion,
-  color : Int,
+  color : Int32,
 ) -> Unit {
   self.physics.add_body({
     ..@physics3d.RigidBody::new_static(

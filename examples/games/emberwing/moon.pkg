@@ -10,5 +10,7 @@ import {
   "mizchi/gfx",
   "mizchi/web_runtime_hooks" @hooks,
 }
+
 supported_targets = "js"
+
 pkgtype(kind: "executable")

@@ -41,7 +41,7 @@ fn PriorityQueue::pop(self : PriorityQueue) -> @terrain.Point? {
 }
 
 ///|
-fn PriorityQueue::sift_up(self : PriorityQueue, idx : Int) -> Unit {
+fn PriorityQueue::sift_up(self : PriorityQueue, idx : Int32) -> Unit {
   let mut i = idx
   while i > 0 {
     let parent = (i - 1) / 2
@@ -57,7 +57,7 @@ fn PriorityQueue::sift_up(self : PriorityQueue, idx : Int) -> Unit {
 }
 
 ///|
-fn PriorityQueue::sift_down(self : PriorityQueue, idx : Int) -> Unit {
+fn PriorityQueue::sift_down(self : PriorityQueue, idx : Int32) -> Unit {
   let n = self.data.length()
   let mut i = idx
   while true {

@@ -1,6 +1,7 @@
 ///|
 /// Navigation semantics are independent of meshes. A bridge has a walking
 /// surface above its bed; a cave has a floor below a removable visual canopy.
+#derive(Eq, Debug)
 pub(all) enum LandscapeKind {
   Land
   Sea
@@ -8,14 +9,17 @@ pub(all) enum LandscapeKind {
   Mountain
   Bridge
   CaveFloor
-} derive(Eq, Debug)
+}
+
 ///|
 pub extend LandscapeKind with Eq::{not_equal, equal}
+
 ///|
 pub extend LandscapeKind with @moonbitlang/core/debug.Debug::{to_repr}
+
 ///|
 pub(all) struct Landscape {
-  region : Int
+  region : Int32
   bed : @terrain3d.HeightField
   walk : @terrain3d.HeightField
   kinds : Array[LandscapeKind]
@@ -24,7 +28,7 @@ pub(all) struct Landscape {
 }
 
 ///|
-pub fn Landscape::kind(self : Landscape, x : Int, z : Int) -> LandscapeKind {
+pub fn Landscape::kind(self : Landscape, x : Int32, z : Int32) -> LandscapeKind {
   self.kinds[z.clamp(min=0, max=map_rows - 1) * map_cols +
   x.clamp(min=0, max=map_cols - 1)]
 }
@@ -88,7 +92,7 @@ pub fn landscape_cave() -> @terrain3d.TerrainRoute {
 /// chosen by visual decoration RNG. Keep two tiles of dry approach at each end.
 fn landscape_bridges(
   plan : ExpeditionPlan,
-  region : Int,
+  region : Int32,
 ) -> Array[@terrain3d.TerrainRoute] {
   let ox = world_regions[region].x.to_double() * 98.0
   let oz = world_regions[region].z.to_double() * 78.0
@@ -132,7 +136,7 @@ fn landscape_bridges(
 }
 
 ///|
-pub fn landscape_plan(seed : Int, region : Int) -> ExpeditionPlan {
+pub fn landscape_plan(seed : Int32, region : Int32) -> ExpeditionPlan {
   let old = expedition_plan(seed, region)
   let fork = old.pads[9]
   let pads = old.pads.copy()
@@ -195,9 +199,9 @@ pub fn landscape_plan(seed : Int, region : Int) -> ExpeditionPlan {
 
 ///|
 pub fn generate_landscape(
-  seed : Int,
-  region : Int,
-  plains_relief? : Double = 1.0,
+  seed : Int32,
+  region : Int32,
+  plains_relief~ : Double = 1.0,
 ) -> Landscape {
   let plan = landscape_plan(seed, region)
   let cave = landscape_cave()
@@ -310,9 +314,9 @@ pub fn generate_landscape(
 ///|
 fn shape_landscape_region(
   dungeon : DungeonData,
-  seed : Int,
-  region : Int,
-  plains_relief? : Double = 1.0,
+  seed : Int32,
+  region : Int32,
+  plains_relief~ : Double = 1.0,
 ) -> Unit {
   let land = generate_landscape(seed, region, plains_relief~)
   let plan = landscape_plan(seed, region)
@@ -374,7 +378,7 @@ fn shape_landscape_region(
 ///|
 /// Authored roadside modules share one placement list with collision. The old
 /// cart location intersects the new high crossing; park it beside the gallery.
-pub fn landscape_props(seed : Int) -> Array[HuntingProp] {
+pub fn landscape_props(seed : Int32) -> Array[HuntingProp] {
   hunting_site_props(seed).map(p => {
     if p.kind == BrokenCart {
       { ..p, x: 67, z: 27, }

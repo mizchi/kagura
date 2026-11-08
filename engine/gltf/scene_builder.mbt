@@ -1,11 +1,11 @@
 ///|
 fn build_scene_graph(
   doc : GltfDocument,
-  scene_index : Int,
+  scene_index : Int32,
   buffers : Array[Bytes],
 ) -> @scene3d.SceneGraph raise GltfError {
   let graph = @scene3d.SceneGraph::new()
-  let mesh_cache : Map[Int, @mesh3d.Mesh3D] = Map([])
+  let mesh_cache : Map[Int32, @mesh3d.Mesh3D] = Map([])
   if scene_index < 0 || scene_index >= doc.scenes.length() {
     return graph
   }
@@ -21,9 +21,9 @@ fn add_node_recursive(
   doc : GltfDocument,
   buffers : Array[Bytes],
   graph : @scene3d.SceneGraph,
-  node_index : Int,
-  parent_id : Int?,
-  mesh_cache : Map[Int, @mesh3d.Mesh3D],
+  node_index : Int32,
+  parent_id : Int32?,
+  mesh_cache : Map[Int32, @mesh3d.Mesh3D],
 ) -> Unit raise GltfError {
   if node_index < 0 || node_index >= doc.nodes.length() {
     return

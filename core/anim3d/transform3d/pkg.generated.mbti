@@ -11,11 +11,12 @@ import {
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct Transform3D {
   mut position : @math3d.Vec3
   mut rotation : @math3d.Quaternion
   mut scale : @math3d.Vec3
-} derive(@debug.Debug)
+}
 pub fn Transform3D::forward(Self) -> @math3d.Vec3
 pub fn Transform3D::from_components(@math3d.Vec3, @math3d.Quaternion, @math3d.Vec3) -> Self
 pub fn Transform3D::from_mat4(@math3d.Mat4) -> Self

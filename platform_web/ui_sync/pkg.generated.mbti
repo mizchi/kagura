@@ -2,13 +2,13 @@
 package "mizchi/kagura_platform_web/ui_sync"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js_core",
 }
 
 // Values
-pub fn apply_object_patch(@core.Any, @core.Any) -> @core.Any
+pub fn apply_object_patch(@js_core.Any, @js_core.Any) -> @js_core.Any
 
-pub fn create_dependency_gate() -> @core.Any
+pub fn create_dependency_gate() -> @js_core.Any
 
 // Errors
 

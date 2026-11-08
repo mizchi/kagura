@@ -1,46 +1,55 @@
 // Read-only inventory contract. IDs refer to bag indices or -1-body slot index.
 
 ///|
+#derive(ToJson)
 struct HunterItemView {
-  source : Int
+  source : Int32
   name : String
-  slot : Int
+  slot : Int32
   slot_name : String
   rarity : String
   glyph : String
-  width : Int
-  height : Int
-  cells : Array[(Int, Int)]
-  x : Int
-  y : Int
+  width : Int32
+  height : Int32
+  cells : Array[(Int32, Int32)]
+  x : Int32
+  y : Int32
   rotated : Bool
   stats : Array[(String, Double)]
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterItemView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterEquipmentView {
-  id : Int
+  id : Int32
   label : String
   glyph : String
   item : HunterItemView?
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterEquipmentView with ToJson::{to_json}
+
 ///|
+#derive(ToJson)
 struct HunterInventoryView {
-  width : Int
-  height : Int
-  used : Int
+  width : Int32
+  height : Int32
+  used : Int32
   items : Array[HunterItemView]
   equipment : Array[HunterEquipmentView]
-  atk : Int
-  def : Int
-  hp : Int
+  atk : Int32
+  def : Int32
+  hp : Int32
   notice : String
-} derive(ToJson)
+}
+
 ///|
 pub extend HunterInventoryView with ToJson::{to_json}
+
 ///|
 fn equipment_glyph(slot : @game.EquipSlot) -> String {
   match slot {
@@ -58,7 +67,7 @@ fn equipment_glyph(slot : @game.EquipSlot) -> String {
 ///|
 fn hunter_item_view(
   item : @game.ItemData,
-  source : Int,
+  source : Int32,
   position : @inventory.GridPlacement?,
 ) -> HunterItemView {
   let (width, height) = item.footprint().size()
@@ -146,7 +155,7 @@ fn GameState::hunter_inventory_view(self : GameState) -> HunterInventoryView? {
 ///|
 fn GameState::apply_inventory_command(
   self : GameState,
-  command : Array[Int],
+  command : Array[Int32],
 ) -> Bool {
   if command.length() != 5 {
     return false

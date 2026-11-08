@@ -13,6 +13,7 @@ import {
   "mizchi/kagura_engine/light3d",
   "mizchi/mesh3d",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -32,39 +33,39 @@ pub fn object3d_with_transform(mesh~ : @mesh3d.Mesh3D, transform~ : @transform3d
 
 pub fn publish_scene3d_snapshot_lazy(() -> Scene3DSnapshot) -> Unit
 
-pub fn push_instanced_instance_data_gpu_commands_with_color_optimization_and_view_projection(@mesh3d.Mesh3D, Array[InstanceData], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_instanced_instance_data_gpu_commands_with_color_optimization_and_view_projection(@mesh3d.Mesh3D, Array[InstanceData], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_instanced_mesh_gpu_commands_from_matrices_with_uniform_color_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], @math3d.Vec4, @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_instanced_mesh_gpu_commands_from_matrices_with_uniform_color_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], @math3d.Vec4, @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_instanced_mesh_gpu_commands_with_color_optimization_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], Array[@math3d.Vec4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_instanced_mesh_gpu_commands_with_color_optimization_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], Array[@math3d.Vec4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_object3d_gpu_commands(Object3D, @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand], shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Unit
+pub fn push_object3d_gpu_commands(Object3D, @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand], shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Unit
 
-pub fn push_scene3d_gpu_commands(Array[Object3D], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand], shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Unit
+pub fn push_scene3d_gpu_commands(Array[Object3D], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand], shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Unit
 
-pub fn push_single_skinned_mesh_gpu_command(@mesh3d.Mesh3D, @transform3d.Transform3D, @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_single_skinned_mesh_gpu_command(@mesh3d.Mesh3D, @transform3d.Transform3D, @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_single_skinned_mesh_gpu_command_with_view_projection(@mesh3d.Mesh3D, @transform3d.Transform3D, @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_single_skinned_mesh_gpu_command_with_view_projection(@mesh3d.Mesh3D, @transform3d.Transform3D, @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_skinned_mesh_gpu_commands(@mesh3d.Mesh3D, Array[@transform3d.Transform3D], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_skinned_mesh_gpu_commands(@mesh3d.Mesh3D, Array[@transform3d.Transform3D], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_skinned_mesh_gpu_commands_from_matrices_with_uniform_color_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_skinned_mesh_gpu_commands_from_matrices_with_uniform_color_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_skinned_mesh_gpu_commands_from_matrices_with_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_skinned_mesh_gpu_commands_from_matrices_with_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projection(@mesh3d.Mesh3D, Array[@math3d.Mat4], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn push_skinned_mesh_gpu_commands_with_view_projection(@mesh3d.Mesh3D, Array[@transform3d.Transform3D], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+pub fn push_skinned_mesh_gpu_commands_with_view_projection(@mesh3d.Mesh3D, Array[@transform3d.Transform3D], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int32, Int32, Array[@gfx.DrawTrianglesCommand]) -> Unit
 
-pub fn query_scene3d_snapshot(Json, Json) -> Json raise
+pub fn query_scene3d_snapshot(@json.Json, @json.Json) -> @json.Json raise
 
-pub fn render_instanced_gpu(@mesh3d.Mesh3D, Array[InstanceData], @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> @gfx.DrawTrianglesCommand
+pub fn render_instanced_gpu(@mesh3d.Mesh3D, Array[InstanceData], @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32) -> @gfx.DrawTrianglesCommand
 
-pub fn render_instanced_gpu_with_view_projection(@mesh3d.Mesh3D, Array[InstanceData], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> @gfx.DrawTrianglesCommand
+pub fn render_instanced_gpu_with_view_projection(@mesh3d.Mesh3D, Array[InstanceData], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32) -> @gfx.DrawTrianglesCommand
 
-pub fn render_scene3d_gpu(Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
+pub fn render_scene3d_gpu(Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
 
-pub fn render_scene3d_graph_gpu(SceneGraph, @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
+pub fn render_scene3d_graph_gpu(SceneGraph, @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int32, Int32, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
 
 pub fn scene(root~ : View, camera~ : @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment) -> SceneView
 
@@ -92,13 +93,13 @@ pub impl Show for Scene3DSnapshotError
 
 // Types and methods
 pub struct BakedSkinningClip {
-  frame_count : Int
+  frame_count : Int32
   // private fields
 }
-pub fn BakedSkinningClip::frame_index(Self, Double) -> Int
-pub fn BakedSkinningClip::from_pose_sampler(@skeleton3d.Skeleton, Int, (Int) -> Array[@transform3d.Transform3D]) -> Self
-pub fn BakedSkinningClip::matrices(Self, Int) -> Array[@math3d.Mat4]
-pub fn BakedSkinningClip::new(@skeleton3d.Skeleton, @animation3d.AnimationClip, Int) -> Self
+pub fn BakedSkinningClip::frame_index(Self, Double) -> Int32
+pub fn BakedSkinningClip::from_pose_sampler(@skeleton3d.Skeleton, Int32, (Int32) -> Array[@transform3d.Transform3D]) -> Self
+pub fn BakedSkinningClip::matrices(Self, Int32) -> Array[@math3d.Mat4]
+pub fn BakedSkinningClip::new(@skeleton3d.Skeleton, @animation3d.AnimationClip, Int32) -> Self
 
 pub(all) struct InstanceData {
   transform : @transform3d.Transform3D
@@ -108,12 +109,12 @@ pub fn InstanceData::new(transform? : @transform3d.Transform3D, color? : @math3d
 
 pub(all) struct Material {
   color : @math3d.Vec4
-  src_image_id : Int
+  src_image_id : Int32
   metallic : Double
   roughness : Double
   emissive : @math3d.Vec3
 }
-pub fn Material::new(color? : @math3d.Vec4, src_image_id? : Int, metallic? : Double, roughness? : Double, emissive? : @math3d.Vec3) -> Self
+pub fn Material::new(color? : @math3d.Vec4, src_image_id? : Int32, metallic? : Double, roughness? : Double, emissive? : @math3d.Vec3) -> Self
 
 pub(all) struct Object3D {
   mesh : @mesh3d.Mesh3D
@@ -130,11 +131,12 @@ pub(all) struct Scene3D {
   lighting : @light3d.LightingEnvironment
 }
 
+#derive(@debug.Debug)
 pub(all) struct Scene3DFinding {
   kind : String
   paths : Array[String]
   message : String
-} derive(@debug.Debug)
+}
 pub fn Scene3DFinding::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Scene3DSnapshot {
@@ -143,11 +145,11 @@ pub(all) struct Scene3DSnapshot {
 }
 pub fn Scene3DSnapshot::check(Self, contact_tolerance? : Double) -> Array[Scene3DFinding]
 pub fn Scene3DSnapshot::distance(Self, String, String) -> @convex.Distance raise
-pub fn Scene3DSnapshot::from_json(Json) -> Self raise
+pub fn Scene3DSnapshot::from_json(@json.Json) -> Self raise
 pub fn Scene3DSnapshot::overlaps(Self, contact_tolerance? : Double) -> Array[(String, String)]
 pub fn Scene3DSnapshot::raycast(Self, @math3d.Vec3, @math3d.Vec3) -> Array[(String, Double)] raise
 pub fn Scene3DSnapshot::shapes_under(Self, String) -> Array[@convex.Shape]
-pub fn Scene3DSnapshot::to_json(Self) -> Json
+pub fn Scene3DSnapshot::to_json(Self) -> @json.Json
 
 pub(all) struct Scene3DSnapshotBox {
   center : @math3d.Vec3
@@ -173,17 +175,17 @@ pub(all) struct Scene3DSnapshotSphere {
 }
 
 pub struct SceneGraph {
-  nodes : Map[Int, SceneNode]
-  roots : Array[Int]
-  mut next_id : Int
+  nodes : Map[Int32, SceneNode]
+  roots : Array[Int32]
+  mut next_id : Int32
 }
-pub fn SceneGraph::add_child(Self, Int, SceneNode) -> Int
-pub fn SceneGraph::add_node(Self, SceneNode) -> Int
+pub fn SceneGraph::add_child(Self, Int32, SceneNode) -> Int32
+pub fn SceneGraph::add_node(Self, SceneNode) -> Int32
 pub fn SceneGraph::apply_root_transform(Self, @transform3d.Transform3D) -> Unit
 pub fn SceneGraph::clone_graph(Self) -> Self
-pub fn SceneGraph::get_node(Self, Int) -> SceneNode?
+pub fn SceneGraph::get_node(Self, Int32) -> SceneNode?
 pub fn SceneGraph::new() -> Self
-pub fn SceneGraph::set_node(Self, Int, SceneNode) -> Unit
+pub fn SceneGraph::set_node(Self, Int32, SceneNode) -> Unit
 
 pub(all) struct SceneNode {
   transform : @transform3d.Transform3D
@@ -191,18 +193,18 @@ pub(all) struct SceneNode {
   color : @math3d.Vec4
   material : Material?
   skinning : SkinningState?
-  children : Array[Int]
+  children : Array[Int32]
 }
 
 pub struct SceneRoot {
   mut current : SceneGraph
-  mut ids : Map[String, Int]
+  mut ids : Map[String, Int32]
   mut outline : Array[@hierarchy.Node]
 }
 pub fn SceneRoot::graph(Self) -> SceneGraph
 pub fn SceneRoot::hierarchy(Self) -> Array[@hierarchy.Node]
 pub fn SceneRoot::new() -> Self
-pub fn SceneRoot::node_id(Self, String) -> Int?
+pub fn SceneRoot::node_id(Self, String) -> Int32?
 pub fn SceneRoot::render(Self, View) -> Unit raise
 pub fn SceneRoot::snapshot(Self, camera? : @camera3d.Camera3D) -> Scene3DSnapshot
 
@@ -218,9 +220,9 @@ pub struct SkinnedMeshAsset {
   packed_vertex_data : Array[Double]
   // private fields
 }
-pub fn SkinnedMeshAsset::cpu_skin_count(Self) -> Int
+pub fn SkinnedMeshAsset::cpu_skin_count(Self) -> Int32
 pub fn SkinnedMeshAsset::new(@mesh3d.Mesh3D, @skeleton3d.SkinData) -> Self
-pub fn SkinnedMeshAsset::skinned_mesh(Self, Int, Array[@math3d.Mat4]) -> @mesh3d.Mesh3D
+pub fn SkinnedMeshAsset::skinned_mesh(Self, Int32, Array[@math3d.Mat4]) -> @mesh3d.Mesh3D
 
 pub(all) struct SkinningState {
   skin : @skeleton3d.SkinData
@@ -235,12 +237,13 @@ pub struct StaticMeshBatch {
   spans : Array[StaticMeshSpan]
 }
 pub fn StaticMeshBatch::new(Array[@mesh3d.Mesh3D]) -> Self?
-pub fn StaticMeshBatch::select(Self, (Int) -> Bool) -> Array[StaticMeshSpan]
+pub fn StaticMeshBatch::select(Self, (Int32) -> Bool) -> Array[StaticMeshSpan]
 
+#derive(Eq, @debug.Debug)
 pub struct StaticMeshSpan {
-  first_index : Int
-  index_count : Int
-} derive(Eq, @debug.Debug)
+  first_index : Int32
+  index_count : Int32
+}
 pub fn StaticMeshSpan::equal(Self, Self) -> Bool
 pub fn StaticMeshSpan::not_equal(Self, Self) -> Bool
 pub fn StaticMeshSpan::to_repr(Self) -> @debug.Repr

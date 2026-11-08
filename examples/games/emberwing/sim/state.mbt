@@ -40,7 +40,7 @@ pub fn idle_input() -> Input {
 
 ///|
 pub(all) struct Enemy {
-  id : Int
+  id : Int32
   mut position : @math3d.Vec3
   origin : @math3d.Vec3
   phase : Double
@@ -53,7 +53,7 @@ pub(all) struct Enemy {
 
 ///|
 pub(all) struct Fireball {
-  target : Int
+  target : Int32
   mut position : @math3d.Vec3
   mut velocity : @math3d.Vec3
   mut age : Double
@@ -69,8 +69,8 @@ pub(all) struct Shot {
 
 ///|
 pub(all) struct Bowl {
-  id : Int
-  points : Int
+  id : Int32
+  points : Int32
   scale : Double
   mut position : @math3d.Vec3
   mut age : Double
@@ -97,8 +97,8 @@ pub(all) struct Beam {
 
 ///|
 pub(all) struct LockTarget {
-  id : Int
-  enemy : Int
+  id : Int32
+  enemy : Int32
   position : @math3d.Vec3
   radius : Double
   boss : Bool
@@ -107,23 +107,23 @@ pub(all) struct LockTarget {
 
 ///|
 pub(all) struct Game {
-  seed : Int
+  seed : Int32
   mut mode : String
   mut time : Double
-  mut wave : Int
+  mut wave : Int32
   mut next_wave : Double
   mut next_rock : Double
   mut boss_spawned : Bool
   mut boss_defeated : Bool
   mut boss_clock : Double
-  mut boss_salvo : Int
+  mut boss_salvo : Int32
   mut victory_clock : Double
-  mut beam_event : Int
-  mut serial : Int
-  mut hp : Int
-  mut score : Int
-  mut kills : Int
-  mut best_chain : Int
+  mut beam_event : Int32
+  mut serial : Int32
+  mut hp : Int32
+  mut score : Int32
+  mut kills : Int32
+  mut best_chain : Int32
   mut hit_timer : Double
   mut heat : Double
   mut overheated : Bool
@@ -136,11 +136,11 @@ pub(all) struct Game {
   mut aim_x : Double
   mut aim_y : Double
   mut aspect : Double
-  mut volley_event : Int
-  mut hit_event : Int
-  mut lock_event : Int
+  mut volley_event : Int32
+  mut hit_event : Int32
+  mut lock_event : Int32
   enemies : Array[Enemy]
-  locks : Array[Int]
+  locks : Array[Int32]
   balls : Array[Fireball]
   shots : Array[Shot]
   bowls : Array[Bowl]
@@ -149,7 +149,7 @@ pub(all) struct Game {
 }
 
 ///|
-pub fn new_game(seed : Int) -> Game {
+pub fn new_game(seed : Int32) -> Game {
   let g : Game = {
     seed,
     mode: "title",
@@ -199,9 +199,9 @@ pub fn new_game(seed : Int) -> Game {
 pub fn spawn_enemy(
   g : Game,
   position : @math3d.Vec3,
-  phase : Int,
-  elite? : Bool = false,
-  boss? : Bool = false,
+  phase : Int32,
+  elite~ : Bool = false,
+  boss~ : Bool = false,
 ) -> Unit {
   if g.enemies.length() >= 120 {
     return

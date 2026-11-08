@@ -1,18 +1,19 @@
 ///|
+#derive(Eq, Debug)
 pub(all) struct BrowserOptions {
   url : String
   output : String?
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   headed : Bool
-  timeout : Int
-  samples : Int
-  profile_ms : Int
-  warmup_ms : Int
-} derive(Eq, Debug)
+  timeout : Int32
+  samples : Int32
+  profile_ms : Int32
+  warmup_ms : Int32
+}
 
 ///|
-fn bounded_integer(text : String, minimum : Int, maximum : Int) -> Int? {
+fn bounded_integer(text : String, minimum : Int32, maximum : Int32) -> Int32? {
   if text.is_empty() {
     return None
   }
@@ -109,7 +110,7 @@ fn parse_browser_args(args : Array[String]) -> Result[Command, String] {
   if !url.has_prefix("http://") && !url.has_prefix("https://") {
     return Err("URL must use http:// or https://")
   }
-  let numbers : Map[String, Int] = Map([])
+  let numbers : Map[String, Int32] = Map([])
   for
     (flag, fallback, minimum, maximum) in [
       ("--width", if capture { 1600 } else { 1280 }, 1, 16384),
@@ -154,17 +155,14 @@ fn parse_browser_args(args : Array[String]) -> Result[Command, String] {
 fn browser_request(command : String, options : BrowserOptions) -> Json {
   {
     "ok": true,
-    "command": command.to_json(),
-    "url": options.url.to_json(),
+    "command": Json(command),
+    "url": Json(options.url),
     "output": optional_json(options.output),
-    "viewport": {
-      "width": options.width.to_json(),
-      "height": options.height.to_json(),
-    },
-    "headed": options.headed.to_json(),
-    "timeout": options.timeout.to_json(),
-    "samples": options.samples.to_json(),
-    "profileMs": options.profile_ms.to_json(),
-    "warmupMs": options.warmup_ms.to_json(),
+    "viewport": { "width": Json(options.width), "height": Json(options.height) },
+    "headed": Json(options.headed),
+    "timeout": Json(options.timeout),
+    "samples": Json(options.samples),
+    "profileMs": Json(options.profile_ms),
+    "warmupMs": Json(options.warmup_ms),
   }
 }

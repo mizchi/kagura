@@ -51,9 +51,7 @@ pub fn scaffold_files(name : String) -> String {
   let name = project_slug(name)
   let files : Map[String, Json] = Map([])
   for (path, content) in web_template_files {
-    files[path] = content
-      .replace_all(old="__PROJECT_NAME__", new=name)
-      .to_json()
+    files[path] = Json(content.replace_all(old="__PROJECT_NAME__", new=name))
   }
-  files.to_json().stringify()
+  Json(files).stringify()
 }

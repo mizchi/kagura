@@ -19,10 +19,10 @@ fn clock_ms() -> Double {
 }
 
 ///|
-let default_w : Int = 800
+let default_w : Int32 = 800
 
 ///|
-let default_h : Int = 600
+let default_h : Int32 = 600
 
 ///|
 let input_path : String = "/tmp/crater_paint_input.html"
@@ -169,7 +169,7 @@ fn main {
     "ms",
   )
   // DOM stats
-  fn count_elements(e : @html.Element) -> (Int, Int) {
+  fn count_elements(e : @html.Element) -> (Int32, Int32) {
     let mut total = 1
     let mut max_depth = 0
     for child in e.children {
@@ -282,7 +282,7 @@ fn main {
 }
 
 ///|
-fn read_config() -> (Int, Int) {
+fn read_config() -> (Int32, Int32) {
   match read_file_as_string(config_path) {
     Some(s) => {
       let parts = s.trim().split(" ").collect()
@@ -349,7 +349,7 @@ fn load_glyph_cache(renderer : @text.TextRenderer?, path : String) -> Unit {
 }
 
 ///|
-fn ints_to_bytes(ints : Array[Int]) -> Bytes {
+fn ints_to_bytes(ints : Array[Int32]) -> Bytes {
   let arr : Array[Byte] = []
   for v in ints {
     arr.push((v & 0xFF).to_byte())
@@ -361,8 +361,8 @@ fn ints_to_bytes(ints : Array[Int]) -> Bytes {
 }
 
 ///|
-fn bytes_to_ints(bytes : Bytes) -> Array[Int] {
-  let ints : Array[Int] = []
+fn bytes_to_ints(bytes : Bytes) -> Array[Int32] {
+  let ints : Array[Int32] = []
   let count = bytes.length() / 4
   for i = 0; i < count; i = i + 1 {
     let o = i * 4
@@ -497,7 +497,7 @@ let bold_font_candidates : Array[String] = [
 
 ///|
 /// next_page_id tracks atlas page IDs to avoid texture_seed=0 collision
-let next_page_id : Ref[Int] = { val: 1 }
+let next_page_id : Ref[Int32] = { val: 1, }
 
 ///|
 fn load_font(candidates : Array[String]) -> @text.TextRenderer? {
@@ -768,18 +768,10 @@ fn render_paint_node(
   // Clipping
   let clips = w > 0.0 &&
     h > 0.0 &&
-    (
-      node.overflow_x != @crater_types.Visible ||
-      node.overflow_y != @crater_types.Visible
-    )
+    (node.overflow_x != @css.Visible || node.overflow_y != @css.Visible)
   if clips {
     let clipped = scissor.push(
-      @widget2d.ScissorRect::new(
-        x.to_int(),
-        y.to_int(),
-        w.to_int(),
-        h.to_int(),
-      ),
+      @widget2d.ScissorRect::new(x.to_int(), y.to_int(), w.to_int(), h.to_int()),
     )
     if !clipped {
       scissor.pop()
@@ -803,7 +795,7 @@ fn push_text_with_renderer(
   size_px : Double,
   x : Double,
   y : Double,
-  color_hex : Int,
+  color_hex : Int32,
 ) -> Unit {
   match renderer {
     Some(tr) => {
@@ -850,7 +842,7 @@ fn push_text_with_renderer(
       }
     }
     None => {
-      let chars : Array[Int] = []
+      let chars : Array[Int32] = []
       for ch in text {
         let code = ch.to_int()
         if code >= 32 && code < 128 {
@@ -969,7 +961,7 @@ fn select_renderer(
 }
 
 ///|
-fn crater_color_to_hex(color : @crater_types.Color) -> Int {
+fn crater_color_to_hex(color : @css.Color) -> Int32 {
   let r = if color.r > 255 { 255 } else if color.r < 0 { 0 } else { color.r }
   let g = if color.g > 255 { 255 } else if color.g < 0 { 0 } else { color.g }
   let b = if color.b > 255 { 255 } else if color.b < 0 { 0 } else { color.b }
@@ -981,8 +973,8 @@ fn make_draw_cmd(
   ctx : @engine.EngineContext,
   scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
-  indices : Array[Int],
-  color_hex : Int,
+  indices : Array[Int32],
+  color_hex : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   make_draw_cmd_alpha(ctx, scissor, vertices, indices, color_hex, 1.0)
 }
@@ -992,8 +984,8 @@ fn make_draw_cmd_alpha(
   ctx : @engine.EngineContext,
   scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
-  indices : Array[Int],
-  color_hex : Int,
+  indices : Array[Int32],
+  color_hex : Int32,
   alpha : Double,
 ) -> @gfx.DrawTrianglesCommand {
   let sc = scissor.current()

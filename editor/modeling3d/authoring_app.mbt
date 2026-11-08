@@ -1,8 +1,8 @@
 ///|
-let screen_w : Int = 640
+let screen_w : Int32 = 640
 
 ///|
-let screen_h : Int = 480
+let screen_h : Int32 = 480
 
 ///|
 let min_brush_radius : Double = 0.08
@@ -14,46 +14,46 @@ let max_brush_radius : Double = 0.48
 let canvas_selector : String = "#app"
 
 ///|
-let key_z : Int = 90
+let key_z : Int32 = 90
 
 ///|
-let key_g : Int = 71
+let key_g : Int32 = 71
 
 ///|
-let key_i : Int = 73
+let key_i : Int32 = 73
 
 ///|
-let key_j : Int = 74
+let key_j : Int32 = 74
 
 ///|
-let key_p : Int = 80
+let key_p : Int32 = 80
 
 ///|
-let key_k : Int = 75
+let key_k : Int32 = 75
 
 ///|
-let key_l : Int = 76
+let key_l : Int32 = 76
 
 ///|
-let key_m : Int = 77
+let key_m : Int32 = 77
 
 ///|
-let key_u : Int = 85
+let key_u : Int32 = 85
 
 ///|
-let key_1 : Int = 49
+let key_1 : Int32 = 49
 
 ///|
-let key_2 : Int = 50
+let key_2 : Int32 = 50
 
 ///|
-let key_3 : Int = 51
+let key_3 : Int32 = 51
 
 ///|
-let key_4 : Int = 52
+let key_4 : Int32 = 52
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
+fn min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -62,10 +62,10 @@ fn min_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn debug_text_codes(text : String, max_chars : Int) -> Array[Int] {
+fn debug_text_codes(text : String, max_chars : Int32) -> Array[Int32] {
   let chars = text.to_upper().to_array()
   let limit = min_int(chars.length(), max_chars)
-  let codes : Array[Int] = []
+  let codes : Array[Int32] = []
   for i in 0..<limit {
     let ch = chars[i]
     if ch.is_ascii_alphabetic() || ch.is_ascii_digit() {
@@ -84,7 +84,7 @@ fn debug_text_codes(text : String, max_chars : Int) -> Array[Int] {
 }
 
 ///|
-fn debug_text_width(chars : Array[Int], scale : Double) -> Double {
+fn debug_text_width(chars : Array[Int32], scale : Double) -> Double {
   let px_size = 3.0 * scale
   let char_w = 3.0 * px_size
   let gap = px_size
@@ -97,7 +97,7 @@ fn authoring_2d_frame(
   shader : @gfx.ShaderHandle,
   screen_w : Double,
   screen_h : Double,
-  pipeline_id? : Int = 0,
+  pipeline_id~ : Int32 = 0,
 ) -> @renderer2d.RenderFrame2D {
   @renderer2d.RenderFrame2D::new(
     dst~,
@@ -113,7 +113,7 @@ fn append_authoring_dot_text(
   cmds : Array[@gfx.DrawTrianglesCommand],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  chars : Array[Int],
+  chars : Array[Int32],
   cx : Double,
   cy : Double,
   screen_w : Double,
@@ -133,7 +133,7 @@ fn append_authoring_number(
   cmds : Array[@gfx.DrawTrianglesCommand],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  number : Int,
+  number : Int32,
   cx : Double,
   cy : Double,
   screen_w : Double,
@@ -157,7 +157,7 @@ fn new_authoring_rect_fill_command(
   w : Double,
   h : Double,
   color : @gfx.Color,
-  pipeline_id : Int,
+  pipeline_id : Int32,
 ) -> @gfx.DrawTrianglesCommand {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   @renderer2d.append_rect_fill(
@@ -179,7 +179,7 @@ fn draw_debug_text_left(
   cmds : Array[@gfx.DrawTrianglesCommand],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  chars : Array[Int],
+  chars : Array[Int32],
   left_x : Double,
   top_y : Double,
   screen_w : Double,
@@ -195,7 +195,7 @@ fn draw_debug_text_left(
 }
 
 ///|
-fn selection_kind_char(selection : ModelSelection?) -> Int {
+fn selection_kind_char(selection : ModelSelection?) -> Int32 {
   match selection {
     Some(current) =>
       match current.kind {
@@ -209,9 +209,9 @@ fn selection_kind_char(selection : ModelSelection?) -> Int {
 ///|
 fn active_sculpt_layer_label_codes(
   doc : ModelDocument,
-  active_layer_index : Int?,
-  max_chars : Int,
-) -> Array[Int] {
+  active_layer_index : Int32?,
+  max_chars : Int32,
+) -> Array[Int32] {
   match active_layer_index {
     Some(index) =>
       match doc.sculpt_layers.get(index) {
@@ -240,7 +240,7 @@ fn history_line_text(entry : StampHistoryEntry) -> String {
 }
 
 ///|
-fn history_slot_just_pressed(key_state : @inputstate.KeyInputState) -> Int? {
+fn history_slot_just_pressed(key_state : @inputstate.KeyInputState) -> Int32? {
   if @inputstate.is_key_just_pressed(key_state, key_1) {
     Some(0)
   } else if @inputstate.is_key_just_pressed(key_state, key_2) {
@@ -886,7 +886,10 @@ pub fn run_authoring(
         None => ()
       }
 
-      let editing = @inputstate.is_key_pressed(input.key_state, @inpututil.key_a) ||
+      let editing = @inputstate.is_key_pressed(
+          input.key_state,
+          @inpututil.key_a,
+        ) ||
         @inputstate.is_key_pressed(input.key_state, @inpututil.key_s)
       if lmb && !editing && !dragging_gizmo {
         camera = camera.orbit(dx * -0.005, dy * -0.005)

@@ -128,5 +128,5 @@ fn GameState::scene_view(self : GameState) -> @scene3d.View {
 
 ///|
 fn GameState::scene_hierarchy(self : GameState) -> String {
-  self.scene_root.hierarchy().to_json().stringify()
+  Json(self.scene_root.hierarchy()).stringify()
 }

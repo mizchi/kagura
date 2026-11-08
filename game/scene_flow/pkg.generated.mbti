@@ -13,24 +13,25 @@ import {
 pub struct Flow {
   ids : Array[String]
   mut scene : String
-  mut serial : Int
-  mut pending : (Int, String)?
+  mut serial : Int32
+  mut pending : (Int32, String)?
 }
-pub fn Flow::cancel(Self, Int) -> Bool
-pub fn Flow::commit(Self, Int) -> Bool
+pub fn Flow::cancel(Self, Int32) -> Bool
+pub fn Flow::commit(Self, Int32) -> Bool
 pub fn Flow::current(Self) -> String
 pub fn Flow::new(Array[String], String) -> Self raise
-pub fn Flow::request(Self, String) -> Int raise
+pub fn Flow::request(Self, String) -> Int32 raise
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Portal {
   x : Double
   z : Double
   radius : Double
   target : String
-} derive(ToJson, @json.FromJson)
+}
 pub fn Portal::contains(Self, Double, Double) -> Bool
-pub fn Portal::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
-pub fn Portal::to_json(Self) -> Json
+pub fn Portal::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Portal::to_json(Self) -> @json.Json
 
 // Type aliases
 

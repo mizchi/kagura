@@ -12,7 +12,7 @@ pub fn append_circular_wall_blocker(@types.Grid2D, Double, Double, Double, Doubl
 
 pub fn apply_position_correction2d(RigidBody2D, RigidBody2D, Contact2D, Double) -> (RigidBody2D, RigidBody2D)
 
-pub fn ccd_sweep_body(Int, Array[RigidBody2D], VelocityState2D, Double) -> Double?
+pub fn ccd_sweep_body(Int32, Array[RigidBody2D], VelocityState2D, Double) -> Double?
 
 pub fn clone_terrain_grid(@types.Grid2D) -> @types.Grid2D
 
@@ -20,7 +20,7 @@ pub fn generate_contact2d(RigidBody2D, RigidBody2D) -> Contact2D?
 
 pub fn grid_check_wall_collision(@types.Grid2D, Double, Double, Double, Double) -> Bool
 
-pub fn grid_find_nearest_visible_candidate_index(@types.Grid2D, Double, Double, Double, Double, Int, (Int) -> Bool, (Int) -> Double, (Int) -> Double, Double) -> (Int, Double)
+pub fn grid_find_nearest_visible_candidate_index(@types.Grid2D, Double, Double, Double, Double, Int32, (Int32) -> Bool, (Int32) -> Double, (Int32) -> Double, Double) -> (Int32, Double)
 
 pub fn grid_is_wall_at(@types.Grid2D, Double, Double, Double) -> Bool
 
@@ -38,9 +38,9 @@ pub fn resolve_contact2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, R
 
 pub fn resolve_velocity2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, RigidBody2D)
 
-pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int, Array[RigidBody2D], DistanceJoint2D, VelocityState2D, Bool) -> Unit
+pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int32, Array[RigidBody2D], DistanceJoint2D, VelocityState2D, Bool) -> Unit
 
-pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int, Array[RigidBody2D], VelocityState2D, Bool) -> Unit
+pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int32, Array[RigidBody2D], VelocityState2D, Bool) -> Unit
 
 pub fn sweep_circle_aabb(@vector.Vec2, @vector.Vec2, Double, @vector.Vec2, @vector.Vec2) -> Double?
 
@@ -49,10 +49,11 @@ pub fn sweep_circle_circle(@vector.Vec2, @vector.Vec2, Double, @vector.Vec2, @ve
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub(all) struct AABB2D {
   min : @vector.Vec2
   max : @vector.Vec2
-} derive(@debug.Debug)
+}
 pub fn AABB2D::center(Self) -> @vector.Vec2
 pub fn AABB2D::closest_point(Self, @vector.Vec2) -> @vector.Vec2
 pub fn AABB2D::contains_point(Self, @vector.Vec2) -> Bool
@@ -68,14 +69,15 @@ pub impl Show for AABB2D
 
 type BodyIndex2D
 pub fn BodyIndex2D::ensure(Self, Array[RigidBody2D]) -> Unit
-pub fn BodyIndex2D::find(Self, Int) -> Int
+pub fn BodyIndex2D::find(Self, Int32) -> Int32
 pub fn BodyIndex2D::new() -> Self
 
+#derive(@debug.Debug)
 pub(all) enum BodyType2D {
   Dynamic
   Static
   Kinematic
-} derive(@debug.Debug)
+}
 pub fn BodyType2D::output(Self, &Logger) -> Unit
 pub fn BodyType2D::to_repr(Self) -> @debug.Repr
 pub fn BodyType2D::to_string(Self) -> String
@@ -83,49 +85,51 @@ pub impl Show for BodyType2D
 
 type BroadphaseEntry2D
 
+#derive(@debug.Debug)
 pub(all) enum ColliderShape2D {
   CircleShape(@vector.Vec2, Double)
   AABBShape2D(@vector.Vec2, @vector.Vec2)
   OBBShape2D(@vector.Vec2, @vector.Vec2)
-} derive(@debug.Debug)
+}
 pub fn ColliderShape2D::output(Self, &Logger) -> Unit
 pub fn ColliderShape2D::to_repr(Self) -> @debug.Repr
 pub fn ColliderShape2D::to_string(Self) -> String
 pub impl Show for ColliderShape2D
 
+#derive(@debug.Debug)
 pub(all) struct Contact2D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   normal : @vector.Vec2
   penetration : Double
   contact_point : @vector.Vec2
-} derive(@debug.Debug)
+}
 pub fn Contact2D::output(Self, &Logger) -> Unit
 pub fn Contact2D::to_repr(Self) -> @debug.Repr
 pub fn Contact2D::to_string(Self) -> String
 pub impl Show for Contact2D
 
 pub struct ContactCache2D {
-  mut count : Int
-  mut slots : FixedArray[Int]
-  mut slot_mask : Int
-  id_a : Array[Int]
-  id_b : Array[Int]
+  mut count : Int32
+  mut slots : FixedArray[Int32]
+  mut slot_mask : Int32
+  id_a : Array[Int32]
+  id_b : Array[Int32]
   normal_x : Array[Double]
   normal_y : Array[Double]
   normal_impulse : Array[Double]
   tangent_impulse : Array[Double]
 }
 pub fn ContactCache2D::clear(Self) -> Unit
-pub fn ContactCache2D::contains(Self, Int, Int) -> Bool
-pub fn ContactCache2D::find(Self, Int, Int) -> Int
-pub fn ContactCache2D::length(Self) -> Int
+pub fn ContactCache2D::contains(Self, Int32, Int32) -> Bool
+pub fn ContactCache2D::find(Self, Int32, Int32) -> Int32
+pub fn ContactCache2D::length(Self) -> Int32
 pub fn ContactCache2D::new() -> Self
-pub fn ContactCache2D::store(Self, Int, Int, @vector.Vec2, Double, Double) -> Unit
+pub fn ContactCache2D::store(Self, Int32, Int32, @vector.Vec2, Double, Double) -> Unit
 
 pub(all) struct ContactConstraint2D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   contact : Contact2D
   r_a : @vector.Vec2
   r_b : @vector.Vec2
@@ -139,8 +143,8 @@ pub(all) struct ContactConstraint2D {
 }
 
 pub(all) struct DistanceJoint2D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   local_anchor_a : @vector.Vec2
   local_anchor_b : @vector.Vec2
   rest_length : Double
@@ -149,8 +153,8 @@ pub(all) struct DistanceJoint2D {
 }
 
 pub(all) struct DistanceJointConstraint2D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   r_a : @vector.Vec2
   r_b : @vector.Vec2
   axis : @vector.Vec2
@@ -174,16 +178,16 @@ pub(all) struct PhysicsWorld2D {
 pub fn PhysicsWorld2D::add_body(Self, RigidBody2D) -> Unit
 pub fn PhysicsWorld2D::add_distance_joint(Self, DistanceJoint2D) -> Unit
 pub fn PhysicsWorld2D::add_revolute_joint(Self, RevoluteJoint2D) -> Unit
-pub fn PhysicsWorld2D::apply_force(Self, Int, @vector.Vec2) -> Unit
-pub fn PhysicsWorld2D::apply_impulse(Self, Int, @vector.Vec2) -> Unit
-pub fn PhysicsWorld2D::body_count(Self) -> Int
-pub fn PhysicsWorld2D::get_body(Self, Int) -> RigidBody2D?
+pub fn PhysicsWorld2D::apply_force(Self, Int32, @vector.Vec2) -> Unit
+pub fn PhysicsWorld2D::apply_impulse(Self, Int32, @vector.Vec2) -> Unit
+pub fn PhysicsWorld2D::body_count(Self) -> Int32
+pub fn PhysicsWorld2D::get_body(Self, Int32) -> RigidBody2D?
 pub fn PhysicsWorld2D::new(@vector.Vec2, Double, solver_config? : SolverConfig2D) -> Self
 pub fn PhysicsWorld2D::step(Self, Double) -> Unit
 
 pub(all) struct RevoluteJoint2D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   local_anchor_a : @vector.Vec2
   local_anchor_b : @vector.Vec2
   hertz : Double
@@ -191,8 +195,8 @@ pub(all) struct RevoluteJoint2D {
 }
 
 pub(all) struct RevoluteJointConstraint2D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   r_a : @vector.Vec2
   r_b : @vector.Vec2
   effective_mass_x : Double
@@ -203,8 +207,9 @@ pub(all) struct RevoluteJointConstraint2D {
   mut acc_impulse_y : Double
 }
 
+#derive(@debug.Debug)
 pub(all) struct RigidBody2D {
-  id : Int
+  id : Int32
   body_type : BodyType2D
   position : @vector.Vec2
   velocity : @vector.Vec2
@@ -223,13 +228,13 @@ pub(all) struct RigidBody2D {
   is_sleeping : Bool
   sleep_timer : Double
   is_bullet : Bool
-} derive(@debug.Debug)
+}
 pub fn RigidBody2D::apply_force(Self, @vector.Vec2) -> Self
 pub fn RigidBody2D::apply_impulse(Self, @vector.Vec2) -> Self
 pub fn RigidBody2D::is_dynamic(Self) -> Bool
-pub fn RigidBody2D::new_dynamic(Int, @vector.Vec2, Double, ColliderShape2D) -> Self
-pub fn RigidBody2D::new_kinematic(Int, @vector.Vec2, ColliderShape2D) -> Self
-pub fn RigidBody2D::new_static(Int, @vector.Vec2, ColliderShape2D) -> Self
+pub fn RigidBody2D::new_dynamic(Int32, @vector.Vec2, Double, ColliderShape2D) -> Self
+pub fn RigidBody2D::new_kinematic(Int32, @vector.Vec2, ColliderShape2D) -> Self
+pub fn RigidBody2D::new_static(Int32, @vector.Vec2, ColliderShape2D) -> Self
 pub fn RigidBody2D::output(Self, &Logger) -> Unit
 pub fn RigidBody2D::to_repr(Self) -> @debug.Repr
 pub fn RigidBody2D::to_string(Self) -> String
@@ -241,11 +246,11 @@ pub fn RigidBody2D::world_aabb(Self) -> AABB2D
 pub impl Show for RigidBody2D
 
 pub(all) struct SolverConfig2D {
-  substeps : Int
-  velocity_iterations : Int
+  substeps : Int32
+  velocity_iterations : Int32
   contact_hertz : Double
   contact_damping_ratio : Double
-  relax_iterations : Int
+  relax_iterations : Int32
 }
 pub fn SolverConfig2D::default() -> Self
 
@@ -253,33 +258,33 @@ pub struct SpatialHashGrid2D {
   cell_size : Double
   inv_cell_size : Double
   entries : Array[BroadphaseEntry2D]
-  cell_cx : Array[Int]
-  cell_cy : Array[Int]
-  cell_items : Array[Array[Int]]
-  mut cell_count : Int
-  mut slots : FixedArray[Int]
-  mut slot_mask : Int
-  pair_lo : Array[Int]
-  pair_hi : Array[Int]
-  mut pair_count : Int
-  mut pair_slots : FixedArray[Int]
-  mut pair_slot_mask : Int
-  pair_id_a : Array[Int]
-  pair_id_b : Array[Int]
+  cell_cx : Array[Int32]
+  cell_cy : Array[Int32]
+  cell_items : Array[Array[Int32]]
+  mut cell_count : Int32
+  mut slots : FixedArray[Int32]
+  mut slot_mask : Int32
+  pair_lo : Array[Int32]
+  pair_hi : Array[Int32]
+  mut pair_count : Int32
+  mut pair_slots : FixedArray[Int32]
+  mut pair_slot_mask : Int32
+  pair_id_a : Array[Int32]
+  pair_id_b : Array[Int32]
 }
 pub fn SpatialHashGrid2D::clear(Self) -> Unit
-pub fn SpatialHashGrid2D::count(Self) -> Int
-pub fn SpatialHashGrid2D::get_pairs(Self) -> Array[(Int, Int)]
-pub fn SpatialHashGrid2D::get_pairs_into(Self) -> Int
-pub fn SpatialHashGrid2D::insert(Self, Int, AABB2D) -> Unit
+pub fn SpatialHashGrid2D::count(Self) -> Int32
+pub fn SpatialHashGrid2D::get_pairs(Self) -> Array[(Int32, Int32)]
+pub fn SpatialHashGrid2D::get_pairs_into(Self) -> Int32
+pub fn SpatialHashGrid2D::insert(Self, Int32, AABB2D) -> Unit
 pub fn SpatialHashGrid2D::new(Double) -> Self
-pub fn SpatialHashGrid2D::query_aabb(Self, AABB2D) -> Array[Int]
+pub fn SpatialHashGrid2D::query_aabb(Self, AABB2D) -> Array[Int32]
 
 pub struct VelocityState2D {
   vx : Array[Double]
   vy : Array[Double]
   w : Array[Double]
-  mut count : Int
+  mut count : Int32
 }
 pub fn VelocityState2D::load(Self, Array[RigidBody2D]) -> Unit
 pub fn VelocityState2D::new() -> Self

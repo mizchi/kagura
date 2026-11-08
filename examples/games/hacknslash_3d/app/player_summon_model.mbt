@@ -96,8 +96,8 @@ fn GameState::push_player_summon_commands(
   region : VisibleRegion,
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
-  screen_w : Int,
-  screen_h : Int,
+  screen_w : Int32,
+  screen_h : Int32,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let rings : Array[@scene3d.InstanceData] = []

@@ -71,10 +71,11 @@ pub fn OrbitCamera::with_distance(Self, Double) -> Self
 pub fn OrbitCamera::with_target(Self, @math3d.Vec3) -> Self
 pub fn OrbitCamera::zoom(Self, Double) -> Self
 
+#derive(@debug.Debug)
 pub enum ProjectionMode {
   Perspective
   Orthographic(Double, Double, Double, Double)
-} derive(@debug.Debug)
+}
 pub fn ProjectionMode::output(Self, &Logger) -> Unit
 pub fn ProjectionMode::to_repr(Self) -> @debug.Repr
 pub fn ProjectionMode::to_string(Self) -> String

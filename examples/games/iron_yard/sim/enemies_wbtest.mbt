@@ -13,7 +13,7 @@ test "navigation routes around expanded footprints and enemy shells damage playe
     assert_true(clear_segment(previous, point, stage))
     previous = point
   }
-  let g = { ..new_game(), stage: { ..default_stage(), solids: [] } }
+  let g = { ..new_game(), stage: { ..default_stage(), solids: [], }, }
   g.phase = "playing"
   for _ in 0..<1200 {
     advance_enemies(g, 1.0 / 60.0)

@@ -1,5 +1,5 @@
 ///|
-let player_body_id : Int = 20000
+let player_body_id : Int32 = 20000
 
 ///|
 fn new_player_body(position : @math3d.Vec3) -> @physics3d.RigidBody {

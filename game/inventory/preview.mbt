@@ -1,16 +1,16 @@
 ///|
 pub(all) struct PreviewItem {
-  source : Int
-  slot : Int
+  source : Int32
+  slot : Int32
   footprint : GridFootprint
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   rotated : Bool
 }
 
 ///|
 pub(all) struct PlacementPreview {
-  cells : Array[(Int, Int)]
+  cells : Array[(Int32, Int32)]
   valid : Bool
   swap : Bool
 }
@@ -19,12 +19,12 @@ pub(all) struct PlacementPreview {
 /// Preview a single-item exchange. The caller still commits game-specific
 /// equipment effects and the displaced item's destination atomically.
 pub fn preview_placement(
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   items : Array[PreviewItem],
   item : PreviewItem,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   rotated : Bool,
 ) -> PlacementPreview {
   let grid = ItemGrid::new(width, height)

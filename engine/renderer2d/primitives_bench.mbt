@@ -56,7 +56,7 @@ test "bench append_rect_fill_geometry 1000" (b : @bench.T) {
   let color = color_from_hex(0x4A4A6A)
   b.bench(name="primitives/append_rect_fill_geometry_1000", fn() {
     let vertices : Array[Double] = []
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     for i in 0..<1000 {
       let x = (i % 40).to_double() * 8.0
       let y = (i / 40).to_double() * 8.0
@@ -75,7 +75,7 @@ test "bench append_rect_fill_geometry 1000" (b : @bench.T) {
 test "bench append_dot_text 200 glyphs" (b : @bench.T) {
   let frame = bench_primitive_frame()
   let color = color_from_hex(0xFFFFFF)
-  let chars : Array[Int] = []
+  let chars : Array[Int32] = []
   for i in 0..<20 {
     chars.push(i % 10)
   }

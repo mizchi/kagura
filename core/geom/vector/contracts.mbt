@@ -6,10 +6,11 @@
 /// - General 2D game math (Vec2 operations)
 
 ///|
+#derive(Debug)
 pub struct Vec2 {
   x : Double
   y : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Vec2 with fn output(self, logger) {

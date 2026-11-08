@@ -1,22 +1,22 @@
 ///|
 fn mk_affix(
   name : String,
-  atk? : Int = 0,
-  def? : Int = 0,
-  hp? : Int = 0,
-  str? : Int = 0,
-  int_? : Int = 0,
-  dex? : Int = 0,
-  crit? : Double = 0.0,
-  ls? : Double = 0.0,
-  spd? : Double = 0.0,
-  cdr? : Double = 0.0,
-  str_scale? : Double = 0.0,
-  int_scale? : Double = 0.0,
-  dex_scale? : Double = 0.0,
-  spell_dmg? : Double = 0.0,
-  chain? : Int = 0,
-  tags? : Array[@game.TagBonusEntry] = [],
+  atk~ : Int32 = 0,
+  def~ : Int32 = 0,
+  hp~ : Int32 = 0,
+  str~ : Int32 = 0,
+  int_~ : Int32 = 0,
+  dex~ : Int32 = 0,
+  crit~ : Double = 0.0,
+  ls~ : Double = 0.0,
+  spd~ : Double = 0.0,
+  cdr~ : Double = 0.0,
+  str_scale~ : Double = 0.0,
+  int_scale~ : Double = 0.0,
+  dex_scale~ : Double = 0.0,
+  spell_dmg~ : Double = 0.0,
+  chain~ : Int32 = 0,
+  tags~ : Array[@game.TagBonusEntry] = [],
 ) -> @game.Affix {
   {
     name,
@@ -297,13 +297,22 @@ test "compute_player_stats starts from 10/10/10 core stats and applies equipment
 ///|
 test "compute_player_stats uses archetype-specific core stats" {
   let equip = @game.Equipment::new()
-  let melee = @game.compute_player_stats(equip, @game.SkillTree::new_for_archetype(Melee))
-  let mage = @game.compute_player_stats(equip, @game.SkillTree::new_for_archetype(Mage))
+  let melee = @game.compute_player_stats(
+    equip,
+    @game.SkillTree::new_for_archetype(Melee),
+  )
+  let mage = @game.compute_player_stats(
+    equip,
+    @game.SkillTree::new_for_archetype(Mage),
+  )
   let summoner = @game.compute_player_stats(
     equip,
     @game.SkillTree::new_for_archetype(Summoner),
   )
-  let ranger = @game.compute_player_stats(equip, @game.SkillTree::new_for_archetype(Ranger))
+  let ranger = @game.compute_player_stats(
+    equip,
+    @game.SkillTree::new_for_archetype(Ranger),
+  )
   assert_true(melee.strength > mage.strength)
   assert_true(mage.intelligence > melee.intelligence)
   assert_true(ranger.dexterity > melee.dexterity)
@@ -521,7 +530,8 @@ test "level progression favors archetype-aligned offers" {
   assert_true(progress.current_offers.length() > 0)
   let mut has_spell = false
   for offer in progress.current_offers {
-    if @game.skill_id_eq(offer, SplittingFireball) || @game.skill_id_eq(offer, IceNova) {
+    if @game.skill_id_eq(offer, SplittingFireball) ||
+      @game.skill_id_eq(offer, IceNova) {
       has_spell = true
       break
     }
@@ -537,7 +547,12 @@ test "generate_item_with_profile_and_drop_config applies slot weights" {
     armor_weight: 0,
     accessory_weight: 0,
   }
-  let item = @game.generate_item_with_profile_and_drop_config(42, 5, Classic, config)
+  let item = @game.generate_item_with_profile_and_drop_config(
+    42,
+    5,
+    Classic,
+    config,
+  )
   match item.slot {
     Weapon => ()
     _ => fail("expected weapon slot")
@@ -569,7 +584,12 @@ test "generate_item_with_profile_and_drop_config scales base and affix tiers by 
     modifier_tier_per_floor: 0.3,
     rarity_bonus_per_floor: 6.0,
   }
-  let low = @game.generate_item_with_profile_and_drop_config(123, 2, Expanded, config)
+  let low = @game.generate_item_with_profile_and_drop_config(
+    123,
+    2,
+    Expanded,
+    config,
+  )
   let high = @game.generate_item_with_profile_and_drop_config(
     123,
     12,

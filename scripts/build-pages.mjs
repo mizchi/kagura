@@ -1,3 +1,4 @@
+import {prepareMoonDeps} from './prepare-moon-deps.mjs';
 import {copyWebRuntimeAssets} from './web-runtime-assets.mjs';
 import {buildWebRuntime} from './build-web-runtime.mjs';
 import { emitExamplePage } from './web-demo-package.mjs';
@@ -29,6 +30,7 @@ const MODELING_EXAMPLES_ROOT = join(ROOT, "editor", "modeling3d", "examples");
 buildPages();
 
 function buildPages() {
+  prepareMoonDeps(ROOT);
   buildWebRuntime();
   rmSync(SITE, { recursive: true, force: true });
   mkdirSync(join(SITE, "lib"), { recursive: true });
@@ -51,6 +53,7 @@ function buildPages() {
 function buildStudio() {
   console.log("Building Studio ...");
   const studio = join(ROOT, "editor", "studio");
+  prepareMoonDeps(studio);
   const result = spawnSync("pnpm", ["build"], { cwd: studio, stdio: "inherit" });
   if (result.status !== 0) {
     throw new Error(`Studio build failed: ${result.error?.message ?? result.status ?? result.signal}`);
@@ -59,6 +62,7 @@ function buildStudio() {
 }
 
 function buildExample(name) {
+  prepareMoonDeps(resolveExampleDir(name));
   console.log(`Building ${name} ...`);
   const result = spawnSync("moon", ["build", existsSync(join(resolveExampleDir(name), "moon.pkg")) ? "." : "src", "--target", "js", "--release"], {
     cwd: resolveExampleDir(name),

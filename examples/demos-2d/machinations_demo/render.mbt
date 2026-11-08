@@ -9,7 +9,7 @@ fn push_rect(
   y : Double,
   w : Double,
   h : Double,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
   @renderer2d.append_rect_fill(
     cmds,
@@ -33,7 +33,7 @@ fn push_line(
   x1 : Double,
   y1 : Double,
   width : Double,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
   @renderer2d.append_line(
     cmds,
@@ -57,9 +57,9 @@ fn push_text(
   cx : Double,
   cy : Double,
   scale : Double,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
-  let chars : Array[Int] = []
+  let chars : Array[Int32] = []
   for ch in s {
     chars.push(ch.to_int())
   }
@@ -80,11 +80,11 @@ fn push_text(
 fn push_num(
   cmds : Array[@gfx.DrawTrianglesCommand],
   frame : @renderer2d.RenderFrame2D,
-  n : Int,
+  n : Int32,
   cx : Double,
   cy : Double,
   scale : Double,
-  hex : Int,
+  hex : Int32,
 ) -> Unit {
   @renderer2d.append_number(
     cmds,
@@ -100,7 +100,7 @@ fn push_num(
 }
 
 ///|
-fn node_color(kind : @mac.NodeKind) -> Int {
+fn node_color(kind : @mac.NodeKind) -> Int32 {
   match kind {
     Source => 0x2E8B57
     Pool => 0x33597F
@@ -122,7 +122,7 @@ fn draw_edge(
   bx : Double,
   by : Double,
   rate : @mac.Rate,
-  flow : Int,
+  flow : Int32,
   anim : Double,
 ) -> Unit {
   let dx = bx - ax
@@ -185,7 +185,7 @@ fn draw_node(
   cmds : Array[@gfx.DrawTrianglesCommand],
   frame : @renderer2d.RenderFrame2D,
   node : @mac.Node,
-  value : Int,
+  value : Int32,
 ) -> Unit {
   let w = 88.0
   let h = 50.0
@@ -341,7 +341,7 @@ fn is_pool(kind : @mac.NodeKind) -> Bool {
 }
 
 ///|
-fn chart_color(i : Int) -> Int {
+fn chart_color(i : Int32) -> Int32 {
   let pal = [0x6FB7FF, 0x8FE3A0, 0xF0B85A, 0xE57AB0, 0x9D8DF0, 0x5FD0C8]
   pal[i % pal.length()]
 }

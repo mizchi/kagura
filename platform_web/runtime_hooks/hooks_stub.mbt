@@ -1,15 +1,15 @@
 ///|
 priv struct SyncedSourceGeneration {
-  image_id : Int
-  generation : Int
+  image_id : Int32
+  generation : Int32
 }
 
 ///|
 priv struct SourceImageCacheEntry {
-  image_id : Int
-  width : Int
-  height : Int
-  pixels_rgba8 : Array[Int]
+  image_id : Int32
+  width : Int32
+  height : Int32
+  pixels_rgba8 : Array[Int32]
 }
 
 ///|
@@ -19,7 +19,7 @@ let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref([])
 let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref([])
 
 ///|
-fn normalized_size(value : Int) -> Int {
+fn normalized_size(value : Int32) -> Int32 {
   if value <= 0 {
     1
   } else {
@@ -28,7 +28,7 @@ fn normalized_size(value : Int) -> Int {
 }
 
 ///|
-fn normalized_source_generation(generation : Int) -> Int {
+fn normalized_source_generation(generation : Int32) -> Int32 {
   if generation <= 0 {
     1
   } else {
@@ -37,7 +37,7 @@ fn normalized_source_generation(generation : Int) -> Int {
 }
 
 ///|
-fn synced_source_generation_at(image_id : Int) -> Int {
+fn synced_source_generation_at(image_id : Int32) -> Int32 {
   let mut generation = 0
   for entry in synced_source_generations.val {
     if entry.image_id == image_id {
@@ -48,7 +48,7 @@ fn synced_source_generation_at(image_id : Int) -> Int {
 }
 
 ///|
-fn set_synced_source_generation(image_id : Int, generation : Int) -> Unit {
+fn set_synced_source_generation(image_id : Int32, generation : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   let mut replaced = false
   let safe_generation = normalized_source_generation(generation)
@@ -72,7 +72,7 @@ fn clear_synced_source_generations() -> Unit {
 }
 
 ///|
-fn drop_synced_source_generation(image_id : Int) -> Unit {
+fn drop_synced_source_generation(image_id : Int32) -> Unit {
   let next : Array[SyncedSourceGeneration] = []
   for entry in synced_source_generations.val {
     if entry.image_id != image_id {
@@ -83,22 +83,22 @@ fn drop_synced_source_generation(image_id : Int) -> Unit {
 }
 
 ///|
-fn expected_rgba8_channel_count(width : Int, height : Int) -> Int {
+fn expected_rgba8_channel_count(width : Int32, height : Int32) -> Int32 {
   normalized_size(width) * normalized_size(height) * 4
 }
 
 ///|
 fn has_valid_rgba8_payload(
-  rgba8_channels : Array[Int],
-  width : Int,
-  height : Int,
+  rgba8_channels : Array[Int32],
+  width : Int32,
+  height : Int32,
 ) -> Bool {
   let expected = expected_rgba8_channel_count(width, height)
   expected > 0 && rgba8_channels.length() >= expected
 }
 
 ///|
-fn clamp_u8_channel(value : Int) -> Int {
+fn clamp_u8_channel(value : Int32) -> Int32 {
   if value < 0 {
     0
   } else if value > 255 {
@@ -110,12 +110,12 @@ fn clamp_u8_channel(value : Int) -> Int {
 
 ///|
 fn normalized_rgba8_channels(
-  rgba8_channels : Array[Int],
-  width : Int,
-  height : Int,
-) -> Array[Int] {
+  rgba8_channels : Array[Int32],
+  width : Int32,
+  height : Int32,
+) -> Array[Int32] {
   let expected = expected_rgba8_channel_count(width, height)
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   if expected <= 0 || rgba8_channels.length() < expected {
     out
   } else {
@@ -127,7 +127,7 @@ fn normalized_rgba8_channels(
 }
 
 ///|
-fn source_image_cache_entry_at(image_id : Int) -> SourceImageCacheEntry? {
+fn source_image_cache_entry_at(image_id : Int32) -> SourceImageCacheEntry? {
   let mut out : SourceImageCacheEntry? = None
   for entry in source_image_cache.val {
     if entry.image_id == image_id {
@@ -190,7 +190,7 @@ pub fn shutdown() -> Unit {
 
 ///|
 pub fn register_source_image_palette(
-  source_image_id : Int,
+  source_image_id : Int32,
   _palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   if source_image_id < 0 {
@@ -198,7 +198,7 @@ pub fn register_source_image_palette(
   }
   let mut width = 1
   let mut height = 1
-  let mut pixels_rgba8 : Array[Int] = []
+  let mut pixels_rgba8 : Array[Int32] = []
   match source_image_cache_entry_at(source_image_id) {
     Some(entry) => {
       width = entry.width
@@ -218,7 +218,7 @@ pub fn register_source_image_palette(
 
 ///|
 pub fn register_source_image_solid_color(
-  source_image_id : Int,
+  source_image_id : Int32,
   color : @atlas.Rgba,
 ) -> Unit {
   register_source_image_palette(
@@ -229,10 +229,10 @@ pub fn register_source_image_solid_color(
 
 ///|
 pub fn register_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Unit {
   if source_image_id < 0 {
     return
@@ -256,14 +256,14 @@ pub fn register_source_image_rgba8(
 
 ///|
 pub fn patch_source_image_rgba8(
-  source_image_id : Int,
-  width : Int,
-  height : Int,
-  dirty_x : Int,
-  dirty_y : Int,
-  dirty_width : Int,
-  dirty_height : Int,
-  rgba8_channels : Array[Int],
+  source_image_id : Int32,
+  width : Int32,
+  height : Int32,
+  dirty_x : Int32,
+  dirty_y : Int32,
+  dirty_width : Int32,
+  dirty_height : Int32,
+  rgba8_channels : Array[Int32],
 ) -> Bool {
   if source_image_id < 0 {
     return false
@@ -346,7 +346,7 @@ pub fn clear_source_image_palettes() -> Unit {
 ///|
 pub fn sync_source_image_palettes(
   bindings : Array[@atlas.ImagePaletteBinding],
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for binding in bindings {
     if binding.image_id >= 0 {
@@ -360,12 +360,12 @@ pub fn sync_source_image_palettes(
 ///|
 pub fn sync_source_image_palettes_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_image_palettes(@atlas.list_image_palette_bindings(repository))
 }
 
 ///|
-pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
+pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int32 {
   let mut count = 0
   for binding in bindings {
     if binding.image_id < 0 {
@@ -423,14 +423,14 @@ pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
 ///|
 pub fn sync_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   sync_source_images(@atlas.list_source_image_bindings(repository))
 }
 
 ///|
 pub fn sync_dirty_source_images_from_repository(
   repository : @atlas.SimpleImageRepository,
-) -> Int {
+) -> Int32 {
   let count = sync_source_images(
     @atlas.list_dirty_source_image_bindings(repository),
   )
@@ -441,7 +441,7 @@ pub fn sync_dirty_source_images_from_repository(
 ///|
 pub fn sync_dirty_atlas_pages_from_repository(
   repository : @atlas.SimpleAtlasImageRepository,
-) -> Int {
+) -> Int32 {
   let count = sync_source_images(
     @atlas.list_dirty_atlas_page_bindings(repository),
   )
@@ -450,17 +450,17 @@ pub fn sync_dirty_atlas_pages_from_repository(
 }
 
 ///|
-pub fn source_image_cache_count() -> Int {
+pub fn source_image_cache_count() -> Int32 {
   source_image_cache.val.length()
 }
 
 ///|
-pub fn source_image_generation(image_id : Int) -> Int {
+pub fn source_image_generation(image_id : Int32) -> Int32 {
   synced_source_generation_at(image_id)
 }
 
 ///|
-pub fn source_image_width(image_id : Int) -> Int {
+pub fn source_image_width(image_id : Int32) -> Int32 {
   match source_image_cache_entry_at(image_id) {
     Some(entry) => entry.width
     None => 0
@@ -468,7 +468,7 @@ pub fn source_image_width(image_id : Int) -> Int {
 }
 
 ///|
-pub fn source_image_height(image_id : Int) -> Int {
+pub fn source_image_height(image_id : Int32) -> Int32 {
   match source_image_cache_entry_at(image_id) {
     Some(entry) => entry.height
     None => 0
@@ -477,11 +477,11 @@ pub fn source_image_height(image_id : Int) -> Int {
 
 ///|
 pub fn source_image_pixel_channel(
-  image_id : Int,
-  x : Int,
-  y : Int,
-  channel_index : Int,
-) -> Int {
+  image_id : Int32,
+  x : Int32,
+  y : Int32,
+  channel_index : Int32,
+) -> Int32 {
   if channel_index < 0 || channel_index > 3 {
     return -1
   }

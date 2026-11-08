@@ -12,7 +12,7 @@ struct EnemyMaterialPart {
 fn monster_material(
   name : String,
   geometry : @procedural3d.RigidGeometry,
-  color : Int,
+  color : Int32,
 ) -> EnemyMaterialPart {
   let mesh = geometry.build_mesh()
   let skin = geometry.build_skin()
@@ -68,7 +68,7 @@ fn monster_eyes(
 ///|
 fn build_monster_mesh_data(
   species : @game.EnemySpecies,
-  armor? : Int = 0,
+  armor~ : Int32 = 0,
 ) -> EnemyMeshData {
   if species == @game.Zombie {
     return zombie_mesh

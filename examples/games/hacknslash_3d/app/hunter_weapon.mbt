@@ -7,7 +7,7 @@ struct HunterWeaponSet {
   id : String
   parts : Array[CharacterPart]
   attack_duration : Double
-  sample_attack : (Double, Double) -> Array[(Int, Double, Double, Double)]
+  sample_attack : (Double, Double) -> Array[(Int32, Double, Double, Double)]
   clip : @animation3d.AnimationClip?
 }
 
@@ -65,7 +65,7 @@ fn build_hunter_weapon_set() -> HunterWeaponSet {
 fn sample_hunter_cleaver_attack(
   t : Double,
   side : Double,
-) -> Array[(Int, Double, Double, Double)] {
+) -> Array[(Int32, Double, Double, Double)] {
   sample_cleaver_cut(t, side, @game.Opening)
 }
 
@@ -83,7 +83,7 @@ fn CharacterModel::attack_duration(self : CharacterModel) -> Double {
 fn sample_cleaver_combo(
   t : Double,
   step : @game.CleaverComboStep,
-) -> Array[(Int, Double, Double, Double)] {
+) -> Array[(Int32, Double, Double, Double)] {
   sample_cleaver_cut(t, if step == @game.Return { 1.0 } else { -1.0 }, step)
 }
 
@@ -92,7 +92,7 @@ fn sample_cleaver_cut(
   t : Double,
   side : Double,
   step : @game.CleaverComboStep,
-) -> Array[(Int, Double, Double, Double)] {
+) -> Array[(Int32, Double, Double, Double)] {
   let p = step.profile()
   let t = t.max(0.0).min(1.0)
   let contact = p.windup.to_double() / (p.windup + p.recovery).to_double()

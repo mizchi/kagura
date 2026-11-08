@@ -1,5 +1,5 @@
 ///|
-fn make_bench_glyphs(count : Int) -> Array[@font.GlyphQuad] {
+fn make_bench_glyphs(count : Int32) -> Array[@font.GlyphQuad] {
   let glyphs : Array[@font.GlyphQuad] = []
   for i in 0..<count {
     let x = (i % 64).to_double() * 12.0
@@ -22,7 +22,7 @@ fn make_bench_glyphs(count : Int) -> Array[@font.GlyphQuad] {
 ///|
 fn pipeline_dispatch_checksum(
   commands : Array[@gfx.DrawTrianglesCommand],
-) -> Int {
+) -> Int32 {
   let queue = @gfx.new_simple_command_queue()
   for command in commands {
     queue.enqueue_draw_triangles(command)

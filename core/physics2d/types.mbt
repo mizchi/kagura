@@ -1,9 +1,10 @@
 ///|
+#derive(Debug)
 pub(all) enum BodyType2D {
   Dynamic
   Static
   Kinematic
-} derive(Debug)
+}
 
 ///|
 pub impl Show for BodyType2D with fn output(self, logger) {
@@ -11,11 +12,12 @@ pub impl Show for BodyType2D with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) enum ColliderShape2D {
   CircleShape(@vector.Vec2, Double)
   AABBShape2D(@vector.Vec2, @vector.Vec2)
   OBBShape2D(@vector.Vec2, @vector.Vec2) // (half_extents, offset) rotated by body.angle
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ColliderShape2D with fn output(self, logger) {
@@ -23,8 +25,9 @@ pub impl Show for ColliderShape2D with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct RigidBody2D {
-  id : Int
+  id : Int32
   body_type : BodyType2D
   position : @vector.Vec2
   velocity : @vector.Vec2
@@ -43,7 +46,7 @@ pub(all) struct RigidBody2D {
   is_sleeping : Bool
   sleep_timer : Double // seconds at rest
   is_bullet : Bool // enable CCD for this body
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RigidBody2D with fn output(self, logger) {
@@ -51,13 +54,14 @@ pub impl Show for RigidBody2D with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct Contact2D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   normal : @vector.Vec2
   penetration : Double
   contact_point : @vector.Vec2
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Contact2D with fn output(self, logger) {
@@ -66,8 +70,8 @@ pub impl Show for Contact2D with fn output(self, logger) {
 
 ///|
 pub(all) struct SolverConfig2D {
-  substeps : Int // default 4
-  velocity_iterations : Int // default 1 per substep
+  substeps : Int32 // default 4
+  velocity_iterations : Int32 // default 1 per substep
   contact_hertz : Double // default 30.0 Hz
   contact_damping_ratio : Double // default 1.0 (critically damped)
   /// Extra rigid passes per substep, after positions integrate. Off by default.
@@ -79,7 +83,7 @@ pub(all) struct SolverConfig2D {
   /// costs a whole extra solve pass per substep -- and it does not by itself make
   /// a pile sleep. Hence the default of 0, which is also what keeps the shipped
   /// path bit-identical.
-  relax_iterations : Int
+  relax_iterations : Int32
 }
 
 ///|
@@ -95,8 +99,8 @@ pub fn SolverConfig2D::default() -> SolverConfig2D {
 
 ///|
 pub(all) struct ContactConstraint2D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   contact : Contact2D
   r_a : @vector.Vec2
   r_b : @vector.Vec2
@@ -111,8 +115,8 @@ pub(all) struct ContactConstraint2D {
 
 ///|
 pub(all) struct DistanceJoint2D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   local_anchor_a : @vector.Vec2 // anchor in body A local space
   local_anchor_b : @vector.Vec2 // anchor in body B local space
   rest_length : Double
@@ -122,8 +126,8 @@ pub(all) struct DistanceJoint2D {
 
 ///|
 pub(all) struct DistanceJointConstraint2D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   r_a : @vector.Vec2
   r_b : @vector.Vec2
   axis : @vector.Vec2 // normalized direction from A anchor to B anchor
@@ -135,8 +139,8 @@ pub(all) struct DistanceJointConstraint2D {
 
 ///|
 pub(all) struct RevoluteJoint2D {
-  body_a_id : Int
-  body_b_id : Int
+  body_a_id : Int32
+  body_b_id : Int32
   local_anchor_a : @vector.Vec2
   local_anchor_b : @vector.Vec2
   hertz : Double
@@ -145,8 +149,8 @@ pub(all) struct RevoluteJoint2D {
 
 ///|
 pub(all) struct RevoluteJointConstraint2D {
-  idx_a : Int
-  idx_b : Int
+  idx_a : Int32
+  idx_b : Int32
   r_a : @vector.Vec2
   r_b : @vector.Vec2
   effective_mass_x : Double

@@ -44,7 +44,7 @@ fn hunter_web_enabled() -> Bool {
 }
 
 ///|
-fn hunter_web_key() -> Int {
+fn hunter_web_key() -> Int32 {
   0
 }
 
@@ -64,12 +64,12 @@ fn hunter_web_attacking() -> Bool {
 }
 
 ///|
-fn hunter_web_selection() -> Int {
+fn hunter_web_selection() -> Int32 {
   -1
 }
 
 ///|
-fn hunter_web_inventory_move() -> Array[Int] {
+fn hunter_web_inventory_move() -> Array[Int32] {
   []
 }
 

@@ -12,19 +12,19 @@
 /// `insert` keeps the first id it sees, which is what the scan returned when a
 /// caller assigned the same id twice.
 struct BodyIndex2D {
-  mut slot_id : FixedArray[Int]
-  mut slot_index : FixedArray[Int]
-  mut mask : Int
-  mut count : Int
+  mut slot_id : FixedArray[Int32]
+  mut slot_index : FixedArray[Int32]
+  mut mask : Int32
+  mut count : Int32
   /// How many of the world's bodies are in the table. Filled in on demand by
   /// `ensure`, never on `add_body`: hashing every body as it is added made
   /// `build_pile_1024` 2.1x slower (66.5 -> 142.4 us) for a world that may never
   /// look one up by id. Bodies are append-only, so catching up is a suffix scan.
-  mut indexed : Int
+  mut indexed : Int32
 }
 
 ///|
-let initial_body_index_capacity2d : Int = 64
+let initial_body_index_capacity2d : Int32 = 64
 
 ///|
 pub fn BodyIndex2D::new() -> BodyIndex2D {
@@ -38,7 +38,7 @@ pub fn BodyIndex2D::new() -> BodyIndex2D {
 }
 
 ///|
-fn body_id_hash2d(id : Int) -> Int {
+fn body_id_hash2d(id : Int32) -> Int32 {
   let mut h = id
   h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
@@ -71,7 +71,7 @@ fn BodyIndex2D::grow(self : BodyIndex2D) -> Unit {
 
 ///|
 /// Record `index` for `id`, keeping an existing entry if the id is already there.
-fn BodyIndex2D::insert(self : BodyIndex2D, id : Int, index : Int) -> Unit {
+fn BodyIndex2D::insert(self : BodyIndex2D, id : Int32, index : Int32) -> Unit {
   let mut slot = body_id_hash2d(id) & self.mask
   for ;; {
     let stored = self.slot_index[slot]
@@ -112,7 +112,7 @@ pub fn BodyIndex2D::ensure(
 ///
 /// A body's id is what this is keyed on, so ids must not change after the body is
 /// added -- nothing in the engine rewrites one.
-pub fn BodyIndex2D::find(self : BodyIndex2D, id : Int) -> Int {
+pub fn BodyIndex2D::find(self : BodyIndex2D, id : Int32) -> Int32 {
   let mask = self.mask
   let mut slot = body_id_hash2d(id) & mask
   for ;; {

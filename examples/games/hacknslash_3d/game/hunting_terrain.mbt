@@ -8,7 +8,7 @@ pub(all) struct HuntingElevation {
 fn apply_region_elevation(
   atlas : WorldAtlas,
   dungeon : DungeonData,
-  id : Int,
+  id : Int32,
 ) -> Unit {
   if atlas.elevation is Some(_) && dungeon.landscape is Some(_) {
     dungeon.grid = generate_world_region(
@@ -67,7 +67,7 @@ pub fn GameWorld::set_hunting_terrain(
       let oz = region.z * (map_rows - 2)
       let seed = region_seed(atlas.world_seed, region.id)
       let dungeon = generate_world_region(seed, region.id, generator_version=2)
-      fn pad(x0 : Int, z0 : Int, x1 : Int, z1 : Int) -> Unit {
+      fn pad(x0 : Int32, z0 : Int32, x1 : Int32, z1 : Int32) -> Unit {
         for z in z0.max(0)..<=z1.min(map_rows) {
           for x in x0.max(0)..<=x1.min(map_cols) {
             surface.set(ox + x, oz + z, 0.0)
@@ -125,7 +125,7 @@ pub fn GameWorld::restore_expedition_terrain(self : GameWorld) -> Bool {
     return false
   }
   atlas.elevation = None
-  fn restore(dungeon : DungeonData, seed : Int, id : Int) -> Unit {
+  fn restore(dungeon : DungeonData, seed : Int32, id : Int32) -> Unit {
     let generated = generate_world_region(
       seed,
       id,

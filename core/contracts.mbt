@@ -1,8 +1,9 @@
 ///|
+#derive(Debug)
 pub struct OutsideSize {
   width : Double
   height : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for OutsideSize with fn output(self, logger) {
@@ -10,13 +11,14 @@ pub impl Show for OutsideSize with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct LogicalSize {
-  width : Int
-  height : Int
-} derive(Debug)
+  width : Int32
+  height : Int32
+}
 
 ///|
-pub fn new_logical_size(width : Int, height : Int) -> LogicalSize {
+pub fn new_logical_size(width : Int32, height : Int32) -> LogicalSize {
   { width, height, }
 }
 
@@ -26,11 +28,12 @@ pub impl Show for LogicalSize with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct FrameBudget {
-  updates : Int
+  updates : Int32
   alpha : Double
-  tick : Int
-} derive(Debug)
+  tick : Int32
+}
 
 ///|
 pub impl Show for FrameBudget with fn output(self, logger) {
@@ -38,16 +41,17 @@ pub impl Show for FrameBudget with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct InputSnapshot {
   cursor_x : Double
   cursor_y : Double
   wheel_x : Double
   wheel_y : Double
-  pressed_keys : Array[Int]
-  pressed_mouse_buttons : Array[Int]
+  pressed_keys : Array[Int32]
+  pressed_mouse_buttons : Array[Int32]
   touches : Array[TouchPoint]
   gamepads : Array[GamepadSnapshot]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for InputSnapshot with fn output(self, logger) {
@@ -55,12 +59,13 @@ pub impl Show for InputSnapshot with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub enum TouchSource {
   Direct
   Indirect
   Mouse
   Unknown
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TouchSource with fn output(self, logger) {
@@ -68,7 +73,7 @@ pub impl Show for TouchSource with fn output(self, logger) {
 }
 
 ///|
-pub fn touch_source_to_int(source : TouchSource) -> Int {
+pub fn touch_source_to_int(source : TouchSource) -> Int32 {
   match source {
     TouchSource::Direct => 0
     TouchSource::Indirect => 1
@@ -78,7 +83,7 @@ pub fn touch_source_to_int(source : TouchSource) -> Int {
 }
 
 ///|
-pub fn touch_source_from_int(source : Int) -> TouchSource {
+pub fn touch_source_from_int(source : Int32) -> TouchSource {
   match source {
     0 => TouchSource::Direct
     1 => TouchSource::Indirect
@@ -88,12 +93,13 @@ pub fn touch_source_from_int(source : Int) -> TouchSource {
 }
 
 ///|
+#derive(Debug)
 pub struct TouchPoint {
-  id : Int
+  id : Int32
   x : Double
   y : Double
   source : TouchSource
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TouchPoint with fn output(self, logger) {
@@ -101,11 +107,12 @@ pub impl Show for TouchPoint with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub struct GamepadSnapshot {
-  id : Int
+  id : Int32
   axes : Array[Double]
-  pressed_buttons : Array[Int]
-} derive(Debug)
+  pressed_buttons : Array[Int32]
+}
 
 ///|
 pub impl Show for GamepadSnapshot with fn output(self, logger) {
@@ -119,21 +126,21 @@ pub fn new_outside_size(width : Double, height : Double) -> OutsideSize {
 
 ///|
 pub fn new_frame_budget(
-  updates : Int,
+  updates : Int32,
   alpha : Double,
-  tick : Int,
+  tick : Int32,
 ) -> FrameBudget {
   { updates, alpha, tick, }
 }
 
 ///|
-pub fn new_touch_point(id : Int, x : Double, y : Double) -> TouchPoint {
+pub fn new_touch_point(id : Int32, x : Double, y : Double) -> TouchPoint {
   { id, x, y, source: TouchSource::Unknown, }
 }
 
 ///|
 pub fn new_touch_point_with_source(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   source : TouchSource,
@@ -143,9 +150,9 @@ pub fn new_touch_point_with_source(
 
 ///|
 pub fn new_gamepad_snapshot(
-  id : Int,
+  id : Int32,
   axes : Array[Double],
-  pressed_buttons : Array[Int],
+  pressed_buttons : Array[Int32],
 ) -> GamepadSnapshot {
   { id, axes, pressed_buttons, }
 }
@@ -156,8 +163,8 @@ pub fn new_input_snapshot_full(
   cursor_y : Double,
   wheel_x : Double,
   wheel_y : Double,
-  pressed_keys : Array[Int],
-  pressed_mouse_buttons : Array[Int],
+  pressed_keys : Array[Int32],
+  pressed_mouse_buttons : Array[Int32],
   touches : Array[TouchPoint],
   gamepads : Array[GamepadSnapshot],
 ) -> InputSnapshot {
@@ -179,7 +186,7 @@ pub fn new_input_snapshot(
   cursor_y : Double,
   wheel_x : Double,
   wheel_y : Double,
-  pressed_keys : Array[Int],
+  pressed_keys : Array[Int32],
 ) -> InputSnapshot {
   new_input_snapshot_full(
     cursor_x,
@@ -199,13 +206,14 @@ pub fn empty_input_snapshot() -> InputSnapshot {
 }
 
 ///|
+#derive(Debug)
 pub enum TouchPhase {
   Began
   Moved
   Stationary
   Ended
   Cancelled
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TouchPhase with fn output(self, logger) {
@@ -213,7 +221,7 @@ pub impl Show for TouchPhase with fn output(self, logger) {
 }
 
 ///|
-pub fn touch_phase_to_int(phase : TouchPhase) -> Int {
+pub fn touch_phase_to_int(phase : TouchPhase) -> Int32 {
   match phase {
     TouchPhase::Began => 0
     TouchPhase::Moved => 1
@@ -224,7 +232,7 @@ pub fn touch_phase_to_int(phase : TouchPhase) -> Int {
 }
 
 ///|
-pub fn touch_phase_from_int(phase : Int) -> TouchPhase {
+pub fn touch_phase_from_int(phase : Int32) -> TouchPhase {
   match phase {
     0 => TouchPhase::Began
     1 => TouchPhase::Moved
@@ -236,15 +244,16 @@ pub fn touch_phase_from_int(phase : Int) -> TouchPhase {
 }
 
 ///|
+#derive(Debug)
 pub struct TouchPointEx {
-  id : Int
+  id : Int32
   x : Double
   y : Double
   phase : TouchPhase
   pressure : Double
   delta_x : Double
   delta_y : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for TouchPointEx with fn output(self, logger) {
@@ -253,7 +262,7 @@ pub impl Show for TouchPointEx with fn output(self, logger) {
 
 ///|
 pub fn new_touch_point_ex(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   phase : TouchPhase,
@@ -263,7 +272,7 @@ pub fn new_touch_point_ex(
 
 ///|
 pub fn new_touch_point_ex_full(
-  id : Int,
+  id : Int32,
   x : Double,
   y : Double,
   phase : TouchPhase,

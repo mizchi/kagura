@@ -11,7 +11,7 @@ import {
 // Values
 pub fn camera_depth_pass_commands(@gfx.ImageHandle, @gfx.ShaderHandle, Array[ShadowCaster], @math3d.Mat4, cache_resources? : Bool) -> Array[@gfx.DrawTrianglesCommand]
 
-pub fn camera_depth_uniform_dwords(@math3d.Mat4) -> Array[Int]
+pub fn camera_depth_uniform_dwords(@math3d.Mat4) -> Array[Int32]
 
 pub fn light_projection_matrix(Double, Double, Double) -> @math3d.Mat4
 
@@ -25,7 +25,7 @@ pub fn new_shadow_clear_command(@gfx.ImageHandle, @gfx.ShaderHandle) -> @gfx.Dra
 
 pub fn new_shadow_depth_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, cache_resources? : Bool) -> @gfx.DrawTrianglesCommand
 
-pub fn new_shadow_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Mat4, ShadowConfig, Int, Int) -> @gfx.DrawTrianglesCommand
+pub fn new_shadow_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int32, Int32, Int32, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Mat4, ShadowConfig, Int32, Int32) -> @gfx.DrawTrianglesCommand
 
 pub fn shader3d_shadow_lit_untextured_wgsl(packed_depth? : Bool) -> String
 
@@ -39,9 +39,9 @@ pub fn shader_shadow_depth_wgsl(packed_depth? : Bool) -> String
 
 pub fn shadow_depth_pass_commands(@gfx.ImageHandle, @gfx.ShaderHandle, Array[ShadowCaster], @light3d.LightingEnvironment, ShadowConfig, cache_resources? : Bool) -> Array[@gfx.DrawTrianglesCommand]
 
-pub fn shadow_depth_uniform_dwords(@math3d.Mat4, @math3d.Mat4) -> Array[Int]
+pub fn shadow_depth_uniform_dwords(@math3d.Mat4, @math3d.Mat4) -> Array[Int32]
 
-pub fn shadow_lit_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Mat4, ShadowConfig) -> Array[Int]
+pub fn shadow_lit_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Mat4, ShadowConfig) -> Array[Int32]
 
 pub fn shadow_sampling_wgsl(packed_depth? : Bool) -> String
 
@@ -55,7 +55,7 @@ pub struct ShadowCaster {
 pub fn ShadowCaster::new(@mesh3d.Mesh3D, @math3d.Mat4) -> Self
 
 pub struct ShadowConfig {
-  map_size : Int
+  map_size : Int32
   half_extent : Double
   near : Double
   far : Double
@@ -64,7 +64,7 @@ pub struct ShadowConfig {
   bias : Double
   pcf_texel_size : Double
 }
-pub fn ShadowConfig::new(Int, Double, Double, Double, Double, @math3d.Vec3, Double) -> Self
+pub fn ShadowConfig::new(Int32, Double, Double, Double, Double, @math3d.Vec3, Double) -> Self
 
 // Type aliases
 

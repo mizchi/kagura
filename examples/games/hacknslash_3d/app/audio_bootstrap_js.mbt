@@ -71,10 +71,10 @@ extern "js" fn js_decode_audio_url_to_pcm_payload(
   #| }
 
 ///|
-let decoded_pcm_payload_header_bytes : Int = 12
+let decoded_pcm_payload_header_bytes : Int32 = 12
 
 ///|
-fn decoded_pcm_payload_u32_le(payload : Bytes, offset : Int) -> Int {
+fn decoded_pcm_payload_u32_le(payload : Bytes, offset : Int32) -> Int32 {
   if offset < 0 || offset + 3 >= payload.length() {
     0
   } else {

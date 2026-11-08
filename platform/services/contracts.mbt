@@ -33,7 +33,7 @@ pub fn reset_file_access() -> Unit {
 }
 
 ///|
-pub fn read_file(path : String, override_env? : String? = None) -> Bytes? {
+pub fn read_file(path : String, override_env~ : String? = None) -> Bytes? {
   match file_access.val {
     Some(access) => (access.read)(path, override_env)
     None => None

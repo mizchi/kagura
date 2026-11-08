@@ -1,7 +1,8 @@
 ///|
+#derive(Debug, Eq)
 pub(all) struct EntityId {
-  value : Int
-} derive(Debug, Eq)
+  value : Int32
+}
 
 ///|
 pub impl Show for EntityId with fn output(self, logger) {
@@ -9,6 +10,7 @@ pub impl Show for EntityId with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum Tag {
   Player
   Enemy
@@ -16,7 +18,7 @@ pub(all) enum Tag {
   Item
   Obstacle
   Custom(String)
-} derive(Debug, Eq)
+}
 
 ///|
 pub impl Show for Tag with fn output(self, logger) {
@@ -24,11 +26,12 @@ pub impl Show for Tag with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct Velocity {
   x : Double
   y : Double
   z : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Velocity with fn output(self, logger) {
@@ -36,10 +39,11 @@ pub impl Show for Velocity with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct Health {
-  current : Int
-  max : Int
-} derive(Debug)
+  current : Int32
+  max : Int32
+}
 
 ///|
 pub impl Show for Health with fn output(self, logger) {
@@ -47,13 +51,14 @@ pub impl Show for Health with fn output(self, logger) {
 }
 
 ///|
+#derive(Debug)
 pub(all) struct Sprite {
-  image_id : Int
+  image_id : Int32
   width : Double
   height : Double
-  color : Int
+  color : Int32
   alpha : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for Sprite with fn output(self, logger) {

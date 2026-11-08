@@ -2,11 +2,12 @@
 /// Lighting types and uniform buffer encoding for 3D rendering.
 
 ///|
+#derive(Debug)
 pub struct DirectionalLight {
   direction : @math3d.Vec3
   color : @math3d.Vec3
   intensity : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for DirectionalLight with fn output(self, logger) {
@@ -32,10 +33,11 @@ pub fn DirectionalLight::default() -> DirectionalLight {
 }
 
 ///|
+#derive(Debug)
 pub struct AmbientLight {
   color : @math3d.Vec3
   intensity : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for AmbientLight with fn output(self, logger) {
@@ -56,12 +58,13 @@ pub fn AmbientLight::default() -> AmbientLight {
 }
 
 ///|
+#derive(Debug)
 pub struct PointLight {
   position : @math3d.Vec3
   color : @math3d.Vec3
   intensity : Double
   radius : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for PointLight with fn output(self, logger) {
@@ -79,6 +82,7 @@ pub fn PointLight::new(
 }
 
 ///|
+#derive(Debug)
 pub struct SpotLight {
   position : @math3d.Vec3
   direction : @math3d.Vec3
@@ -87,7 +91,7 @@ pub struct SpotLight {
   radius : Double
   inner_angle : Double
   outer_angle : Double
-} derive(Debug)
+}
 
 ///|
 pub impl Show for SpotLight with fn output(self, logger) {
@@ -116,12 +120,13 @@ pub fn SpotLight::new(
 }
 
 ///|
+#derive(Debug)
 pub struct LightingEnvironment {
   directional : DirectionalLight
   ambient : AmbientLight
   point_lights : Array[PointLight]
   spot_lights : Array[SpotLight]
-} derive(Debug)
+}
 
 ///|
 pub impl Show for LightingEnvironment with fn output(self, logger) {
@@ -132,8 +137,8 @@ pub impl Show for LightingEnvironment with fn output(self, logger) {
 pub fn LightingEnvironment::new(
   directional : DirectionalLight,
   ambient : AmbientLight,
-  point_lights? : Array[PointLight] = [],
-  spot_lights? : Array[SpotLight] = [],
+  point_lights~ : Array[PointLight] = [],
+  spot_lights~ : Array[SpotLight] = [],
 ) -> LightingEnvironment {
   { directional, ambient, point_lights, spot_lights, }
 }
@@ -155,7 +160,7 @@ pub fn LightingEnvironment::default() -> LightingEnvironment {
 // avoids the int64 emulation cost on the JS target.
 
 ///|
-fn f32(v : Double) -> Int {
+fn f32(v : Double) -> Int32 {
   Float::from_double(v).reinterpret_as_int()
 }
 
@@ -181,7 +186,7 @@ fn is_translation_only_model(model : @math3d.Mat4) -> Bool {
 /// [0-3]: direction.xyz + 0 (padding)
 /// [4-7]: color*intensity + intensity
 /// [8-11]: ambient_color*intensity + ambient_intensity
-pub fn light_uniform_dwords(env : LightingEnvironment) -> Array[Int] {
+pub fn light_uniform_dwords(env : LightingEnvironment) -> Array[Int32] {
   let d = env.directional
   let a = env.ambient
   [
@@ -203,7 +208,7 @@ pub fn light_uniform_dwords(env : LightingEnvironment) -> Array[Int] {
 ///|
 /// Encode normal matrix (inverse-transpose of model's upper 3x3) as 12 dwords.
 /// Stored as 3 vec4f columns (xyz + padding).
-pub fn normal_matrix_uniform_dwords(model : @math3d.Mat4) -> Array[Int] {
+pub fn normal_matrix_uniform_dwords(model : @math3d.Mat4) -> Array[Int32] {
   if is_translation_only_model(model) {
     return [
       f32(1.0),

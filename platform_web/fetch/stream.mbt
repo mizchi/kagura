@@ -4,9 +4,9 @@
 ///|
 extern "js" fn js_stream_fetch(
   url : String,
-  fetch_id : Int,
-  on_progress : (Int, Int, Int) -> Unit,
-  on_done : (Int, Int) -> Unit,
+  fetch_id : Int32,
+  on_progress : (Int32, Int32, Int32) -> Unit,
+  on_done : (Int32, Int32) -> Unit,
 ) -> Unit =
   #| (url, id, onProgress, onDone) => {
   #|   if (!globalThis.__kagura_fetch) globalThis.__kagura_fetch = {};
@@ -43,7 +43,7 @@ extern "js" fn js_stream_fetch(
   #| }
 
 ///|
-extern "js" fn js_stream_fetch_cancel(fetch_id : Int) -> Unit =
+extern "js" fn js_stream_fetch_cancel(fetch_id : Int32) -> Unit =
   #| (id) => {
   #|   if (globalThis.__kagura_fetch_ctrl && globalThis.__kagura_fetch_ctrl[id]) {
   #|     globalThis.__kagura_fetch_ctrl[id].abort();
@@ -56,9 +56,9 @@ extern "js" fn js_stream_fetch_cancel(fetch_id : Int) -> Unit =
 
 ///|
 extern "js" fn js_fetch_buf_copy(
-  fetch_id : Int,
+  fetch_id : Int32,
   dst : FixedArray[Byte],
-  len : Int,
+  len : Int32,
 ) -> Unit =
   #| (id, dst, len) => {
   #|   const src = globalThis.__kagura_fetch[id];
@@ -68,7 +68,7 @@ extern "js" fn js_fetch_buf_copy(
 
 ///|
 pub struct JsFetcher {
-  mut next_id : Int
+  mut next_id : Int32
 }
 
 ///|

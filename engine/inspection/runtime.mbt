@@ -1,9 +1,10 @@
 ///|
+#derive(ToJson)
 pub(all) struct Snapshot[S] {
-  revision : Int
+  revision : Int32
   paused : Bool
   state : S
-} derive(ToJson)
+}
 
 ///|
 pub extend Snapshot with ToJson::{to_json}
@@ -13,7 +14,7 @@ pub extend Snapshot with ToJson::{to_json}
 pub struct Runtime[S] {
   game : String
   schema : String
-  version : Int
+  version : Int32
   inspector : Inspector[S]
   read : () -> Snapshot[S]
   pause : (Bool) -> Unit
@@ -28,7 +29,7 @@ pub struct Runtime[S] {
 pub fn[S] Runtime::new(
   game~ : String,
   schema~ : String,
-  version? : Int = 1,
+  version~ : Int32 = 1,
   inspector~ : Inspector[S],
   read~ : () -> Snapshot[S],
   pause~ : (Bool) -> Unit,
@@ -42,11 +43,12 @@ pub fn[S] Runtime::new(
 }
 
 ///|
+#derive(FromJson, ToJson)
 struct WireEdit {
   subject : String
   field : String
   value : Json
-} derive(FromJson, ToJson)
+}
 
 ///|
 pub extend WireEdit with @moonbitlang/core/json.FromJson::{from_json}
@@ -98,7 +100,7 @@ pub fn[S : FromJson + ToJson] Runtime::invoke(
         (self.replace)(decode_state(input))
         Json::null()
       }
-      "describe" => self.inspector.describe(decode_state(input)).to_json()
+      "describe" => Json(self.inspector.describe(decode_state(input)))
       "reduce" => {
         guard input is Array(values) && values.length() == 2 else {
           fail("Expected state and edit")

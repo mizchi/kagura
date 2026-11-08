@@ -32,12 +32,12 @@ pub fn blend_node_poses(
   weight : Double,
 ) -> Array[NodePose] {
   // Build lookup for poses_b
-  let b_map : Map[Int, NodePose] = Map([])
+  let b_map : Map[Int32, NodePose] = Map([])
   for p in poses_b {
     b_map[p.node_index] = p
   }
   let result : Array[NodePose] = []
-  let visited : Map[Int, Bool] = Map([])
+  let visited : Map[Int32, Bool] = Map([])
   // Process all nodes from poses_a
   for a in poses_a {
     visited[a.node_index] = true

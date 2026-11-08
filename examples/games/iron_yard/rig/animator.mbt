@@ -70,8 +70,8 @@ pub fn update_animator(
   focus : @math3d.Vec3,
   delta : Double,
   attack_age : Double,
-  recoil_duration? : Double = 0.11,
-  recoil_strength? : Double = 0.075,
+  recoil_duration~ : Double = 0.11,
+  recoil_strength~ : Double = 0.075,
 ) -> @sim.CombatFrame {
   if p.gait < a.previous_gait {
     a.heading = p.yaw

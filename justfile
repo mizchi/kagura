@@ -4,6 +4,9 @@ target := "js"
 
 default: check test
 
+session-e2e:
+    pnpm exec playwright test -c e2e/runtime-session/playwright.config.mjs
+
 # MoonBit CLI policy, with a small Node process/filesystem host.
 [positional-arguments]
 [no-cd]
@@ -348,8 +351,8 @@ moon-deps *directories:
     node scripts/prepare-moon-deps.mjs "$@"
 
 # The workspace itself, without the example projects.
-check-workspace: moon-deps
-    moon check --deny-warn --target {{target}}
+check-workspace:
+    node scripts/check-moon-modules.mjs workspace {{target}}
 
 # Every example/editor-example project that supports {{target}}.
 #
@@ -358,21 +361,16 @@ check-workspace: moon-deps
 # which shard is decided by scripts/example-projects.mjs, not here, so every
 # runner derives the same split.
 check-examples shard="1/1":
-    dirs=$(node scripts/example-projects.mjs --target {{target}} --mode check --shard {{shard}}) || { echo "::error title=example listing failed::scripts/example-projects.mjs"; exit 1; }; for dir in $dirs; do echo "check $dir"; node scripts/prepare-moon-deps.mjs "$dir" && (cd "$dir" && moon check --deny-warn --target {{target}}) || { echo "::error file=$dir/moon.mod,title=example check failed::$dir"; exit 1; }; done
+    node scripts/check-moon-modules.mjs examples {{target}} {{shard}}
 
 
 # Independent editor modules, the Wasm guest and vendored native bindings.
 check-extra-modules:
-    node scripts/prepare-moon-deps.mjs editor/studio editor/model-viewer editor/modeling3d editor/effect-studio
-    for dir in editor/studio editor/model-viewer editor/modeling3d editor/effect-studio; do moon -C "$dir" check --target js --deny-warn || exit; done
-    for dir in editor/modeling3d editor/effect-studio; do moon -C "$dir" check --target native --deny-warn || exit; done
-    moon -C examples/experimental/wasm_game/guest/moonbit check --target wasm --deny-warn
-    moon -C assets/vendor/glfw check . --target native --deny-warn
+    node scripts/check-moon-modules.mjs standalone
 
-# Requires the sibling mizchi/crater checkout; check dependencies without editing it.
+# Requires the sibling mizchi/crater checkout; preserve its source interfaces.
 check-external-examples:
-    node scripts/prepare-moon-deps.mjs examples/experimental/crater_paint examples/smoke/browser_headless
-    for dir in examples/experimental/crater_paint examples/smoke/browser_headless; do moon -C "$dir" check . --target native --deny-warn --no-mbti || exit; done
+    node scripts/check-moon-modules.mjs external
 
 modeling3d-check:
     for dir in editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
@@ -777,6 +775,12 @@ wasm-host-smoke:
     node --test platform_web/host/kagura-wasm-host.test.mjs platform_web/host/kagura-wasm-driver.test.mjs
 
 # WASM game host tasks
+wasm-wire-generate:
+    node scripts/generate-guest-wire.mjs
+
+wasm-wire-check:
+    node scripts/generate-guest-wire.mjs --check
+
 wasm-build-moonbit:
     cd examples/experimental/wasm_game/guest/moonbit && moon build --target wasm
     mkdir -p examples/experimental/wasm_game/host/public
@@ -796,7 +800,7 @@ wasm-build-zig:
 wasm-host-install:
     cd examples/experimental/wasm_game/host && pnpm install --frozen-lockfile
 
-wasm-host-check:
+wasm-host-check: web-runtime-build
     just wasm-host-install
     cd examples/experimental/wasm_game/host && pnpm exec tsc --noEmit
     cd examples/experimental/wasm_game/host && pnpm build
@@ -805,6 +809,7 @@ wasm-wit-validate:
     wasm-tools component wit examples/experimental/wasm_game/wit/kagura-app-v0.wit > /dev/null
 
 wasm-verify:
+    just wasm-wire-check
     just wasm-wit-validate
     just wasm-build-moonbit
     just wasm-build-rust

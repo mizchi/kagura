@@ -1,3 +1,8 @@
+import {
+  assertGuestAbi,
+  createGuestSession,
+  type GuestSession,
+} from "../../../../../assets/web/kagura-guest-protocol.js";
 import { createWasmHost } from "../../../../../assets/web/kagura-wasm-host.js";
 import { initWebGPU } from "../../../../../assets/web/kagura-init.js";
 import {
@@ -15,6 +20,7 @@ import {
 import { createPreviewShell } from "./preview-shell";
 
 interface GameExports {
+  kagura_guest_abi_version: () => number;
   kagura_alloc: (size: number) => number;
   kagura_guest_init: (ptr: number, len: number) => number;
   kagura_guest_update: (ptr: number, len: number) => number;
@@ -24,12 +30,10 @@ interface GameExports {
   _start?: () => void;
 }
 
-function assertSemanticAbi(exports: Record<string, unknown>): asserts exports is Record<string, unknown> & GameExports {
-  for (const name of ["kagura_alloc", "kagura_guest_init", "kagura_guest_update", "kagura_guest_render", "kagura_guest_shutdown"]) {
-    if (typeof exports[name] !== "function") {
-      throw new Error(`guest is missing required export: ${name}`);
-    }
-  }
+function assertSemanticAbi(
+  exports: Record<string, unknown>,
+): asserts exports is Record<string, unknown> & GameExports {
+  assertGuestAbi(exports);
 }
 
 async function loadHostAssets(
@@ -61,7 +65,7 @@ async function loadWasm(
 ): Promise<GameExports> {
   const response = await fetch(url);
   const bytes = new Uint8Array(await response.arrayBuffer());
-  const host = createWasmHost(bytes, {write: onGuestLog});
+  const host = createWasmHost(bytes, { write: onGuestLog });
   let currentMemory: WebAssembly.Memory | null = null;
   const assets = await loadHostAssets(["/guest-title.txt"], onGuestLog);
   const importObject = {
@@ -84,11 +88,19 @@ async function loadWasm(
         const path = new TextDecoder().decode(bytes);
         return assets.get(path)?.length ?? -1;
       },
-      read_asset_copy_i32_utf8(pathPtr: number, pathLen: number, dstPtr: number) {
+      read_asset_copy_i32_utf8(
+        pathPtr: number,
+        pathLen: number,
+        dstPtr: number,
+      ) {
         if (!currentMemory) {
           return -1;
         }
-        const pathBytes = new Uint8Array(currentMemory.buffer, pathPtr, pathLen);
+        const pathBytes = new Uint8Array(
+          currentMemory.buffer,
+          pathPtr,
+          pathLen,
+        );
         const path = new TextDecoder().decode(pathBytes);
         const asset = assets.get(path);
         if (!asset) {
@@ -110,19 +122,13 @@ async function loadWasm(
   return exports;
 }
 
-function initGame(
-  game: GameExports,
-  canvas: HTMLCanvasElement,
-): { width: number; height: number; title: string; targetTps: number } {
-  const envPtr = game.kagura_alloc(16);
-  writeInitEnv(game.memory, envPtr, {
+function initGame(session: GuestSession, canvas: HTMLCanvasElement) {
+  return session.init({
     width: canvas.clientWidth || canvas.width || 320,
     height: canvas.clientHeight || canvas.height || 240,
     devicePixelRatio: window.devicePixelRatio || 1,
     hotReloadEnabled: Boolean(import.meta.hot),
   });
-  const configPtr = game.kagura_guest_init(envPtr, 16);
-  return readSemanticGuestConfig(game.memory, configPtr);
 }
 
 async function main() {
@@ -152,7 +158,7 @@ async function main() {
 
   ensureGpuPipeline(gpu, device, format);
 
-  let game = await loadWasm("/game.wasm", (message) => {
+  const game = await loadWasm("/game.wasm", (message) => {
     shell.pushLog(message);
   });
   let frameNumber = 0;
@@ -162,7 +168,8 @@ async function main() {
   let lastCommandCount = 0;
 
   // Initialize game
-  const config = initGame(game, canvas);
+  let guestSession = createGuestSession(game);
+  const config = initGame(guestSession, canvas);
   canvas.width = config.width;
   canvas.height = config.height;
   document.title = config.title;
@@ -177,10 +184,18 @@ async function main() {
 
   const input = createInputCollector(canvas);
 
+  let frameHandle = 0;
+  let disposed = false;
+  let reloadGeneration = 0;
   function frame() {
+    if (disposed) return;
+    if (guestSession.status() !== "running") {
+      frameHandle = requestAnimationFrame(frame);
+      return;
+    }
     // Pause/step support
     if (shell.isPaused() && !shell.consumeStep()) {
-      requestAnimationFrame(frame);
+      frameHandle = requestAnimationFrame(frame);
       return;
     }
 
@@ -195,30 +210,17 @@ async function main() {
     let drawBytes = 0;
 
     try {
-      // Allocate + serialize input
-      const inputSize = inputByteSize(snap);
-      const inputPtr = game.kagura_alloc(inputSize);
-
-      let t0 = performance.now();
-      const bytesWritten = serializeInput(game.memory, inputPtr, snap);
-      serializeMs = performance.now() - t0;
-      inputBytes = bytesWritten;
-
-      // Update game state (wasm boundary call)
-      t0 = performance.now();
-      wantsRedraw = game.kagura_guest_update(inputPtr, bytesWritten) !== 0;
-      updateMs = performance.now() - t0;
-
+      const guestFrame = guestSession.frame(snap);
+      ({
+        wantsRedraw,
+        serializeMs,
+        updateMs,
+        renderMs,
+        deserializeMs,
+        inputBytes,
+      } = guestFrame);
       if (wantsRedraw) {
-        // Render (wasm boundary call)
-        t0 = performance.now();
-        const drawPtr = game.kagura_guest_render();
-        renderMs = performance.now() - t0;
-
-        // Deserialize draw commands from shared memory
-        t0 = performance.now();
-        const commands = deserializeDrawCommands(game.memory, drawPtr);
-        deserializeMs = performance.now() - t0;
+        const commands = guestFrame.commands;
         lastCommandCount = commands.length;
 
         // Count vertices and estimate draw data size
@@ -233,7 +235,8 @@ async function main() {
       }
       shell.setError(null);
     } catch (error) {
-      const message = error instanceof Error ? error.stack ?? error.message : String(error);
+      const message =
+        error instanceof Error ? (error.stack ?? error.message) : String(error);
       shell.setError(message);
     }
 
@@ -262,23 +265,40 @@ async function main() {
       drawBytes,
     });
 
-    requestAnimationFrame(frame);
+    frameHandle = requestAnimationFrame(frame);
   }
 
-  requestAnimationFrame(frame);
+  frameHandle = requestAnimationFrame(frame);
 
   // HMR: reload WASM on changes
   if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      disposed = true;
+      reloadGeneration += 1;
+      cancelAnimationFrame(frameHandle);
+      guestSession.stop();
+      input.destroy();
+    });
     import.meta.hot.on("wasm-update", async () => {
+      const generation = ++reloadGeneration;
       console.log("[HMR] Reloading game.wasm...");
       shell.pushLog("[host] hmr reload requested");
       shell.setHmrState("reloading");
       try {
-        game.kagura_guest_shutdown();
-        game = await loadWasm("/game.wasm?t=" + Date.now(), (message) => {
-          shell.pushLog(message);
-        });
-        const newConfig = initGame(game, canvas);
+        guestSession.stop();
+        const nextGame = await loadWasm(
+          "/game.wasm?t=" + Date.now(),
+          (message) => {
+            shell.pushLog(message);
+          },
+        );
+        const nextSession = createGuestSession(nextGame);
+        if (disposed || generation !== reloadGeneration) {
+          nextSession.stop();
+          return;
+        }
+        const newConfig = initGame(nextSession, canvas);
+        guestSession = nextSession;
         canvas.width = newConfig.width;
         canvas.height = newConfig.height;
         shell.setMeta({
@@ -291,9 +311,14 @@ async function main() {
         shell.setError(null);
         shell.setHmrState("ready");
         shell.pushLog(`[host] hmr ready`);
-        console.log("[HMR] Game reloaded:", newConfig.title, `@${newConfig.targetTps} TPS`);
+        console.log(
+          "[HMR] Game reloaded:",
+          newConfig.title,
+          `@${newConfig.targetTps} TPS`,
+        );
       } catch (e) {
-        const message = e instanceof Error ? e.stack ?? e.message : String(e);
+        if (disposed || generation !== reloadGeneration) return;
+        const message = e instanceof Error ? (e.stack ?? e.message) : String(e);
         shell.setError("[HMR] " + message);
         console.error("[HMR] Failed to reload:", e);
       }

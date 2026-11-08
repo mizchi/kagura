@@ -26,6 +26,12 @@ JSON manifests in downloaded registry dependencies. For a standalone example,
 use `just moon-deps examples/games/flappy_bird`. `just check` / `just test`
 and CI perform this preparation automatically.
 
+Preparation discovers legacy manifests in the registry cache without parsing
+compiler diagnostics. Source repair patches have been removed after updating
+crater to `0.19.2` and differentiable_ecs to `0.2.2`; modern dependency packages
+and source files are left unchanged. Checks and their targets are executed from
+`scripts/moon-check-plan.mjs`, using one catalog for standalone and external modules.
+
 ## Development Flow
 
 1. Review the design and boundaries of your target area (`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`)

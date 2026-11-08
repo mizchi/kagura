@@ -61,6 +61,11 @@ interface types {
     pressed-mouse-buttons: list<mouse-button>,
   }
 
+  record vertex2d {
+    position: vec2f,
+    uv: vec2f,
+  }
+
   // A single 2D mesh draw command (colored/textured quad).
   // v0 wire per command:
   //   i32 vertex-count (V), i32 index-count (I), i32 src-image-id,
@@ -69,7 +74,7 @@ interface types {
   record draw-mesh2d {
     texture: option<texture-id>,
     tint: rgba8,
-    vertices: list<vec2f>,
+    vertices: list<vertex2d>,
     indices: list<u32>,
   }
 

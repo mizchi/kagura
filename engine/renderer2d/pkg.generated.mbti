@@ -105,7 +105,12 @@ pub fn svg_path_to_stroke_vertices(String, Double, Double) -> (Array[Double], Ar
 
 pub fn svg_path_to_vector_path(String) -> @vector.Path
 
+pub fn validate_vertex_stride(Int32) -> Unit raise VertexLayoutError
+
 // Errors
+pub suberror VertexLayoutError {
+  UnsupportedVertexStride(Int32)
+}
 
 // Types and methods
 pub(all) struct AtlasQuad2D {

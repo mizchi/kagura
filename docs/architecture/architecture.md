@@ -1,8 +1,10 @@
 # Architecture Draft (Ebiten inspired)
 
 > Note:
-> 現在の中長期方針は [ADR 0001](./adr/0001-wgpu-host-wasm-guest.md) を正とする。
+> 現在の中長期方針は [ADR 0001](../adr/0001-wgpu-host-wasm-guest.md) を正とする。
 > この文書は Ebiten 由来の初期アーキテクチャ草案として残しており、一部は最新方針と一致しない。
+> 現行の配置は [Module Boundaries](./module_boundaries.md)、残る設計課題は
+> [2026-11-08 設計レビュー](./design-review-2026-11-08.md) を参照する。
 
 ## Goals
 

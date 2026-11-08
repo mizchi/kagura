@@ -5,6 +5,7 @@ import {
   "mizchi/gfx",
   "mizchi/kagura_audio",
   "mizchi/kagura_core",
+  "mizchi/kagura_platform/services",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
@@ -30,17 +31,21 @@ pub fn render_headless_frame(update~ : (@kagura_core.InputSnapshot) -> Unit, dra
 
 pub fn reset_lifecycle_hooks() -> Unit
 
-pub fn run(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int32, width? : Int32, height? : Int32, title? : String, canvas? : String) -> Unit
+pub fn run(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int32, width? : Int32, height? : Int32, title? : String, canvas? : String, on_error? : (RunFailure) -> Unit) -> Unit
 
-pub fn[T : EngineGame] run_game(T, on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int32, width? : Int32, height? : Int32, title? : String, canvas? : String) -> Unit
+pub fn[T : EngineGame] run_game(T, on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int32, width? : Int32, height? : Int32, title? : String, canvas? : String, on_error? : (RunFailure) -> Unit) -> Unit
 
 pub fn set_gpu_capture_for_test(Bool) -> Unit
 
 pub fn set_headless_texture_provider(() -> Array[HeadlessTexture]) -> Unit
 
-pub fn set_lifecycle_hooks(LifecycleHooks) -> Unit
+pub fn set_lifecycle_hooks(LifecycleHooks, readiness? : () -> StartupReadiness) -> Unit
 
-pub fn set_lifecycle_hooks_if_absent(LifecycleHooks) -> Unit
+pub fn set_lifecycle_hooks_if_absent(LifecycleHooks, readiness? : () -> StartupReadiness) -> Unit
+
+pub fn start(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int32, width? : Int32, height? : Int32, title? : String, canvas? : String, on_error? : (RunFailure) -> Unit) -> RunSession
+
+pub fn[T : EngineGame] start_game(T, on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int32, width? : Int32, height? : Int32, title? : String, canvas? : String, on_error? : (RunFailure) -> Unit) -> RunSession
 
 // Errors
 pub suberror InitialStateError {
@@ -115,6 +120,74 @@ pub(all) struct LifecycleHooks {
   on_start : (String, String) -> Unit
   on_stop : () -> Unit
 }
+
+#derive(@debug.Debug)
+pub struct RunFailure {
+  stage : RunStage
+  message : String
+}
+pub fn RunFailure::to_repr(Self) -> @debug.Repr
+
+pub struct RunSession {
+  mut state : RunStatus
+  clock : () -> Double
+  report : (RunFailure) -> Unit
+  disposers : Array[() -> Unit]
+  mut cancel_frame : (() -> Unit)?
+  mut frame : (() -> Unit)?
+  mut frame_generation : Int32
+}
+pub fn RunSession::fail(Self, RunStage, String) -> Unit
+pub fn RunSession::is_active(Self) -> Bool
+pub fn RunSession::new(clock? : () -> Double, on_error? : (RunFailure) -> Unit) -> Self
+pub fn RunSession::now_ms(Self) -> Double
+pub fn RunSession::own(Self, () -> Unit) -> Unit
+pub fn RunSession::schedule(Self, @services.FrameHost, () -> Unit) -> Unit
+pub fn RunSession::status(Self) -> RunStatus
+pub fn RunSession::step(Self) -> Unit
+pub fn RunSession::stop(Self) -> Unit
+pub fn RunSession::watch_exit(Self, @services.FrameHost) -> Unit
+
+#derive(Eq, @debug.Debug)
+pub(all) enum RunStage {
+  Backend
+  Options
+  Platform
+  Surface
+  Graphics
+  Image
+  Shader
+  Frame
+  Input
+  Resize
+  Update
+  Draw
+  Render
+  Audio
+}
+pub fn RunStage::equal(Self, Self) -> Bool
+pub fn RunStage::not_equal(Self, Self) -> Bool
+pub fn RunStage::output(Self, &Logger) -> Unit
+pub fn RunStage::to_repr(Self) -> @debug.Repr
+pub fn RunStage::to_string(Self) -> String
+pub impl Show for RunStage
+
+#derive(@debug.Debug)
+pub enum RunStatus {
+  Starting
+  Running
+  Stopped
+  Failed(RunFailure)
+}
+pub fn RunStatus::to_repr(Self) -> @debug.Repr
+
+#derive(@debug.Debug)
+pub(all) enum StartupReadiness {
+  Pending
+  Ready
+  Unavailable(String)
+}
+pub fn StartupReadiness::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

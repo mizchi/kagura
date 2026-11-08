@@ -36,6 +36,7 @@ pub fn[T : SceneGame] run_game(
   height~ : Int32 = 240,
   title~ : String = "kagura",
   canvas~ : String = "#app",
+  on_error? : (@engine.RunFailure) -> Unit,
 ) -> Unit {
   run(
     view=fn() { scene_game_view(game) },
@@ -48,5 +49,6 @@ pub fn[T : SceneGame] run_game(
     height~,
     title~,
     canvas~,
+    on_error?,
   )
 }

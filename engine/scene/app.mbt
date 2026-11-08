@@ -16,6 +16,7 @@ pub fn run(
   height~ : Int32 = 240,
   title~ : String = "kagura",
   canvas~ : String = "#app",
+  on_error? : (@engine.RunFailure) -> Unit,
 ) -> Unit {
   let (width, height) = @engine.capture_viewport(width, height)
   match apply_viewport {
@@ -54,5 +55,6 @@ pub fn run(
     height~,
     title~,
     canvas~,
+    on_error?,
   )
 }

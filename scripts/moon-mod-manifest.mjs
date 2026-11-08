@@ -59,8 +59,8 @@ function parseImports(source) {
   if (!inner) {
     return deps;
   }
-  for (const match of inner.matchAll(/"([^"]+)"/g)) {
-    const spec = match[1];
+  for (const match of inner.matchAll(/"(?:\\.|[^"\\])*"/g)) {
+    const spec = JSON.parse(match[0]);
     const at = spec.lastIndexOf("@");
     if (at > 0) {
       deps[spec.slice(0, at)] = spec.slice(at + 1);
@@ -78,9 +78,11 @@ function parseOptions(source) {
     return options;
   }
   // Match `key: "value"` and `"quoted-key": "value"` (skip array values like exclude: [...]).
-  for (const match of inner.matchAll(/(?:"([^"]+)"|([A-Za-z0-9_-]+))\s*:\s*"([^"]*)"/g)) {
+  for (const match of inner.matchAll(
+    /(?:"([^"]+)"|([A-Za-z0-9_-]+))\s*:\s*("(?:\\.|[^"\\])*")/g,
+  )) {
     const key = match[1] ?? match[2];
-    options[key] = match[3];
+    options[key] = JSON.parse(match[3]);
   }
   return options;
 }
@@ -88,13 +90,17 @@ function parseOptions(source) {
 export function parseMoonMod(source) {
   const manifest = {};
   // Top-level scalar string fields: `key = "value"` (one per line).
-  for (const match of source.matchAll(/^([A-Za-z0-9_-]+)\s*=\s*"([^"]*)"\s*$/gm)) {
-    manifest[match[1]] = match[2];
+  for (const match of source.matchAll(
+    /^([A-Za-z0-9_-]+)\s*=\s*("(?:\\.|[^"\\])*")\s*$/gm,
+  )) {
+    manifest[match[1]] = JSON.parse(match[2]);
   }
   // Top-level string arrays: `keywords = [ "a", "b" ]` (possibly multi-line).
   const keywordsBlock = source.match(/^keywords\s*=\s*\[([\s\S]*?)\]/m);
   if (keywordsBlock) {
-    manifest.keywords = [...keywordsBlock[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+    manifest.keywords = [
+      ...keywordsBlock[1].matchAll(/"(?:\\.|[^"\\])*"/g),
+    ].map((m) => JSON.parse(m[0]));
   }
 
   const deps = parseImports(source);
@@ -107,7 +113,8 @@ export function parseMoonMod(source) {
     manifest.source = options.source;
   }
   if (options["--moonbit-unstable-prebuild"] !== undefined) {
-    manifest["--moonbit-unstable-prebuild"] = options["--moonbit-unstable-prebuild"];
+    manifest["--moonbit-unstable-prebuild"] =
+      options["--moonbit-unstable-prebuild"];
   }
 
   // `exclude: [ "a", "b" ]` inside options(...) -- only present on modules
@@ -117,7 +124,9 @@ export function parseMoonMod(source) {
   if (optionsBlock) {
     const excludeBlock = optionsBlock.match(/exclude\s*:\s*\[([\s\S]*?)\]/m);
     if (excludeBlock) {
-      manifest.exclude = [...excludeBlock[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+      manifest.exclude = [...excludeBlock[1].matchAll(/"([^"]+)"/g)].map(
+        (m) => m[1],
+      );
     }
   }
 
@@ -125,7 +134,10 @@ export function parseMoonMod(source) {
   if (manifest.warnings !== undefined && manifest["warn-list"] === undefined) {
     manifest["warn-list"] = manifest.warnings;
   }
-  if (manifest.preferred_target !== undefined && manifest["preferred-target"] === undefined) {
+  if (
+    manifest.preferred_target !== undefined &&
+    manifest["preferred-target"] === undefined
+  ) {
     manifest["preferred-target"] = manifest.preferred_target;
   }
 
@@ -149,4 +161,48 @@ export function readModuleManifest(root) {
   }
   const jsonPath = path.join(root, "moon.mod.json");
   return JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+}
+
+// Emit current manifests without requiring the compiler in staging/Node CI.
+// Refuse unknown fields instead of silently dropping publication metadata.
+export function serializeMoonMod(manifest) {
+  const options = new Set(["source", "--moonbit-unstable-prebuild"]);
+  const aliases = {
+    "warn-list": "warnings",
+    "preferred-target": "preferred_target",
+  };
+  const scalars = new Set([
+    "name",
+    "version",
+    "description",
+    "repository",
+    "license",
+    "readme",
+    "homepage",
+    "keywords",
+    "warnings",
+    "preferred_target",
+  ]);
+  const fields = new Map(),
+    settings = [];
+  for (const [raw, value] of Object.entries(manifest)) {
+    // Deprecated packaging excludes have already been applied by the stager.
+    if (raw === "deps" || raw === "exclude") continue;
+    const key = aliases[raw] ?? raw;
+    if (options.has(key))
+      settings.push(`  ${JSON.stringify(key)}: ${JSON.stringify(value)},`);
+    else if (scalars.has(key)) fields.set(key, value);
+    else throw new Error(`Unsupported publication manifest field: ${raw}`);
+  }
+  const lines = [...fields].map(
+    ([key, value]) => `${key} = ${JSON.stringify(value)}`,
+  );
+  const imports = Object.entries(manifest.deps ?? {}).map(([name, version]) => {
+    if (typeof version !== "string")
+      throw new Error(`Unresolved publication dependency: ${name}`);
+    return `  ${JSON.stringify(`${name}@${version}`)},`;
+  });
+  if (imports.length) lines.push(`\nimport {\n${imports.join("\n")}\n}`);
+  if (settings.length) lines.push(`\noptions(\n${settings.join("\n")}\n)`);
+  return lines.join("\n") + "\n";
 }

@@ -797,11 +797,20 @@ pub fn render_frame_from_commands(
 ///|
 fn init {
   @host_services.install()
-  @engine.set_lifecycle_hooks({
-    on_start: fn(_canvas, title) { install(title) },
-    on_stop: fn() {
-      shutdown()
-      uninstall()
+  @engine.set_lifecycle_hooks(
+    {
+      on_start: fn(_canvas, title) { install(title) },
+      on_stop: fn() {
+        shutdown()
+        uninstall()
+      },
     },
-  })
+    readiness=fn() {
+      if is_ready() {
+        @engine.Ready
+      } else {
+        @engine.Unavailable("Native graphics initialization failed")
+      }
+    },
+  )
 }

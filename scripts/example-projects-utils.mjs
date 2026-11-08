@@ -10,6 +10,7 @@
 //
 // Kept side-effect-free -- the filesystem scan lives in `example-projects.mjs`
 // so these rules can be tested without a repo layout.
+import { EXTERNAL_EXAMPLES } from "./moon-check-catalog.mjs";
 
 // `examples/<category>/<name>` nests one level deeper than the editor tools'
 // flat `editor/<tool>/examples/<name>`, so each root carries its own depth.
@@ -21,17 +22,13 @@ export const EXAMPLE_PROJECT_ROOTS = [
 
 // These two build against a `mizchi/crater` checkout that is not in this repo,
 // so they cannot be built in CI at all.
-const CRATER_DEPENDENTS = new Set([
-  "examples/experimental/crater_paint",
-  "examples/smoke/browser_headless",
-]);
+const CRATER_DEPENDENTS = EXTERNAL_EXAMPLES;
 
 // Checks fine on native, but its test binary is not expected to link there.
 const NATIVE_CHECK_ONLY = new Set([
   "editor/effect-studio/examples/effect_studio",
 ]);
 
-const NATIVE_ONLY_MARKER = 'supported_targets = "native"';
 const WGPU_NATIVE_MARKER = "wgpu_native";
 
 /**
@@ -50,8 +47,11 @@ export function classifyExampleProject(project, { target, mode }) {
   if (CRATER_DEPENDENTS.has(dir)) {
     return skip("depends on out-of-repo mizchi/crater checkout");
   }
-  if (target !== "native" && srcPkg?.includes(NATIVE_ONLY_MARKER)) {
-    return skip("supports native only");
+  const supported = srcPkg
+    ?.match(/^\s*supported_targets\s*=\s*"([^"]+)"/m)?.[1]
+    .split("+");
+  if (supported && !supported.includes(target)) {
+    return skip(`supports ${supported.join("+")} only`);
   }
   if (mode === "test" && target === "native") {
     if (srcPkg?.includes(WGPU_NATIVE_MARKER)) {
@@ -104,12 +104,17 @@ export function shardExampleProjects(dirs, { shard, shardTotal }) {
  * Sharding first would hand one runner a shard that is mostly skips -- on native
  * that matters, because only a fraction of the projects link there.
  */
-export function selectExampleProjects(projects, { target, mode, shard, shardTotal }) {
+export function selectExampleProjects(
+  projects,
+  { target, mode, shard, shardTotal },
+) {
   const classified = projects.map((project) =>
-    classifyExampleProject(project, { target, mode })
+    classifyExampleProject(project, { target, mode }),
   );
   const skipped = classified.filter((entry) => !entry.run);
-  const runnable = classified.filter((entry) => entry.run).map((entry) => entry.dir);
+  const runnable = classified
+    .filter((entry) => entry.run)
+    .map((entry) => entry.dir);
   return {
     skipped,
     selected: shardExampleProjects(runnable, { shard, shardTotal }),

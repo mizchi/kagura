@@ -10,7 +10,7 @@ import {
   "mizchi/web_runtime_hooks@0.7.0",
   "mizchi/native_runtime_hooks@0.7.0",
   "mizchi/terrain@0.1.1",
-  "mizchi/differentiable_ecs@0.2.1",
+  "mizchi/differentiable_ecs@0.2.2",
   "mizchi/parquet@0.2.2",
   "moonbitlang/x@0.5.7",
   "mizchi/kagura_game@0.7.0",

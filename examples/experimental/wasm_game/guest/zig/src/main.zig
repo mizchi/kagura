@@ -1,3 +1,4 @@
+const wire = @import("wire_generated.zig");
 const screen_w: i32 = 320;
 const screen_h: i32 = 240;
 const target_tps: i32 = 60;
@@ -122,7 +123,7 @@ fn ndcY(y: f64, height: f64) f32 {
 
 // --- Draw command ---
 
-const CMD_SIZE: usize = 28 + 16 * 4 + 6 * 4; // header(28) + 4 verts * 4 floats + 6 indices
+const CMD_SIZE: usize = wire.DRAW_HEADER_BYTES + 4 * wire.VERTEX_COMPONENTS * 4 + 6 * 4; // header(28) + 4 verts * 4 floats + 6 indices
 
 fn writeRectCommand(x: f64, y: f64, w: f64, h: f64, fill: i32, alpha: i32) void {
     const sw = @as(f64, @floatFromInt(screen_w));
@@ -425,3 +426,5 @@ export fn kagura_guest_restore_state(_: i32, _: i32) callconv(.c) i32 {
 }
 
 export fn kagura_guest_shutdown() callconv(.c) void {}
+
+export fn kagura_guest_abi_version() callconv(.c) i32 { return wire.ABI_VERSION; }

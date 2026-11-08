@@ -1,3 +1,4 @@
+import { readModuleManifest } from "./moon-mod-manifest.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -65,7 +66,8 @@ function makeFixtureRepo() {
       "example/core": { path: "modules/core" },
       "example/engine": { path: "./modules/engine" },
     },
-    "--moonbit-unstable-prebuild": "scripts/moon-prebuild-native-link-flags.cjs",
+    "--moonbit-unstable-prebuild":
+      "scripts/moon-prebuild-native-link-flags.cjs",
   });
   makeModule(root, "modules/core", {
     name: "example/core",
@@ -86,10 +88,14 @@ function makeFixtureRepo() {
     deps: {
       "example/core": { path: "../core" },
     },
-    "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs",
+    "--moonbit-unstable-prebuild":
+      "../../scripts/moon-prebuild-native-link-flags.cjs",
   });
   fs.writeFileSync(path.join(root, "README.mbt.md"), "# example/root\n");
-  fs.writeFileSync(path.join(root, "modules", "engine", "README.md"), "# example/engine\n");
+  fs.writeFileSync(
+    path.join(root, "modules", "engine", "README.md"),
+    "# example/engine\n",
+  );
 
   return root;
 }
@@ -151,9 +157,7 @@ test("writePreparedManifests writes converted publish manifests", () => {
   });
 
   assert.deepEqual(result.validation.errors, []);
-  const rootManifest = JSON.parse(
-    fs.readFileSync(path.join(outDir, "example__root", "moon.mod.json"), "utf8"),
-  );
+  const rootManifest = readModuleManifest(path.join(outDir, "example__root"));
   assert.equal(rootManifest.deps["example/core"], "1.2.0");
   assert.equal(rootManifest.deps["example/engine"], "1.3.0");
   assert.equal(
@@ -161,7 +165,10 @@ test("writePreparedManifests writes converted publish manifests", () => {
     true,
   );
   assert.equal(
-    fs.readFileSync(path.join(outDir, "example__root", "README.mbt.md"), "utf8"),
+    fs.readFileSync(
+      path.join(outDir, "example__root", "README.mbt.md"),
+      "utf8",
+    ),
     "# example/root\n",
   );
   assert.equal(
@@ -176,8 +183,8 @@ test("writePreparedManifests writes converted publish manifests", () => {
     true,
   );
 
-  const engineManifest = JSON.parse(
-    fs.readFileSync(path.join(outDir, "example__engine", "moon.mod.json"), "utf8"),
+  const engineManifest = readModuleManifest(
+    path.join(outDir, "example__engine"),
   );
   assert.equal(
     engineManifest["--moonbit-unstable-prebuild"],
@@ -217,40 +224,74 @@ test("staging a module root excludes independent nested modules", () => {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
     delete manifest.source;
     writeJson(manifestPath, manifest);
-    writeJson(path.join(root, "modules/engine/nested/moon.mod.json"), { name: "example/nested" });
-    fs.writeFileSync(path.join(root, "modules/engine/nested/secret.mbt"), "nested module");
+    writeJson(path.join(root, "modules/engine/nested/moon.mod.json"), {
+      name: "example/nested",
+    });
+    fs.writeFileSync(
+      path.join(root, "modules/engine/nested/secret.mbt"),
+      "nested module",
+    );
     const outDir = path.join(root, ".stage");
-    const result = writePreparedManifests({ repoRoot: root, outDir, moduleDirs: fixtureModuleDirs, depPolicy: fixturePolicy });
+    const result = writePreparedManifests({
+      repoRoot: root,
+      outDir,
+      moduleDirs: fixtureModuleDirs,
+      depPolicy: fixturePolicy,
+    });
     assert.deepEqual(result.validation.errors, []);
-    assert.equal(fs.existsSync(path.join(outDir, "example__engine/nested")), false);
-    assert.equal(fs.existsSync(path.join(outDir, "example__engine/src/lib.mbt")), true);
-  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+    assert.equal(
+      fs.existsSync(path.join(outDir, "example__engine/nested")),
+      false,
+    );
+    assert.equal(
+      fs.existsSync(path.join(outDir, "example__engine/src/lib.mbt")),
+      true,
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("flat root facade staging excludes shared assets, tooling and dependency caches", () => {
   const root = makeFixtureRepo();
   try {
-    const manifestPath = path.join(root, 'moon.mod.json');
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const manifestPath = path.join(root, "moon.mod.json");
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
     delete manifest.source;
     writeJson(manifestPath, manifest);
-    fs.renameSync(path.join(root, 'src/lib.mbt'), path.join(root, 'lib.mbt'));
-    for (const dir of ['assets/web', 'editor/studio', 'node_modules/fake', '.mooncakes/fake']) {
+    fs.renameSync(path.join(root, "src/lib.mbt"), path.join(root, "lib.mbt"));
+    for (const dir of [
+      "assets/web",
+      "editor/studio",
+      "node_modules/fake",
+      ".mooncakes/fake",
+    ]) {
       fs.mkdirSync(path.join(root, dir), { recursive: true });
-      fs.writeFileSync(path.join(root, dir, 'not-published.txt'), 'fixture');
+      fs.writeFileSync(path.join(root, dir, "not-published.txt"), "fixture");
     }
-    const outDir = path.join(root, '.stage');
-    const result = writePreparedManifests({ repoRoot: root, outDir, moduleDirs: fixtureModuleDirs, depPolicy: fixturePolicy });
+    const outDir = path.join(root, ".stage");
+    const result = writePreparedManifests({
+      repoRoot: root,
+      outDir,
+      moduleDirs: fixtureModuleDirs,
+      depPolicy: fixturePolicy,
+    });
     assert.deepEqual(result.validation.errors, []);
-    const staged = path.join(outDir, 'example__root');
-    assert.ok(fs.existsSync(path.join(staged, 'lib.mbt')));
-    for (const dir of ['assets', 'editor', 'node_modules', '.mooncakes']) assert.ok(!fs.existsSync(path.join(staged, dir)), dir);
-    assert.ok(fs.existsSync(path.join(staged, 'scripts/moon-prebuild-native-link-flags.cjs')));
-  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+    const staged = path.join(outDir, "example__root");
+    assert.ok(fs.existsSync(path.join(staged, "lib.mbt")));
+    for (const dir of ["assets", "editor", "node_modules", ".mooncakes"])
+      assert.ok(!fs.existsSync(path.join(staged, dir)), dir);
+    assert.ok(
+      fs.existsSync(
+        path.join(staged, "scripts/moon-prebuild-native-link-flags.cjs"),
+      ),
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("the live workspace satisfies the release dep policy", () => {
   const result = validateReleaseWorkspace();
   assert.deepEqual(result.errors, []);
 });
-

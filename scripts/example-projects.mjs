@@ -20,37 +20,18 @@ import {
   selectExampleProjects,
 } from "./example-projects-utils.mjs";
 
-const args = process.argv.slice(2);
-const flag = (name, fallback) => {
-  const index = args.indexOf(`--${name}`);
-  if (index === -1) return fallback;
-  const value = args[index + 1];
-  if (value == null || value.startsWith("--")) {
-    console.error(`--${name} needs a value`);
-    process.exit(2);
-  }
-  return value;
-};
-
-const target = flag("target", "js");
-const mode = flag("mode", "check");
-let shardSpec;
-try {
-  shardSpec = parseShard(flag("shard", "1/1"));
-} catch (error) {
-  console.error(String(error.message ?? error));
-  process.exit(2);
-}
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
 
 const isDir = (path) => existsSync(path) && statSync(path).isDirectory();
 
 // Walk the roots in a fixed order and sort each level, so every shard on every
 // runner derives the same list from the same commit. An unstable order would
 // silently drop or double-build projects across shards.
-const discoverProjects = () => {
+export function discoverProjects(repoRoot = REPO_ROOT) {
   const projects = [];
   for (const { path: root, depth } of EXAMPLE_PROJECT_ROOTS) {
-    const absoluteRoot = join(REPO_ROOT, root);
+    const absoluteRoot = join(repoRoot, root);
     if (!isDir(absoluteRoot)) continue;
     const leaves = [];
     if (depth === 1) {
@@ -67,10 +48,12 @@ const discoverProjects = () => {
       }
     }
     for (const dir of leaves) {
-      const absolute = join(REPO_ROOT, dir);
+      const absolute = join(repoRoot, dir);
       if (!isExampleDir(absolute)) continue;
       const rootPkg = join(absolute, "moon.pkg");
-      const srcPkg = existsSync(rootPkg) ? rootPkg : join(absolute, "src", "moon.pkg");
+      const srcPkg = existsSync(rootPkg)
+        ? rootPkg
+        : join(absolute, "src", "moon.pkg");
       projects.push({
         dir,
         srcPkg: existsSync(srcPkg) ? readFileSync(srcPkg, "utf8") : null,
@@ -78,26 +61,54 @@ const discoverProjects = () => {
     }
   }
   return projects;
-};
-
-const projects = discoverProjects();
-if (projects.length === 0) {
-  console.error("no example projects found -- is this the repository root?");
-  process.exit(1);
 }
 
-const { skipped, selected, runnableCount } = selectExampleProjects(projects, {
-  target,
-  mode,
-  ...shardSpec,
-});
+function main(args) {
+  const flag = (name, fallback) => {
+    const index = args.indexOf(`--${name}`);
+    if (index === -1) return fallback;
+    const value = args[index + 1];
+    if (value == null || value.startsWith("--")) {
+      console.error(`--${name} needs a value`);
+      process.exit(2);
+    }
+    return value;
+  };
 
-for (const entry of skipped) {
-  console.error(`skip ${entry.dir} (${entry.reason})`);
+  const target = flag("target", "js");
+  const mode = flag("mode", "check");
+  let shardSpec;
+  try {
+    shardSpec = parseShard(flag("shard", "1/1"));
+  } catch (error) {
+    console.error(String(error.message ?? error));
+    process.exit(2);
+  }
+
+  const projects = discoverProjects();
+  if (projects.length === 0) {
+    console.error("no example projects found -- is this the repository root?");
+    process.exit(1);
+  }
+
+  const { skipped, selected, runnableCount } = selectExampleProjects(projects, {
+    target,
+    mode,
+    ...shardSpec,
+  });
+
+  for (const entry of skipped) {
+    console.error(`skip ${entry.dir} (${entry.reason})`);
+  }
+  console.error(
+    `${mode} ${target}: shard ${shardSpec.shard}/${shardSpec.shardTotal} runs ${selected.length} of ${runnableCount} project(s)`,
+  );
+  for (const dir of selected) {
+    console.log(dir);
+  }
 }
-console.error(
-  `${mode} ${target}: shard ${shardSpec.shard}/${shardSpec.shardTotal} runs ${selected.length} of ${runnableCount} project(s)`,
-);
-for (const dir of selected) {
-  console.log(dir);
-}
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+)
+  main(process.argv.slice(2));

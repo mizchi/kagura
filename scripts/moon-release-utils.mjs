@@ -1,9 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { manifestPathFor, readModuleManifest } from "./moon-mod-manifest.mjs";
+import {
+  manifestPathFor,
+  readModuleManifest,
+  serializeMoonMod,
+} from "./moon-mod-manifest.mjs";
 
-import {PUBLISH_MODULE_DIRS, RELEASE_DEP_POLICY} from './release-policy.mjs';
+import { PUBLISH_MODULE_DIRS, RELEASE_DEP_POLICY } from "./release-policy.mjs";
 
 export const DEFAULT_RELEASE_MODULE_DIRS = PUBLISH_MODULE_DIRS;
 export const DEFAULT_RELEASE_DEP_POLICY = RELEASE_DEP_POLICY;
@@ -34,10 +38,34 @@ const ALWAYS_EXCLUDE_FROM_ROOT_SOURCE = Object.freeze([
 
 // The root module ships its facade and cmd/; other layers and assets are separate.
 const ROOT_FACADE_EXCLUDES = [
-  "core", "engine", "platform", "platform_web", "platform_native", "game", "editor", "assets", "examples", "e2e",
-  "docs", "scripts", "deps", "fixtures", "test-results", "playwright-report", "output",
-  "package.json", "pnpm-lock.yaml", "justfile", "playwright.config.ts",
-  "modules", "benchmarks", "experiments", "CLAUDE.md", "CONTRIBUTING.md", "CONTRIBUTING_ja.md", "TODO.md",
+  "core",
+  "engine",
+  "platform",
+  "platform_web",
+  "platform_native",
+  "game",
+  "editor",
+  "assets",
+  "examples",
+  "e2e",
+  "docs",
+  "scripts",
+  "deps",
+  "fixtures",
+  "test-results",
+  "playwright-report",
+  "output",
+  "package.json",
+  "pnpm-lock.yaml",
+  "justfile",
+  "playwright.config.ts",
+  "modules",
+  "benchmarks",
+  "experiments",
+  "CLAUDE.md",
+  "CONTRIBUTING.md",
+  "CONTRIBUTING_ja.md",
+  "TODO.md",
 ];
 
 const PREBUILD_KEY = "--moonbit-unstable-prebuild";
@@ -101,8 +129,12 @@ function copyRecursive(sourcePath, destPath, topLevelExclude = null) {
       if (topLevelExclude?.has(entry)) {
         continue;
       }
-      if (fs.statSync(path.join(sourcePath, entry)).isDirectory() &&
-          ["moon.mod", "moon.mod.json"].some((name) => fs.existsSync(path.join(sourcePath, entry, name)))) {
+      if (
+        fs.statSync(path.join(sourcePath, entry)).isDirectory() &&
+        ["moon.mod", "moon.mod.json"].some((name) =>
+          fs.existsSync(path.join(sourcePath, entry, name)),
+        )
+      ) {
         continue;
       }
       // topLevelExclude only applies at the directory we were called with;
@@ -146,9 +178,14 @@ function stageModuleFiles(mod, destDir) {
   const sourceName = mod.manifest.source ?? ".";
   const sourcePath = path.join(mod.root, sourceName);
   const destSourcePath = path.join(destDir, sourceName);
-  const topLevelExclude = sourceName === "."
-    ? new Set([...ALWAYS_EXCLUDE_FROM_ROOT_SOURCE, ...(mod.dir === "." ? ROOT_FACADE_EXCLUDES : []), ...(mod.manifest.exclude ?? [])])
-    : null;
+  const topLevelExclude =
+    sourceName === "."
+      ? new Set([
+          ...ALWAYS_EXCLUDE_FROM_ROOT_SOURCE,
+          ...(mod.dir === "." ? ROOT_FACADE_EXCLUDES : []),
+          ...(mod.manifest.exclude ?? []),
+        ])
+      : null;
   // An output directory inside the source must never recursively copy itself.
   if (topLevelExclude && isInsideDir(sourcePath, destDir))
     topLevelExclude.add(path.relative(sourcePath, destDir).split(path.sep)[0]);
@@ -188,7 +225,10 @@ function hasPathDeps(manifest) {
 
 function isInsideDir(parent, child) {
   const relative = path.relative(parent, child);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  return (
+    relative === "" ||
+    (!relative.startsWith("..") && !path.isAbsolute(relative))
+  );
 }
 
 function rewriteExternalPrebuild(mod, manifest) {
@@ -310,7 +350,12 @@ export function createPublishManifest(mod, byDir) {
       version: target.version,
     });
   }
-  return { module: { name: mod.name, dir: mod.dir }, manifest, conversions, prebuild };
+  return {
+    module: { name: mod.name, dir: mod.dir },
+    manifest,
+    conversions,
+    prebuild,
+  };
 }
 
 export function validateReleaseWorkspace({
@@ -353,32 +398,47 @@ export function validateReleaseWorkspace({
     seenNames.set(mod.name, mod.dir);
 
     for (const field of REQUIRED_MANIFEST_FIELDS) {
-      if (typeof mod.manifest[field] !== "string" || mod.manifest[field] === "") {
-        errors.push(`${mod.dir}/moon.mod.json is missing string field ${field}`);
+      if (
+        typeof mod.manifest[field] !== "string" ||
+        mod.manifest[field] === ""
+      ) {
+        errors.push(
+          `${mod.dir}/moon.mod.json is missing string field ${field}`,
+        );
       }
     }
     if (mod.sourceDir && !fs.existsSync(mod.sourceDir)) {
-      errors.push(`${mod.dir}/moon.mod.json source directory does not exist: ${mod.manifest.source}`);
+      errors.push(
+        `${mod.dir}/moon.mod.json source directory does not exist: ${mod.manifest.source}`,
+      );
     }
     if (typeof mod.manifest.readme === "string") {
       const readmePath = path.join(mod.root, mod.manifest.readme);
       if (!fs.existsSync(readmePath)) {
-        errors.push(`${mod.dir}/moon.mod.json readme does not exist: ${mod.manifest.readme}`);
+        errors.push(
+          `${mod.dir}/moon.mod.json readme does not exist: ${mod.manifest.readme}`,
+        );
       }
     }
 
     const prebuildPath = mod.manifest["--moonbit-unstable-prebuild"];
     if (prebuildPath !== undefined) {
       if (typeof prebuildPath !== "string" || prebuildPath === "") {
-        errors.push(`${mod.dir}/moon.mod.json has invalid --moonbit-unstable-prebuild`);
+        errors.push(
+          `${mod.dir}/moon.mod.json has invalid --moonbit-unstable-prebuild`,
+        );
       } else if (!fs.existsSync(path.resolve(mod.root, prebuildPath))) {
-        errors.push(`${mod.dir}/moon.mod.json prebuild script does not exist: ${prebuildPath}`);
+        errors.push(
+          `${mod.dir}/moon.mod.json prebuild script does not exist: ${prebuildPath}`,
+        );
       }
     }
 
     const deps = mod.manifest.deps ?? {};
     if (!isObject(deps)) {
-      errors.push(`${mod.dir}/moon.mod.json deps must be an object when present`);
+      errors.push(
+        `${mod.dir}/moon.mod.json deps must be an object when present`,
+      );
       continue;
     }
 
@@ -402,7 +462,9 @@ export function validateReleaseWorkspace({
       } else if (byName.has(depName)) {
         target = byName.get(depName);
         if (typeof spec !== "string") {
-          errors.push(`${mod.name}: release dependency ${depName} must be a version string or path dep`);
+          errors.push(
+            `${mod.name}: release dependency ${depName} must be a version string or path dep`,
+          );
           continue;
         }
         if (spec !== target.version) {
@@ -411,11 +473,15 @@ export function validateReleaseWorkspace({
           );
         }
       } else if (isObject(spec)) {
-        errors.push(`${mod.name}: dependency ${depName} uses an unsupported object spec`);
+        errors.push(
+          `${mod.name}: dependency ${depName} uses an unsupported object spec`,
+        );
       }
 
       if (target && !allowedDeps.has(target.name)) {
-        errors.push(`${mod.name}: dependency on ${target.name} is not allowed by release policy`);
+        errors.push(
+          `${mod.name}: dependency on ${target.name} is not allowed by release policy`,
+        );
       }
     }
   }
@@ -425,11 +491,15 @@ export function validateReleaseWorkspace({
     for (const mod of modules) {
       const prepared = createPublishManifest(mod, byDir);
       if (hasPathDeps(prepared.manifest)) {
-        errors.push(`${mod.name}: publish manifest still contains local path dependencies`);
+        errors.push(
+          `${mod.name}: publish manifest still contains local path dependencies`,
+        );
       }
       const prebuildPath = prepared.manifest[PREBUILD_KEY];
       if (typeof prebuildPath === "string" && prebuildPath.startsWith("..")) {
-        errors.push(`${mod.name}: publish manifest prebuild path is outside the staged module`);
+        errors.push(
+          `${mod.name}: publish manifest prebuild path is outside the staged module`,
+        );
       }
       preparedManifests.push(prepared);
     }
@@ -456,7 +526,11 @@ export function writePreparedManifests({
     throw new Error("outDir is required");
   }
 
-  const validation = validateReleaseWorkspace({ repoRoot, moduleDirs, depPolicy });
+  const validation = validateReleaseWorkspace({
+    repoRoot,
+    moduleDirs,
+    depPolicy,
+  });
   if (validation.errors.length > 0) {
     return { validation, outDir, summary: { modules: [] }, written: [] };
   }
@@ -473,14 +547,20 @@ export function writePreparedManifests({
     const outputDir = safePackageDirName(mod.name);
     const destDir = path.join(outDir, outputDir);
     const stagedFiles = stageModuleFiles(mod, destDir);
-    writeJson(path.join(destDir, "moon.mod.json"), prepared.manifest);
+    fs.writeFileSync(
+      path.join(destDir, "moon.mod"),
+      serializeMoonMod(prepared.manifest),
+    );
     if (prepared.prebuild) {
       const prebuildDir = path.posix.dirname(prepared.prebuild.to);
       for (const supportFile of prepared.prebuild.supportFiles) {
         if (!fs.existsSync(supportFile)) {
           continue;
         }
-        const stagedFile = path.posix.join(prebuildDir, path.basename(supportFile));
+        const stagedFile = path.posix.join(
+          prebuildDir,
+          path.basename(supportFile),
+        );
         const destFile = path.join(destDir, stagedFile);
         fs.mkdirSync(path.dirname(destFile), { recursive: true });
         fs.copyFileSync(supportFile, destFile);
@@ -494,8 +574,10 @@ export function writePreparedManifests({
       prebuild: prepared.prebuild,
       stagedFiles,
     });
-    fs.writeFileSync(path.join(destDir, '.moonignore'),
-      '_build\nnode_modules\nrelease-module.json\n');
+    fs.writeFileSync(
+      path.join(destDir, ".moonignore"),
+      "_build\nnode_modules\nrelease-module.json\n",
+    );
     summary.modules.push({
       name: mod.name,
       sourceDir: mod.dir,
@@ -504,8 +586,10 @@ export function writePreparedManifests({
       stagedFiles,
     });
   }
-  fs.writeFileSync(path.join(outDir, 'moon.work'),
-    `members = [\n${summary.modules.map(mod => `  ${JSON.stringify('./' + mod.outputDir)},`).join('\n')}\n]\n`);
+  fs.writeFileSync(
+    path.join(outDir, "moon.work"),
+    `members = [\n${summary.modules.map((mod) => `  ${JSON.stringify("./" + mod.outputDir)},`).join("\n")}\n]\n`,
+  );
   writeJson(path.join(outDir, "release-manifests.json"), summary);
   return { validation, outDir, summary, written: summary.modules };
 }
@@ -520,12 +604,15 @@ export function formatValidationReport(result) {
   } else {
     lines.push("Moon release validation passed.");
     for (const prepared of result.preparedManifests) {
-      const suffix = prepared.conversions.length === 0
-        ? "no workspace deps"
-        : prepared.conversions
-            .map((entry) => `${entry.name}@${entry.version}`)
-            .join(", ");
-      lines.push(`- ${prepared.module.name} (${prepared.module.dir}): ${suffix}`);
+      const suffix =
+        prepared.conversions.length === 0
+          ? "no workspace deps"
+          : prepared.conversions
+              .map((entry) => `${entry.name}@${entry.version}`)
+              .join(", ");
+      lines.push(
+        `- ${prepared.module.name} (${prepared.module.dir}): ${suffix}`,
+      );
     }
   }
   if (result.warnings.length > 0) {
@@ -543,7 +630,11 @@ export function formatPreparedManifestReport(result, { dryRun = false } = {}) {
   if (validation.errors.length > 0) {
     return formatValidationReport(validation);
   }
-  lines.push(dryRun ? "Moon release staging is ready." : `Wrote Moon release staging to ${result.outDir}.`);
+  lines.push(
+    dryRun
+      ? "Moon release staging is ready."
+      : `Wrote Moon release staging to ${result.outDir}.`,
+  );
   const modules = dryRun
     ? validation.preparedManifests.map((prepared) => ({
         name: prepared.module.name,
@@ -552,9 +643,12 @@ export function formatPreparedManifestReport(result, { dryRun = false } = {}) {
       }))
     : result.summary.modules;
   for (const mod of modules) {
-    const suffix = mod.conversions.length === 0
-      ? "no workspace deps"
-      : mod.conversions.map((entry) => `${entry.name}@${entry.version}`).join(", ");
+    const suffix =
+      mod.conversions.length === 0
+        ? "no workspace deps"
+        : mod.conversions
+            .map((entry) => `${entry.name}@${entry.version}`)
+            .join(", ");
     lines.push(`- ${mod.name} (${mod.sourceDir}): ${suffix}`);
   }
   return `${lines.join("\n")}\n`;

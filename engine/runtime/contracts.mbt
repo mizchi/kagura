@@ -109,7 +109,8 @@ pub fn[
   let mut should_stop = false
   let mut configured_width = 0
   let mut configured_height = 0
-  let start_time_ms = (runtime_clock_provider.val)()
+  let clock = capture_clock()
+  let start_time_ms = clock()
   let mut previous_time_ms = start_time_ms - tick_ms
 
   let window_options = @platform.new_window_options(
@@ -137,7 +138,7 @@ pub fn[
       configured_height = next_height
     }
 
-    let current_time_ms = (runtime_clock_provider.val)()
+    let current_time_ms = clock()
     let elapsed_ms = current_time_ms - previous_time_ms
     previous_time_ms = current_time_ms
     let step = @core.step_fixed_timestep(fixed_state, elapsed_ms, fixed_cfg)

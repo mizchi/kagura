@@ -1,10 +1,10 @@
 ///|
-extern "js" fn js_request_animation_frame(f : () -> Unit) -> Unit =
-  #| (f) => { requestAnimationFrame(() => f()); }
+extern "js" fn js_request_animation_frame(f : () -> Unit) -> () -> Unit =
+  #| (f) => { const id = requestAnimationFrame(() => f()); return () => cancelAnimationFrame(id); }
 
 ///|
-extern "js" fn js_on_beforeunload(f : () -> Unit) -> Unit =
-  #| (f) => { window.addEventListener("beforeunload", () => f()); }
+extern "js" fn js_on_beforeunload(f : () -> Unit) -> () -> Unit =
+  #| (f) => { const listener = () => f(); window.addEventListener("beforeunload", listener); return () => window.removeEventListener("beforeunload", listener); }
 
 ///|
 extern "js" fn js_performance_now() -> Double =

@@ -4,13 +4,15 @@ const e2ePort = Number.parseInt(process.env.PORT ?? "4173", 10);
 const e2eBaseURL = `http://127.0.0.1:${e2ePort}`;
 const chromiumArgs = [
   "--enable-unsafe-webgpu",
-  ...(process.env.KAGURA_PLAYWRIGHT_CHROMIUM_ARGS ?? "").split(/\s+/).filter(Boolean),
+  ...(process.env.KAGURA_PLAYWRIGHT_CHROMIUM_ARGS ?? "")
+    .split(/\s+/)
+    .filter(Boolean),
 ];
 
 export default defineConfig({
   testDir: "./e2e",
   // Public release pages use playwright.pages.config.mjs and a static site.
-  testIgnore: "pages*.spec.ts",
+  testIgnore: ["pages*.spec.ts", "**/runtime-session/**"],
   timeout: 30_000,
   retries: process.env.CI ? 2 : 0,
   use: {

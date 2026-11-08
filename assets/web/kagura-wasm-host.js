@@ -195,6 +195,7 @@ export function createWasmHost(bytes, options = {}) {
   imports.kagura_web = {
     ...(imports.kagura_web ?? {}),
     now_ms: () => Date.now(),
+    gfx_startup_status: () => options.graphicsStatus?.() ?? -1,
     // How many frames the host has driven so far. Stays 0 when nothing drives
     // the guest, so the same binary runs with and without a frame source.
     frame_number: () => frameNumber(),

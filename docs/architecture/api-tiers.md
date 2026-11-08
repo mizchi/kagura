@@ -8,13 +8,15 @@ package ごとの安定性レベル。利用者が依存判断できるよう ti
 
 | Package | 説明 |
 |---------|------|
-| `core` | Game trait, InputSnapshot, FixedStepConfig, FrameBudget |
+| `core` | InputSnapshot, FixedStepConfig, FrameBudget |
+| `engine/application` | Game trait, RunOptions, FinalScreenDrawer |
 | `scene` | 宣言的シーン API (`@scene.run`, `@scene.rect`, `@scene.label`) |
 | `vector` | Vec2 演算 |
 | `math3d` | Vec3, Mat4, Quaternion |
-| `gfx` | DrawTrianglesCommand, ShaderHandle, ImageHandle |
+| `mizchi/gfx` (外部 module) | DrawTrianglesCommand, ShaderHandle, ImageHandle |
 | `platform` | PlatformDriver, OutsideSize |
-| `inpututil` | just-pressed / just-released 検出 |
+| `core/inputstate` | just-pressed / just-released、押下時間 |
+| `game/inpututil` | WASD や決定キーの解釈、InputHelper |
 | `colorm` | Color 変換 |
 
 ## Tier B: Stable Features (API 安定だが拡張あり)

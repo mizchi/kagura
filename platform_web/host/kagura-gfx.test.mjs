@@ -132,6 +132,7 @@ function createFakeDevice(options = {}) {
       return {};
     },
     createRenderPipeline(descriptor) {
+      (state.vertexLayouts ??= []).push(descriptor.vertex.buffers[0]);
       return {
         format: descriptor.fragment.targets[0].format,
         getBindGroupLayout() {
@@ -339,6 +340,21 @@ test("renderGpu does not reconfigure context every frame when format is unchange
   assert.equal(renderGpu(gpu, device, context, [0, 0, 0, 1], "bgra8unorm"), true);
 
   assert.equal(context.state.configureCount, 1);
+});
+
+test("custom vertex layouts reject unsupported strides before GPU creation", () => {
+  const device = createFakeDevice(), context = createFakeContext(), gpu = createGpu(context);
+  gpu.commands = [{...createInstancedCustomCommand(1), vertexStrideHint:12}];
+  assert.throws(() => renderGpu(gpu, device, context, [0,0,0,1], "bgra8unorm"), /Unsupported vertex stride.*12/);
+});
+
+test("explicit vertex formats choose the same layout regardless of shader variable names", () => {
+  for (const [hint, bytes] of [[4,16], [8,32], [16,64]]) {
+    const device = createFakeDevice(), context = createFakeContext(), gpu = createGpu(context);
+    gpu.commands = [{...createInstancedCustomCommand(1), vertexStrideHint:hint, shaderSource:"renamed_position"}];
+    renderGpu(gpu, device, context, [0,0,0,1], "bgra8unorm");
+    assert.equal(device.state.vertexLayouts.at(-1).arrayStride, bytes);
+  }
 });
 
 test("renderGpu configures canvas textures for readback when COPY_SRC is available", () => {

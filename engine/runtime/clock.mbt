@@ -1,25 +1,26 @@
 ///|
-fn default_runtime_clock_now_ms() -> Double {
-  @services.now_ms()
-}
-
-///|
-let runtime_clock_provider : Ref[() -> Double] = Ref(
-  default_runtime_clock_now_ms,
-)
+let runtime_clock_provider : Ref[(() -> Double)?] = Ref(None)
 
 ///|
 pub fn set_runtime_clock_provider(clock : () -> Double) -> Unit {
-  runtime_clock_provider.val = clock
+  runtime_clock_provider.val = Some(clock)
 }
 
 ///|
 pub fn reset_runtime_clock_provider() -> Unit {
-  runtime_clock_provider.val = default_runtime_clock_now_ms
+  runtime_clock_provider.val = None
 }
 
 ///|
 /// Read through the installed host clock, with an optional test override.
 pub fn clock_now_ms() -> Double {
-  (runtime_clock_provider.val)()
+  capture_clock()()
+}
+
+///|
+pub fn capture_clock() -> () -> Double {
+  match runtime_clock_provider.val {
+    Some(clock) => clock
+    None => @services.capture_clock()
+  }
 }

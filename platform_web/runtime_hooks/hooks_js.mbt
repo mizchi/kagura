@@ -1188,9 +1188,12 @@ extern "js" fn js_try_initialize_webgpu(
   #|     return true;
   #|   }
   #|   if (state.webgpu.pending == null) {
+  #|     const gpu = state.webgpu;
+  #|     const generation = gpu.startupGeneration = (gpu.startupGeneration ?? 0) + 1;
+  #|     gpu.lastError = "";
   #|     state.webgpu.pending = nav.gpu.requestAdapter()
   #|       .then((adapter) => {
-  #|         if (adapter == null) return null;
+  #|         if (adapter == null) throw new Error("No compatible WebGPU adapter");
   #|         const supportsTimestampQuery = adapter.features != null &&
   #|           typeof adapter.features.has === "function" &&
   #|           adapter.features.has("timestamp-query");
@@ -1205,12 +1208,16 @@ extern "js" fn js_try_initialize_webgpu(
   #|         });
   #|       })
   #|       .then((device) => {
-  #|         if (device == null) return;
+  #|         if (device == null) throw new Error("WebGPU device request returned no device");
+  #|         if (gpu.startupGeneration !== generation) { device.destroy?.(); return; }
   #|         const format = typeof nav.gpu.getPreferredCanvasFormat === "function"
   #|           ? nav.gpu.getPreferredCanvasFormat()
   #|           : "bgra8unorm";
   #|         state.webgpu.format = format;
   #|         state.webgpu.device = device;
+  #|         device.lost?.then(info => {
+  #|           if (gpu.startupGeneration === generation) { gpu.lastError = `WebGPU device lost: ${info.message}`; gpu.device = null; }
+  #|         });
   #|         state.webgpu._pipeline = null;
   #|         state.webgpu._pipelineFormat = "";
   #|         state.webgpu._configuredFormat = "";
@@ -1224,6 +1231,7 @@ extern "js" fn js_try_initialize_webgpu(
   #|         }
   #|       })
   #|       .catch((error) => {
+  #|         if (gpu.startupGeneration !== generation) return;
   #|         state.webgpu.lastError = String(error);
   #|         state.webgpu.device = null;
   #|         state.webgpu._pipeline = null;
@@ -1231,7 +1239,7 @@ extern "js" fn js_try_initialize_webgpu(
   #|         state.webgpu._configuredFormat = "";
   #|       })
   #|       .finally(() => {
-  #|         state.webgpu.pending = null;
+  #|         if (gpu.startupGeneration === generation) state.webgpu.pending = null;
   #|       });
   #|   }
   #|   return false;
@@ -1243,6 +1251,10 @@ extern "js" fn js_release_webgpu_resources() -> Unit =
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   const gpu = state == null ? null : state.webgpu;
   #|   if (gpu == null) return;
+  #|   gpu.startupGeneration = (gpu.startupGeneration ?? 0) + 1;
+  #|   if (gpu.presentFrameHandle != null && typeof globalThis.cancelAnimationFrame === "function") globalThis.cancelAnimationFrame(gpu.presentFrameHandle);
+  #|   gpu.presentFrameHandle = null;
+  #|   gpu.pending = null;
   #|   const gfx = globalThis.__kaguraGfx;
   #|   if (gfx != null) { gfx.release(gpu); gpu.presentScheduled = false; return; }
   #|   const releaseBufferEntries = (entries) => {
@@ -1767,9 +1779,11 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|   if (scheduleVsync) {
   #|     if (gpu.presentScheduled) return true;
   #|     gpu.presentScheduled = true;
-  #|     globalThis.requestAnimationFrame(() => {
+  #|     const generation = gpu.startupGeneration ?? 0;
+  #|     gpu.presentFrameHandle = globalThis.requestAnimationFrame(() => {
   #|       const current = globalThis.__kaguraWebRuntime;
-  #|       if (current == null) return;
+  #|       if (current?.webgpu !== gpu || (gpu.startupGeneration ?? 0) !== generation) return;
+  #|       gpu.presentFrameHandle = null;
   #|       if (current.webgpu != null) current.webgpu.presentScheduled = false;
   #|       try { presentNow(current); } catch (error) {
   #|         if (current.webgpu != null) current.webgpu.lastError = String(error);
@@ -2478,6 +2492,20 @@ test "uninstall releases cached webgpu buffers and textures" {
   assert_true(test_present_buffer_destroy_count() > 0)
   assert_true(test_present_texture_destroy_count() > 0)
 
+  test_teardown_present_state()
+}
+
+///|
+test "uninstall invalidates an already queued GPU submission" {
+  test_setup_present_state(true, true, true)
+  install("#app")
+  js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
+  assert_true(js_webgpu_present())
+  assert_eq(test_present_raf_queue_length(), 1)
+  uninstall()
+  let _ = test_drain_present_raf()
+  assert_eq(test_present_submit_count(), 0)
+  assert_eq(test_present_buffer_create_count(), 0)
   test_teardown_present_state()
 }
 
@@ -3264,6 +3292,7 @@ pub fn uninstall() -> Unit {
   clear_gpu_texture_dirty()
   js_ensure_window_state(web_canvas_selector.val)
   js_release_webgpu_resources()
+  js_clear_gpu_error()
   js_set_should_close(false)
   @gfx.reset_web_graphics_hooks()
   @platform_web.uninstall()
@@ -3609,8 +3638,36 @@ pub fn request_animation_frame(f : () -> Unit) -> Unit {
 ///|
 fn init {
   @host_services.install()
-  @engine.set_lifecycle_hooks({
-    on_start: fn(canvas, _title) { install(canvas) },
-    on_stop: fn() { shutdown() },
-  })
+  @engine.set_lifecycle_hooks(
+    {
+      on_start: fn(canvas, _title) { install(canvas) },
+      on_stop: fn() { shutdown() },
+    },
+    readiness=web_startup_readiness,
+  )
 }
+
+///|
+extern "js" fn js_startup_status() -> String =
+  #| () => {
+  #|   const state = globalThis.__kaguraWebRuntime;
+  #|   const gpu = state?.webgpu;
+  #|   if (gpu?.lastError) return gpu.lastError;
+  #|   if (gpu?.device) return "ready";
+  #|   if (gpu?.pending) return "pending";
+  #|   if (!state?.canvas) return "Canvas is unavailable";
+  #|   return "WebGPU is unavailable";
+  #| }
+
+///|
+fn web_startup_readiness() -> @engine.StartupReadiness {
+  match js_startup_status() {
+    "ready" => @engine.Ready
+    "pending" => @engine.Pending
+    message => @engine.Unavailable(message)
+  }
+}
+
+///|
+extern "js" fn js_clear_gpu_error() -> Unit =
+  #| () => { const gpu = globalThis.__kaguraWebRuntime?.webgpu; if (gpu) gpu.lastError = ""; }

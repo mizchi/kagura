@@ -1,5 +1,6 @@
 import { createAudioBackend, advanceAudioWrite, closeAudio } from "../../assets/web/kagura-audio.js";
 import { renderGpu, releaseGpuResources, finalizeTextureUpload } from "../../assets/web/kagura-gfx.js";
+import { createEngineFrameSession } from "../../assets/web/kagura-guest-protocol.js";
 
 const statusElement = document.getElementById("status");
 const outputElement = document.getElementById("output");
@@ -268,6 +269,7 @@ const run = async () => {
       },
       surface_dpr: () => Number(webState.dpr || 1),
       should_close: () => 0,
+      gfx_startup_status: () => webState.webgpu.device ? 1 : -1,
       gfx_try_initialize: (kind, width, height) => {
         if (!ensureCanvas(Number(width), Number(height))) {
           return 0;
@@ -583,6 +585,25 @@ const run = async () => {
     throw new Error("wasm export _start not found");
   }
   start();
+  if (typeof instance.exports.kagura_frame === "function") {
+    const session = createEngineFrameSession(instance.exports);
+    session.frame();
+    let handle = 0;
+    const frame = () => {
+      if (!["starting", "running"].includes(session.status())) return;
+      try { session.frame(); } catch (error) {
+        setStatus("failed");setOutput(String(error));return;
+      }
+      handle = requestAnimationFrame(frame);
+    };
+    handle = requestAnimationFrame(frame);
+    const stop = () => {
+      cancelAnimationFrame(handle);
+      session.stop();
+      window.removeEventListener("beforeunload", stop);
+    };
+    window.addEventListener("beforeunload", stop);
+  }
   await new Promise((resolve) => setTimeout(resolve, 0));
   const finalSample = captureCanvasSample();
   if (finalSample != null) {

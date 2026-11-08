@@ -4,6 +4,8 @@ package "kagura/wasm_game_guest"
 // Values
 pub fn kagura_alloc(Int32) -> Int32
 
+pub fn kagura_guest_abi_version() -> Int32
+
 pub fn kagura_guest_init_export(Int32, Int32) -> Int32
 
 pub fn kagura_guest_render() -> Int32

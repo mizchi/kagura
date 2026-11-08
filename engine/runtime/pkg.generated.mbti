@@ -13,6 +13,8 @@ import {
 // Values
 pub fn append_input_edge_history(InputEdgeObserverState, Array[InputEdgeSummary]) -> Array[InputEdgeSummary]
 
+pub fn capture_clock() -> () -> Double
+
 pub fn clear_input_edge_history(InputEdgeObserverState) -> Unit
 
 pub fn clock_now_ms() -> Double

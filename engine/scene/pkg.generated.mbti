@@ -6,6 +6,7 @@ import {
   "mizchi/kagura_audio",
   "mizchi/kagura_core",
   "mizchi/kagura_core/hierarchy",
+  "mizchi/kagura_engine",
   "mizchi/kagura_ui",
   "mizchi/signals/ui",
   "moonbitlang/core/debug",
@@ -38,9 +39,9 @@ pub fn render_scene(@ui.Node[Unit, SceneAttrValue], @gfx.ImageHandle, @gfx.Shade
 
 pub fn resolve(@ui.Node[Unit, SceneAttrValue]) -> ResolvedScene raise
 
-pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@kagura_core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int32, Int32) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int32, height? : Int32, title? : String, canvas? : String) -> Unit
+pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@kagura_core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int32, Int32) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int32, height? : Int32, title? : String, canvas? : String, on_error? : (@kagura_engine.RunFailure) -> Unit) -> Unit
 
-pub fn[T : SceneGame] run_game(T, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int32, Int32) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int32, height? : Int32, title? : String, canvas? : String) -> Unit
+pub fn[T : SceneGame] run_game(T, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, snapshot_state? : () -> String, apply_viewport? : (Int32, Int32) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, width? : Int32, height? : Int32, title? : String, canvas? : String, on_error? : (@kagura_engine.RunFailure) -> Unit) -> Unit
 
 pub fn show(() -> Bool, () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
 

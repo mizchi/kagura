@@ -15,6 +15,13 @@
 
 ## 現在のオープンタスク
 
+### 設計レビュー（0.7.0）
+
+根拠・影響・完了条件は [2026-11-08 設計レビュー](../architecture/design-review-2026-11-08.md) を参照する。
+
+D1〜D6 の実装と検証結果は設計レビューの対応一覧へ移した。
+crater `0.19.2`・differentiable_ecs `0.2.2` へ更新し、依存ソースの互換パッチは撤去済み。
+
 ### P0: Toolchain / Platform
 
 - [x] Windows native build workaround を GitHub Actions / 実機で確定する
@@ -32,6 +39,7 @@
   - `vertex_count()` / `compute_mesh_bounds()` が format.stride() を使用
   - `skeleton3d` の skinned buffer 構築が `VertexFormat::skinned_3d()` を使用
   - `DrawTrianglesCommand` に `vertex_stride_hint` を追加、WebGPU pipeline が hint 優先・shader regex フォールバック
+  - renderer が対応する hint は 4 / 8 / 16（0 は互換用）。tangent / color 等を追加した任意形式の描画は未対応としてエラーにする。
   - 将来の拡張属性 (Tangent4, Color4) も enum に定義済み
 
 ### P1: Engine Performance

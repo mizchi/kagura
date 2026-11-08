@@ -1,3 +1,4 @@
+import {assertGuestAbi} from "../../../assets/web/kagura-guest-protocol.js";
 import {createWasmHost} from "../../../assets/web/kagura-wasm-host.js";
 import { access, readFile } from "node:fs/promises";
 import {
@@ -40,9 +41,7 @@ export function resolveTargets(arg) {
 }
 
 export function assertSemanticAbi(exports, label = "guest") {
-  for (const name of ["kagura_alloc", "kagura_guest_init", "kagura_guest_update", "kagura_guest_render", "kagura_guest_shutdown"]) {
-    assert(typeof exports[name] === "function", `${label} is missing required export: ${name}`);
-  }
+  try { assertGuestAbi(exports); } catch(error) { throw new Error(`${label}: ${error.message}`); }
 }
 
 export function allocGuest(exports, size) {

@@ -1,0 +1,94 @@
+// Generated from platform_web/host/guest-wire-v0.json. DO NOT EDIT.
+export const GUEST_WIRE = Object.freeze({
+  "abiVersion": 0,
+  "byteOrder": "little",
+  "initEnvBytes": 16,
+  "configHeaderBytes": 16,
+  "inputFixedBytes": 48,
+  "drawHeaderBytes": 28,
+  "vertexComponents": 4,
+  "requiredExports": [
+    "kagura_guest_abi_version",
+    "kagura_alloc",
+    "kagura_guest_init",
+    "kagura_guest_update",
+    "kagura_guest_render",
+    "kagura_guest_shutdown"
+  ],
+  "layouts": {
+    "initEnv": {
+      "width": {
+        "offset": 0,
+        "type": "i32"
+      },
+      "height": {
+        "offset": 4,
+        "type": "i32"
+      },
+      "devicePixelRatio": {
+        "offset": 8,
+        "type": "f32"
+      },
+      "hotReloadEnabled": {
+        "offset": 12,
+        "type": "i32"
+      }
+    },
+    "guestConfig": {
+      "width": {
+        "offset": 0,
+        "type": "i32"
+      },
+      "height": {
+        "offset": 4,
+        "type": "i32"
+      },
+      "targetTps": {
+        "offset": 8,
+        "type": "i32"
+      },
+      "titleLength": {
+        "offset": 12,
+        "type": "i32"
+      },
+      "title": {
+        "offset": 16,
+        "type": "utf8[titleLength]"
+      }
+    },
+    "input": {
+      "cursorX": {
+        "offset": 0,
+        "type": "f64"
+      },
+      "cursorY": {
+        "offset": 8,
+        "type": "f64"
+      },
+      "wheelX": {
+        "offset": 16,
+        "type": "f64"
+      },
+      "wheelY": {
+        "offset": 24,
+        "type": "f64"
+      },
+      "keyCount": {
+        "offset": 32,
+        "type": "i32"
+      },
+      "keys": {
+        "offset": 36,
+        "type": "i32[keyCount]"
+      },
+      "tail": {
+        "type": "i32 mouseCount, i32[mouseCount] buttons, i32 reservedTouches=0, i32 reservedGamepads=0"
+      }
+    },
+    "draw": {
+      "header": "i32 vertexCount, i32 indexCount, i32 texture, i32 r, i32 g, i32 b, i32 a",
+      "vertices": "f32[vertexCount*4] x,y,u,v",
+      "indices": "u32[indexCount]"
+    }
+  }
+});

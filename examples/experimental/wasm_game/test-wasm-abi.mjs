@@ -1,3 +1,5 @@
+import {readFileSync} from "node:fs";
+const wireFixture=JSON.parse(readFileSync(new URL("./protocol/wire-v0-fixtures.json",import.meta.url),"utf8"));
 // Semantic ABI conformance test for WASM guest modules
 // Usage: node examples/experimental/wasm_game/test-wasm-abi.mjs [moonbit|rust|zig|all]
 import {
@@ -19,7 +21,12 @@ function initSemanticGuest(exports, memory, env) {
   const envPtr = allocGuest(exports, 16);
   writeInitEnv(memory, envPtr, env);
   const configPtr = exports.kagura_guest_init(envPtr, 16);
-  return readSemanticGuestConfig(memory, configPtr);
+  const config = readSemanticGuestConfig(memory, configPtr);
+  if (config.title === HOST_ASSET_TITLE) {
+    const bytes = Buffer.from(memory.buffer, configPtr, wireFixture.guestConfig.hex.length / 2).toString("hex");
+    assert(bytes === wireFixture.guestConfig.hex, "guest config differs from canonical wire fixture");
+  }
+  return config;
 }
 
 function assertRenderCommands(commands) {
@@ -81,6 +88,8 @@ async function testGuestConformance(path, label) {
   assert(redraw === 0 || redraw === 1, `wantsRedraw=${redraw}`);
 
   const drawPtr = exports.kagura_guest_render();
+  const firstHeader = Buffer.from(memory.buffer, drawPtr + 4, 28).toString("hex");
+  assert(firstHeader === wireFixture.firstSceneHeaderHex, "guest draw header differs from canonical wire fixture");
   const commands = deserializeDrawCommands(memory, drawPtr);
   assertRenderCommands(commands);
   console.log("  update + render: OK");

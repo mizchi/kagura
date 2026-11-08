@@ -609,25 +609,33 @@ function submitEncodedFrame(
 
 // --- Custom pipeline creation & caching ---
 
+function supportedVertexStride(cmd) {
+  const hint = cmd.vertexStrideHint ?? 0;
+  if (![0, 4, 8, 16].includes(hint)) throw new RangeError(`Unsupported vertex stride: ${hint}; supported float strides are 4, 8 and 16`);
+  // Zero is the legacy compatibility path. New commands carry an explicit hint.
+  return hint || (isStride64(cmd.shaderSource) ? 16 : isStride32(cmd.shaderSource) ? 8 : 4);
+}
+
 function getOrCreateCustomPipeline(gpu, device, cmd, format) {
+  const vertexStride = supportedVertexStride(cmd);
   if (gpu._customPipelines == null) gpu._customPipelines = new Map();
   const samples = targetSampleCount(gpu, cmd.dstImageId);
   const raster = gpu._shaderRasterStates?.get(cmd.shaderId) ?? {};
-  const key = `${cmd.shaderId}_${format}_${cmd.blendMode}_${samples}_${raster.cullMode}_${raster.depthCompare}_${raster.depthWriteEnabled}`;
+  const key = `${cmd.shaderId}_${format}_${cmd.blendMode}_${samples}_${raster.cullMode}_${raster.depthCompare}_${raster.depthWriteEnabled}_${vertexStride}`;
   const cached = gpu._customPipelines.get(key);
   if (cached != null) return cached;
 
   const shaderModule = device.createShaderModule({ code: cmd.shaderSource });
   shaderModule.getCompilationInfo().then(info => {
     for (const msg of info.messages) {
-      if (msg.type === "error") console.error(`[WGSL ${msg.type}] shader=${cmd.shaderId} line=${msg.lineNum}: ${msg.message}`);
+      if (msg.type === "error") { gpu.lastError = `shader=${cmd.shaderId} line=${msg.lineNum}: ${msg.message}`; console.error(`[WGSL ${msg.type}] ${gpu.lastError}`); }
     }
   });
   // Use explicit stride hint when available, fall back to shader regex detection
-  const hint = cmd.vertexStrideHint || 0;
-  const stride64 = hint > 0 ? hint >= 16 : isStride64(cmd.shaderSource);
-  const stride32 = hint > 0 ? hint >= 8 : isStride32(cmd.shaderSource);
-  const is3D = hint > 0 ? hint >= 8 : is3DShader(cmd.shaderSource);
+  const hint = vertexStride;
+  const stride64 = hint === 16;
+  const stride32 = hint === 8;
+  const is3D = hint === 8 || hint === 16;
 
   let vertexBufferLayout;
   if (stride64) {
@@ -1593,6 +1601,7 @@ function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, bre
  * Returns true if rendering succeeded.
  */
 export function renderGpu(gpu, device, context, clearColor, format) {
+  for (const command of gpu.commands ?? []) if (command.isCustom) supportedVertexStride(command);
   if (device == null || context == null) return false;
   try {
     const renderCpuStart = performanceNow();
@@ -1878,6 +1887,7 @@ export function renderGpu(gpu, device, context, clearColor, format) {
     gpu.commands = [];
     return true;
   } catch (e) {
+    gpu.lastError = String(e);
     console.error("kagura-gfx renderGpu error:", e);
     return false;
   }

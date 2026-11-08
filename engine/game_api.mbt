@@ -33,6 +33,7 @@ pub fn[T : EngineGame] run_game(
   height~ : Int32 = 240,
   title~ : String = "kagura",
   canvas~ : String = "#app",
+  on_error? : (RunFailure) -> Unit,
 ) -> Unit {
   run(
     update=fn(input) { engine_game_update(game, input) },
@@ -45,5 +46,34 @@ pub fn[T : EngineGame] run_game(
     height~,
     title~,
     canvas~,
+    on_error?,
+  )
+}
+
+///|
+pub fn[T : EngineGame] start_game(
+  game : T,
+  on_frame? : () -> Unit,
+  after_render? : (Double, Double) -> Unit,
+  audio_ctx? : @audio.MixerAudioContext,
+  audio_frames_per_tick~ : Int32 = 735,
+  width~ : Int32 = 320,
+  height~ : Int32 = 240,
+  title~ : String = "kagura",
+  canvas~ : String = "#app",
+  on_error? : (RunFailure) -> Unit,
+) -> RunSession {
+  start(
+    update=fn(input) { engine_game_update(game, input) },
+    draw=fn(ctx) { engine_game_draw(game, ctx) },
+    on_frame?,
+    after_render?,
+    audio_ctx?,
+    audio_frames_per_tick~,
+    width~,
+    height~,
+    title~,
+    canvas~,
+    on_error?,
   )
 }

@@ -9,6 +9,9 @@ import {WEB_RUNTIME_BUILDS, webRuntimeSourceHash, webRuntimeSourceFiles, WEB_HOS
 const root=resolve(import.meta.dirname,'..');
 
 export function buildWebRuntime({check=false}={}) {
+  const wire = spawnSync(process.execPath, [resolve(root,'scripts/generate-guest-wire.mjs'),'--check'], {cwd:root,stdio:'inherit'});
+  if(wire.error) throw wire.error;
+  if(wire.status!==0) throw new Error('Guest wire definitions are stale. Run just wasm-wire-generate.');
   const pending=[];
   function prepare(destination, source) {
     let previous;

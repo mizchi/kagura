@@ -1,5 +1,8 @@
 #![no_std]
 
+mod wire_generated;
+use wire_generated::{DRAW_HEADER_BYTES, VERTEX_COMPONENTS};
+
 use core::panic::PanicInfo;
 
 #[panic_handler]
@@ -209,7 +212,7 @@ fn rect_cmd_vertices(x: f64, y: f64, w: f64, h: f64, sw: f64, sh: f64) -> [f32; 
     ]
 }
 
-const CMD_SIZE: usize = 28 + 16 * 4 + 6 * 4; // header + 4 verts * 4 floats + 6 indices
+const CMD_SIZE: usize = DRAW_HEADER_BYTES + 4 * VERTEX_COMPONENTS * 4 + 6 * 4; // header + 4 verts * 4 floats + 6 indices
 
 unsafe fn write_rect(x: f64, y: f64, w: f64, h: f64, sw: f64, sh: f64, fill: i32, alpha: i32) {
     let verts = rect_cmd_vertices(x, y, w, h, sw, sh);
@@ -225,7 +228,7 @@ unsafe fn write_rect(x: f64, y: f64, w: f64, h: f64, sw: f64, sh: f64, fill: i32
     write_i32_at(p.add(20), b);
     write_i32_at(p.add(24), alpha);
     for i in 0..16 {
-        write_f32_at(p.add(28 + i * 4), verts[i]);
+        write_f32_at(p.add(DRAW_HEADER_BYTES + i * 4), verts[i]);
     }
     let idx_base = 28 + 16 * 4;
     let indices: [i32; 6] = [0, 1, 2, 0, 2, 3];
@@ -356,7 +359,7 @@ pub extern "C" fn kagura_guest_init(_ptr: i32, _len: i32) -> i32 {
 pub extern "C" fn kagura_guest_update(ptr: i32, _len: i32) -> i32 {
     unsafe {
         let input = read_input(ptr as *const u8);
-        GAME.update(&input);
+        (*core::ptr::addr_of_mut!(GAME)).update(&input);
     }
     1
 }

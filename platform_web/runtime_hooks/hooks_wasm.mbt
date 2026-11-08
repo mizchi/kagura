@@ -1179,8 +1179,20 @@ pub fn request_animation_frame(_f : () -> Unit) -> Unit {
 ///|
 fn init {
   @services.set_clock(host_now_ms)
-  @engine.set_lifecycle_hooks({
-    on_start: fn(canvas, _title) { install(canvas) },
-    on_stop: fn() { shutdown() },
-  })
+  @engine.set_lifecycle_hooks(
+    {
+      on_start: fn(canvas, _title) { install(canvas) },
+      on_stop: fn() { shutdown() },
+    },
+    readiness=fn() {
+      match host_startup_status() {
+        1 => @engine.Ready
+        0 => @engine.Pending
+        _ => @engine.Unavailable("Wasm host graphics initialization failed")
+      }
+    },
+  )
 }
+
+///|
+extern "wasm" fn host_startup_status() -> Int32 = "kagura_web" "gfx_startup_status"

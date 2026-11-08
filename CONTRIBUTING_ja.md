@@ -26,6 +26,12 @@
 サンプル単体では `just moon-deps examples/games/flappy_bird` のように指定できます。
 `just check` / `just test` と CI はこの準備を自動で行います。
 
+旧 manifest の検出は compiler の診断文に依存しません。
+crater `0.19.2` と differentiable_ecs `0.2.2` への更新でソース補修パッチを撤去しました。
+現行形式の依存 package や source は変更せず、旧 manifest の形式移行だけを行います。
+検査対象と target は `scripts/moon-check-plan.mjs` の plan から実行し、
+独立 module・外部 example の一覧を一つの catalog で管理します。
+
 ## 開発フロー
 
 1. 変更対象の設計/境界を確認する（`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`）

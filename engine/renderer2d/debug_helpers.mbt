@@ -550,6 +550,9 @@ pub fn[T : @gfx.GraphicsDriver] render_commands(
   clear_color? : @gfx.Color,
   clear_enabled? : Bool,
 ) -> Unit raise {
+  for cmd in cmds {
+    validate_vertex_stride(cmd.vertex_stride_hint)
+  }
   let color = match clear_color {
     Some(c) => c
     None => @gfx.new_color(0.0, 0.0, 0.0, 1.0)

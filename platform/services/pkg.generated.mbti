@@ -2,15 +2,19 @@
 package "mizchi/kagura_platform/services"
 
 // Values
+pub fn capture_clock() -> () -> Double
+
+pub fn capture_frame_host() -> FrameHost?
+
 pub fn now_ms() -> Double
 
-pub fn on_exit(() -> Unit) -> Unit
+pub fn on_exit(() -> Unit) -> () -> Unit
 
 pub fn publish_frame_phases(Double, Double, Double) -> Unit
 
 pub fn read_file(String, override_env? : String?) -> Bytes?
 
-pub fn request_frame(() -> Unit) -> Unit
+pub fn request_frame(() -> Unit) -> () -> Unit
 
 pub fn reset_clock() -> Unit
 
@@ -35,8 +39,8 @@ pub(all) struct FileAccess {
 }
 
 pub(all) struct FrameHost {
-  request_frame : (() -> Unit) -> Unit
-  on_exit : (() -> Unit) -> Unit
+  request_frame : (() -> Unit) -> () -> Unit
+  on_exit : (() -> Unit) -> () -> Unit
   publish_phases : (Double, Double, Double) -> Unit
 }
 

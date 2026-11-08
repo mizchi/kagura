@@ -105,6 +105,10 @@ fi
 STAGING_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/kagura-publish.XXXXXX") || exit 1
 trap 'rm -rf "$STAGING_ROOT"' EXIT
 node scripts/prepare-moon-release.mjs --out "$STAGING_ROOT" || exit 1
+node --input-type=module - "$STAGING_ROOT" <<'JS' || exit 1
+import {prepareMoonDeps} from './scripts/prepare-moon-deps.mjs';
+prepareMoonDeps(process.argv[2], {target:'js'});
+JS
 moon -C "$STAGING_ROOT" check --deny-warn --target js || exit 1
 
 # --- classify every module by packaging it and diffing the checksum ----------
@@ -132,10 +136,14 @@ for m in "${MODULES[@]}"; do
   fi
   # Never upload an empty archive or a package without its declared source.
   if ! python3 - "$zip" "$name" "$ver" <<'PY'
-import json, sys, zipfile
+import json, sys, zipfile, subprocess, pathlib
 with zipfile.ZipFile(sys.argv[1]) as archive:
     files = archive.namelist()
-    manifest = json.loads(archive.read('moon.mod.json'))
+    source = archive.read('moon.mod').decode('utf8')
+    parser = (pathlib.Path.cwd() / 'scripts/moon-mod-manifest.mjs').as_uri()
+    program = 'import {parseMoonMod} from ' + json.dumps(parser) + '; let source=""; for await (const chunk of process.stdin) source+=chunk; console.log(JSON.stringify(parseMoonMod(source)));'
+    parsed = subprocess.run(['node', '--input-type=module', '-e', program], input=source, text=True, capture_output=True, check=True)
+    manifest = json.loads(parsed.stdout)
     assert manifest['name'] == sys.argv[2] and manifest['version'] == sys.argv[3]
     assert any(p == 'moon.pkg' or p.endswith('/moon.pkg') for p in files), 'missing packages'
     assert any(p.endswith('.mbt') for p in files), 'missing MoonBit source'

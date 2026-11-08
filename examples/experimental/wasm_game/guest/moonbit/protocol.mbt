@@ -116,8 +116,8 @@ fn write_draw_commands(cmds : Array[DrawCmd]) -> Int32 {
   let ptr = bump_alloc(4)
   mem_store32(ptr, cmds.length())
   for cmd in cmds {
-    let header_size = 28
-    let verts_size = cmd.vertex_count * 4 * 4 // V * 4 floats * 4 bytes
+    let header_size = wire_draw_header_bytes
+    let verts_size = cmd.vertex_count * wire_vertex_components * 4 // V * 4 floats * 4 bytes
     let indices_size = cmd.index_count * 4
     let cmd_ptr = bump_alloc(header_size + verts_size + indices_size)
     mem_store32(cmd_ptr, cmd.vertex_count)
@@ -128,9 +128,9 @@ fn write_draw_commands(cmds : Array[DrawCmd]) -> Int32 {
     mem_store32(cmd_ptr + 20, cmd.uniform_b)
     mem_store32(cmd_ptr + 24, cmd.uniform_a)
     for i = 0; i < cmd.vertices.length(); i = i + 1 {
-      mem_store_f32(cmd_ptr + 28 + i * 4, cmd.vertices[i])
+      mem_store_f32(cmd_ptr + wire_draw_header_bytes + i * 4, cmd.vertices[i])
     }
-    let idx_base = cmd_ptr + 28 + verts_size
+    let idx_base = cmd_ptr + wire_draw_header_bytes + verts_size
     for i = 0; i < cmd.indices.length(); i = i + 1 {
       mem_store32(idx_base + i * 4, cmd.indices[i])
     }

@@ -30,13 +30,19 @@ test "frame scheduling passes callbacks to the installed host" {
   let exits : Array[() -> Unit] = []
   let phases : Array[(Double, Double, Double)] = []
   set_frame_host({
-    request_frame: fn(callback) { scheduled.push(callback) },
-    on_exit: fn(callback) { exits.push(callback) },
+    request_frame: fn(callback) {
+      scheduled.push(callback)
+      fn() { () }
+    },
+    on_exit: fn(callback) {
+      exits.push(callback)
+      fn() { () }
+    },
     publish_phases: fn(a, b, c) { phases.push((a, b, c)) },
   })
   let count = Ref(0)
-  request_frame(fn() { count.val += 1 })
-  on_exit(fn() { count.val += 10 })
+  let _ = request_frame(fn() { count.val += 1 })
+  let _ = on_exit(fn() { count.val += 10 })
   assert_eq(count.val, 0)
   scheduled[0]()
   exits[0]()

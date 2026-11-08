@@ -8,8 +8,10 @@ pub(all) struct FileAccess {
 
 ///|
 pub(all) struct FrameHost {
-  request_frame : (() -> Unit) -> Unit
-  on_exit : (() -> Unit) -> Unit
+  /// Enqueue asynchronously and return an idempotent cancellation function.
+  request_frame : (() -> Unit) -> () -> Unit
+  /// Register an observer and return its unsubscribe function.
+  on_exit : (() -> Unit) -> () -> Unit
   publish_phases : (Double, Double, Double) -> Unit
 }
 
@@ -64,6 +66,16 @@ pub fn now_ms() -> Double {
 }
 
 ///|
+pub fn capture_clock() -> () -> Double {
+  clock.val
+}
+
+///|
+pub fn capture_frame_host() -> FrameHost? {
+  frame_host.val
+}
+
+///|
 pub fn set_frame_host(host : FrameHost) -> Unit {
   frame_host.val = Some(host)
 }
@@ -74,7 +86,7 @@ pub fn reset_frame_host() -> Unit {
 }
 
 ///|
-pub fn request_frame(callback : () -> Unit) -> Unit {
+pub fn request_frame(callback : () -> Unit) -> () -> Unit {
   match frame_host.val {
     Some(host) => (host.request_frame)(callback)
     None => abort("Frame host is not installed")
@@ -82,10 +94,10 @@ pub fn request_frame(callback : () -> Unit) -> Unit {
 }
 
 ///|
-pub fn on_exit(callback : () -> Unit) -> Unit {
+pub fn on_exit(callback : () -> Unit) -> () -> Unit {
   match frame_host.val {
     Some(host) => (host.on_exit)(callback)
-    None => ()
+    None => fn() { () }
   }
 }
 

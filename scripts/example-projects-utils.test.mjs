@@ -8,6 +8,22 @@ import {
   shardExampleProjects,
 } from "./example-projects-utils.mjs";
 
+test("Wasm-only examples are excluded from JS and native checks", () => {
+  const project = {
+    dir: "examples/smoke/wasm_async_smoke",
+    srcPkg: 'supported_targets = "wasm"',
+  };
+  for (const target of ["js", "native"])
+    assert.equal(
+      classifyExampleProject(project, { target, mode: "check" }).run,
+      false,
+    );
+  assert.equal(
+    classifyExampleProject(project, { target: "wasm", mode: "check" }).run,
+    true,
+  );
+});
+
 const project = (dir, srcPkg = null) => ({ dir, srcPkg });
 
 test("classify skips the projects that need an out-of-repo crater checkout", () => {
@@ -41,14 +57,20 @@ test("classify skips native-only projects on every other target", () => {
 });
 
 test("classify skips wgpu-native linkers only when testing native", () => {
-  const wgpu = project("examples/games/arena3d", 'import { "mizchi/wgpu_native" }');
+  const wgpu = project(
+    "examples/games/arena3d",
+    'import { "mizchi/wgpu_native" }',
+  );
   // Checking never links, so the wgpu skip must not apply to `check` -- that is
   // what keeps 45 projects type-checked on native while only ~10 are tested.
   assert.equal(
     classifyExampleProject(wgpu, { target: "native", mode: "check" }).run,
     true,
   );
-  const tested = classifyExampleProject(wgpu, { target: "native", mode: "test" });
+  const tested = classifyExampleProject(wgpu, {
+    target: "native",
+    mode: "test",
+  });
   assert.equal(tested.run, false);
   assert.match(tested.reason, /wgpu-native at link time/);
   // On js it links fine.
@@ -61,11 +83,13 @@ test("classify skips wgpu-native linkers only when testing native", () => {
 test("classify keeps effect_studio check-only on native", () => {
   const dir = "editor/effect-studio/examples/effect_studio";
   assert.equal(
-    classifyExampleProject(project(dir), { target: "native", mode: "check" }).run,
+    classifyExampleProject(project(dir), { target: "native", mode: "check" })
+      .run,
     true,
   );
   assert.equal(
-    classifyExampleProject(project(dir), { target: "native", mode: "test" }).run,
+    classifyExampleProject(project(dir), { target: "native", mode: "test" })
+      .run,
     false,
   );
   assert.equal(
@@ -76,10 +100,11 @@ test("classify keeps effect_studio check-only on native", () => {
 
 test("classify rejects an unknown mode", () => {
   assert.throws(
-    () => classifyExampleProject(project("examples/demos-2d/x"), {
-      target: "js",
-      mode: "bench",
-    }),
+    () =>
+      classifyExampleProject(project("examples/demos-2d/x"), {
+        target: "js",
+        mode: "bench",
+      }),
     RangeError,
   );
 });
@@ -88,7 +113,11 @@ test("parseShard accepts 1-based specs and rejects the rest", () => {
   assert.deepEqual(parseShard("1/1"), { shard: 1, shardTotal: 1 });
   assert.deepEqual(parseShard("3/5"), { shard: 3, shardTotal: 5 });
   for (const bad of ["0/5", "6/5", "1/0", "2", "a/b", "", "-1/3", "1/2/3"]) {
-    assert.throws(() => parseShard(bad), RangeError, `expected ${bad} to throw`);
+    assert.throws(
+      () => parseShard(bad),
+      RangeError,
+      `expected ${bad} to throw`,
+    );
   }
 });
 
@@ -101,7 +130,11 @@ test("shards partition the list exactly once with no gaps or overlaps", () => {
     }
     // Every project is built, and none is built twice -- the property that makes
     // a sharded CI job as trustworthy as the single loop it replaced.
-    assert.deepEqual([...seen].sort(), [...dirs].sort(), `shardTotal=${shardTotal}`);
+    assert.deepEqual(
+      [...seen].sort(),
+      [...dirs].sort(),
+      `shardTotal=${shardTotal}`,
+    );
   }
 });
 
@@ -118,9 +151,18 @@ test("shards interleave rather than taking contiguous blocks", () => {
   const dirs = ["a", "b", "c", "d", "e", "f"];
   // Contiguous blocks would give ["a","b"]; the games all sort together, so
   // interleaving is what keeps one runner from taking every expensive project.
-  assert.deepEqual(shardExampleProjects(dirs, { shard: 1, shardTotal: 3 }), ["a", "d"]);
-  assert.deepEqual(shardExampleProjects(dirs, { shard: 2, shardTotal: 3 }), ["b", "e"]);
-  assert.deepEqual(shardExampleProjects(dirs, { shard: 3, shardTotal: 3 }), ["c", "f"]);
+  assert.deepEqual(shardExampleProjects(dirs, { shard: 1, shardTotal: 3 }), [
+    "a",
+    "d",
+  ]);
+  assert.deepEqual(shardExampleProjects(dirs, { shard: 2, shardTotal: 3 }), [
+    "b",
+    "e",
+  ]);
+  assert.deepEqual(shardExampleProjects(dirs, { shard: 3, shardTotal: 3 }), [
+    "c",
+    "f",
+  ]);
 });
 
 test("select shards the runnable projects, not the skipped ones", () => {
@@ -133,7 +175,12 @@ test("select shards the runnable projects, not the skipped ones", () => {
     project("examples/a/four"),
   ];
   const shards = [1, 2].map((shard) =>
-    selectExampleProjects(projects, { target: "js", mode: "test", shard, shardTotal: 2 })
+    selectExampleProjects(projects, {
+      target: "js",
+      mode: "test",
+      shard,
+      shardTotal: 2,
+    }),
   );
   assert.equal(shards[0].runnableCount, 4);
   // Sharding before the skips would leave one runner with a shard of skips; both
@@ -144,7 +191,9 @@ test("select shards the runnable projects, not the skipped ones", () => {
 });
 
 test("select covers every runnable project across the shards", () => {
-  const projects = Array.from({ length: 47 }, (_, i) => project(`examples/c/p${i}`));
+  const projects = Array.from({ length: 47 }, (_, i) =>
+    project(`examples/c/p${i}`),
+  );
   projects[3] = project("examples/experimental/crater_paint");
   projects[9] = project("examples/games/g", 'import { "mizchi/wgpu_native" }');
   const seen = [];

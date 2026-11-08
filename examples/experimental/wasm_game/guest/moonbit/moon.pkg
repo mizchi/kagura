@@ -10,6 +10,7 @@ options(
         "kagura_guest_update_export:kagura_guest_update",
         "kagura_guest_render",
         "kagura_alloc",
+        "kagura_guest_abi_version",
         "kagura_guest_snapshot_state",
         "kagura_guest_restore_state",
         "kagura_guest_shutdown",

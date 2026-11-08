@@ -53,7 +53,8 @@ pub fn VertexFormat::stride(self : VertexFormat) -> Int32 {
 }
 
 ///|
-/// Byte offset of an attribute in the vertex layout.
+/// Offset in float components of an attribute in the vertex layout.
+/// Multiply by 4 for the byte offset of the current f32 wire format.
 /// Returns -1 if the attribute is not present.
 pub fn VertexFormat::offset_of(
   self : VertexFormat,

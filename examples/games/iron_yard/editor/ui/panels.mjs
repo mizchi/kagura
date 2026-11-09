@@ -492,6 +492,13 @@ export function createIronYardAuthoring({ container, invoke, onStatus, play, res
     },
     setActive(value) {
       if (!value) stop();
+      // Runtime panels remain in the shell; authoring only occupies them while
+      // its view is active. In particular, preview must expose observations.
+      for (const { original, panel } of occupied) {
+        original.hidden = value;
+        original.style.display = value ? 'none' : 'contents';
+        panel.hidden = !value;
+      }
       view.setActive(value);
     },
     frame: () => view.frame(selected),

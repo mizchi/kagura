@@ -74,6 +74,7 @@ struct Gem {
 
 ///|
 struct SurvivorState {
+  inspection : @inspection.FieldControl
   player : Player
   camera : @camera2d.Camera2D
   enemies : Array[Enemy]
@@ -94,7 +95,7 @@ struct SurvivorState {
   mut upgrade_choices : Array[Int32]
   mut selected_upgrade : Int32
   mut random_seed : Int32
-  input : @inpututil.InputHelper
+  mut input : @inpututil.InputHelper
   mut screen_w : Double
   mut screen_h : Double
   world_w : Double
@@ -176,6 +177,7 @@ fn SurvivorState::new() -> SurvivorState {
   let camera = @camera2d.Camera2D::new(320.0, 240.0, 960.0, 720.0)
   camera.follow_target(480.0, 360.0)
   {
+    inspection: @inspection.new_field_control(),
     player: { x: 480.0, y: 360.0, hp: 10, max_hp: 10, speed: 2.0, size: 12.0, },
     camera,
     enemies: [],
@@ -245,6 +247,7 @@ fn SurvivorState::snapshot_state(self : SurvivorState) -> String {
 
 ///|
 fn SurvivorState::reset(self : SurvivorState) -> Unit {
+  self.inspection.restart()
   self.player.x = 480.0
   self.player.y = 360.0
   self.player.hp = 10
@@ -324,6 +327,9 @@ fn SurvivorState::update(
   self : SurvivorState,
   input : @core.InputSnapshot,
 ) -> Unit {
+  if !self.inspection.begin_update() {
+    return
+  }
   @inpututil.update_input_helper(self.input, input)
   self.frame_count = self.frame_count + 1
   match self.game_mode {

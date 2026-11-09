@@ -1,5 +1,7 @@
 ///|
 priv struct App {
+  inspection : @inspection.FieldControl
+  mut inspection_resume : Bool
   mut editing : Bool
   mut edit_active : Bool
   mut edit_action : Bool
@@ -41,18 +43,27 @@ extern "js" fn now() -> Double =
   #| () => performance.now()/1000
 
 ///|
-extern "js" fn publish(source : String, projection : String) -> Unit =
-  #| (source, projection) => globalThis.ironYardFrame?.(JSON.parse(source),JSON.parse(projection))
+extern "js" fn publish(
+  source : String,
+  projection : String,
+  inspecting : Bool,
+) -> Unit =
+  #| (source, projection, inspecting) => globalThis.ironYardFrame?.({...JSON.parse(source), inspectionPaused: inspecting}, JSON.parse(projection))
 
 ///|
 pub fn register_image(
   id : Int32,
   width : Int32,
   height : Int32,
-  rgba : Array[Int32],
+  rgba : FixedArray[Int32],
 ) -> Unit {
   @hooks.install("#app")
-  @hooks.register_source_image_rgba8(id, width, height, rgba)
+  @hooks.register_source_image_rgba8(
+    id,
+    width,
+    height,
+    Array::from_fixed_array(rgba),
+  )
 }
 
 ///|
@@ -70,6 +81,8 @@ pub fn start(strix : String, bastion : String) -> Unit {
     @light3d.AmbientLight::new(rgb(0xe1edff), 1.3),
   )
   let state : App = {
+    inspection: @inspection.new_field_control(),
+    inspection_resume: false,
     editing: false,
     edit_active: true,
     edit_action: false,
@@ -163,6 +176,7 @@ pub fn set_input(
 ///|
 pub fn configure(ai : Bool, x : Double, z : Double, yaw : Double) -> Unit {
   if app.val is Some(a) {
+    a.inspection.restart()
     pause_audio()
     a.game = @sim.new_game(ai~, spawn=@sim.vec(x, 0.0, z), yaw~)
     a.scenery = scenery(a.game.stage)
@@ -178,6 +192,7 @@ pub fn load_scene(source : String, ai : Bool) -> Bool {
   let game = @sim.game_from_scene(source, ai) catch { _ => return false }
   guard app.val is Some(a) else { return false }
   guard game.scene is Some(scene) else { return false }
+  a.inspection.restart()
   pause_audio()
   a.game = game
   a.scenery = scenery(game.stage)
@@ -200,6 +215,7 @@ pub fn load_scene(source : String, ai : Bool) -> Bool {
 ///|
 pub fn command(operation : String) -> Unit {
   if app.val is Some(a) {
+    a.inspection.revision += 1
     match operation {
       "start" => {
         @sim.start_playing(a.game)
@@ -213,6 +229,7 @@ pub fn command(operation : String) -> Unit {
         @sim.pause(a.game)
       }
       "reset" | "training" | "combat" => {
+        a.inspection.restart()
         let ai = if operation == "reset" {
           a.game.ai
         } else {
@@ -268,6 +285,10 @@ fn camera(a : App) -> @camera3d.Camera3D {
 
 ///|
 fn update(a : App) -> Unit {
+  if !a.inspection.begin_update() {
+    publish_state(a)
+    return
+  }
   if a.editing {
     return
   }
@@ -321,6 +342,12 @@ fn update(a : App) -> Unit {
     pause_audio()
     play_sound(if a.game.phase == "won" { "confirm" } else { "cancel" })
   }
+  publish_state(a)
+}
+
+///|
+/// Presentation reads continue while the simulation is frozen.
+fn publish_state(a : App) -> Unit {
   let vp = camera(a).view_projection_matrix()
   let targets : Array[Json] = a.game.units.map(fn(e) {
     let p = e.position.add(@sim.vec(0.0, 3.8, 0.0))
@@ -337,7 +364,7 @@ fn update(a : App) -> Unit {
     }
   })
   let projection : Json = { "targets": targets }
-  publish(@sim.snapshot(a.game), projection.stringify())
+  publish(@sim.snapshot(a.game), projection.stringify(), a.inspection.paused)
 }
 
 ///|

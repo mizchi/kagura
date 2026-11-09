@@ -168,7 +168,6 @@ export function install({ input, command }) {
     if (mode !== s.mode || !surface.className) {
       mode = s.mode; surface.className = mode;
       $("menu").hidden = mode !== "title";
-      $("dialog").hidden = !["paused","won","lost"].includes(mode);
       $("pause").disabled = !["playing","paused"].includes(mode);
       $("dialog-label").textContent = mode === "won" ? "FLIGHT COMPLETE" : mode === "lost" ? "FLIGHT ENDED" : "FLIGHT PAUSED";
       $("dialog-title").textContent = mode === "won" ? "ごちそうさまでした。" : mode === "lost" ? "翼を休めて、もう一度。" : "ひと休み。";
@@ -176,6 +175,7 @@ export function install({ input, command }) {
       $("result").textContent = mode === "paused" ? "海風と、あたたかい一杯。" : `${s.kills} 杯の鴨南蛮 / ${s.score.toLocaleString()} 点 / 最大 ${s.best_chain} ロック`;
       if (mode === "title") lastWave = 0;
     }
+    $("dialog").hidden = !["paused","won","lost"].includes(mode) || (mode === "paused" && s.inspection_paused === true);
     if (lastScore !== s.score) { lastScore=s.score; $("score").textContent=String(s.score).padStart(6,"0"); $("dishes").textContent=`鴨南蛮 ${s.kills} 杯`; }
     if (lastHealth !== s.hp) { lastHealth=s.hp; $("health").innerHTML=Array.from({length:6},(_,i)=>`<i class="${i<s.hp?"":"empty"}"></i>`).join(""); $("health").ariaLabel=`体力 ${s.hp} / 6`; }
     if (lastLocks !== s.locks) { lastLocks=s.locks; $("locks").innerHTML=`MULTI LOCK <em>${String(s.locks).padStart(2,"0")} / 12</em>`; $("lock-pips").innerHTML=Array.from({length:12},(_,i)=>`<i class="${i<s.locks?"on":""}"></i>`).join(""); }

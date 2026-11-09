@@ -1,0 +1,14 @@
+Kagura Studio · Runtime fixture
+Paused
+Step
+Restart
+Checkpoint
+Objects
+Render nodes
+Game view
+Runtime state
+Bird
+Apply Y
+Read only
+Undo runtime edit
+Changes

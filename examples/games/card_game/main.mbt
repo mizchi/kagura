@@ -2,6 +2,7 @@
 fn main {
   let (width, height) = default_viewport()
   let game = initial_states().create_for_capture(width~, height~)
+  game.register_inspection()
   @scene.run_game(
     game,
     width~,

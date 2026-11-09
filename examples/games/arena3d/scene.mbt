@@ -39,6 +39,8 @@ fn GameState::scene_snapshot(self : GameState) -> String {
   let player = self.player.position
   let result : Json = {
     "sceneId": session.current_id(),
+    "paused": self.inspection_paused,
+    "frameCount": self.frame_count,
     "scene": session.scene().to_json(),
     "player": [player.x, player.y, player.z],
     "firstPerson": self.first_person,
@@ -81,6 +83,7 @@ fn GameState::scene_snapshot(self : GameState) -> String {
 ///|
 fn GameState::activate_scene(self : GameState) -> Unit {
   guard self.authored is Some(session) else { return }
+  self.inspection_revision += 1
   self.items.clear()
   self.enemies.clear()
   self.mode = mode_playing
@@ -156,14 +159,19 @@ fn GameState::authored_nodes(
       }
       _ => ()
     }
+    let node = @scene3d.mesh(
+      key=e.id,
+      mesh~,
+      position=pos,
+      scale=scene_vec(e.scale),
+      color=scene_color(e.color),
+    )
     nodes.push(
-      @scene3d.mesh(
-        key=e.id,
-        mesh~,
-        position=pos,
-        scale=scene_vec(e.scale),
-        color=scene_color(e.color),
-      ),
+      if e.kind == "spawn" {
+        @scene3d.subject("player", node)
+      } else {
+        node
+      },
     )
   }
   nodes

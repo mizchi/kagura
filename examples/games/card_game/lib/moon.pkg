@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_engine/inspection",
   "mizchi/kagura_game/inpututil",
   "moonbitlang/core/math",
   "mizchi/signals",
@@ -18,6 +19,8 @@ supported_targets = "js+native"
 
 options(
   targets: {
+    "inspection_js.mbt": [ "js" ],
+    "inspection_native.mbt": [ "native" ],
     "preview_debug.mbt": [ "debug" ],
     "pointer_surface_js.mbt": [ "js" ],
     "pointer_surface_native.mbt": [ "native" ],

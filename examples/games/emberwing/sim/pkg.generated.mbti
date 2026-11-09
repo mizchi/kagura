@@ -4,7 +4,9 @@ package "mizchi/emberwing/sim"
 import {
   "mizchi/geom/camera3d",
   "mizchi/geom/math3d",
+  "mizchi/kagura_engine/inspection",
   "mizchi/kagura_game/projectile3d",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -119,6 +121,9 @@ pub(all) struct Game {
   rocks : Array[Rock]
   beams : Array[Beam]
 }
+pub fn Game::apply_tuning(Self, String, String, Double) -> Unit raise
+pub fn Game::tuning_state(Self) -> @json.Json
+pub fn Game::tuning_subjects(Self) -> Array[@inspection.Subject]
 
 pub(all) struct Input {
   aim_x : Double

@@ -122,6 +122,8 @@ struct GameState {
   mut mode : Int32
   mut score : Int32
   mut frame_count : Int32
+  mut inspection_paused : Bool
+  mut inspection_revision : Int32
   player : PlayerState
   items : Array[ItemState]
   enemies : Array[EnemyState]
@@ -144,7 +146,7 @@ struct GameState {
   mut shot_frames : Int32
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
-  input : @inpututil.InputHelper
+  mut input : @inpututil.InputHelper
   meshes : Meshes
   shader3d : @gfx.ShaderHandle
   audio_ctx : @audio.MixerAudioContext
@@ -239,6 +241,8 @@ fn GameState::new() -> GameState {
     mode: mode_playing,
     score: 0,
     frame_count: 0,
+    inspection_paused: false,
+    inspection_revision: 0,
     player: { position: @math3d.Vec3::new(0.0, 0.5, 0.0), },
     items,
     enemies,
@@ -319,6 +323,10 @@ fn distance_xz(a : @math3d.Vec3, b : @math3d.Vec3) -> Double {
 
 ///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
+  if self.inspection_paused {
+    return
+  }
+  self.inspection_revision += 1
   self.frame_count = self.frame_count + 1
   @inpututil.update_input_helper(self.input, input)
   self.update_controls(input)

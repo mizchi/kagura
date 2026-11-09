@@ -3,6 +3,9 @@ import { test, expect } from '@playwright/test';
 test('the shell has no default game and owns one transport across project switches', async ({
   page,
 }) => {
+  // Three project loads include compiled scenes and resources. Parallel
+  // software-GPU rendering can delay those loads beyond the default 5s expect.
+  test.setTimeout(90000);
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^(Edit|Play|Open) IRON YARD$/ })).toHaveCount(0);
   const transport = page.getByRole('group', { name: 'Project controls', exact: true });
@@ -11,7 +14,7 @@ test('the shell has no default game and owns one transport across project switch
     await page.evaluate(() => kagura.panes.tools().some((t) => t.name.includes('iron-yard'))),
   ).toBe(false);
   await page.getByLabel('Examples', { exact: true }).selectOption('iron_yard');
-  await expect(page.getByRole('status')).toContainText('Opened project');
+  await expect(page.getByRole('status')).toContainText('Opened project', { timeout: 30000 });
   await expect(transport).toBeVisible();
   await expect(page.getByLabel('IRON YARD シーンプレビュー')).toHaveAttribute(
     'data-ready',
@@ -35,7 +38,7 @@ test('the shell has no default game and owns one transport across project switch
   await expect(page.locator('.game-frame')).toHaveCount(0);
   await expect(page.getByLabel('IRON YARD シーンプレビュー')).toBeVisible();
   await page.getByLabel('Examples', { exact: true }).selectOption('flappy_bird');
-  await expect(page.getByRole('status')).toContainText('Opened project');
+  await expect(page.getByRole('status')).toContainText('Opened project', { timeout: 30000 });
   await expect(page.locator('.iron-scene-canvas')).toHaveCount(0);
   await expect(transport).toHaveCount(1);
   await transport.getByRole('button', { name: 'Play', exact: true }).click();
@@ -45,7 +48,7 @@ test('the shell has no default game and owns one transport across project switch
   await transport.getByRole('button', { name: 'Edit', exact: true }).click();
   await expect(page.locator('.game-frame')).toHaveCount(0);
   await page.getByLabel('Examples', { exact: true }).selectOption('terrain_demo');
-  await expect(page.getByRole('status')).toContainText('Opened project');
+  await expect(page.getByRole('status')).toContainText('Opened project', { timeout: 30000 });
   await expect(transport.getByRole('button', { name: 'Play', exact: true })).toBeDisabled();
   await expect(transport.getByRole('button', { name: 'Stop', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: /^(Edit|Play|Open) IRON YARD$/ })).toHaveCount(0);

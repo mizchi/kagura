@@ -2,20 +2,22 @@
 package "mizchi/hacknslash_3d/game"
 
 import {
-  "mizchi/kagura_game/gameplay2d",
-  "mizchi/kagura_game/progression",
   "mizchi/kagura_core/terrain3d",
+  "mizchi/kagura_engine/inspection",
+  "mizchi/kagura_game/gameplay2d",
+  "mizchi/kagura_game/inventory",
+  "mizchi/kagura_game/progression",
   "mizchi/terrain/types",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn activate_skill(GameWorld, Int) -> Unit
+pub fn activate_skill(GameWorld, Int32) -> Unit
 
-pub fn add_telegraph_circle(GameWorld, Double, Double, Double, Int) -> Unit
+pub fn add_telegraph_circle(GameWorld, Double, Double, Double, Int32) -> Unit
 
-pub fn add_telegraph_line(GameWorld, Double, Double, Double, Double, Double, Int) -> Unit
+pub fn add_telegraph_line(GameWorld, Double, Double, Double, Double, Double, Int32) -> Unit
 
 pub fn aim_at(GameWorld, Enemy?, Double) -> (Double, Double)
 
@@ -27,19 +29,19 @@ pub let arrow_range : Double
 
 pub let arrow_speed : Double
 
-pub let attack_cooldown : Int
+pub let attack_cooldown : Int32
 
-pub fn auto_play_input(GameWorld) -> (Double, Double, Int, Double)
+pub fn auto_play_input(GameWorld) -> (Double, Double, Int32, Double)
 
-pub let balance_param_count : Int
+pub let balance_param_count : Int32
 
 pub fn balance_preset_from_name(String) -> BalancePreset
 
-pub let beam_cast_frames : Int
+pub let beam_cast_frames : Int32
 
-pub let beam_cooldown_frames : Int
+pub let beam_cooldown_frames : Int32
 
-pub let beam_damage_mult : Int
+pub let beam_damage_mult : Int32
 
 pub let beam_range : Double
 
@@ -63,9 +65,9 @@ pub fn behavior_teleport_behind(EnemyAIContext) -> Bool
 
 pub let berserker_rage_max_mult : Double
 
-pub let bow_cooldown : Int
+pub let bow_cooldown : Int32
 
-pub fn build_height_map(@types.Grid2D, Array[@types.Room], Int) -> Array[Double]
+pub fn build_height_map(@types.Grid2D, Array[@types.Room], Int32) -> Array[Double]
 
 pub fn cast_chain_lightning(GameWorld) -> Bool
 
@@ -77,15 +79,15 @@ pub fn cast_splitting_fireball(GameWorld) -> Bool
 
 pub let caster_min_distance_sq : Double
 
-pub let chain_lightning_cooldown : Int
+pub let chain_lightning_cooldown : Int32
 
 pub let chain_lightning_hop_range : Double
 
-pub let chain_lightning_max_targets : Int
+pub let chain_lightning_max_targets : Int32
 
 pub let chain_lightning_range : Double
 
-pub fn chain_lightning_targets_for_level(Int) -> Int
+pub fn chain_lightning_targets_for_level(Int32) -> Int32
 
 pub let chain_lightning_telegraph_radius : Double
 
@@ -101,29 +103,29 @@ pub fn compact_items(Array[ItemDrop]) -> Unit
 
 pub fn compact_projectiles(Array[Projectile]) -> Unit
 
-pub fn compute_player_stats(Equipment, SkillTree, base_hp? : Int, archetype? : CharacterArchetype?) -> PlayerStats
+pub fn compute_player_stats(Equipment, SkillTree, base_hp? : Int32, archetype? : CharacterArchetype?) -> PlayerStats
 
-pub fn compute_skill_dps(SkillId, Int, PlayerStats, BalanceParams, CharacterArchetype) -> SkillDpsInfo
+pub fn compute_skill_dps(SkillId, Int32, PlayerStats, BalanceParams, CharacterArchetype) -> SkillDpsInfo
 
 pub fn compute_total_dps(SkillTree, PlayerStats, BalanceParams, CharacterArchetype) -> Double
 
-pub fn count_enemies_in_room(Array[Enemy], @types.Room) -> Int
+pub fn count_enemies_in_room(Array[Enemy], @types.Room) -> Int32
 
-pub fn counter_cooldown_for_level(Int) -> Int
+pub fn counter_cooldown_for_level(Int32) -> Int32
 
-pub let counter_cooldown_frames : Int
+pub let counter_cooldown_frames : Int32
 
-pub let counter_duration_frames : Int
+pub let counter_duration_frames : Int32
 
-pub let damage_flash_duration : Int
+pub let damage_flash_duration : Int32
 
-pub let dash_cooldown : Int
+pub let dash_cooldown : Int32
 
-pub let dash_duration : Int
+pub let dash_duration : Int32
 
 pub let dash_speed_mult : Double
 
-pub let dash_strike_cooldown : Int
+pub let dash_strike_cooldown : Int32
 
 pub fn default_archetype_build_policy() -> ArchetypeBuildPolicy
 
@@ -133,29 +135,29 @@ pub fn default_hunter_preset(CharacterArchetype) -> HunterPreset
 
 pub fn effective_aoe_radius(PlayerStats, SkillId, Double) -> Double
 
-pub fn effective_extra_chain_targets(PlayerStats, SkillId) -> Int
+pub fn effective_extra_chain_targets(PlayerStats, SkillId) -> Int32
 
-pub let enemy_barrage_projectile_count : Int
+pub let enemy_barrage_projectile_count : Int32
 
 pub let enemy_barrage_spread_angle : Double
 
-pub let enemy_bolt_telegraph_frames : Int
+pub let enemy_bolt_telegraph_frames : Int32
 
 pub let enemy_bolt_telegraph_radius : Double
 
-pub let enemy_bow_draw_frames : Int
+pub let enemy_bow_draw_frames : Int32
 
 pub let enemy_charge_profile : ChargeProfile
 
-pub let enemy_death_explosion_projectile_count : Int
+pub let enemy_death_explosion_projectile_count : Int32
 
 pub let enemy_death_explosion_radius : Double
 
-pub let enemy_fire_nova_cast_frames : Int
+pub let enemy_fire_nova_cast_frames : Int32
 
-pub let enemy_fire_nova_cooldown_frames : Int
+pub let enemy_fire_nova_cooldown_frames : Int32
 
-pub let enemy_fire_nova_projectile_count : Int
+pub let enemy_fire_nova_projectile_count : Int32
 
 pub let enemy_fire_nova_projectile_speed : Double
 
@@ -173,11 +175,11 @@ pub let enemy_speed_fast : Double
 
 pub let enemy_speed_tank : Double
 
-pub let enemy_tackle_active_frames : Int
+pub let enemy_tackle_active_frames : Int32
 
 pub let enemy_tackle_speed_mult : Double
 
-pub let enemy_tackle_telegraph_frames : Int
+pub let enemy_tackle_telegraph_frames : Int32
 
 pub let enemy_tackle_telegraph_radius : Double
 
@@ -187,15 +189,15 @@ pub fn enemy_type_configs() -> Array[EnemyTypeConfig]
 
 pub fn equip_hunter_starting_clothes(Equipment) -> Unit
 
-pub fn equip_slot_from_index(Int) -> EquipSlot?
+pub fn equip_slot_from_index(Int32) -> EquipSlot?
 
 pub fn equipment_slots() -> Array[EquipSlot]
 
-pub fn expedition_plan(Int, Int) -> ExpeditionPlan
+pub fn expedition_plan(Int32, Int32) -> ExpeditionPlan
 
-pub fn expedition_surface(Int, Int, plains_relief? : Double) -> @terrain3d.HeightField
+pub fn expedition_surface(Int32, Int32, plains_relief? : Double) -> @terrain3d.HeightField
 
-pub let exploder_damage_mult : Int
+pub let exploder_damage_mult : Int32
 
 pub let exploder_radius_mult : Double
 
@@ -203,53 +205,53 @@ pub fn find_enemy_type_config(EnemyKind) -> EnemyTypeConfig
 
 pub fn find_nearest_enemy(GameWorld, Double) -> Enemy?
 
-pub fn find_nearest_visible_enemy(GameWorld) -> (Int, Double)
+pub fn find_nearest_visible_enemy(GameWorld) -> (Int32, Double)
 
-pub fn find_next_target_room(GameWorld) -> Int
+pub fn find_next_target_room(GameWorld) -> Int32
 
-pub fn find_room_at(Array[@types.Room], Double, Double) -> Int
+pub fn find_room_at(Array[@types.Room], Double, Double) -> Int32
 
-pub let flaming_skull_cooldown : Int
+pub let flaming_skull_cooldown : Int32
 
-pub let flaming_skull_lifetime : Int
+pub let flaming_skull_lifetime : Int32
 
-pub let flaming_skull_limit : Int
+pub let flaming_skull_limit : Int32
 
-pub fn generate_dungeon(Int, floor? : Int, params? : BalanceParams) -> DungeonData
+pub fn generate_dungeon(Int32, floor? : Int32, params? : BalanceParams) -> DungeonData
 
-pub fn generate_hunting_grounds(Int) -> DungeonData
+pub fn generate_hunting_grounds(Int32) -> DungeonData
 
-pub fn generate_item(Int, Int) -> ItemData
+pub fn generate_item(Int32, Int32) -> ItemData
 
-pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
+pub fn generate_item_with_profile(Int32, Int32, AffixProfile) -> ItemData
 
-pub fn generate_item_with_profile_and_drop_config(Int, Int, AffixProfile, DropTableConfig, rarity? : ItemRarity) -> ItemData
+pub fn generate_item_with_profile_and_drop_config(Int32, Int32, AffixProfile, DropTableConfig, rarity? : ItemRarity) -> ItemData
 
-pub fn generate_landscape(Int, Int, plains_relief? : Double) -> Landscape
+pub fn generate_landscape(Int32, Int32, plains_relief? : Double) -> Landscape
 
-pub fn generate_world_region(Int, Int, generator_version? : Int, plains_relief? : Double) -> DungeonData
+pub fn generate_world_region(Int32, Int32, generator_version? : Int32, plains_relief? : Double) -> DungeonData
 
 pub fn get_special_behaviors(EnemyKind) -> Array[(EnemyAIContext) -> Bool]
 
 pub fn get_tile_height(DungeonData, Double, Double) -> Double
 
-pub let ground_strike_cooldown : Int
+pub let ground_strike_cooldown : Int32
 
-pub let ground_strike_delay : Int
+pub let ground_strike_delay : Int32
 
 pub let ground_strike_radius : Double
 
 pub let ground_strike_range : Double
 
-pub let homing_missile_arc_frames : Int
+pub let homing_missile_arc_frames : Int32
 
-pub let homing_missile_cooldown : Int
+pub let homing_missile_cooldown : Int32
 
 pub let homing_missile_initial_spread : Double
 
 pub let homing_missile_launch_offset : Double
 
-pub let homing_missile_lifetime : Int
+pub let homing_missile_lifetime : Int32
 
 pub let homing_missile_range : Double
 
@@ -267,37 +269,37 @@ pub fn hunter_preset_from_id(String) -> HunterPreset?
 
 pub let hunter_presets : Array[HunterPresetProfile]
 
-pub let hunter_slot_actions : Array[Int]
+pub let hunter_slot_actions : Array[Int32]
 
 pub fn hunting_chests() -> Array[TreasureChest]
 
 pub fn hunting_clearings() -> Array[@types.Room]
 
-pub fn hunting_hash(Int, Int, Int) -> Int
+pub fn hunting_hash(Int32, Int32, Int32) -> Int32
 
-pub fn hunting_landmark(Int, Int) -> Bool
+pub fn hunting_landmark(Int32, Int32) -> Bool
 
 pub fn hunting_prop_present(HuntingProp, @types.Grid2D) -> Bool
 
-pub fn hunting_road_z(Int) -> Double
+pub fn hunting_road_z(Int32) -> Double
 
 pub fn hunting_safe_position(DungeonData, Double, Double, Double) -> (Double, Double)
 
-pub fn hunting_site_props(Int) -> Array[HuntingProp]
+pub fn hunting_site_props(Int32) -> Array[HuntingProp]
 
 pub let hunting_sites : Array[HuntingSite]
 
-pub let ice_nova_cooldown : Int
+pub let ice_nova_cooldown : Int32
 
 pub let ice_nova_radius : Double
 
-pub let iframe_duration : Int
+pub let iframe_duration : Int32
 
 pub fn infer_character_archetype_from_skills(SkillTree) -> CharacterArchetype?
 
 pub fn is_wall_at(@types.Grid2D, Double, Double) -> Bool
 
-pub fn item_rarity_rank(ItemRarity) -> Int
+pub fn item_rarity_rank(ItemRarity) -> Int32
 
 pub let knockback_strength : Double
 
@@ -307,29 +309,29 @@ pub fn landscape_coast_distance(Double, Double) -> Double
 
 pub fn landscape_mountain_height(Double, Double) -> Double
 
-pub fn landscape_plan(Int, Int) -> ExpeditionPlan
+pub fn landscape_plan(Int32, Int32) -> ExpeditionPlan
 
-pub fn landscape_props(Int) -> Array[HuntingProp]
+pub fn landscape_props(Int32) -> Array[HuntingProp]
 
 pub fn landscape_river_distance(Double, Double) -> Double
 
 pub fn landscape_river_x(Double) -> Double
 
-pub fn make_enemy(Double, Double, EnemyKind, Int, Double, Double, room_index? : Int) -> Enemy
+pub fn make_enemy(Double, Double, EnemyKind, Int32, Double, Double, room_index? : Int32) -> Enemy
 
 pub let manual_pickup_radius : Double
 
-pub let map_cols : Int
+pub let map_cols : Int32
 
-pub let map_rows : Int
+pub let map_rows : Int32
 
 pub fn melee_slash(GameWorld) -> Unit
 
-pub let meteor_cast_frames : Int
+pub let meteor_cast_frames : Int32
 
-pub let meteor_cooldown_frames : Int
+pub let meteor_cooldown_frames : Int32
 
-pub let meteor_damage_mult : Int
+pub let meteor_damage_mult : Int32
 
 pub let meteor_radius : Double
 
@@ -337,23 +339,23 @@ pub fn new_hunter_inventory(archetype? : CharacterArchetype) -> Inventory
 
 pub fn new_tag_bonuses_array() -> Array[TagBonus]
 
-pub let path_update_interval : Int
+pub let path_update_interval : Int32
 
 pub let pickup_radius_sq : Double
 
-pub fn player_basic_attack_damage(PlayerStats, CharacterArchetype) -> Int
+pub fn player_basic_attack_damage(PlayerStats, CharacterArchetype) -> Int32
 
-pub let player_charge_cooldown : Int
+pub let player_charge_cooldown : Int32
 
 pub let player_charge_profile : ChargeProfile
 
 pub let player_speed : Double
 
-pub fn player_spell_damage(PlayerStats, BalanceParams, CharacterArchetype, SkillId, skill_level? : Int) -> Int
+pub fn player_spell_damage(PlayerStats, BalanceParams, CharacterArchetype, SkillId, skill_level? : Int32) -> Int32
 
 pub fn player_weapon_from_id(String) -> PlayerWeaponKind?
 
-pub fn player_weapon_from_index(Int) -> PlayerWeaponKind?
+pub fn player_weapon_from_index(Int32) -> PlayerWeaponKind?
 
 pub fn prefix_table() -> Array[Affix]
 
@@ -361,23 +363,23 @@ pub fn prefix_table_for(AffixProfile) -> Array[Affix]
 
 pub fn process_player_projectiles(GameWorld, Array[Projectile]) -> Unit
 
-pub let ranged_meteor_chance : Int
+pub let ranged_meteor_chance : Int32
 
 pub let ranged_min_distance_sq : Double
 
 pub let ranged_retreat_speed : Double
 
-pub fn region_neighbor(Int, Int, Int) -> Int?
+pub fn region_neighbor(Int32, Int32, Int32) -> Int32?
 
-pub fn region_seed(Int, Int) -> Int
+pub fn region_seed(Int32, Int32) -> Int32
 
-pub fn roll_item_rarity(Int, Int, DropTableConfig) -> ItemRarity
+pub fn roll_item_rarity(Int32, Int32, DropTableConfig) -> ItemRarity
 
-pub fn scale_affix(Affix, Int) -> Affix
+pub fn scale_affix(Affix, Int32) -> Affix
 
-pub let screen_h : Int
+pub let screen_h : Int32
 
-pub let screen_w : Int
+pub let screen_w : Int32
 
 pub fn segment_hits_wall(@types.Grid2D, Double, Double, Double, Double, Double) -> Bool
 
@@ -387,55 +389,55 @@ pub fn shoot_arrow(GameWorld, Enemy?) -> Unit
 
 pub fn skill_id_eq(SkillId, SkillId) -> Bool
 
-pub fn skill_id_from_int(Int) -> SkillId?
+pub fn skill_id_from_int(Int32) -> SkillId?
 
-pub fn skill_id_to_int(SkillId) -> Int
+pub fn skill_id_to_int(SkillId) -> Int32
 
-pub fn skill_level_damage_multiplier(SkillId, Int) -> Double
+pub fn skill_level_damage_multiplier(SkillId, Int32) -> Double
 
-pub let skill_tag_count : Int
+pub let skill_tag_count : Int32
 
-pub fn skill_tag_to_int(SkillTag) -> Int
+pub fn skill_tag_to_int(SkillTag) -> Int32
 
 pub fn skill_tags(SkillId) -> Array[SkillTag]
 
 pub fn slide_move(@types.Grid2D, Double, Double, Double, Double, Double) -> (Double, Double)
 
-pub fn soulslike_scaled_damage(Int, Int, Double) -> Int
+pub fn soulslike_scaled_damage(Int32, Int32, Double) -> Int32
 
-pub let spawn_area_divisor : Int
+pub let spawn_area_divisor : Int32
 
-pub let spawn_base_count_max : Int
+pub let spawn_base_count_max : Int32
 
-pub fn spawn_boss(Array[@types.Room], Int, Int, Int) -> Array[Enemy]
+pub fn spawn_boss(Array[@types.Room], Int32, Int32, Int32) -> Array[Enemy]
 
-pub fn spawn_boss_with_params(Array[@types.Room], Int, Int, Int, BalanceParams) -> Array[Enemy]
+pub fn spawn_boss_with_params(Array[@types.Room], Int32, Int32, Int32, BalanceParams) -> Array[Enemy]
 
-pub fn spawn_enemies_for_floor(Array[@types.Room], Int, Int, Int) -> Array[Enemy]
+pub fn spawn_enemies_for_floor(Array[@types.Room], Int32, Int32, Int32) -> Array[Enemy]
 
-pub fn spawn_enemies_for_floor_with_params(Array[@types.Room], Int, Int, Int, BalanceParams) -> Array[Enemy]
+pub fn spawn_enemies_for_floor_with_params(Array[@types.Room], Int32, Int32, Int32, BalanceParams) -> Array[Enemy]
 
-pub fn spawn_enemies_in_rooms(Array[@types.Room], Int, Int) -> Array[Enemy]
+pub fn spawn_enemies_in_rooms(Array[@types.Room], Int32, Int32) -> Array[Enemy]
 
-pub fn spawn_enemies_in_rooms_with_params(Array[@types.Room], Int, Int, BalanceParams, floor? : Int) -> Array[Enemy]
+pub fn spawn_enemies_in_rooms_with_params(Array[@types.Room], Int32, Int32, BalanceParams, floor? : Int32) -> Array[Enemy]
 
 pub fn spawn_ground_item(GameWorld, Double, Double, ItemKind) -> Unit
 
-pub let spawn_safe_distance : Int
+pub let spawn_safe_distance : Int32
 
 pub fn spell_skill_ids() -> Array[SkillId]
 
-pub let splitting_fireball_cooldown : Int
+pub let splitting_fireball_cooldown : Int32
 
 pub let splitting_fireball_split_angle : Double
 
-pub let splitting_fireball_split_children : Int
+pub let splitting_fireball_split_children : Int32
 
 pub let splitting_fireball_split_speed_mult : Double
 
 pub let splitting_fireball_telegraph_radius : Double
 
-pub let splitting_fireball_trail_interval : Int
+pub let splitting_fireball_trail_interval : Int32
 
 pub fn start_dash(GameWorld, Double, Double) -> Unit
 
@@ -443,25 +445,25 @@ pub fn suffix_table() -> Array[Affix]
 
 pub fn suffix_table_for(AffixProfile) -> Array[Affix]
 
-pub let summoned_zombie_cooldown : Int
+pub let summoned_zombie_cooldown : Int32
 
-pub let summoned_zombie_limit : Int
+pub let summoned_zombie_limit : Int32
 
 pub let summoned_zombie_taunt_radius : Double
 
-pub let summoner_cooldown : Int
+pub let summoner_cooldown : Int32
 
 pub let summoner_minion_size : Double
 
 pub let summoner_minion_speed_mult : Double
 
-pub let summoner_spawn_offset : Int
+pub let summoner_spawn_offset : Int32
 
 pub fn tag_damage_multiplier(PlayerStats, SkillId) -> Double
 
 pub let teleporter_angle_offset : Double
 
-pub let teleporter_blink_cooldown : Int
+pub let teleporter_blink_cooldown : Int32
 
 pub let teleporter_blink_distance : Double
 
@@ -469,17 +471,17 @@ pub fn tick_telegraph_markers(GameWorld) -> Unit
 
 pub let tile_size : Double
 
-pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int, Array[Projectile], Array[GameEvent], params? : BalanceParams, floor? : Int, zombies? : Array[SummonedZombie]) -> Unit
+pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int32, Array[Projectile], Array[GameEvent], params? : BalanceParams, floor? : Int32, zombies? : Array[SummonedZombie]) -> Unit
 
-pub fn validate_expedition(DungeonData, Int) -> ExpeditionValidation
+pub fn validate_expedition(DungeonData, Int32) -> ExpeditionValidation
 
-pub let whirlwind_contact_frame : Int
+pub let whirlwind_contact_frame : Int32
 
-pub let whirlwind_cycle_frames : Int
+pub let whirlwind_cycle_frames : Int32
 
-pub let whirlwind_recovery_frames : Int
+pub let whirlwind_recovery_frames : Int32
 
-pub fn woodland_density(Double, Double, Int) -> Double
+pub fn woodland_density(Double, Double, Int32) -> Double
 
 pub let world_h : Double
 
@@ -487,29 +489,30 @@ pub let world_regions : Array[WorldRegion]
 
 pub let world_w : Double
 
-pub fn world_waypoint_position(Int) -> (Double, Double)
+pub fn world_waypoint_position(Int32) -> (Double, Double)
 
-pub let zombie_pounce_anticipation : Int
+pub let zombie_pounce_anticipation : Int32
 
-pub let zombie_pounce_flight : Int
+pub let zombie_pounce_flight : Int32
 
 pub let zombie_pounce_range : Double
 
-pub let zombie_pounce_recovery : Int
+pub let zombie_pounce_recovery : Int32
 
 pub let zombie_stride_distance : Double
 
 // Errors
 
 // Types and methods
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct Affix {
   name : String
-  atk : Int
-  def : Int
-  hp : Int
-  str_bonus : Int
-  int_bonus : Int
-  dex_bonus : Int
+  atk : Int32
+  def : Int32
+  hp : Int32
+  str_bonus : Int32
+  int_bonus : Int32
+  dex_bonus : Int32
   crit : Double
   life_steal : Double
   speed_bonus : Double
@@ -518,9 +521,11 @@ pub(all) struct Affix {
   int_scaling : Double
   dex_scaling : Double
   spell_damage_pct : Double
-  chain_bonus : Int
+  chain_bonus : Int32
   tag_bonuses : Array[TagBonusEntry]
-} derive(ToJson, @json.FromJson)
+}
+pub fn Affix::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Affix::to_json(Self) -> @json.Json
 
 pub(all) enum AffixProfile {
   Classic
@@ -536,12 +541,15 @@ pub(all) enum ArchetypeBuildPolicy {
 }
 pub fn ArchetypeBuildPolicy::to_string(Self) -> String
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct AuthoredScene {
-  version : Int
+  version : Int32
   rectangles : Array[SceneRectangle]
   spawn : Array[Double]
   enemies : Array[SceneEnemy]
-} derive(ToJson, @json.FromJson)
+}
+pub fn AuthoredScene::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AuthoredScene::to_json(Self) -> @json.Json
 
 pub(all) struct BalanceParams {
   player_speed : Double
@@ -591,36 +599,37 @@ pub(all) struct BalanceParams {
   enemy_hp_floor_scale : Double
   enemy_speed_floor_scale : Double
   enemy_damage_floor_scale : Double
-  affix_profile : Int
+  affix_profile : Int32
 }
 pub fn BalanceParams::build_diverse_hackslash() -> Self
-pub fn BalanceParams::chain_lightning_cooldown_frames(Self) -> Int
+pub fn BalanceParams::chain_lightning_cooldown_frames(Self) -> Int32
 pub fn BalanceParams::clamp(Self) -> Self
 pub fn BalanceParams::default() -> Self
 pub fn BalanceParams::drop_table_config(Self) -> DropTableConfig
-pub fn BalanceParams::enemy_bolt_damage_int(Self) -> Int
+pub fn BalanceParams::enemy_bolt_damage_int(Self) -> Int32
 pub fn BalanceParams::from_array(Array[Double]) -> Self
 pub fn BalanceParams::from_preset(BalancePreset) -> Self
 pub fn BalanceParams::get_affix_profile(Self) -> AffixProfile
-pub fn BalanceParams::homing_missile_cooldown_frames(Self) -> Int
-pub fn BalanceParams::ice_nova_cooldown_frames(Self) -> Int
+pub fn BalanceParams::homing_missile_cooldown_frames(Self) -> Int32
+pub fn BalanceParams::ice_nova_cooldown_frames(Self) -> Int32
 pub fn BalanceParams::levelup_config(Self) -> @progression.LevelUpConfig
 pub fn BalanceParams::mechanics_roguelike() -> Self
 pub fn BalanceParams::param_names() -> Array[String]
-pub fn BalanceParams::ranged_shot_cooldown_frames(Self) -> Int
-pub fn BalanceParams::scale_enemy_damage_for_floor(Self, Int, Int) -> Int
-pub fn BalanceParams::scale_enemy_hp_for_floor(Self, Int, Int) -> Int
-pub fn BalanceParams::scale_enemy_speed_for_floor(Self, Double, Int) -> Double
-pub fn BalanceParams::scale_spell_damage(Self, Int) -> Int
-pub fn BalanceParams::spell_cooldown_frames(Self, Int) -> Int
-pub fn BalanceParams::splitting_fireball_cooldown_frames(Self) -> Int
+pub fn BalanceParams::ranged_shot_cooldown_frames(Self) -> Int32
+pub fn BalanceParams::scale_enemy_damage_for_floor(Self, Int32, Int32) -> Int32
+pub fn BalanceParams::scale_enemy_hp_for_floor(Self, Int32, Int32) -> Int32
+pub fn BalanceParams::scale_enemy_speed_for_floor(Self, Double, Int32) -> Double
+pub fn BalanceParams::scale_spell_damage(Self, Int32) -> Int32
+pub fn BalanceParams::spell_cooldown_frames(Self, Int32) -> Int32
+pub fn BalanceParams::splitting_fireball_cooldown_frames(Self) -> Int32
 pub fn BalanceParams::to_array(Self) -> Array[Double]
 
+#derive(Eq, @debug.Debug)
 pub enum BalancePreset {
   Default
   BuildDiverseHackSlash
   MechanicsRoguelike
-} derive(Eq, @debug.Debug)
+}
 pub fn BalancePreset::equal(Self, Self) -> Bool
 pub fn BalancePreset::not_equal(Self, Self) -> Bool
 pub fn BalancePreset::output(Self, &Logger) -> Unit
@@ -636,9 +645,9 @@ pub(all) enum CharacterArchetype {
 }
 pub fn CharacterArchetype::allowed_skills(Self) -> Array[SkillId]
 pub fn CharacterArchetype::anti_synergy_target(Self) -> Self
-pub fn CharacterArchetype::base_dexterity(Self) -> Int
-pub fn CharacterArchetype::base_intelligence(Self) -> Int
-pub fn CharacterArchetype::base_strength(Self) -> Int
+pub fn CharacterArchetype::base_dexterity(Self) -> Int32
+pub fn CharacterArchetype::base_intelligence(Self) -> Int32
+pub fn CharacterArchetype::base_strength(Self) -> Int32
 pub fn CharacterArchetype::basic_attack_multiplier(Self) -> Double
 pub fn CharacterArchetype::build_description(Self) -> String
 pub fn CharacterArchetype::build_glyph(Self) -> String
@@ -646,9 +655,9 @@ pub fn CharacterArchetype::build_name(Self) -> String
 pub fn CharacterArchetype::can_learn_skill(Self, SkillId) -> Bool
 pub fn CharacterArchetype::display_description(Self) -> String
 pub fn CharacterArchetype::display_name(Self) -> String
-pub fn CharacterArchetype::hp_modifier(Self) -> Int
-pub fn CharacterArchetype::offer_priority(Self, SkillId) -> Int
-pub fn CharacterArchetype::offer_priority_with_policy(Self, ArchetypeBuildPolicy, SkillId) -> Int
+pub fn CharacterArchetype::hp_modifier(Self) -> Int32
+pub fn CharacterArchetype::offer_priority(Self, SkillId) -> Int32
+pub fn CharacterArchetype::offer_priority_with_policy(Self, ArchetypeBuildPolicy, SkillId) -> Int32
 pub fn CharacterArchetype::skill_damage_multiplier(Self, SkillId) -> Double
 pub fn CharacterArchetype::speed_modifier(Self) -> Double
 pub fn CharacterArchetype::starting_equipment(Self) -> Array[ItemData]
@@ -656,29 +665,37 @@ pub fn CharacterArchetype::starting_skill_ids(Self) -> Array[SkillId]
 pub fn CharacterArchetype::to_string(Self) -> String
 
 pub(all) struct ChargeProfile {
-  windup : Int
-  active : Int
-  recovery : Int
+  windup : Int32
+  active : Int32
+  recovery : Int32
 }
-pub fn ChargeProfile::duration(Self) -> Int
-pub fn ChargeProfile::is_active(Self, Int) -> Bool
-pub fn ChargeProfile::phase(Self, Int) -> Double
+pub fn ChargeProfile::duration(Self) -> Int32
+pub fn ChargeProfile::is_active(Self, Int32) -> Bool
+pub fn ChargeProfile::phase(Self, Int32) -> Double
 
+#derive(Eq, @debug.Debug)
 pub(all) enum CleaverComboStep {
   Opening
   Return
   Finisher
-} derive(Eq, @debug.Debug)
+}
 pub fn CleaverComboStep::damage_multiplier(Self) -> Double
-pub fn CleaverComboStep::index(Self) -> Int
+pub fn CleaverComboStep::equal(Self, Self) -> Bool
+pub fn CleaverComboStep::index(Self) -> Int32
+pub fn CleaverComboStep::not_equal(Self, Self) -> Bool
 pub fn CleaverComboStep::profile(Self) -> PlayerWeaponProfile
+pub fn CleaverComboStep::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum CombatImpactKind {
   FlameBlast
   AstralBlast
   DashCut
   WhirlwindCut
-} derive(Eq, @debug.Debug)
+}
+pub fn CombatImpactKind::equal(Self, Self) -> Bool
+pub fn CombatImpactKind::not_equal(Self, Self) -> Bool
+pub fn CombatImpactKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CombatTarget {
   x : Double
@@ -687,12 +704,12 @@ pub(all) struct CombatTarget {
 }
 
 pub(all) struct DropTableConfig {
-  equipment_weight : Int
-  health_weight : Int
-  score_weight : Int
-  weapon_weight : Int
-  armor_weight : Int
-  accessory_weight : Int
+  equipment_weight : Int32
+  health_weight : Int32
+  score_weight : Int32
+  weapon_weight : Int32
+  armor_weight : Int32
+  accessory_weight : Int32
   rarity_bonus_per_floor : Double
   base_item_tier_base : Double
   base_item_tier_per_floor : Double
@@ -715,7 +732,8 @@ pub(all) struct DungeonData {
   mut landscape : Landscape?
 }
 
-type DungeonGeneratorKind derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+type DungeonGeneratorKind
 pub fn DungeonGeneratorKind::equal(Self, Self) -> Bool
 pub fn DungeonGeneratorKind::not_equal(Self, Self) -> Bool
 pub fn DungeonGeneratorKind::output(Self, &Logger) -> Unit
@@ -729,47 +747,47 @@ pub(all) struct Enemy {
   mut y : Double
   mut vx : Double
   mut vy : Double
-  mut hp : Int
-  max_hp : Int
+  mut hp : Int32
+  max_hp : Int32
   speed : Double
   size : Double
   mut alive : Bool
-  mut damage_timer : Int
+  mut damage_timer : Int32
   kind : EnemyKind
   mut move_speed : Double
   mut move_angle : Double
   mut travel_distance : Double
   mut path_cache : Array[@types.Point]
-  mut path_index : Int
-  mut path_timer : Int
-  mut shoot_cooldown : Int
-  mut pending_bolt_timer : Int
+  mut path_index : Int32
+  mut path_timer : Int32
+  mut shoot_cooldown : Int32
+  mut pending_bolt_timer : Int32
   mut pending_bolt_target_x : Double
   mut pending_bolt_target_y : Double
-  mut charge_timer : Int
-  mut charge_cooldown : Int
-  mut meteor_cast_timer : Int
+  mut charge_timer : Int32
+  mut charge_cooldown : Int32
+  mut meteor_cast_timer : Int32
   mut meteor_target_x : Double
   mut meteor_target_y : Double
-  mut beam_cast_timer : Int
+  mut beam_cast_timer : Int32
   mut beam_target_x : Double
   mut beam_target_y : Double
   mut attack_motion : EnemyAttackMotion
-  mut attack_frame : Int
-  mut attack_windup : Int
-  mut attack_recovery : Int
-  mut attack_cooldown : Int
+  mut attack_frame : Int32
+  mut attack_windup : Int32
+  mut attack_recovery : Int32
+  mut attack_cooldown : Int32
   mut attack_target_x : Double
   mut attack_target_y : Double
   mut knockback_x : Double
   mut knockback_y : Double
-  mut stagger_frames : Int
+  mut stagger_frames : Int32
   mut attack_hit_pending : Bool
   mut pounce : EnemyPounce?
-  room_index : Int
+  room_index : Int32
 }
 pub fn Enemy::attack_phase(Self) -> Double
-pub fn Enemy::begin_attack(Self, EnemyAttackMotion, Int, Int, Double, Double) -> Unit
+pub fn Enemy::begin_attack(Self, EnemyAttackMotion, Int32, Int32, Double, Double) -> Unit
 pub fn Enemy::combat_target(Self) -> CombatTarget
 pub fn Enemy::is_charging(Self) -> Bool
 pub fn Enemy::pounce_airborne(Self) -> Bool
@@ -782,13 +800,14 @@ pub(all) struct EnemyAIContext {
   projectiles : Array[Projectile]
   events : Array[GameEvent]
   params : BalanceParams
-  floor : Int
-  frame_count : Int
+  floor : Int32
+  frame_count : Int32
   dist_sq : Double
   chase_range_sq : Double
   same_room_visible : Bool
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum EnemyAttackMotion {
   NoAttack
   Pounce
@@ -798,21 +817,34 @@ pub(all) enum EnemyAttackMotion {
   CastSpell
   BowShot
   Charge
-} derive(Eq, @debug.Debug)
+}
+pub fn EnemyAttackMotion::equal(Self, Self) -> Bool
 pub fn EnemyAttackMotion::melee_profile(Self) -> EnemyMeleeProfile?
+pub fn EnemyAttackMotion::not_equal(Self, Self) -> Bool
+pub fn EnemyAttackMotion::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) enum EnemyAwareness {
   Resting
-  Waking(Int)
+  Waking(Int32)
   Alert
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
+pub fn EnemyAwareness::equal(Self, Self) -> Bool
+pub fn EnemyAwareness::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn EnemyAwareness::not_equal(Self, Self) -> Bool
+pub fn EnemyAwareness::to_json(Self) -> @json.Json
+pub fn EnemyAwareness::to_repr(Self) -> @debug.Repr
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct EnemyCamp {
-  pack_id : Int
+  pack_id : Int32
   pose : EnemyRestPose
   mut awareness : EnemyAwareness
-} derive(ToJson, @json.FromJson)
+}
+pub fn EnemyCamp::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn EnemyCamp::to_json(Self) -> @json.Json
 
+#derive(Eq, @json.FromJson, @json.ToJson)
 pub(all) enum EnemyKind {
   Zombie
   Wolf
@@ -827,13 +859,15 @@ pub(all) enum EnemyKind {
   Teleporter
   Swarm
   Caster
-} derive(Eq, ToJson, @json.FromJson)
+}
 pub fn EnemyKind::equal(Self, Self) -> Bool
+pub fn EnemyKind::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn EnemyKind::not_equal(Self, Self) -> Bool
+pub fn EnemyKind::to_json(Self) -> @json.Json
 
 pub(all) struct EnemyMeleeProfile {
-  windup : Int
-  recovery : Int
+  windup : Int32
+  recovery : Int32
   reach : Double
   width : Double
 }
@@ -846,18 +880,30 @@ pub(all) struct EnemyPounce {
   landing_y : Double
 }
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) enum EnemyRestPose {
   Standing
   Sitting
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
+pub fn EnemyRestPose::equal(Self, Self) -> Bool
+pub fn EnemyRestPose::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn EnemyRestPose::not_equal(Self, Self) -> Bool
+pub fn EnemyRestPose::to_json(Self) -> @json.Json
+pub fn EnemyRestPose::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum EnemySpecies {
   Zombie
   Goblin
   Kobold
   Skeleton
   Wolf
-} derive(Eq, @debug.Debug)
+}
+pub fn EnemySpecies::equal(Self, Self) -> Bool
+pub fn EnemySpecies::not_equal(Self, Self) -> Bool
+pub fn EnemySpecies::output(Self, &Logger) -> Unit
+pub fn EnemySpecies::to_repr(Self) -> @debug.Repr
+pub fn EnemySpecies::to_string(Self) -> String
 pub impl Show for EnemySpecies
 
 pub(all) struct EnemyTypeConfig {
@@ -865,12 +911,13 @@ pub(all) struct EnemyTypeConfig {
   hp_param : Double
   speed_param : Double
   size : Double
-  spawn_weight : Int
-  xp_reward : Int
-  drop_chance : Int
-  drop_count_max : Int
+  spawn_weight : Int32
+  xp_reward : Int32
+  drop_chance : Int32
+  drop_count_max : Int32
 }
 
+#derive(Eq, @json.FromJson, @json.ToJson)
 pub(all) enum EquipSlot {
   Weapon
   Armor
@@ -880,9 +927,13 @@ pub(all) enum EquipSlot {
   Boots
   Offhand
   Amulet
-} derive(Eq, ToJson, @json.FromJson)
-pub fn EquipSlot::index(Self) -> Int
+}
+pub fn EquipSlot::equal(Self, Self) -> Bool
+pub fn EquipSlot::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn EquipSlot::index(Self) -> Int32
 pub fn EquipSlot::label(Self) -> String
+pub fn EquipSlot::not_equal(Self, Self) -> Bool
+pub fn EquipSlot::to_json(Self) -> @json.Json
 
 pub(all) struct Equipment {
   mut weapon : ItemData?
@@ -897,51 +948,59 @@ pub fn Equipment::item_for_slot(Self, EquipSlot) -> ItemData?
 pub fn Equipment::new() -> Self
 pub fn Equipment::should_equip(Self, ItemData) -> Bool
 pub fn Equipment::should_equip_for_build(Self, ItemData, CharacterArchetype, ArchetypeBuildPolicy) -> Bool
-pub fn Equipment::total_atk(Self) -> Int
-pub fn Equipment::total_chain_bonus(Self) -> Int
+pub fn Equipment::total_atk(Self) -> Int32
+pub fn Equipment::total_chain_bonus(Self) -> Int32
 pub fn Equipment::total_cooldown_reduction(Self) -> Double
 pub fn Equipment::total_crit(Self) -> Double
-pub fn Equipment::total_def(Self) -> Int
-pub fn Equipment::total_dex_bonus(Self) -> Int
+pub fn Equipment::total_def(Self) -> Int32
+pub fn Equipment::total_dex_bonus(Self) -> Int32
 pub fn Equipment::total_dex_scaling(Self) -> Double
-pub fn Equipment::total_hp(Self) -> Int
-pub fn Equipment::total_int_bonus(Self) -> Int
+pub fn Equipment::total_hp(Self) -> Int32
+pub fn Equipment::total_int_bonus(Self) -> Int32
 pub fn Equipment::total_int_scaling(Self) -> Double
 pub fn Equipment::total_life_steal(Self) -> Double
 pub fn Equipment::total_speed_bonus(Self) -> Double
 pub fn Equipment::total_spell_damage_pct(Self) -> Double
-pub fn Equipment::total_str_bonus(Self) -> Int
+pub fn Equipment::total_str_bonus(Self) -> Int32
 pub fn Equipment::total_str_scaling(Self) -> Double
 pub fn Equipment::unequip(Self, EquipSlot) -> ItemData?
 
+#derive(Eq, @debug.Debug)
 pub(all) enum EquipmentStyle {
   WornGear
   LeatherGear
   PlateGear
   OccultGear
-} derive(Eq, @debug.Debug)
-pub fn EquipmentStyle::index(Self) -> Int
+}
+pub fn EquipmentStyle::equal(Self, Self) -> Bool
+pub fn EquipmentStyle::index(Self) -> Int32
+pub fn EquipmentStyle::not_equal(Self, Self) -> Bool
+pub fn EquipmentStyle::to_repr(Self) -> @debug.Repr
 
+#derive(@json.ToJson)
 pub(all) struct ExpeditionPlan {
-  version : Int
+  version : Int32
   name : String
   pads : Array[@terrain3d.TerrainPad]
   routes : Array[@terrain3d.TerrainRoute]
-} derive(ToJson)
+}
+pub fn ExpeditionPlan::to_json(Self) -> @json.Json
 
+#derive(@json.ToJson)
 pub(all) struct ExpeditionValidation {
-  unreachable_targets : Int
+  unreachable_targets : Int32
   max_walk_slope : Double
-  ground_triangles : Int
-  collision_tiles : Int
-} derive(ToJson)
+  ground_triangles : Int32
+  collision_tiles : Int32
+}
+pub fn ExpeditionValidation::to_json(Self) -> @json.Json
 
 pub(all) struct FlamingSkull {
   mut x : Double
   mut y : Double
   mut angle : Double
-  mut age : Int
-  mut attack_cooldown : Int
+  mut age : Int32
+  mut attack_cooldown : Int32
   mut target : Enemy?
 }
 
@@ -950,8 +1009,8 @@ pub(all) enum GameEvent {
   DeathBurst(Double, Double)
   DashTrail(Double, Double)
   PlayerHurt(Double, Double)
-  PlayerDamageNumber(Double, Double, Int)
-  EnemyDamageNumber(Double, Double, Int)
+  PlayerDamageNumber(Double, Double, Int32)
+  EnemyDamageNumber(Double, Double, Int32)
   ChestOpened(Double, Double)
   ItemPickup(Double, Double, Bool)
   GroundTelegraphRing(Double, Double, Double)
@@ -964,29 +1023,30 @@ pub(all) enum GameEvent {
   FireballCast(Double, Double)
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)
-  EnemyAreaDamage(Double, Double, Double, Int)
+  EnemyAreaDamage(Double, Double, Double, Int32)
   SummonReleased(Double, Double, Bool)
   IceNovaCast(Double, Double, Double)
   MeteorCastStart(Double, Double, Double)
   MeteorImpact(Double, Double, Double)
   BeamFire(Double, Double, Double, Double, Bool)
   MeleeSlash(Double, Double, Double)
-  RoomCleared(Int, Double, Double)
+  RoomCleared(Int32, Double, Double)
   GuardBlocked(Double, Double, Bool)
-  CombatImpact(CombatImpactKind, Double, Double, Double, Int)
-  MeleeImpact(PlayerWeaponKind, CleaverComboStep, Double, Double, Double, Int)
+  CombatImpact(CombatImpactKind, Double, Double, Double, Int32)
+  MeleeImpact(PlayerWeaponKind, CleaverComboStep, Double, Double, Double, Int32)
   EnemyMeleeWarning(Double, Double)
   AttackTriggered
   HurtTriggered
   FloorComplete
 }
 
+#derive(Eq)
 pub(all) enum GameMode {
   Title
   CharacterSelect
   Playing
   GameOver
-} derive(Eq)
+}
 pub fn GameMode::equal(Self, Self) -> Bool
 pub fn GameMode::not_equal(Self, Self) -> Bool
 
@@ -998,87 +1058,88 @@ pub(all) struct GameWorld {
   mut archetype : CharacterArchetype
   build_policy : ArchetypeBuildPolicy
   mut mode : GameMode
-  mut frame_count : Int
-  mut seed : Int
-  mut floor : Int
-  mut score : Int
+  mut frame_count : Int32
+  mut seed : Int32
+  mut floor : Int32
+  mut score : Int32
   player : Player
   mut enemies : Array[Enemy]
   mut chests : Array[TreasureChest]
   mut items : Array[ItemDrop]
-  mut next_pickup_id : Int
+  mut next_pickup_id : Int32
   mut projectiles : Array[Projectile]
   mut dungeon : DungeonData
-  mut attack_timer : Int
+  mut attack_timer : Int32
   mut player_weapon : PlayerWeaponKind
   mut hunter_preset : HunterPreset
-  mut hunter_slots : Array[Int]
+  mut hunter_slots : Array[Int32]
   mut cleaver_next : CleaverComboStep
-  mut cleaver_combo_timer : Int
+  mut cleaver_combo_timer : Int32
   mut weapon_attack : PlayerWeaponAttack?
   mut player_charge : PlayerCharge?
   summons : PlayerSummons
   arts : HunterArts
-  mut charge_cooldown : Int
+  mut charge_cooldown : Int32
   mut screen_flash : Double
-  mut floor_announce_timer : Int
-  mut chain_lightning_cooldown_timer : Int
-  mut homing_missile_cooldown_timer : Int
-  mut splitting_fireball_cooldown_timer : Int
-  mut ice_nova_cooldown_timer : Int
+  mut floor_announce_timer : Int32
+  mut chain_lightning_cooldown_timer : Int32
+  mut homing_missile_cooldown_timer : Int32
+  mut splitting_fireball_cooldown_timer : Int32
+  mut ice_nova_cooldown_timer : Int32
   inventory : Inventory
   equipment : Equipment
   skills : SkillTree
   mut level_progress : LevelProgression
   mut player_stats : PlayerStats
   mut ui_mode : UIMode
-  mut ui_cursor : Int
+  mut ui_cursor : Int32
   mut manual_combat : Bool
   mut auto_play : Bool
   mut auto_nav_target : @types.Point?
   mut auto_nav_path : Array[@types.Point]
-  mut auto_nav_index : Int
+  mut auto_nav_index : Int32
   mut auto_cleared_rooms : Array[Bool]
   mut reward_cleared_rooms : Array[Bool]
   mut discovered_rooms : Array[Bool]
-  mut discovered_rooms_version : Int
-  mut select_cursor : Int
+  mut discovered_rooms_version : Int32
+  mut select_cursor : Int32
   mut cursor_x : Double
   mut cursor_y : Double
   mut telegraph_markers : Array[TelegraphMarker]
   mut item_log : Array[ItemLogEntry]
   mut events : Array[GameEvent]
-  mut enemy_separation_cell_heads : Array[Int]
-  mut enemy_separation_next_indices : Array[Int]
-  mut enemy_separation_cell_indices : Array[Int]
+  mut enemy_separation_cell_heads : Array[Int32]
+  mut enemy_separation_next_indices : Array[Int32]
+  mut enemy_separation_cell_indices : Array[Int32]
 }
 pub fn GameWorld::activate_nearby_waypoint(Self) -> Bool
 pub fn GameWorld::allocate_skill(Self, SkillId) -> Bool
 pub fn GameWorld::apply_archetype(Self, CharacterArchetype) -> Unit
-pub fn GameWorld::apply_dungeon(Self, Int, Int) -> Unit
+pub fn GameWorld::apply_dungeon(Self, Int32, Int32) -> Unit
 pub fn GameWorld::apply_equipment_pickup_plan(Self, ItemData, @gameplay2d.EquipmentPickupPlan) -> Bool
 pub fn GameWorld::apply_hunter_preset(Self, HunterPreset) -> Bool
-pub fn GameWorld::apply_levelup_offer_choice(Self, Int, Int) -> Bool
+pub fn GameWorld::apply_levelup_offer_choice(Self, Int32, Int32) -> Bool
 pub fn GameWorld::apply_scene_json(Self, String) -> Unit raise
-pub fn GameWorld::assign_hunter_slot(Self, Int, Int) -> Bool
+pub fn GameWorld::apply_tuning(Self, String, String, Double) -> Unit raise
+pub fn GameWorld::assign_hunter_slot(Self, Int32, Int32) -> Bool
 pub fn GameWorld::assist_melee_angle(Self, Double, PlayerWeaponKind) -> Double
-pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
-pub fn GameWorld::auto_activate_spell_slots(Self, Int, Double) -> Unit
+pub fn GameWorld::auto_activate_skills(Self, Int32) -> Unit
+pub fn GameWorld::auto_activate_spell_slots(Self, Int32, Double) -> Unit
 pub fn GameWorld::auto_choose_levelup_offer(Self) -> Unit
 pub fn GameWorld::auto_equip_best(Self) -> Unit
 pub fn GameWorld::begin_starting_build(Self, CharacterArchetype) -> Unit
-pub fn GameWorld::boundary_destination(Self) -> (Int, Double, Double)?
+pub fn GameWorld::boundary_destination(Self) -> (Int32, Double, Double)?
 pub fn GameWorld::cancel_hunter_action(Self) -> Unit
 pub fn GameWorld::capture_region(Self) -> Unit
 pub fn GameWorld::collect_equipment_pickup(Self, ItemData) -> Bool
-pub fn GameWorld::deal_player_damage(Self, Int, source? : (Double, Double)) -> Unit
+pub fn GameWorld::deal_player_damage(Self, Int32, source? : (Double, Double)) -> Unit
 pub fn GameWorld::drain_events(Self) -> Array[GameEvent]
 pub fn GameWorld::ensure_hunter_loadout(Self) -> Unit
-pub fn GameWorld::enter_region(Self, Int, Double, Double) -> Bool
+pub fn GameWorld::enter_region(Self, Int32, Double, Double) -> Bool
 pub fn GameWorld::equip_player_weapon(Self, PlayerWeaponKind) -> Bool
 pub fn GameWorld::ground_strike_target(Self, Double, Double) -> (Double, Double)
 pub fn GameWorld::ground_strike_target_valid(Self, Double, Double) -> Bool
-pub fn GameWorld::hunter_action_learned(Self, Int) -> Bool
+pub fn GameWorld::hunter_action_learned(Self, Int32) -> Bool
 pub fn GameWorld::hunter_action_locked(Self) -> Bool
 pub fn GameWorld::loot_in_reach(Self, ItemDrop) -> Bool
 pub fn GameWorld::mark_current_room_discovered(Self) -> Unit
@@ -1086,27 +1147,27 @@ pub fn GameWorld::melee_lock_target(Self, Double, PlayerWeaponKind) -> Enemy?
 pub fn GameWorld::near_expedition_anchor(Self) -> Bool
 pub fn GameWorld::near_waypoint(Self) -> Bool
 pub fn GameWorld::nearby_chest(Self) -> TreasureChest?
-pub fn GameWorld::nearest_pickup_id(Self) -> Int?
-pub fn GameWorld::new(seed~ : Int, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy, hunting_grounds? : Bool) -> Self
+pub fn GameWorld::nearest_pickup_id(Self) -> Int32?
+pub fn GameWorld::new(seed~ : Int32, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy, hunting_grounds? : Bool) -> Self
 pub fn GameWorld::open_levelup_ui_if_needed(Self) -> Unit
 pub fn GameWorld::open_nearby_chest(Self) -> Bool
-pub fn GameWorld::pickup_item(Self, Int) -> Bool
-pub fn GameWorld::preload_regions(Self) -> Array[Int]
-pub fn GameWorld::prepare_region(Self, Int) -> Bool
-pub fn GameWorld::push_item_log(Self, String, Int) -> Unit
+pub fn GameWorld::pickup_item(Self, Int32) -> Bool
+pub fn GameWorld::preload_regions(Self) -> Array[Int32]
+pub fn GameWorld::prepare_region(Self, Int32) -> Bool
+pub fn GameWorld::push_item_log(Self, String, Int32) -> Unit
 pub fn GameWorld::refresh_player_stats(Self) -> Unit
 pub fn GameWorld::request_basic_attack(Self, Double) -> Bool
 pub fn GameWorld::request_charge(Self, Double) -> Bool
 pub fn GameWorld::request_dash_strike(Self, Double) -> Bool
 pub fn GameWorld::request_ground_strike(Self, Double, Double) -> Bool
 pub fn GameWorld::request_hunter_spell(Self, HunterArtKind) -> Bool
-pub fn GameWorld::request_waypoint(Self, Int) -> Bool
+pub fn GameWorld::request_waypoint(Self, Int32) -> Bool
 pub fn GameWorld::reset_floor(Self) -> Unit
-pub fn GameWorld::reset_world_atlas(Self, Int) -> Unit
+pub fn GameWorld::reset_world_atlas(Self, Int32) -> Unit
 pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
 pub fn GameWorld::respawn_at_waypoint(Self) -> Bool
 pub fn GameWorld::restore_expedition_terrain(Self) -> Bool
-pub fn GameWorld::restore_hunter_slots(Self, Array[Int]) -> Unit
+pub fn GameWorld::restore_hunter_slots(Self, Array[Int32]) -> Unit
 pub fn GameWorld::restore_world_progress(Self, String) -> Bool
 pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
@@ -1136,22 +1197,24 @@ pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
 pub fn GameWorld::tick_room_clear_rewards(Self) -> Unit
 pub fn GameWorld::tick_with_enemy_ai_grid(Self, Double, Double, @types.Grid2D) -> Unit
 pub fn GameWorld::transfer_inventory(Self, InventorySource, InventoryTarget) -> Bool
-pub fn GameWorld::travel_to_expedition_site(Self, Int) -> Bool
+pub fn GameWorld::travel_to_expedition_site(Self, Int32) -> Bool
+pub fn GameWorld::tuning_subjects(Self) -> Array[@inspection.Subject]
 pub fn GameWorld::whirlwind_radius(Self) -> Double
 
 pub(all) struct GroundStrike {
   x : Double
   y : Double
   radius : Double
-  mut frame : Int
+  mut frame : Int32
 }
 
 pub(all) struct HunterArt {
   kind : HunterArtKind
   angle : Double
-  mut frame : Int
+  mut frame : Int32
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum HunterArtKind {
   LightningArt
   FlameArt
@@ -1159,35 +1222,42 @@ pub(all) enum HunterArtKind {
   DashArt
   RaiseZombieArt
   FlamingSkullArt
-} derive(Eq, @debug.Debug)
+}
+pub fn HunterArtKind::equal(Self, Self) -> Bool
+pub fn HunterArtKind::not_equal(Self, Self) -> Bool
+pub fn HunterArtKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct HunterArts {
   whirlwind : WhirlwindChannel
   mut guarding : Bool
-  mut guard_frame : Int
+  mut guard_frame : Int32
   mut guard_energy : Double
-  mut guard_recovery : Int
+  mut guard_recovery : Int32
   mut action : HunterArt?
   mut strike : GroundStrike?
-  mut ground_cooldown : Int
-  mut dash_cooldown : Int
+  mut ground_cooldown : Int32
+  mut dash_cooldown : Int32
 }
 pub fn HunterArts::new() -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) enum HunterPreset {
   BladePreset
   StormPreset
   MarksmanPreset
   SummonerPreset
-} derive(Eq, @debug.Debug)
-pub fn HunterPreset::index(Self) -> Int
+}
+pub fn HunterPreset::equal(Self, Self) -> Bool
+pub fn HunterPreset::index(Self) -> Int32
+pub fn HunterPreset::not_equal(Self, Self) -> Bool
 pub fn HunterPreset::profile(Self) -> HunterPresetProfile
+pub fn HunterPreset::to_repr(Self) -> @debug.Repr
 
 pub(all) struct HunterPresetProfile {
   id : String
   name : String
   weapon : PlayerWeaponKind
-  keys : Array[Int]
+  keys : Array[Int32]
 }
 
 pub(all) struct HuntingElevation {
@@ -1197,13 +1267,14 @@ pub(all) struct HuntingElevation {
 
 pub(all) struct HuntingProp {
   kind : HuntingPropKind
-  x : Int
-  z : Int
-  width : Int
-  depth : Int
-  variant : Int
+  x : Int32
+  z : Int32
+  width : Int32
+  depth : Int32
+  variant : Int32
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum HuntingPropKind {
   RuinWall
   RuinColumn
@@ -1213,88 +1284,99 @@ pub(all) enum HuntingPropKind {
   SupplyCrate
   RoadSign
   BrokenCart
-} derive(Eq, @debug.Debug)
+}
+pub fn HuntingPropKind::equal(Self, Self) -> Bool
+pub fn HuntingPropKind::not_equal(Self, Self) -> Bool
+pub fn HuntingPropKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct HuntingSite {
-  id : Int
+  id : Int32
   name : String
   kind : HuntingSiteKind
-  x : Int
-  z : Int
-  room : Int
+  x : Int32
+  z : Int32
+  room : Int32
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum HuntingSiteKind {
   Ruins
   Encampment
-} derive(Eq, @debug.Debug)
+}
+pub fn HuntingSiteKind::equal(Self, Self) -> Bool
+pub fn HuntingSiteKind::not_equal(Self, Self) -> Bool
+pub fn HuntingSiteKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Inventory {
   items : Array[ItemData?]
-  capacity : Int
-  mut grid : @gameplay2d.ItemGrid?
+  capacity : Int32
+  mut grid : @inventory.ItemGrid?
 }
 pub fn Inventory::add(Self, ItemData) -> Bool
 pub fn Inventory::add_fifo(Self, ItemData) -> ItemData?
 pub fn Inventory::clear(Self) -> Unit
-pub fn Inventory::count(Self) -> Int
-pub fn Inventory::new(Int) -> Self
-pub fn Inventory::new_grid(Int, Int) -> Self
-pub fn Inventory::remove(Self, Int) -> ItemData?
+pub fn Inventory::count(Self) -> Int32
+pub fn Inventory::new(Int32) -> Self
+pub fn Inventory::new_grid(Int32, Int32) -> Self
+pub fn Inventory::remove(Self, Int32) -> ItemData?
 pub fn Inventory::repack(Self) -> Unit
-pub fn Inventory::restore_layout(Self, Array[(Int, Int, Bool)?]) -> Unit
+pub fn Inventory::restore_layout(Self, Array[(Int32, Int32, Bool)?]) -> Unit
 
 pub(all) enum InventorySource {
-  Bag(Int)
+  Bag(Int32)
   Equipped(EquipSlot)
 }
 
 pub(all) enum InventoryTarget {
-  Cell(Int, Int, Bool)
+  Cell(Int32, Int32, Bool)
   Wear(EquipSlot)
   Ground
 }
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct ItemData {
   name : String
   rarity : ItemRarity
   slot : EquipSlot
-  atk_bonus : Int
-  def_bonus : Int
-  hp_bonus : Int
-  str_bonus : Int
-  int_bonus : Int
-  dex_bonus : Int
+  atk_bonus : Int32
+  def_bonus : Int32
+  hp_bonus : Int32
+  str_bonus : Int32
+  int_bonus : Int32
+  dex_bonus : Int32
   str_scaling : Double
   int_scaling : Double
   dex_scaling : Double
   prefix : Affix?
   suffix : Affix?
-  icon_id : Int
-} derive(ToJson, @json.FromJson)
+  icon_id : Int32
+}
 pub fn ItemData::archetype_fit_score(Self, CharacterArchetype) -> Double
 pub fn ItemData::build_policy_fit_score(Self, CharacterArchetype, ArchetypeBuildPolicy) -> Double
 pub fn ItemData::display_name(Self) -> String
 pub fn ItemData::equipment_style(Self) -> EquipmentStyle
-pub fn ItemData::footprint(Self) -> @gameplay2d.GridFootprint
+pub fn ItemData::footprint(Self) -> @inventory.GridFootprint
+pub fn ItemData::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn ItemData::motion_weapon(Self) -> PlayerWeaponKind?
-pub fn ItemData::total_atk(Self) -> Int
-pub fn ItemData::total_chain_bonus(Self) -> Int
+pub fn ItemData::to_json(Self) -> @json.Json
+pub fn ItemData::total_atk(Self) -> Int32
+pub fn ItemData::total_chain_bonus(Self) -> Int32
 pub fn ItemData::total_cooldown_reduction(Self) -> Double
 pub fn ItemData::total_crit(Self) -> Double
-pub fn ItemData::total_def(Self) -> Int
-pub fn ItemData::total_dex_bonus(Self) -> Int
+pub fn ItemData::total_def(Self) -> Int32
+pub fn ItemData::total_dex_bonus(Self) -> Int32
 pub fn ItemData::total_dex_scaling(Self) -> Double
-pub fn ItemData::total_hp(Self) -> Int
-pub fn ItemData::total_int_bonus(Self) -> Int
+pub fn ItemData::total_hp(Self) -> Int32
+pub fn ItemData::total_int_bonus(Self) -> Int32
 pub fn ItemData::total_int_scaling(Self) -> Double
 pub fn ItemData::total_life_steal(Self) -> Double
 pub fn ItemData::total_speed_bonus(Self) -> Double
 pub fn ItemData::total_spell_damage_pct(Self) -> Double
 pub fn ItemData::total_stat_score(Self) -> Double
-pub fn ItemData::total_str_bonus(Self) -> Int
+pub fn ItemData::total_str_bonus(Self) -> Int32
 pub fn ItemData::total_str_scaling(Self) -> Double
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct ItemDrop {
   mut x : Double
   mut y : Double
@@ -1302,42 +1384,51 @@ pub(all) struct ItemDrop {
   mut vy : Double
   kind : ItemKind
   mut alive : Bool
-  spawn_frame : Int
+  spawn_frame : Int32
   mut pickup_blocked : Bool?
-  mut pickup_id : Int?
-} derive(ToJson, @json.FromJson)
+  mut pickup_id : Int32?
+}
+pub fn ItemDrop::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ItemDrop::to_json(Self) -> @json.Json
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) enum ItemKind {
   Health
   Score
   Equipment(ItemData)
-} derive(ToJson, @json.FromJson)
+}
+pub fn ItemKind::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn ItemKind::op_equal(Self, Self) -> Bool
+pub fn ItemKind::to_json(Self) -> @json.Json
 
 pub(all) struct ItemLogEntry {
   text : String
-  color : Int
-  mut frames_remaining : Int
+  color : Int32
+  mut frames_remaining : Int32
 }
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) enum ItemRarity {
   Common
   Uncommon
   Rare
   Epic
-} derive(ToJson, @json.FromJson)
-pub fn ItemRarity::color(Self) -> Int
+}
+pub fn ItemRarity::color(Self) -> Int32
+pub fn ItemRarity::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ItemRarity::to_json(Self) -> @json.Json
 
 pub(all) struct Landscape {
-  region : Int
+  region : Int32
   bed : @terrain3d.HeightField
   walk : @terrain3d.HeightField
   kinds : Array[LandscapeKind]
   bridges : Array[@terrain3d.TerrainRoute]
   cave : @terrain3d.TerrainRoute
 }
-pub fn Landscape::kind(Self, Int, Int) -> LandscapeKind
+pub fn Landscape::kind(Self, Int32, Int32) -> LandscapeKind
 
+#derive(Eq, @debug.Debug)
 pub(all) enum LandscapeKind {
   Land
   Sea
@@ -1345,68 +1436,71 @@ pub(all) enum LandscapeKind {
   Mountain
   Bridge
   CaveFloor
-} derive(Eq, @debug.Debug)
+}
+pub fn LandscapeKind::equal(Self, Self) -> Bool
+pub fn LandscapeKind::not_equal(Self, Self) -> Bool
+pub fn LandscapeKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct LevelProgression {
-  mut level : Int
-  mut xp : Int
-  mut next_level_xp : Int
-  mut pending_choices : Int
+  mut level : Int32
+  mut xp : Int32
+  mut next_level_xp : Int32
+  mut pending_choices : Int32
   mut current_offers : Array[SkillId]
 }
-pub fn LevelProgression::add_xp(Self, SkillTree, CharacterArchetype, ArchetypeBuildPolicy, Int, Int, @progression.LevelUpConfig) -> Bool
-pub fn LevelProgression::choose_offer(Self, SkillTree, CharacterArchetype, ArchetypeBuildPolicy, Int, Int) -> Bool
+pub fn LevelProgression::add_xp(Self, SkillTree, CharacterArchetype, ArchetypeBuildPolicy, Int32, Int32, @progression.LevelUpConfig) -> Bool
+pub fn LevelProgression::choose_offer(Self, SkillTree, CharacterArchetype, ArchetypeBuildPolicy, Int32, Int32) -> Bool
 pub fn LevelProgression::new(config? : @progression.LevelUpConfig) -> Self
 
 pub(all) struct Player {
   mut x : Double
   mut y : Double
-  mut hp : Int
-  max_hp : Int
+  mut hp : Int32
+  max_hp : Int32
   size : Double
-  mut damage_timer : Int
-  mut iframe_timer : Int
+  mut damage_timer : Int32
+  mut iframe_timer : Int32
   mut facing_angle : Double
-  mut dash_timer : Int
-  mut dash_cooldown_timer : Int
+  mut dash_timer : Int32
+  mut dash_cooldown_timer : Int32
   mut dash_vx : Double
   mut dash_vy : Double
-  mut counter_timer : Int
-  mut counter_cooldown_timer : Int
+  mut counter_timer : Int32
+  mut counter_cooldown_timer : Int32
 }
 pub fn Player::combat_target(Self) -> CombatTarget
 
 pub(all) struct PlayerCharge {
   angle : Double
-  mut frame : Int
-  hit_enemies : Array[Int]
+  mut frame : Int32
+  hit_enemies : Array[Int32]
 }
 
 pub(all) struct PlayerStats {
-  max_hp : Int
-  atk : Int
-  attack_power : Int
-  spell_power : Int
-  ranged_power : Int
-  def : Int
-  strength : Int
-  intelligence : Int
-  dexterity : Int
-  dash_cooldown : Int
+  max_hp : Int32
+  atk : Int32
+  attack_power : Int32
+  spell_power : Int32
+  ranged_power : Int32
+  def : Int32
+  strength : Int32
+  intelligence : Int32
+  dexterity : Int32
+  dash_cooldown : Int32
   crit_chance : Double
   life_steal : Double
   speed_bonus : Double
   cooldown_reduction : Double
   spell_damage_pct : Double
-  chain_bonus : Int
+  chain_bonus : Int32
   tag_bonuses : Array[TagBonus]
 }
 
 pub(all) struct PlayerSummons {
   zombies : Array[SummonedZombie]
   skulls : Array[FlamingSkull]
-  mut zombie_cooldown : Int
-  mut skull_cooldown : Int
+  mut zombie_cooldown : Int32
+  mut skull_cooldown : Int32
 }
 pub fn PlayerSummons::clear(Self) -> Unit
 pub fn PlayerSummons::new() -> Self
@@ -1415,27 +1509,31 @@ pub(all) struct PlayerWeaponAttack {
   weapon : PlayerWeaponKind
   combo : CleaverComboStep
   angle : Double
-  mut frame : Int
+  mut frame : Int32
 }
 pub fn PlayerWeaponAttack::profile(Self) -> PlayerWeaponProfile
 
+#derive(Eq, @debug.Debug)
 pub(all) enum PlayerWeaponKind {
   Cleaver
   Spear
   Knuckles
   Focus
   Bow
-} derive(Eq, @debug.Debug)
-pub fn PlayerWeaponKind::index(Self) -> Int
+}
+pub fn PlayerWeaponKind::equal(Self, Self) -> Bool
+pub fn PlayerWeaponKind::index(Self) -> Int32
 pub fn PlayerWeaponKind::is_melee(Self) -> Bool
+pub fn PlayerWeaponKind::not_equal(Self, Self) -> Bool
 pub fn PlayerWeaponKind::profile(Self) -> PlayerWeaponProfile
+pub fn PlayerWeaponKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct PlayerWeaponProfile {
   id : String
   name : String
   action : String
-  windup : Int
-  recovery : Int
+  windup : Int32
+  recovery : Int32
   reach : Double
   width : Double
 }
@@ -1445,9 +1543,9 @@ pub(all) struct Projectile {
   mut y : Double
   mut vx : Double
   mut vy : Double
-  mut age : Int
+  mut age : Int32
   mut alive : Bool
-  mut damage : Int
+  mut damage : Int32
   mut is_player : Bool
   kind : ProjectileKind
 }
@@ -1456,16 +1554,17 @@ pub(all) struct ProjectileHomingProfile {
   seek_range : Double
   min_alignment : Double
   turn_radians : Double
-  delay_frames : Int
-  lifetime : Int
+  delay_frames : Int32
+  lifetime : Int32
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum ProjectileKind {
   Arrow
-  Fireball(Int)
+  Fireball(Int32)
   HomingMissile
   EnemyBolt
-} derive(Eq, @debug.Debug)
+}
 pub fn ProjectileKind::equal(Self, Self) -> Bool
 pub fn ProjectileKind::homing_profile(Self) -> ProjectileHomingProfile?
 pub fn ProjectileKind::not_equal(Self, Self) -> Bool
@@ -1474,13 +1573,19 @@ pub fn ProjectileKind::to_repr(Self) -> @debug.Repr
 pub fn ProjectileKind::to_string(Self) -> String
 pub impl Show for ProjectileKind
 
-type RegionEnemyProgress derive(ToJson, @json.FromJson)
+#derive(@json.FromJson, @json.ToJson)
+type RegionEnemyProgress
+pub fn RegionEnemyProgress::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RegionEnemyProgress::to_json(Self) -> @json.Json
 
-type RegionProgress derive(ToJson, @json.FromJson)
+#derive(@json.FromJson, @json.ToJson)
+type RegionProgress
+pub fn RegionProgress::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RegionProgress::to_json(Self) -> @json.Json
 
 pub(all) struct RegionState {
-  id : Int
-  seed : Int
+  id : Int32
+  seed : Int32
   dungeon : DungeonData
   enemies : Array[Enemy]
   items : Array[ItemDrop]
@@ -1490,31 +1595,38 @@ pub(all) struct RegionState {
   cleared : Array[Bool]
 }
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct SceneEnemy {
   id : String
   x : Double
   z : Double
   kind : String
-  hp : Int
-} derive(ToJson, @json.FromJson)
+  hp : Int32
+}
+pub fn SceneEnemy::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneEnemy::to_json(Self) -> @json.Json
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct SceneRectangle {
   id : String
   kind : String
-  x : Int
-  z : Int
-  width : Int
-  depth : Int
-} derive(ToJson, @json.FromJson)
+  x : Int32
+  z : Int32
+  width : Int32
+  depth : Int32
+}
+pub fn SceneRectangle::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneRectangle::to_json(Self) -> @json.Json
 
 pub(all) struct SkillDpsInfo {
   skill_id : SkillId
-  damage_per_hit : Int
-  hits_per_cast : Int
-  cooldown_frames : Int
+  damage_per_hit : Int32
+  hits_per_cast : Int32
+  cooldown_frames : Int32
   dps : Double
 }
 
+#derive(Eq)
 pub(all) enum SkillId {
   PowerStrike
   Whirlwind
@@ -1535,24 +1647,25 @@ pub(all) enum SkillId {
   AoEMastery
   RaiseZombie
   SummonFlamingSkull
-} derive(Eq)
+}
 pub fn SkillId::equal(Self, Self) -> Bool
 pub fn SkillId::not_equal(Self, Self) -> Bool
 
 pub(all) struct SkillNode {
   id : SkillId
   name : String
-  max_level : Int
-  mut level : Int
-  cost : Int
-  icon_id : Int
+  max_level : Int32
+  mut level : Int32
+  cost : Int32
+  icon_id : Int32
   prereqs : Array[SkillId]
   tree_x : Double
   tree_y : Double
-  node_size : Int
+  node_size : Int32
   connections : Array[SkillId]
 }
 
+#derive(Eq, @json.FromJson, @json.ToJson)
 pub(all) enum SkillTag {
   Lightning
   Fire
@@ -1562,22 +1675,24 @@ pub(all) enum SkillTag {
   AoE
   Defense
   Utility
-} derive(Eq, ToJson, @json.FromJson)
+}
 pub fn SkillTag::equal(Self, Self) -> Bool
+pub fn SkillTag::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn SkillTag::not_equal(Self, Self) -> Bool
+pub fn SkillTag::to_json(Self) -> @json.Json
 
 pub(all) struct SkillTree {
   nodes : Array[SkillNode]
-  mut skill_points : Int
+  mut skill_points : Int32
 }
 pub fn SkillTree::available_level_up_skill_ids(Self) -> Array[SkillId]
 pub fn SkillTree::can_learn(Self, SkillId) -> Bool
 pub fn SkillTree::can_learn_level_up_skill(Self, SkillId) -> Bool
 pub fn SkillTree::find(Self, SkillId) -> SkillNode?
-pub fn SkillTree::get_level(Self, SkillId) -> Int
+pub fn SkillTree::get_level(Self, SkillId) -> Int32
 pub fn SkillTree::learn(Self, SkillId) -> Bool
 pub fn SkillTree::learn_level_up_skill(Self, SkillId) -> Bool
-pub fn SkillTree::learned_node_count(Self) -> Int
+pub fn SkillTree::learned_node_count(Self) -> Int32
 pub fn SkillTree::new() -> Self
 pub fn SkillTree::new_for_archetype(CharacterArchetype) -> Self
 
@@ -1588,28 +1703,31 @@ pub(all) struct SummonedZombie {
 pub(all) struct TagBonus {
   mut damage_pct : Double
   mut cooldown_reduction : Double
-  mut extra_targets : Int
+  mut extra_targets : Int32
   mut aoe_radius_pct : Double
   mut crit_bonus : Double
 }
 pub fn TagBonus::zero() -> Self
 
+#derive(@json.FromJson, @json.ToJson)
 pub(all) struct TagBonusEntry {
   tag : SkillTag
   damage_pct : Double
   cooldown_reduction : Double
-  extra_targets : Int
+  extra_targets : Int32
   aoe_radius_pct : Double
   crit_bonus : Double
-} derive(ToJson, @json.FromJson)
+}
+pub fn TagBonusEntry::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TagBonusEntry::to_json(Self) -> @json.Json
 
 pub(all) struct TelegraphMarker {
   x : Double
   y : Double
   radius : Double
   shape : TelegraphShape
-  mut frames_remaining : Int
-  total_frames : Int
+  mut frames_remaining : Int32
+  total_frames : Int32
   end_x : Double
   end_y : Double
 }
@@ -1622,55 +1740,61 @@ pub(all) enum TelegraphShape {
 }
 
 pub(all) struct TreasureChest {
-  id : Int
-  site : Int
+  id : Int32
+  site : Int32
   x : Double
   y : Double
   mut opened : Bool
-  mut opened_frame : Int
+  mut opened_frame : Int32
 }
 
+#derive(Eq)
 pub(all) enum UIMode {
   None
   Inventory
   Skills
   Waypoints
   LevelUp
-} derive(Eq)
+}
 pub fn UIMode::equal(Self, Self) -> Bool
 pub fn UIMode::not_equal(Self, Self) -> Bool
 
 pub(all) struct WhirlwindChannel {
   mut active : Bool
-  mut frame : Int
+  mut frame : Int32
   mut interrupted : Bool
 }
 
 pub(all) struct WorldAtlas {
   mut elevation : HuntingElevation?
   mut plains_relief : Double
-  generator_version : Int
-  world_seed : Int
-  mut current : Int
-  mut last_waypoint : Int
+  generator_version : Int32
+  world_seed : Int32
+  mut current : Int32
+  mut last_waypoint : Int32
   regions : Array[RegionState?]
   unlocked : Array[Bool]
   visited : Array[Bool]
-  mut travel_target : Int?
-  mut revision : Int
+  mut travel_target : Int32?
+  mut revision : Int32
 }
-pub fn WorldAtlas::new(Int, generator_version? : Int) -> Self
+pub fn WorldAtlas::new(Int32, generator_version? : Int32) -> Self
 
-type WorldProgress derive(ToJson, @json.FromJson)
+#derive(@json.FromJson, @json.ToJson)
+type WorldProgress
+pub fn WorldProgress::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn WorldProgress::to_json(Self) -> @json.Json
 
+#derive(@json.ToJson)
 pub(all) struct WorldRegion {
-  id : Int
+  id : Int32
   name : String
   subtitle : String
-  x : Int
-  z : Int
-  tier : Int
-} derive(ToJson)
+  x : Int32
+  z : Int32
+  tier : Int32
+}
+pub fn WorldRegion::to_json(Self) -> @json.Json
 
 // Type aliases
 pub using @progression {type LevelUpConfig}

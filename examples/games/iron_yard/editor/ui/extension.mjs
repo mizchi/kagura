@@ -1,11 +1,17 @@
-import { runtimeSettings } from '../../../../../editor/studio/projects/settings.mjs';
-export const game = 'iron_yard';
-export const sceneSchema = Object.freeze({ id: 'iron_yard.scene', version: 1 });
-import { createIronYardPlugin, readSettings, previewId } from './plugin.mjs';
-import { readScene, sceneId, defaultScene, validateSceneDocument } from './scene-plugin.mjs';
-import { createGamePreview } from '../../../../../editor/studio/web/game-preview.mjs';
-import { createIronYardAuthoring } from './panels.mjs';
-import { downloadBlob } from '../../../../../editor/studio/web/storage.mjs';
+import { runtimeSettings } from "../../../../../editor/studio/projects/settings.mjs";
+export const game = "iron_yard";
+export const sceneSchema = Object.freeze({ id: "iron_yard.scene", version: 1 });
+import { createIronYardPlugin, readSettings, previewId } from "./plugin.mjs";
+import {
+  readScene,
+  sceneId,
+  defaultScene,
+  validateSceneDocument,
+} from "./scene-plugin.mjs";
+import { createGamePreview } from "../../../../../editor/studio/web/game-preview.mjs";
+import { readRuntimeObservation } from "../../../../../editor/studio/runtime/observation.mjs";
+import { createIronYardAuthoring } from "./panels.mjs";
+import { downloadBlob } from "../../../../../editor/studio/web/storage.mjs";
 
 export function installIronYard({
   editor,
@@ -26,7 +32,7 @@ export function installIronYard({
     );
     return Object.fromEntries(entries);
   };
-  const container = document.getElementById('viewport');
+  const container = document.getElementById("viewport");
   const sessionId = crypto.randomUUID();
   let authoring,
     sceneSignature,
@@ -36,21 +42,24 @@ export function installIronYard({
     disposed = false,
     gameActive = false;
   const button = (label, fn) => {
-    const node = document.createElement('button');
-    node.type = 'button';
+    const node = document.createElement("button");
+    node.type = "button";
     node.textContent = label;
-    node.addEventListener('click', fn);
+    node.addEventListener("click", fn);
     return node;
   };
   const preview = createGamePreview(container, {
     url: (() => {
-      const url = new URL(runtimeURL ?? 'games/iron-yard/index.html', document.baseURI);
-      url.searchParams.set('editor', '1');
+      const url = new URL(
+        runtimeURL ?? "games/iron-yard/index.html",
+        document.baseURI,
+      );
+      url.searchParams.set("editor", "1");
       return url.href;
     })(),
     resourceAssets,
     projectSettings: project ? runtimeSettings(project.manifest) : undefined,
-    title: 'IRON YARD game preview',
+    title: "IRON YARD game preview",
     onStatus: setStatus,
     onActive(active) {
       gameActive = active;
@@ -59,14 +68,20 @@ export function installIronYard({
       notifyState?.();
     },
   });
-  async function invoke(tool, args, expectedRevision = editor.snapshot().revision) {
-    const reply = await panes.invokeTool('iron-yard', tool, args, { expectedRevision });
+  async function invoke(
+    tool,
+    args,
+    expectedRevision = editor.snapshot().revision,
+  ) {
+    const reply = await panes.invokeTool("iron-yard", tool, args, {
+      expectedRevision,
+    });
     if (!reply.ok) throw Error(reply.error.message);
     return reply;
   }
   invoke.capture = () => editor.snapshot().revision;
   function fail(error) {
-    setStatus('IRON YARD · ' + error.message);
+    setStatus("IRON YARD · " + error.message);
   }
   function activate() {
     if (authoring || disposed) return;
@@ -86,12 +101,12 @@ export function installIronYard({
   }
   async function open() {
     try {
-      if (disposed) throw Error('IRON YARD plugin is unloaded');
+      if (disposed) throw Error("IRON YARD plugin is unloaded");
       if (!editor.snapshot().document.resources.some((r) => r.id === sceneId))
-        await invoke('scene_load', { document: defaultScene() });
+        await invoke("scene_load", { document: defaultScene() });
       activate();
       preview.close();
-      panes.open('iron-yard');
+      panes.open("iron-yard");
     } catch (error) {
       fail(error);
     }
@@ -99,7 +114,7 @@ export function installIronYard({
   async function trial() {
     try {
       await open();
-      await invoke('preview', { action: 'play' });
+      await preview.command("play");
     } catch (error) {
       fail(error);
     }
@@ -133,8 +148,10 @@ export function installIronYard({
           authoring?.update(scene);
         } else closeEditor();
       }
-      const request = snapshot.document.resources.find((r) => r.id === previewId),
-        serialized = JSON.stringify(request) ?? 'absent';
+      const request = snapshot.document.resources.find(
+          (r) => r.id === previewId,
+        ),
+        serialized = JSON.stringify(request) ?? "absent";
       if (serialized !== lastRequest) {
         const execute =
           lastRequest !== undefined &&
@@ -146,7 +163,7 @@ export function installIronYard({
         if (execute) {
           if (scene) activate();
           preview.command(request.data.action).catch(fail);
-        } else preview.command('pause');
+        } else preview.command("pause");
       }
     } catch (error) {
       preview.close();
@@ -168,47 +185,51 @@ export function installIronYard({
       dispose: release,
       inspect: preview.snapshot,
       mount({ element, signal, subscribe }) {
-        const title = document.createElement('h2');
-        title.textContent = 'IRON YARD / Scene Studio';
-        const note = document.createElement('p');
-        note.className = 'panel-note';
+        const title = document.createElement("h2");
+        title.textContent = "IRON YARD / Scene Studio";
+        const note = document.createElement("p");
+        note.className = "panel-note";
         note.textContent =
-          '建物・敵・出撃地点をHierarchyで選択し、Inspectorで編集。シーン・攻撃・ミッションを保存して試遊できます。';
-        const controls = document.createElement('div');
-        controls.className = 'game-transport';
+          "建物・敵・出撃地点をHierarchyで選択し、Inspectorで編集。シーン・攻撃・ミッションを保存して試遊できます。";
+        const controls = document.createElement("div");
+        controls.className = "game-transport";
         controls.append(
-          button('編集に戻る', open),
-          button('試遊する', trial),
-          button('Pause game', () => invoke('preview', { action: 'pause' }).catch(fail)),
-          button('Reset game', () => invoke('preview', { action: 'reset' }).catch(fail)),
-          button('Close IRON YARD', closeEditor),
+          button("編集に戻る", open),
+          button("試遊する", trial),
+          button("Pause game", () =>
+            invoke("preview", { action: "pause" }).catch(fail),
+          ),
+          button("Reset game", () =>
+            invoke("preview", { action: "reset" }).catch(fail),
+          ),
+          button("Close IRON YARD", closeEditor),
         );
-        const label = document.createElement('label');
-        label.className = 'custom-field';
-        label.textContent = '試遊モード';
-        const mode = document.createElement('select');
-        mode.setAttribute('aria-label', '試遊モード');
+        const label = document.createElement("label");
+        label.className = "custom-field";
+        label.textContent = "試遊モード";
+        const mode = document.createElement("select");
+        mode.setAttribute("aria-label", "試遊モード");
         for (const [value, text] of [
-          ['true', '敵AIと交戦'],
-          ['false', '静止標的で演習'],
+          ["true", "敵AIと交戦"],
+          ["false", "静止標的で演習"],
         ]) {
-          const option = document.createElement('option');
+          const option = document.createElement("option");
           option.value = value;
           option.textContent = text;
           mode.append(option);
         }
         mode.addEventListener(
-          'change',
+          "change",
           () =>
-            invoke('configure', {
+            invoke("configure", {
               ...readSettings(editor.snapshot()),
-              ai: mode.value === 'true',
+              ai: mode.value === "true",
             }).catch(fail),
           { signal },
         );
         label.append(mode);
-        const summary = document.createElement('p');
-        summary.className = 'panel-note';
+        const summary = document.createElement("p");
+        summary.className = "panel-note";
         const render = (snapshot) => {
           try {
             const scene = readScene(snapshot);
@@ -224,12 +245,28 @@ export function installIronYard({
       },
     }),
   );
-  if (editor.snapshot().document.resources.some((r) => r.id === sceneId)) open();
+  if (editor.snapshot().document.resources.some((r) => r.id === sceneId))
+    open();
   return Object.freeze({
     play: trial,
     canPlay: () => !disposed,
     stop: () => preview.close(),
     playing: () => gameActive,
+    observe: () =>
+      readRuntimeObservation(
+        {
+          kaguraSceneRuntime: preview.sceneRuntime(),
+          kaguraGame: { snapshot: preview.snapshot },
+        },
+        game,
+      ),
+    pause: () => preview.command("pause"),
+    resume: () => preview.command("play"),
+    paused: () =>
+      preview.fields()?.inspect().paused ??
+      preview.snapshot()?.phase === "paused",
+    fields: () => preview.fields(),
+    canPause: () => preview.snapshot() != null,
     open,
     closeView: closeEditor,
     active: () => !!authoring,
@@ -238,25 +275,25 @@ export function installIronYard({
     frame: () => authoring?.frame(),
     view: (name) => authoring?.view(name),
     async importScene(document, revision) {
-      await invoke('scene_load', { document }, revision);
+      await invoke("scene_load", { document }, revision);
       await open();
     },
     exportScene() {
       downloadBlob(
         new Blob([JSON.stringify(readScene(editor.snapshot()), null, 2)], {
-          type: 'application/json',
+          type: "application/json",
         }),
-        'iron-yard.scene.json',
+        "iron-yard.scene.json",
       );
     },
     dispose() {
-      panes.unregister('iron-yard');
+      panes.unregister("iron-yard");
       release();
     },
   });
 }
 
 export const apiVersion = 1;
-export const id = 'iron-yard';
+export const id = "iron-yard";
 export const validateDocument = validateSceneDocument;
 export const activate = installIronYard;

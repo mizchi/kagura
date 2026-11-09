@@ -1,5 +1,6 @@
 ///|
 priv struct App {
+  inspection : @inspection.FieldControl
   game : @sim.Game
   mut input : @sim.Input
   mut previous : Double
@@ -50,6 +51,7 @@ fn main {
   let sky = @draw3d.sky_mesh()
   @hooks.register_static_geometry(sky.vertex_data, sky.indices)
   let a : App = {
+    inspection: @inspection.new_field_control(),
     game: @sim.new_game(73),
     input: @sim.idle_input(),
     previous: now(),
@@ -80,6 +82,7 @@ fn main {
     rock: rock_mesh(),
     crown: crown_mesh(),
   }
+  register_inspection(a)
   install_host(
     fn(x, y, mx, my, lock, flame) {
       a.input = {
@@ -93,6 +96,13 @@ fn main {
       }
     },
     fn(action) {
+      if ["start", "restart", "practice-boss", "practice-swarm", "title"].contains(
+          action,
+        ) {
+        a.inspection.restart()
+      } else {
+        a.inspection.revision += 1
+      }
       @sim.command(a.game, action)
       a.input = @sim.idle_input()
       a.accumulator = 0
@@ -112,6 +122,9 @@ fn main {
 
 ///|
 fn update(a : App) -> Unit {
+  if !a.inspection.begin_update() {
+    return
+  }
   let current = now()
   let dt = @sim.clamp(current - a.previous, 0, 0.1)
   a.previous = current
@@ -162,6 +175,7 @@ priv struct DangerView {
 ///|
 #derive(ToJson)
 priv struct Hud {
+  inspection_paused : Bool
   mode : String
   time : Double
   wave : Int32
@@ -279,6 +293,7 @@ fn hud(a : App, vp : @math3d.Mat4) -> String {
   }
   let player_screen = @sim.project(vp, g.player)
   let view : Hud = {
+    inspection_paused: a.inspection.paused,
     mode: g.mode,
     time: g.time,
     wave: g.wave,

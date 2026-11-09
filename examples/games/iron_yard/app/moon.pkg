@@ -1,4 +1,6 @@
 import {
+  "mizchi/kagura_engine/inspection",
+  "moonbitlang/core/json",
   "moonbitlang/core/math",
   "mizchi/kagura_audio" @audio,
   "mizchi/iron_yard/sim",
@@ -34,6 +36,7 @@ options(
         "editor_active",
         "editor_attack",
         "snapshot",
+        "register_inspection",
         "register_image",
         "renderer_info",
         "register_audio",

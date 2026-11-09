@@ -1,0 +1,285 @@
+.runtime-bar[hidden],
+.runtime-dock[hidden],
+.runtime-view-controls[hidden] {
+  display: none !important;
+}
+.runtime-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  background: #202731;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.runtime-bar .project-transport {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.runtime-status {
+  font-weight: 700;
+  color: var(--accent);
+  border: 1px solid #756044;
+  background: #3a332a;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+.runtime-meta {
+  color: #b9c4d0;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.runtime-layout .workspace-bar,
+.runtime-layout .toolbar-actions {
+  display: none;
+}
+.runtime-layout .pane-column[data-column="0"],
+.runtime-layout .pane-column[data-column="2"] {
+  display: flex;
+  flex-direction: column;
+}
+.runtime-layout .pane-column > .splitter-horizontal,
+.runtime-layout .pane-column > .assets,
+.runtime-layout .pane-column > .timeline {
+  display: none;
+}
+.runtime-layout .hierarchy,
+.runtime-layout .inspector {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+.runtime-layout .pane-column[data-column="1"] {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.runtime-layout .runtime-inspector {
+  height: auto;
+  min-height: 100%;
+}
+.runtime-layout .hierarchy .slot-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.runtime-layout .runtime-hierarchy {
+  height: 100%;
+}
+.runtime-layout .inspector .slot-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.runtime-layout .viewport-toolbar.showing-game > .runtime-view-controls {
+  display: flex;
+}
+.runtime-view-controls {
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.runtime-view-controls select {
+  width: auto;
+  padding: 3px 8px;
+}
+.runtime-pick-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.runtime-pick-toggle input {
+  width: auto;
+}
+.studio.runtime-layout #viewport.game-active > .runtime-pick-layer {
+  visibility: visible;
+}
+.runtime-pick-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+.runtime-pick-layer[hidden] {
+  display: none !important;
+}
+.runtime-pick-target {
+  position: absolute;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid #efbb74;
+  background: transparent;
+  border-radius: 0;
+}
+.runtime-pick-target[aria-pressed="true"] {
+  outline: 2px solid #efbb74;
+  outline-offset: 2px;
+}
+.runtime-pick-target:hover {
+  background: #efbb7428;
+}
+.runtime-pick-target:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 4px;
+}
+.runtime-dock {
+  position: relative;
+  min-height: 0;
+  height: 190px;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  background: #202731;
+}
+.runtime-dock > .agent {
+  height: 100%;
+  overflow: hidden;
+}
+.runtime-dock .pane-tabs {
+  max-width: calc(100% - 115px);
+  padding-right: 0;
+}
+.runtime-dock-toggle {
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  z-index: 3;
+  padding: 4px 7px;
+  font-size: 10px;
+}
+.runtime-dock.collapsed {
+  height: 38px;
+}
+.runtime-dock.collapsed .pane-content,
+.runtime-dock.collapsed .pane-actions {
+  display: none !important;
+}
+.runtime-history {
+  padding: 8px 12px;
+  overflow: auto;
+  height: 100%;
+}
+.runtime-history p {
+  color: #bac5d2;
+}
+.runtime-history-row {
+  display: grid;
+  grid-template-columns: 80px minmax(90px, 1fr) minmax(70px, 1fr);
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #343c47;
+  font-size: 12px;
+}
+.runtime-history-row code {
+  color: var(--accent);
+}
+.runtime-tree-controls {
+  position: sticky;
+  top: 0;
+  background: #202731;
+  padding-bottom: 10px;
+  z-index: 1;
+}
+.runtime-tree-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.runtime-tree-tabs button {
+  flex: 1;
+  padding: 5px 4px;
+  font-size: 11px;
+}
+.runtime-tree-tabs button[aria-pressed="true"] {
+  border-color: #90734d;
+  color: #f4c78e;
+  background: #3a332a;
+}
+.runtime-tree-controls input {
+  font-size: 11px;
+}
+.runtime-render-tree[hidden],
+.graph-subjects[hidden] {
+  display: none !important;
+}
+.runtime-observation pre {
+  font:
+    11px/1.6 ui-monospace,
+    SFMono-Regular,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 6px 0;
+}
+.runtime-inspector > button {
+  align-self: stretch;
+}
+.runtime-layout [aria-label="Selected runtime subject"] form:has(button) {
+  flex-wrap: wrap;
+}
+.runtime-layout [aria-label="Selected runtime subject"] form:has(button) label {
+  min-width: min(110px, 100%);
+}
+.runtime-layout [aria-label="Selected runtime subject"] form button {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* Native closed details may retain descendant layout boxes. Collapse them too
+   so they cannot contribute to the inspector's scrollable content. */
+.runtime-json:not([open]) > :not(summary) {
+  display: none;
+}
+.runtime-mobile-nav {
+  display: none;
+}
+@media (max-width: 800px) {
+  .runtime-bar {
+    gap: 6px;
+    padding: 6px 8px;
+  }
+  .runtime-bar button {
+    padding: 5px 7px;
+    font-size: 11px;
+  }
+  .runtime-dock {
+    height: 165px;
+  }
+}
+@media (max-width: 639px) {
+  .runtime-layout .runtime-mobile-nav {
+    display: flex;
+    flex-shrink: 0;
+    gap: 4px;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .runtime-mobile-nav button {
+    flex: 1;
+    padding: 5px 8px;
+  }
+  .runtime-mobile-nav button[aria-pressed="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .runtime-layout .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .runtime-layout .workspace > .splitter-vertical,
+  .runtime-layout .workspace > .pane-column {
+    display: none;
+  }
+  .runtime-layout[data-runtime-pane="game"] .workspace > [data-column="1"] {
+    display: grid;
+  }
+  .runtime-layout[data-runtime-pane="objects"] .workspace > [data-column="0"],
+  .runtime-layout[data-runtime-pane="state"] .workspace > [data-column="2"] {
+    display: flex;
+  }
+  .runtime-history-row {
+    grid-template-columns: 60px minmax(70px, 1fr) minmax(60px, 1fr);
+    gap: 6px;
+  }
+}

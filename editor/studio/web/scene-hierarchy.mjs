@@ -1,28 +1,46 @@
-import { buildSceneGraph, scenesFromManifest } from '../runtime/scene-graph.mjs';
+import {
+  buildSceneGraph,
+  scenesFromManifest,
+} from "../runtime/scene-graph.mjs";
+import { readRuntimeSubjectView } from "../runtime/subject-view.mjs";
 
 function selectionOf(editor, host) {
-  if (host.transport().debugging) return undefined;
+  if (host.transport().playing) return undefined;
   const id = editor?.snapshot?.().selection;
-  return id ? { kind: 'node', id } : undefined;
+  return id ? { kind: "node", id } : undefined;
 }
 
 /** State-based scene graph: scenes, logical subjects, then the observed view tree. */
-export function installSceneHierarchy(host, setStatus, selectSubject = () => {}, editor, workspace) {
-  const container = document.querySelector('.hierarchy');
-  const slot = workspace?.slot('hierarchy');
+export function installSceneHierarchy(
+  host,
+  setStatus,
+  selectSubject = () => {},
+  editor,
+  workspace,
+) {
+  const container = document.querySelector(".hierarchy");
+  const slot = workspace?.slot("hierarchy");
   let panel,
     bar,
     signature,
     errorMessage,
     disposed = false;
   const expanded = new Map();
+  let mode = "objects",
+    selected,
+    search = "",
+    controls,
+    content,
+    session;
   function clearOverlay() {
-    slot?.release('runtime');
+    slot?.release("runtime");
     panel?.remove();
     panel = undefined;
     signature = undefined;
-    container.classList.remove('runtime-inspecting', 'scene-graph');
+    container.classList.remove("runtime-inspecting", "scene-graph");
     expanded.clear();
+    selected = undefined;
+    session = undefined;
   }
   function clear() {
     clearOverlay();
@@ -30,24 +48,24 @@ export function installSceneHierarchy(host, setStatus, selectSubject = () => {},
     bar = undefined;
   }
   function sceneChooser(graph) {
-    const scene = document.createElement('label');
-    scene.className = 'graph-scene';
-    const caption = document.createElement('span');
-    caption.textContent = 'Scene';
-    const chooser = document.createElement('select');
-    chooser.setAttribute('aria-label', 'Hierarchy scene');
+    const scene = document.createElement("label");
+    scene.className = "graph-scene";
+    const caption = document.createElement("span");
+    caption.textContent = "Scene";
+    const chooser = document.createElement("select");
+    chooser.setAttribute("aria-label", "Hierarchy scene");
     for (const entry of graph.scenes) {
-      const option = document.createElement('option');
+      const option = document.createElement("option");
       option.value = entry.id;
-      option.textContent = entry.id + (entry.entry ? ' (start)' : '');
+      option.textContent = entry.id + (entry.entry ? " (start)" : "");
       chooser.append(option);
     }
     chooser.value = graph.activeScene;
     chooser.disabled = graph.scenes.length < 2;
-    chooser.addEventListener('change', () => {
+    chooser.addEventListener("change", () => {
       host.selectScene(chooser.value).then(
-        () => setStatus('Opened scene · ' + chooser.value),
-        (error) => setStatus('Error · ' + error.message),
+        () => setStatus("Opened scene · " + chooser.value),
+        (error) => setStatus("Error · " + error.message),
       );
     });
     scene.append(caption, chooser);
@@ -55,7 +73,7 @@ export function installSceneHierarchy(host, setStatus, selectSubject = () => {},
   }
   function renderAuthoringBar() {
     const graph = buildSceneGraph({
-      sceneId: host.sceneId?.() ?? '',
+      sceneId: host.sceneId?.(),
       scenes: scenesFromManifest(host.project?.()?.manifest),
       document: editor?.snapshot?.().document,
       selection: selectionOf(editor, host),
@@ -66,30 +84,39 @@ export function installSceneHierarchy(host, setStatus, selectSubject = () => {},
       return;
     }
     const next = sceneChooser(graph);
-    next.classList.add('hierarchy-scene-bar');
+    next.classList.add("hierarchy-scene-bar");
     if (bar) bar.replaceWith(next);
     else {
-      const heading = container.querySelector('.panel-heading');
+      const heading = container.querySelector(".panel-heading");
       heading ? heading.after(next) : container.prepend(next);
     }
     bar = next;
   }
   function graphInput() {
     const hierarchy = host.hierarchy();
-    if (!hierarchy) return null;
+    if (!hierarchy && !host.transport().debugging && !host.transport().playing)
+      return null;
     let inspection;
     try {
-      inspection = host.transport().debugging ? host.debug('inspect') : null;
+      inspection = readRuntimeSubjectView(host);
     } catch {
       inspection = null;
     }
     return {
-      sceneId: host.sceneId?.() ?? '',
+      sceneId: host.sceneId?.(),
       scenes: scenesFromManifest(host.project?.()?.manifest),
-      hierarchy,
+      hierarchy: hierarchy ?? [],
       inspection,
-      selection: selectionOf(editor, host),
+      selection: selected
+        ? { kind: "subject", id: selected }
+        : selectionOf(editor, host),
     };
+  }
+  function chooseSubject(id) {
+    selected = id;
+    selectSubject(id);
+    signature = undefined;
+    render();
   }
   function render() {
     if (disposed) return;
@@ -102,75 +129,138 @@ export function installSceneHierarchy(host, setStatus, selectSubject = () => {},
       }
       bar?.remove();
       bar = undefined;
+      if (session !== input.inspection?.key) {
+        selected = undefined;
+        session = input.inspection?.key;
+        input.selection = undefined;
+      }
       const graph = buildSceneGraph(input);
-      const next = JSON.stringify(graph);
+      const next = JSON.stringify([graph, mode, search]);
       if (next === signature) return;
       signature = next;
       errorMessage = undefined;
       if (!panel) {
         if (slot) {
           panel = slot.adopt({
-            id: 'runtime',
-            title: 'Scene hierarchy',
+            id: "runtime",
+            title: "Scene hierarchy",
             mount({ element }) {
-              element.classList.add('runtime-hierarchy');
-              element.setAttribute('aria-label', 'Scene hierarchy');
+              element.classList.add("runtime-hierarchy");
+              element.setAttribute("aria-label", "Scene hierarchy");
             },
           });
         } else {
-          panel = document.createElement('section');
-          panel.className = 'runtime-hierarchy';
-          panel.setAttribute('aria-label', 'Scene hierarchy');
+          panel = document.createElement("section");
+          panel.className = "runtime-hierarchy";
+          panel.setAttribute("aria-label", "Scene hierarchy");
           container.append(panel);
         }
       }
-      container.classList.add('runtime-inspecting');
-      panel.replaceChildren();
-      if (graph.scenes.length) panel.append(sceneChooser(graph));
+      container.classList.add("runtime-inspecting");
+      if (!content?.isConnected) {
+        controls = document.createElement("div");
+        controls.className = "runtime-tree-controls";
+        const input = document.createElement("input");
+        input.type = "search";
+        input.placeholder = "Search objects";
+        input.setAttribute("aria-label", "Search runtime objects");
+        input.addEventListener("input", () => {
+          search = input.value;
+          render();
+        });
+        const tabs = document.createElement("div");
+        tabs.className = "runtime-tree-tabs";
+        tabs.setAttribute("role", "group");
+        tabs.setAttribute("aria-label", "Runtime tree view");
+        for (const [value, label] of [
+          ["objects", "Objects"],
+          ["render", "Render nodes"],
+        ]) {
+          const tab = document.createElement("button");
+          tab.textContent = label;
+          tab.dataset.mode = value;
+          tab.addEventListener("click", () => {
+            mode = value;
+            render();
+          });
+          tabs.append(tab);
+        }
+        controls.append(input, tabs);
+        content = document.createElement("div");
+        panel.replaceChildren(controls, content);
+      }
+      for (const button of controls.querySelectorAll("[data-mode]"))
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.mode === mode),
+        );
+      content.replaceChildren();
+      if (graph.scenes.length) content.append(sceneChooser(graph));
       if (graph.subjects.length) {
-        const list = document.createElement('div');
-        list.className = 'graph-subjects';
-        list.setAttribute('aria-label', 'Runtime subjects');
-        for (const subject of graph.subjects) {
-          const row = document.createElement('button');
-          row.type = 'button';
-          row.className = 'graph-subject' + (subject.selected ? ' selected' : '');
+        const list = document.createElement("div");
+        list.className = "graph-subjects";
+        list.setAttribute("aria-label", "Runtime subjects");
+        list.hidden = mode !== "objects";
+        for (const subject of graph.subjects.filter((s) =>
+          (s.name + " " + s.id).toLowerCase().includes(search.toLowerCase()),
+        )) {
+          const row = document.createElement("button");
+          row.type = "button";
+          row.className =
+            "graph-subject" + (subject.selected ? " selected" : "");
           row.dataset.subjectId = subject.id;
           row.dataset.origin = subject.origin;
-          row.textContent =
-            subject.name + ' · ' + subject.origin + (subject.visuals.length ? '' : ' · unbound');
-          row.addEventListener('click', () => selectSubject(subject.id));
+          row.textContent = subject.name;
+          row.title = subject.id + " · " + subject.origin;
+          row.setAttribute("aria-pressed", String(selected === subject.id));
+          row.addEventListener("click", () => {
+            chooseSubject(subject.id);
+          });
           list.append(row);
         }
-        panel.append(list);
+        content.append(list);
       }
+      if (!graph.subjects.length && mode === "objects") {
+        const note = document.createElement("p");
+        note.className = "panel-note";
+        note.textContent =
+          "No published subjects. State shows observations; Render nodes shows the available scene graph.";
+        content.append(note);
+      }
+      const visuals = document.createElement("div");
+      visuals.hidden = mode !== "render";
+      visuals.className = "runtime-render-tree";
+      content.append(visuals);
       function append(parent, node, depth) {
-        const row = document.createElement('details'),
-          label = document.createElement('summary');
+        const row = document.createElement("details"),
+          label = document.createElement("summary");
         row.dataset.sceneId = node.id;
         row.dataset.generated = String(!!node.generated);
         row.dataset.origin = node.origin;
         if (node.subject) row.dataset.subject = node.subject;
         label.textContent =
           node.name +
-          ' · ' +
+          " · " +
           node.kind +
-          (node.generated ? ' · generated' : '') +
-          (node.subject ? ' · ' + node.subject : '');
-        if (node.selected) row.classList.add('selected');
-        label.addEventListener('click', (event) => {
-          if (node.subject) selectSubject(node.subject);
+          (node.generated ? " · generated" : "") +
+          (node.subject ? " · " + node.subject : "");
+        if (node.selected) row.classList.add("selected");
+        label.addEventListener("click", (event) => {
+          if (node.subject) chooseSubject(node.subject);
           event.stopPropagation();
         });
         row.open = expanded.get(node.id) ?? true;
-        row.addEventListener('toggle', () => row.isConnected && expanded.set(node.id, row.open));
+        row.addEventListener(
+          "toggle",
+          () => row.isConnected && expanded.set(node.id, row.open),
+        );
         row.append(label);
         for (const child of node.children) append(row, child, depth + 1);
         parent.append(row);
       }
-      for (const node of graph.view) append(panel, node, 0);
+      for (const node of graph.view) append(visuals, node, 0);
     } catch (error) {
-      if (error.message !== errorMessage) setStatus('Error · ' + error.message);
+      if (error.message !== errorMessage) setStatus("Error · " + error.message);
       errorMessage = error.message;
     }
   }
@@ -179,6 +269,8 @@ export function installSceneHierarchy(host, setStatus, selectSubject = () => {},
   const interval = setInterval(render, 250);
   render();
   return {
+    selection: (key = session) => (key === session ? selected : undefined),
+    select: chooseSubject,
     dispose() {
       disposed = true;
       unsubscribe();

@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_engine/inspection",
   "mizchi/kagura_game/inventory",
   "mizchi/kagura_core/terrain3d",
   "moonbitlang/core/json",
@@ -18,5 +19,7 @@ import {
   "mizchi/terrain/types" @terrain,
   "moonbitlang/core/debug",
 }
+
+supported_targets = "js+native+wasm+wasm-gc"
 
 warnings = "-1-2-7-29"

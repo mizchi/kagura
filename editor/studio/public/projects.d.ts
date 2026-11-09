@@ -1,5 +1,10 @@
-import type { RuntimeSession, SceneHierarchyNode } from './runtime.d.ts';
-import type { StudioAPI, PaneAPI } from './contract.d.ts';
+import type {
+  RuntimeSession,
+  SceneHierarchyNode,
+  RuntimeObservation,
+  RuntimeFieldSession,
+} from "./runtime.d.ts";
+import type { StudioAPI, PaneAPI } from "./contract.d.ts";
 export interface SchemaVersion {
   id: string;
   version: number;
@@ -13,9 +18,15 @@ export interface ProjectRuntimeSettings {
   /** Initial canvas size in CSS pixels. Responsive renderers may resize to the viewport. */
   display: { width: number; height: number };
 }
-export type ProjectRuntime = { apiVersion: number; targets: ('js' | 'native')[] } & (
-  | { kind: 'script'; /** Classic JavaScript bundle, not an ESM module. */ entry: string }
-  | { kind: 'extension' | 'native'; entry?: never }
+export type ProjectRuntime = {
+  apiVersion: number;
+  targets: ("js" | "native")[];
+} & (
+  | {
+      kind: "script";
+      /** Classic JavaScript bundle, not an ESM module. */ entry: string;
+    }
+  | { kind: "extension" | "native"; entry?: never }
 );
 /** Identity is either explicit and complete, or absent in a legacy project. */
 export type ProjectIdentity =
@@ -29,10 +40,10 @@ interface ProjectMetadata {
     package: string;
     artifact?: string;
     scenePackage?: string;
-    editorMode?: 'debug' | 'release';
+    editorMode?: "debug" | "release";
   };
-  display?: ProjectRuntimeSettings['display'];
-  format: 'kagura.project';
+  display?: ProjectRuntimeSettings["display"];
+  format: "kagura.project";
   version: 1;
   name: string;
   editor?: {
@@ -57,7 +68,10 @@ export interface ProjectResources {
   list(): Promise<string[]>;
   url(path: string, mime?: string): Promise<string>;
   readScene(id?: string): Promise<unknown>;
-  encodeScene(document: unknown, id?: string): Promise<{ path: string; blob: Blob }>;
+  encodeScene(
+    document: unknown,
+    id?: string,
+  ): Promise<{ path: string; blob: Blob }>;
   saveScene(document: unknown, id?: string): Promise<void>;
   reopen(): Promise<ProjectResources>;
   dispose(): void;
@@ -68,8 +82,14 @@ export interface GameEditor {
   stop?(): void | Promise<void>;
   playing?(): boolean;
   canPlay?(): boolean;
+  pause?(): void | Promise<void>;
+  resume?(): void | Promise<void>;
+  paused?(): boolean;
+  canPause?(): boolean;
   /** Game-owned live debugger; absent until the runtime is ready. */
   debug?(): RuntimeSession | undefined;
+  fields?(): RuntimeFieldSession | undefined;
+  observe?(): RuntimeObservation | null;
   hierarchy?(): SceneHierarchyNode[] | undefined;
   open(): void | Promise<void>;
   active(): boolean;
@@ -91,7 +111,11 @@ export interface GameEditorContext {
   setStatus(message: string): void;
   /** Notify the shell after runtime transitions, including iframe-driven exits. */
   notifyState?(): void;
-  viewport?: { setActive(value: boolean): void; frame(id: string): void; view(name: string): void };
+  viewport?: {
+    setActive(value: boolean): void;
+    frame(id: string): void;
+    view(name: string): void;
+  };
   /** Optional deployment URL for the bundled runtime. Project resources are passed separately. */
   runtimeURL?: string;
 }
@@ -106,6 +130,6 @@ export interface GameEditorExtension {
   activate(
     context: GameEditorContext,
   ):
-    | (Partial<GameEditor> & Pick<GameEditor, 'dispose'>)
-    | Promise<Partial<GameEditor> & Pick<GameEditor, 'dispose'>>;
+    | (Partial<GameEditor> & Pick<GameEditor, "dispose">)
+    | Promise<Partial<GameEditor> & Pick<GameEditor, "dispose">>;
 }

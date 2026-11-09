@@ -1,62 +1,91 @@
-import { validateHierarchy } from '../runtime/hierarchy.mjs';
-import { createRuntimeSession } from '../runtime/session.mjs';
-import { runtimeEntry, runtimeSettings } from '../projects/settings.mjs';
-import { compileProject } from '../scene/profile.mjs';
-import catalog from '../../../examples/catalog.json';
-import { readLaunch, validateLaunch, launchTools, invokeLaunch } from './contract.mjs';
-import { defineJSPlugin } from '../plugins/adapters.mjs';
-import * as core from '../extensions/core.mjs';
+import { validateHierarchy } from "../runtime/hierarchy.mjs";
+import { createRuntimeSession } from "../runtime/session.mjs";
+import { createRuntimeFieldSession } from "../runtime/field-session.mjs";
+import { readRuntimeObservation } from "../runtime/observation.mjs";
+import { readRuntimeControl } from "../runtime/control.mjs";
+import { runtimeEntry, runtimeSettings } from "../projects/settings.mjs";
+import { compileProject } from "../scene/profile.mjs";
+import catalog from "../../../examples/catalog.json";
+import {
+  readLaunch,
+  validateLaunch,
+  launchTools,
+  invokeLaunch,
+} from "./contract.mjs";
+import { defineJSPlugin } from "../plugins/adapters.mjs";
+import * as core from "../extensions/core.mjs";
 
 export const apiVersion = 1;
-export const id = 'kagura.example';
-export const sceneSchema = Object.freeze({ id: 'kagura.example', version: 1 });
+export const id = "kagura.example";
+export const sceneSchema = Object.freeze({ id: "kagura.example", version: 1 });
 export function validateDocument(document, manifest) {
   const doc = core.validateDocument(document, manifest);
   const config = readLaunch({ document: doc });
   if (manifest?.game && manifest.game !== config.example)
-    throw Error('Project game does not match launch scene');
-  if (!catalog.some((e) => e.id === config.example && e.id !== 'iron_yard' && e.preview !== 'asset'))
-    throw Error('Unknown browser example');
+    throw Error("Project game does not match launch scene");
+  if (
+    !catalog.some(
+      (e) =>
+        e.id === config.example &&
+        e.id !== "iron_yard" &&
+        e.preview !== "asset",
+    )
+  )
+    throw Error("Unknown browser example");
   return doc;
 }
 export function activate(
-  { editor, panes, project, viewport, base, setStatus, getSceneId, getSceneDocument, notifyState },
+  {
+    editor,
+    panes,
+    project,
+    viewport,
+    base,
+    setStatus,
+    getSceneId,
+    getSceneDocument,
+    notifyState,
+  },
   { toggles: toggleLabels = {}, compileScene } = {},
 ) {
-  if (!project) throw Error('Open an example project first');
-  let debug;
+  if (!project) throw Error("Open an example project first");
+  let debug, fields;
   let frame,
     detach,
     timer,
     disposed = false;
-  const toolbar = document.createElement('div');
-  toolbar.className = 'project-controls';
+  const toolbar = document.createElement("div");
+  toolbar.className = "project-controls";
   const button = (text, action) => {
-    const node = document.createElement('button');
-    node.type = 'button';
+    const node = document.createElement("button");
+    node.type = "button";
     node.textContent = text;
-    node.addEventListener('click', () =>
+    node.addEventListener("click", () =>
       Promise.resolve()
         .then(action)
-        .catch((e) => setStatus('Error · ' + e.message)),
+        .catch((e) => setStatus("Error · " + e.message)),
     );
     return node;
   };
   function stop() {
     debug?.dispose();
     debug = undefined;
+    fields?.dispose();
+    fields = undefined;
     clearTimeout(timer);
     detach?.();
     detach = undefined;
     frame?.remove();
     frame = undefined;
-    document.getElementById('viewport').classList.remove('game-active');
+    document.getElementById("viewport").classList.remove("game-active");
     viewport?.setActive(true);
     notifyState?.();
   }
   async function play() {
     if (!runtimeEntry(project.manifest))
-      throw Error('このexampleはnative専用です。Projectペーンからソースを参照できます。');
+      throw Error(
+        "このexampleはnative専用です。Projectペーンからソースを参照できます。",
+      );
     const revision = editor.snapshot().revision;
     const scene = compileScene?.(editor.snapshot().document);
     let sceneProject;
@@ -67,23 +96,27 @@ export function activate(
         const compiled = compileScene(doc);
         scenes.push({ id, data: compiled.data });
       }
-      sceneProject = compileProject(getSceneId?.() ?? project.manifest.entryScene, scenes);
+      sceneProject = compileProject(
+        getSceneId?.() ?? project.manifest.entryScene,
+        scenes,
+      );
     }
-    if (editor.snapshot().revision !== revision) throw Error('Scene changed while preparing Play');
+    if (editor.snapshot().revision !== revision)
+      throw Error("Scene changed while preparing Play");
     validateDocument(editor.snapshot().document, project.manifest);
     stop();
     const config = readLaunch(editor.snapshot()),
       item = catalog.find((e) => e.id === config.example);
-    const current = document.createElement('iframe');
+    const current = document.createElement("iframe");
     frame = current;
-    current.className = 'game-frame';
-    current.title = item.title + ' プレビュー';
-    current.allow = 'autoplay';
+    current.className = "game-frame";
+    current.title = item.title + " プレビュー";
+    current.allow = "autoplay";
     // Each restart owns a fresh Window, releasing input, audio and GPU resources on stop.
     const fail = (message) => {
       if (frame !== current) return;
       stop();
-      setStatus('Error · ' + message);
+      setStatus("Error · " + message);
     };
     const message = async (event) => {
       if (
@@ -92,16 +125,19 @@ export function activate(
         event.data?.version !== 1
       )
         return;
-      if (event.data.type === 'kagura:example-request') {
+      if (event.data.type === "kagura:example-request") {
         try {
           const assets = {};
           for (const [key, path] of Object.entries(project.manifest.resources))
-            if (key !== 'runtime') assets[path] = await project.url(path);
-          const script = await project.url(runtimeEntry(project.manifest), 'text/javascript');
+            if (key !== "runtime") assets[path] = await project.url(path);
+          const script = await project.url(
+            runtimeEntry(project.manifest),
+            "text/javascript",
+          );
           if (frame === current && !disposed)
             current.contentWindow.postMessage(
               {
-                type: 'kagura:example-init',
+                type: "kagura:example-init",
                 version: 1,
                 script,
                 assets,
@@ -115,90 +151,119 @@ export function activate(
           fail(error.message);
         }
       }
-      if (event.data.type === 'kagura:example-ready') {
+      if (event.data.type === "kagura:example-ready") {
         clearTimeout(timer);
-        current.dataset.ready = 'true';
-        current.dataset.renderer = 'kagura-webgpu';
+        current.dataset.ready = "true";
+        current.dataset.renderer = "kagura-webgpu";
         const adapter = current.contentWindow.kaguraDebugAdapter;
         if (adapter) {
           try {
-            if (adapter.game !== config.example) throw Error('Runtime debugger game mismatch');
+            if (adapter.game !== config.example)
+              throw Error("Runtime debugger game mismatch");
             debug = createRuntimeSession(adapter);
-          } catch (error) { fail(error.message); return; }
+          } catch (error) {
+            fail(error.message);
+            return;
+          }
+        }
+        const fieldAdapter =
+          current.contentWindow.kaguraSceneRuntime?.fieldEditor;
+        if (fieldAdapter) {
+          try {
+            if (fieldAdapter.game !== config.example)
+              throw Error("Runtime field editor game mismatch");
+            fields = createRuntimeFieldSession(fieldAdapter);
+          } catch (error) {
+            fail(error.message);
+            return;
+          }
         }
         notifyState?.();
-        setStatus(item.title + ' · Ready');
+        setStatus(item.title + " · Ready");
       }
-      if (event.data.type === 'kagura:example-error') fail(String(event.data.message));
+      if (event.data.type === "kagura:example-error")
+        fail(String(event.data.message));
     };
-    window.addEventListener('message', message);
-    detach = () => window.removeEventListener('message', message);
-    timer = setTimeout(() => fail('Example loading timed out'), 30000);
+    window.addEventListener("message", message);
+    detach = () => window.removeEventListener("message", message);
+    timer = setTimeout(() => fail("Example loading timed out"), 30000);
     current.src =
-      './example-runtime/index.html?' +
-      new URLSearchParams(Object.entries(config.query).map(([k, v]) => [k, String(v)]));
-    const container = document.getElementById('viewport');
-    container.classList.add('game-active');
+      "./example-runtime/index.html?" +
+      new URLSearchParams(
+        Object.entries(config.query).map(([k, v]) => [k, String(v)]),
+      );
+    const container = document.getElementById("viewport");
+    container.classList.add("game-active");
     viewport?.setActive(false);
     container.append(current);
     notifyState?.();
-    setStatus('Loading · ' + item.title);
+    setStatus("Loading · " + item.title);
   }
-  toolbar.append(button('Example設定', () => panes.open('studio.example')));
-  document.querySelector('.viewport-toolbar').append(toolbar);
+  toolbar.append(button("Example設定", () => panes.open("studio.example")));
+  document.querySelector(".viewport-toolbar").append(toolbar);
   panes.registerPlugin(
     defineJSPlugin({
-      manifest: { apiVersion: 1, id: 'studio.example', title: 'Example', tools: launchTools },
-      invoke: (request) => invokeLaunch(request.tool, request.arguments, request.snapshot),
+      manifest: {
+        apiVersion: 1,
+        id: "studio.example",
+        title: "Example",
+        tools: launchTools,
+      },
+      invoke: (request) =>
+        invokeLaunch(request.tool, request.arguments, request.snapshot),
       mount({ element, subscribe }) {
         const config = readLaunch(editor.snapshot()),
           item = catalog.find((e) => e.id === config.example);
-        const heading = document.createElement('h2');
+        const heading = document.createElement("h2");
         heading.textContent = item.title;
-        const note = document.createElement('p');
+        const note = document.createElement("p");
         note.textContent = compileScene
-          ? 'シーンの配置と起動設定を次のPlayに反映します。'
-          : '起動設定は次のPlayで反映されます。レベルはMoonBitコードで定義されています。汎用シーンのノードはゲームへ自動変換されません。';
-        if (item.preview === 'native')
+          ? "シーンの配置と起動設定を次のPlayに反映します。"
+          : "起動設定は次のPlayで反映されます。レベルはMoonBitコードで定義されています。汎用シーンのノードはゲームへ自動変換されません。";
+        if (item.preview === "native")
           note.textContent =
-            'native専用exampleです。ブラウザでの試遊には未対応です。Projectペーンでソースを参照し、汎用エディタやカスタムペーンで編集データを作成できます。';
-        const controls = document.createElement('p');
-        controls.textContent = item.controls.join(' / ');
-        const label = document.createElement('label');
-        label.textContent = '起動パラメーター (JSON)';
-        const input = document.createElement('textarea');
+            "native専用exampleです。ブラウザでの試遊には未対応です。Projectペーンでソースを参照し、汎用エディタやカスタムペーンで編集データを作成できます。";
+        const controls = document.createElement("p");
+        controls.textContent = item.controls.join(" / ");
+        const label = document.createElement("label");
+        label.textContent = "起動パラメーター (JSON)";
+        const input = document.createElement("textarea");
         input.rows = 8;
-        input.setAttribute('aria-label', '起動パラメーター (JSON)');
+        input.setAttribute("aria-label", "起動パラメーター (JSON)");
         label.append(input);
-        const alert = document.createElement('p');
-        alert.setAttribute('role', 'alert');
+        const alert = document.createElement("p");
+        alert.setAttribute("role", "alert");
         async function commit(query) {
           try {
             validateLaunch({ ...readLaunch(editor.snapshot()), query });
             const result = await panes.invokeTool(
-              'studio.example',
-              'launch_update',
+              "studio.example",
+              "launch_update",
               { query },
               { expectedRevision: editor.snapshot().revision },
             );
             if (!result.ok) throw Error(result.error.message);
-            alert.textContent = '設定を更新しました。Playで再起動してください。';
+            alert.textContent =
+              "設定を更新しました。Playで再起動してください。";
           } catch (error) {
             alert.textContent = error.message;
           }
         }
-        const shortcuts = document.createElement('div'),
+        const shortcuts = document.createElement("div"),
           toggles = [];
-        shortcuts.className = 'example-toggles';
+        shortcuts.className = "example-toggles";
         {
           for (const [key, title] of Object.entries(toggleLabels)) {
-            const row = document.createElement('label'),
-              checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
+            const row = document.createElement("label"),
+              checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
             row.append(checkbox, title);
             shortcuts.append(row);
-            checkbox.addEventListener('change', () =>
-              commit({ ...readLaunch(editor.snapshot()).query, [key]: checkbox.checked }),
+            checkbox.addEventListener("change", () =>
+              commit({
+                ...readLaunch(editor.snapshot()).query,
+                [key]: checkbox.checked,
+              }),
             );
             toggles.push([key, checkbox]);
           }
@@ -207,7 +272,8 @@ export function activate(
           const query = readLaunch(editor.snapshot()).query;
           input.value = JSON.stringify(query, null, 2);
           for (const [key, toggle] of toggles)
-            toggle.checked = query[key] === true || query[key] === 'true' || query[key] === 1;
+            toggle.checked =
+              query[key] === true || query[key] === "true" || query[key] === 1;
         };
         element.append(
           heading,
@@ -215,7 +281,7 @@ export function activate(
           controls,
           shortcuts,
           label,
-          button('起動設定を適用', () => {
+          button("起動設定を適用", () => {
             try {
               return commit(JSON.parse(input.value));
             } catch (e) {
@@ -229,28 +295,58 @@ export function activate(
       },
     }),
   );
+  const runtimeControl = () =>
+    frame?.dataset.ready === "true"
+      ? readRuntimeControl(
+          frame.contentWindow,
+          readLaunch(editor.snapshot()).example,
+        )
+      : null;
+  function pauseSimulation(paused) {
+    const control = runtimeControl();
+    if (!control) throw Error("Runtime pause is not available");
+    return paused ? control.pause() : control.resume();
+  }
   return {
     play: runtimeEntry(project.manifest) ? play : undefined,
     stop,
     playing: () => !!frame,
     debug: () => debug,
+    fields: () => fields,
+    pause: () => pauseSimulation(true),
+    resume: () => pauseSimulation(false),
+    paused: () =>
+      runtimeControl()?.paused() ?? fields?.inspect().paused ?? false,
+    canPause: () => !!runtimeControl(),
+    observe: () =>
+      frame?.dataset.ready === "true"
+        ? readRuntimeObservation(
+            frame.contentWindow,
+            readLaunch(editor.snapshot()).example,
+          )
+        : null,
     hierarchy: () => {
-      const runtime = frame?.dataset.ready === 'true' ? frame.contentWindow.kaguraSceneRuntime : undefined;
-      return typeof runtime?.hierarchy === 'function' ? validateHierarchy(runtime.hierarchy()) : undefined;
+      const runtime =
+        frame?.dataset.ready === "true"
+          ? frame.contentWindow.kaguraSceneRuntime
+          : undefined;
+      return typeof runtime?.hierarchy === "function"
+        ? validateHierarchy(runtime.hierarchy())
+        : undefined;
     },
     canPlay: () => !disposed && !!runtimeEntry(project.manifest),
     async importScene(doc, revision) {
       await base.importScene(validateDocument(doc, project.manifest), revision);
-      panes.open('studio.example');
+      panes.open("studio.example");
     },
-    open: () => panes.open('studio.example'),
+    open: () => panes.open("studio.example"),
     active: () => !!frame,
     closeView: stop,
     dispose() {
       disposed = true;
       stop();
       toolbar.remove();
-      panes.unregister('studio.example');
+      panes.unregister("studio.example");
     },
   };
 }

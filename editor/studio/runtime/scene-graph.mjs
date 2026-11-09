@@ -47,7 +47,7 @@ function collectVisuals(nodes, into = new Map()) {
   return into;
 }
 
-/** Game state is the source of truth. Draw IDs are observations; subjects are the editable graph. */
+/** Game state is the source of truth. Draw IDs are observations; subjects form the logical graph. */
 export function buildSceneGraph(input = {}) {
   const scenes = Array.isArray(input.scenes)
     ? input.scenes.map((scene) => ({

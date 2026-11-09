@@ -1,26 +1,26 @@
-import { partById, createPartTabs } from './studio-parts.mjs';
+import { partById, createPartTabs } from "./studio-parts.mjs";
 
 /** Inspector edits the authored document. Debugger inspects paused game state. */
 export function installInspectorParts(host, workspace) {
-  const container = document.querySelector('.inspector');
-  const chrome = workspace?.slot('inspector').chrome ?? container;
-  const inspector = partById('inspector');
-  const debuggerPart = partById('debugger');
-  const tabs = document.createElement('div');
-  tabs.className = 'part-tabs';
-  tabs.setAttribute('role', 'tablist');
-  tabs.setAttribute('aria-label', 'Inspector parts');
+  const container = document.querySelector(".inspector");
+  const chrome = workspace?.slot("inspector").chrome ?? container;
+  const inspector = partById("inspector");
+  const debuggerPart = partById("debugger");
+  const tabs = document.createElement("div");
+  tabs.className = "part-tabs";
+  tabs.setAttribute("role", "tablist");
+  tabs.setAttribute("aria-label", "Inspector parts");
   const parts = createPartTabs([inspector, debuggerPart], {
-    defaultId: 'inspector',
+    defaultId: "inspector",
     onOpen: draw,
   });
   function button(part) {
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.id = 'part-tab-' + part.id;
-    tab.setAttribute('role', 'tab');
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.id = "part-tab-" + part.id;
+    tab.setAttribute("role", "tab");
     tab.textContent = part.title;
-    tab.addEventListener('click', () => parts.open(part.id));
+    tab.addEventListener("click", () => parts.open(part.id));
     return tab;
   }
   const inspectorTab = button(inspector);
@@ -28,19 +28,21 @@ export function installInspectorParts(host, workspace) {
   tabs.append(inspectorTab, debuggerTab);
   chrome.prepend(tabs);
   function draw() {
-    const debugging = host.transport().debugging;
+    const debugging = host.transport().playing;
     const active = parts.active();
-    container.classList.toggle('part-inspector', active === 'inspector');
-    container.classList.toggle('part-debugger', active === 'debugger');
-    inspectorTab.setAttribute('aria-selected', String(active === 'inspector'));
-    debuggerTab.setAttribute('aria-selected', String(active === 'debugger'));
+    container.classList.toggle("part-inspector", active === "inspector");
+    container.classList.toggle("part-debugger", active === "debugger");
+    inspectorTab.setAttribute("aria-selected", String(active === "inspector"));
+    debuggerTab.setAttribute("aria-selected", String(active === "debugger"));
     debuggerTab.disabled = !debugging;
-    debuggerTab.title = debugging ? 'Paused game state' : 'Play a project to debug runtime state';
+    debuggerTab.title = debugging
+      ? "Paused game state"
+      : "Play a project to debug runtime state";
   }
   const unsubscribe = host.subscribe(() => {
-    const debugging = host.transport().debugging;
-    if (debugging && parts.active() !== 'debugger') parts.open('debugger');
-    if (!debugging && parts.active() !== 'inspector') parts.open('inspector');
+    const debugging = host.transport().playing;
+    if (debugging && parts.active() !== "debugger") parts.open("debugger");
+    if (!debugging && parts.active() !== "inspector") parts.open("inspector");
     else draw();
   });
   draw();
@@ -49,7 +51,7 @@ export function installInspectorParts(host, workspace) {
     dispose() {
       unsubscribe();
       tabs.remove();
-      container.classList.remove('part-inspector', 'part-debugger');
+      container.classList.remove("part-inspector", "part-debugger");
     },
   };
 }

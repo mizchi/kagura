@@ -1,4 +1,6 @@
 import {
+  "mizchi/kagura_engine/inspection",
+  "moonbitlang/core/json",
   "mizchi/kagura_game/inpututil",
   "moonbitlang/core/bench",
   "moonbitlang/core/cmp",
@@ -20,6 +22,8 @@ pkgtype(kind: "executable")
 
 options(
   targets: {
+    "inspection_js.mbt": [ "js" ],
+    "inspection_native.mbt": [ "native" ],
     "verification_debug.mbt": [ "debug" ],
     "verification_release.mbt": [ "release" ],
   },

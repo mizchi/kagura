@@ -1,6 +1,10 @@
 import {
+  "moonbitlang/core/json",
+  "mizchi/kagura_engine/inspection",
   "moonbitlang/core/math",
   "mizchi/geom/math3d",
   "mizchi/geom/camera3d",
   "mizchi/kagura_game/projectile3d",
 }
+
+supported_targets = "js+native+wasm+wasm-gc"

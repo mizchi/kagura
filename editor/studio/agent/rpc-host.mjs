@@ -5,19 +5,27 @@ export function createRpcHost(send, pending) {
     const id = String(++next);
     return new Promise((resolve, reject) => {
       pending.set(id, { resolve, reject });
-      send({ type: 'tool_call', id, name, args });
+      send({ type: "tool_call", id, name, args });
     });
   }
   return {
-    snapshot: () => call('editor_snapshot'),
-    dispatch: (args) => call('editor_dispatch', args),
-    select: (id) => call('editor_select', { id }),
-    selectScene: (id) => call('select_scene', { id }),
-    graph: () => call('scene_graph'),
+    snapshot: () => call("editor_snapshot"),
+    dispatch: (args) => call("editor_dispatch", args),
+    select: (id) => call("editor_select", { id }),
+    selectScene: (id) => call("select_scene", { id }),
+    graph: () => call("scene_graph"),
     runtime: {
-      inspect: () => call('runtime_inspect'),
-      pause: () => call('runtime_pause'),
-      edit: (edit, token) => call('runtime_edit', { ...edit, ...token }),
+      observe: () => call("runtime_observe"),
+      inspect: () => call("runtime_inspect"),
+      pause: () => call("runtime_pause"),
+      edit: (edit, token) => call("runtime_edit", { ...edit, ...token }),
+      fields: {
+        inspect: () => call("runtime_fields_inspect"),
+        pause: () => call("runtime_fields_pause"),
+        resume: (token) => call("runtime_fields_resume", token),
+        edit: (edit, token) =>
+          call("runtime_fields_edit", { ...edit, ...token }),
+      },
     },
   };
 }

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Runtime workspace component fixture</title>
+    <link rel="stylesheet" href="/web/style.css" />
+    <link rel="stylesheet" href="/web/layout.css" />
+    <link rel="stylesheet" href="/web/runtime-workspace.css" />
+  </head>
+  <body>
+    <div class="studio">
+      <header class="toolbar">
+        <strong>Kagura Studio · Runtime fixture</strong>
+      </header>
+      <nav class="workspace-bar">Authoring</nav>
+      <main class="workspace">
+        <div class="pane-column" data-column="0">
+          <section class="panel hierarchy">
+            <header class="panel-heading"><h2>Objects</h2></header>
+          </section>
+          <div class="splitter splitter-horizontal" data-split="row-0"></div>
+          <section class="panel assets"><h2>Assets</h2></section>
+        </div>
+        <div class="splitter splitter-vertical" data-split="column-0"></div>
+        <div class="pane-column" data-column="1">
+          <section class="panel viewport">
+            <header class="viewport-toolbar">Scene</header>
+            <div id="viewport"></div>
+          </section>
+          <div class="splitter splitter-horizontal" data-split="row-1"></div>
+          <section class="panel timeline"><h2>Scene setup</h2></section>
+        </div>
+        <div class="splitter splitter-vertical" data-split="column-1"></div>
+        <div class="pane-column" data-column="2">
+          <section class="panel inspector">
+            <header class="panel-heading"><h2>State</h2></header>
+          </section>
+          <div class="splitter splitter-horizontal" data-split="row-2"></div>
+          <section class="panel agent">
+            <div class="panel-body">Console</div>
+          </section>
+        </div>
+      </main>
+      <footer class="statusbar">
+        Changes affect runtime state. Source saving is separate.
+      </footer>
+    </div>
+    <script type="module" src="./runtime-workspace.mjs"></script>
+  </body>
+</html>

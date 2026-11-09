@@ -7,3 +7,5 @@ import {
   "mizchi/anim3d/transform3d",
   "mizchi/mesh3d",
 }
+
+supported_targets = "js+native+wasm+wasm-gc"

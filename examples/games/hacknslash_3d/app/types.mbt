@@ -107,6 +107,7 @@ struct DamagePopup {
 
 ///|
 struct GameState {
+  inspection : @inspection.FieldControl
   hud_publisher : @ui.JsonObjectPublisher
   mut world : @game.GameWorld
   mut active_save_slot : Int32
@@ -115,7 +116,7 @@ struct GameState {
   mut pending_save_deletion : SaveDeletion?
   aim : HunterAimState
   combat_feedback : CombatFeedbackState
-  input : @inpututil.InputHelper
+  mut input : @inpututil.InputHelper
   // Profiler
   mut show_profiler : Bool
   mut profile : @engine.FrameProfile

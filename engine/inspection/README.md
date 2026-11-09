@@ -1,5 +1,20 @@
 # ゲームと Inspector を接続する
 
+## フィールド単位のチューニング
+
+全状態の置換を持たないゲームは `new_field_control()` と `FieldControl::register_fields` を使える。これは明示的に組み込む API で、debug / release の両方で利用できる。既存の debug 専用 `Control` とは独立する。
+
+- 更新の入口で `begin_update()` が false なら、入力・シミュレーション・ゲーム時計の更新を止める。描画は続ける。
+- `register_fields` の `subjects / state / scope` はゲームが所有する現在値を返す。観察 JSON のフィールドは共通処理ですべて読み取り専用にする。
+- `pause` コールバックは `set_paused()` を呼び、入力・実時間の基準も整える。
+- `edit` コールバックは対象・値・ゲーム固有の不変条件をすべて検証してから変更する。`bounded_number / bounded_integer` は非有限値や範囲外の値を拒否する。
+- 共通の `commit` が停止・revision・scope を確認し、成功時だけ revision を進める。失敗時に状態を部分変更しない責任はゲームが持つ。
+- 同じゲーム内でリセットするときは Control を作り直さず `restart()` し、`scope(game)` から新しい世代の識別子を得る。
+
+JS 登録は `kaguraSceneRuntime.fieldEditor` と読み取り専用の `observe()` を公開し、同じゲームの既存 `snapshot / hierarchy` を保つ。ネイティブのホストも `fields_json / observation_json / commit` を利用できる。session の検証と操作履歴は Studio が担当する。FieldControl は Undo・Step・checkpoint の対応を意味しない。
+
+## 全状態の編集
+
 ゲームは一つの `Inspector[State]` に getter と setter を宣言する。表示用 JSON と編集ハンドラーは共通 API が生成する。
 
 ```moonbit

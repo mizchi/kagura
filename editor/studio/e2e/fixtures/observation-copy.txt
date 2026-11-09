@@ -1,0 +1,15 @@
+Kagura Studio · Runtime fixture
+Paused · Read only
+Runtime observation · Read only
+Player
+Position X · m
+Position Y · m
+Velocity Y · m/s
+Grounded
+Read only
+Capture observation
+Live observation
+Raw observation JSON
+Objects
+Render nodes
+Changes

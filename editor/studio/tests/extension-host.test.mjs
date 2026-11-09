@@ -1,17 +1,127 @@
-import { test } from 'node:test';
-import assert from 'node:assert/strict';
-import { createExtensionHost } from '../extensions/host.mjs';
-import { createHeadlessEditor } from '../headless/index.mjs';
-import * as core from '../extensions/core.mjs';
-test('generic project loading validates before replacing the document and saves into its folder', async () => {
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { createExtensionHost } from "../extensions/host.mjs";
+import { createHeadlessEditor } from "../headless/index.mjs";
+import * as core from "../extensions/core.mjs";
+import { fieldRuntime } from "./fixtures/field-runtime.mjs";
+
+test("field-only extensions expose guarded edits independently of snapshot restoration", async () => {
+  const editor = createHeadlessEditor(),
+    fields = fieldRuntime();
+  let playing = false;
+  const extension = {
+    apiVersion: 1,
+    id: "fields-only",
+    activate: () => ({
+      play() {
+        playing = true;
+      },
+      stop() {
+        playing = false;
+      },
+      playing: () => playing,
+      fields: () => fields,
+      dispose() {
+        fields.dispose();
+      },
+    }),
+  };
+  const host = createExtensionHost(
+    { editor },
+    { "fields-only": async () => extension },
+  );
+  await host.openProject({
+    manifest: {
+      name: "Fields",
+      scene: "scene.json",
+      resources: {},
+      editor: { id: "fields-only", apiVersion: 1 },
+    },
+    readScene: async () => editor.snapshot().document,
+    dispose() {},
+  });
+  await host.play();
+  assert.equal(host.transport().fieldEditing, true);
+  assert.equal(host.transport().debugging, false);
+  assert.equal(host.transport().canPause, true);
+  const paused = host.fields("pause");
+  assert.equal(host.transport().paused, true);
+  const edited = host.fields(
+    "edit",
+    { subject: "player", field: "x", value: 8 },
+    paused,
+  );
+  assert.equal(edited.subjects[0].fields[0].value, 8);
+  assert.throws(() => host.debug("snapshot"), /not available/);
+  await host.stop();
+  assert.throws(
+    () =>
+      host.fields("edit", { subject: "player", field: "x", value: 9 }, edited),
+    /not available/,
+  );
+  host.dispose();
+});
+test("a read-only game can expose pause independently of writable debug state", async () => {
+  const editor = createHeadlessEditor();
+  let playing = false,
+    paused = false;
+  const module = {
+    apiVersion: 1,
+    id: "pause-only",
+    activate: () => ({
+      play() {
+        playing = true;
+      },
+      stop() {
+        playing = false;
+      },
+      playing: () => playing,
+      paused: () => paused,
+      pause() {
+        paused = true;
+      },
+      resume() {
+        paused = false;
+      },
+      dispose() {},
+    }),
+  };
+  const host = createExtensionHost(
+    { editor },
+    { "pause-only": async () => module },
+  );
+  await host.openProject({
+    manifest: {
+      name: "Pause only",
+      scene: "scene.json",
+      resources: {},
+      editor: { id: "pause-only", apiVersion: 1 },
+    },
+    readScene: async () => editor.snapshot().document,
+    dispose() {},
+  });
+  await host.play();
+  assert.equal(host.transport().canPause, true);
+  assert.equal(host.transport().debugging, false);
+  await host.pause();
+  assert.equal(host.transport().paused, true);
+  assert.throws(() => host.debug("snapshot"), /not available/);
+  await host.resume();
+  assert.equal(host.transport().paused, false);
+  host.dispose();
+});
+test("generic project loading validates before replacing the document and saves into its folder", async () => {
   const editor = createHeadlessEditor(),
     doc = editor.snapshot().document;
-  doc.name = 'Project scene';
+  doc.name = "Project scene";
   let saved,
     closed = false;
-  const host = createExtensionHost({ editor }, { 'kagura.scene': async () => core });
+  const host = createExtensionHost(
+    { editor },
+    { "kagura.scene": async () => core },
+  );
   const project = {
-    manifest: { name: 'Generic', scene: 'scene.json', resources: {} },
+    manifest: { name: "Generic", scene: "scene.json", resources: {} },
     writable: true,
     async readScene() {
       return doc;
@@ -24,7 +134,7 @@ test('generic project loading validates before replacing the document and saves 
     },
   };
   await host.openProject(project);
-  assert.equal(editor.snapshot().document.name, 'Project scene');
+  assert.equal(editor.snapshot().document.name, "Project scene");
   await host.save();
   assert.deepEqual(saved, editor.snapshot().document);
   await assert.rejects(
@@ -41,12 +151,12 @@ test('generic project loading validates before replacing the document and saves 
   host.dispose();
   assert.equal(closed, true);
 });
-test('a domain pane can extend the built-in editor without implementing document operations', async () => {
+test("a domain pane can extend the built-in editor without implementing document operations", async () => {
   const editor = createHeadlessEditor();
   let disposed = false;
   const module = {
     apiVersion: 1,
-    id: 'combat',
+    id: "combat",
     activate({ base }) {
       assert.equal(base.readDocument().version, 1);
       return {
@@ -57,65 +167,71 @@ test('a domain pane can extend the built-in editor without implementing document
     },
   };
   const host = createExtensionHost({ editor }, { combat: async () => module });
-  await host.useBuiltin('combat');
+  await host.useBuiltin("combat");
   const doc = editor.snapshot().document;
-  doc.name = 'Shared core';
+  doc.name = "Shared core";
   await host.importScene(doc, editor.snapshot().revision);
-  assert.equal(host.document().name, 'Shared core');
+  assert.equal(host.document().name, "Shared core");
   host.showGeneric();
   assert.equal(disposed, false);
   host.dispose();
   assert.equal(disposed, true);
 });
-test('switching project scenes preserves drafts and saves each to its own path', async () => {
+test("switching project scenes preserves drafts and saves each to its own path", async () => {
   const editor = createHeadlessEditor();
   const a = editor.snapshot().document;
-  a.name = 'A';
+  a.name = "A";
   const b = structuredClone(a);
-  b.name = 'B';
+  b.name = "B";
   const files = new Map([
-    ['a', a],
-    ['b', b],
+    ["a", a],
+    ["b", b],
   ]);
-  const host = createExtensionHost({ editor }, { 'kagura.scene': async () => core });
+  const host = createExtensionHost(
+    { editor },
+    { "kagura.scene": async () => core },
+  );
   await host.openProject({
     manifest: {
-      name: 'Many',
-      entryScene: 'a',
-      scenes: { a: 'a.json', b: 'b.json' },
+      name: "Many",
+      entryScene: "a",
+      scenes: { a: "a.json", b: "b.json" },
       resources: {},
     },
     writable: true,
-    readScene: async (id = 'a') => structuredClone(files.get(id)),
+    readScene: async (id = "a") => structuredClone(files.get(id)),
     saveScene: async (doc, id) => files.set(id, structuredClone(doc)),
     dispose() {},
   });
   const edit = host.document();
-  edit.name = 'Edited A';
+  edit.name = "Edited A";
   await host.importScene(edit, editor.snapshot().revision);
-  await host.selectScene('b');
-  assert.equal(host.document().name, 'B');
+  await host.selectScene("b");
+  assert.equal(host.document().name, "B");
   assert.equal(
     editor.undo(editor.snapshot().revision).ok,
     false,
-    'Undo must never cross scene files',
+    "Undo must never cross scene files",
   );
-  await host.selectScene('a');
-  assert.equal(host.document().name, 'Edited A');
-  await assert.rejects(host.selectScene('missing'));
-  assert.equal(host.sceneId(), 'a');
+  await host.selectScene("a");
+  assert.equal(host.document().name, "Edited A");
+  await assert.rejects(host.selectScene("missing"));
+  assert.equal(host.sceneId(), "a");
   await host.save();
-  assert.equal(files.get('a').name, 'Edited A');
-  assert.equal(files.get('b').name, 'B');
+  assert.equal(files.get("a").name, "Edited A");
+  assert.equal(files.get("b").name, "B");
   host.dispose();
 });
 
-test('incompatible schema and missing runtime keep the current project and its edits', async () => {
+test("incompatible schema and missing runtime keep the current project and its edits", async () => {
   const editor = createHeadlessEditor();
-  const host = createExtensionHost({ editor }, { 'kagura.scene': async () => core });
+  const host = createExtensionHost(
+    { editor },
+    { "kagura.scene": async () => core },
+  );
   let disposed = false;
   const project = {
-    manifest: { name: 'Current', scene: 'scene.json', resources: {} },
+    manifest: { name: "Current", scene: "scene.json", resources: {} },
     readScene: async () => editor.snapshot().document,
     dispose() {
       disposed = true;
@@ -124,10 +240,24 @@ test('incompatible schema and missing runtime keep the current project and its e
   await host.openProject(project);
   const before = editor.snapshot();
   for (const patch of [
-    { sceneSchema: { id: 'kagura.scene', version: 2 } },
-    { editor: { id: 'kagura.scene', apiVersion: 2 } },
-    { runtime: { kind: 'script', apiVersion: 2, targets: ['js'], entry: 'runtime.js' } },
-    { runtime: { kind: 'script', apiVersion: 1, targets: ['js'], entry: 'missing.js' } },
+    { sceneSchema: { id: "kagura.scene", version: 2 } },
+    { editor: { id: "kagura.scene", apiVersion: 2 } },
+    {
+      runtime: {
+        kind: "script",
+        apiVersion: 2,
+        targets: ["js"],
+        entry: "runtime.js",
+      },
+    },
+    {
+      runtime: {
+        kind: "script",
+        apiVersion: 1,
+        targets: ["js"],
+        entry: "missing.js",
+      },
+    },
   ]) {
     let rejectedDisposed = false;
     await assert.rejects(
@@ -135,7 +265,7 @@ test('incompatible schema and missing runtime keep the current project and its e
         ...project,
         manifest: { ...project.manifest, ...patch },
         read: async () => {
-          throw Error('Missing file');
+          throw Error("Missing file");
         },
         dispose() {
           rejectedDisposed = true;
@@ -150,7 +280,7 @@ test('incompatible schema and missing runtime keep the current project and its e
   host.dispose();
 });
 
-test('project transport delegates to the active extension and releases capabilities on switch', async () => {
+test("project transport delegates to the active extension and releases capabilities on switch", async () => {
   const editor = createHeadlessEditor();
   let playing = false,
     edits = 0,
@@ -159,7 +289,7 @@ test('project transport delegates to the active extension and releases capabilit
     notify;
   const extension = {
     apiVersion: 1,
-    id: 'sample',
+    id: "sample",
     activate(context) {
       notify = context.notifyState;
       return {
@@ -184,7 +314,7 @@ test('project transport delegates to the active extension and releases capabilit
   };
   const host = createExtensionHost(
     { editor },
-    { sample: async () => extension, 'kagura.scene': async () => core },
+    { sample: async () => extension, "kagura.scene": async () => core },
   );
   const unsubscribe = host.subscribe(() => notifications++);
   assert.deepEqual(host.transport(), {
@@ -192,11 +322,13 @@ test('project transport delegates to the active extension and releases capabilit
     canPlay: false,
     playing: false,
     debugging: false,
+    fieldEditing: false,
+    canPause: false,
     paused: false,
   });
   await assert.rejects(host.play(), /not available/);
   const project = {
-    manifest: { name: 'Sample', editor: { id: 'sample' }, resources: {} },
+    manifest: { name: "Sample", editor: { id: "sample" }, resources: {} },
     readScene: async () => editor.snapshot().document,
     dispose() {},
   };
@@ -206,6 +338,8 @@ test('project transport delegates to the active extension and releases capabilit
     canPlay: true,
     playing: false,
     debugging: false,
+    fieldEditing: false,
+    canPause: false,
     paused: false,
   });
   await host.play();
@@ -214,12 +348,14 @@ test('project transport delegates to the active extension and releases capabilit
   assert.equal(host.transport().playing, false);
   assert.equal(edits, 1);
   assert.equal(stops, 1);
-  await host.useBuiltin('kagura.scene');
+  await host.useBuiltin("kagura.scene");
   assert.deepEqual(host.transport(), {
     available: false,
     canPlay: false,
     playing: false,
     debugging: false,
+    fieldEditing: false,
+    canPause: false,
     paused: false,
   });
   assert.ok(notifications >= 4);

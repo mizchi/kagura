@@ -201,6 +201,9 @@ pub fn GameWorld::scene_snapshot_json(self : GameWorld) -> String {
     "scene": scene,
     "player": Json([self.player.x / tile_size, self.player.y / tile_size]),
     "enemyCount": Json(self.enemies.length()),
+    "hp": self.player.hp,
+    "guardEnergy": self.arts.guard_energy,
+    "frameCount": self.frame_count,
     "tiles": Json(self.dungeon.grid.width),
   }
   result.stringify()

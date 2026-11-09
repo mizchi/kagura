@@ -438,6 +438,26 @@ fn build_initial_state() -> GameState {
     state.world.mode = @game.Playing
     state.rebuild_dungeon_rendering()
     js_install_scene_runtime(fn() { state.world.scene_snapshot_json() })
+    state.inspection.register_fields(
+      game="hacknslash_3d",
+      scope=() => {
+        state.inspection.scope("hacknslash_3d") + ":\{state.world.floor}"
+      },
+      subjects=() => state.world.tuning_subjects(),
+      state=() => {
+        @json.parse(state.world.scene_snapshot_json()) catch {
+          error => abort(error.to_string())
+        }
+      },
+      pause=value => {
+        state.inspection.set_paused(value)
+        state.audio_bank.set_paused(value || state.paused)
+        state.input = @inpututil.new_input_helper()
+      },
+      edit=(subject, field, value) => {
+        state.world.apply_tuning(subject, field, value)
+      },
+    )
   }
   let landscape_preview = get_snapshot_mode() == "landscape"
   if !state.motion_preview &&

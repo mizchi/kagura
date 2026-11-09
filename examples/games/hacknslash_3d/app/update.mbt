@@ -114,6 +114,7 @@ fn GameState::new_with_params(
   character.equip_outfit(CharacterOutfit::from_equipment(world.equipment))
   {
     world,
+    inspection: @inspection.new_field_control(),
     scenery,
     scenery_shader: @gfx.new_shader_handle(119, scenery_shader_wgsl()),
     sky_mesh: @draw3d.sky_mesh(),
@@ -261,6 +262,9 @@ fn GameState::new_with_params(
 
 ///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
+  if !self.inspection.begin_update() {
+    return
+  }
   let input = self.resolve_hunter_hotbar(input)
   let web_key = hunter_web_key()
   let selection = hunter_web_selection()

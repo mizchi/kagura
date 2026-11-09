@@ -100,8 +100,12 @@ try {
   const environmentData = new Uint16Array(await (await fetchAsset(overrides.environmentData ?? environmentDataURL)).arrayBuffer());
   uploadTextureRGBA16F(runtime.webgpu, 2000, environment.width, environment.height, environmentData);
   game.start(JSON.stringify(strix), JSON.stringify(bastion));
+  game.register_inspection();
   ui.setReady();
   globalThis.ironYard = Object.freeze({
+    game: 'iron_yard',
+    sceneRuntime: globalThis.kaguraSceneRuntime,
+    fieldEditor: globalThis.kaguraSceneRuntime.fieldEditor,
     snapshot: () => JSON.parse(game.snapshot()),
     rendererInfo: () => {
       const info = JSON.parse(game.renderer_info());

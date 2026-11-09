@@ -11,6 +11,7 @@ impl @scene.SceneGame for SurvivorState with fn view_game(self) {
 ///|
 fn main {
   let state = initial_states().create_for_capture(width=320, height=240)
+  state.register_inspection()
   @scene.run_game(
     state,
     width=320,

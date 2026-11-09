@@ -36,11 +36,12 @@ export function createGameUI({game, controls, reset}) {
 
   function render(state, projection) {
     const active = state.phase === 'playing';
+    const inspecting = state.inspectionPaused === true;
     const phaseChanged = state.phase !== lastPhase;
     const won = state.phase === 'won', lost = state.phase === 'lost';
     if ((won || lost) && phaseChanged) controls.pause();
-    if (active && menu.open) menu.close();
-    if (!active && !menu.open && !starting) {
+    if ((active || inspecting) && menu.open) menu.close();
+    if (!active && !inspecting && !menu.open && !starting) {
       menu.showModal();
       $('deploy').focus({preventScroll: true});
     }

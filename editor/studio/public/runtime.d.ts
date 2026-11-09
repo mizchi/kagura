@@ -1,4 +1,4 @@
-import type { JsonValue } from './contract.d.ts';
+import type { JsonValue } from "./contract.d.ts";
 /** Independent from authoring document revisions. A new Play owns a new session. */
 export interface RuntimeToken {
   session: string;
@@ -18,7 +18,7 @@ export interface RuntimeDebugAdapter {
   game: string;
   schema: { id: string; version: number };
   inspector?: RuntimeInspectorAdapter;
-  read(): Pick<RuntimeSnapshot, 'revision' | 'paused' | 'state'>;
+  read(): Pick<RuntimeSnapshot, "revision" | "paused" | "state">;
   pause(paused: boolean): void;
   /** One tick with neutral input. Renderer/resources must not be rebuilt. */
   step(): void;
@@ -30,6 +30,11 @@ export interface RuntimeDebugAdapter {
  * Guarded calls throw on a stale session/revision or when the game is running.
  * Use this host API for UI/WebMCP edits, not the raw RuntimeDebugAdapter. */
 export interface RuntimeDebugAPI {
+  /** Bounded log of successful operations in this session. */
+  history?(): RuntimeHistoryEntry[];
+  canUndo?(): boolean;
+  /** Undo only the latest edit, before simulation advances, with the current token. */
+  undo?(token: RuntimeToken): RuntimeSnapshot;
   /** Read current observations and a token; allowed while running or paused. */
   inspect(): RuntimeInspection;
   /** Requires Pause and a current token. Pure reduce -> game validation/commit.
@@ -45,14 +50,84 @@ export interface RuntimeDebugAPI {
   /** Requires Pause and a current token; the game validates and commits atomically. */
   replace(state: JsonValue, token: RuntimeToken): RuntimeSnapshot;
 }
+export interface RuntimeHistoryEntry {
+  operation: "pause" | "resume" | "step" | "edit" | "replace" | "undo";
+  revision: number;
+  label?: string;
+  before?: number | string | boolean;
+  after?: number | string | boolean;
+}
+export interface RuntimeObservation {
+  game: string;
+  source: "scene" | "game" | "ui" | "renderer";
+  readonly: true;
+  state: JsonValue;
+  inspection?: RuntimeObservedInspection;
+}
+/** One synchronous game-owned read, keeping state and field descriptors consistent. */
+export interface RuntimeObservedPayload {
+  state: JsonValue;
+  inspection?: RuntimeObservedInspection;
+}
+export interface RuntimeObservedInspection {
+  /** Game-owned context identity; changing it clears the selected object. */
+  scope: string;
+  subjects: (Omit<InspectionSubject, "fields"> & {
+    fields: (InspectionField & { access: "readonly" })[];
+  })[];
+}
+/** Optional observe() on a version 1 kaguraSceneRuntime, alongside legacy snapshot(). */
+export interface RuntimeObservationAdapter {
+  apiVersion: 1;
+  game: string;
+  observe(): RuntimeObservedPayload;
+}
+/** Optional methods on a game-owned kaguraSceneRuntime. No state restore required. */
+export interface RuntimePauseAdapter {
+  apiVersion: 1;
+  game: string;
+  pause(paused: boolean): void;
+  paused(): boolean;
+}
 export interface RuntimeSession extends RuntimeDebugAPI {
   dispose(): void;
 }
+export interface RuntimeFieldToken extends RuntimeToken {
+  scope: string;
+}
+export interface RuntimeFieldInspection extends RuntimeFieldToken {
+  paused: boolean;
+  subjects: InspectionSubject[];
+}
+/** Game validates and commits one field. Snapshot replacement and Step are separate capabilities. */
+export interface RuntimeFieldEditorAdapter {
+  apiVersion: 1;
+  game: string;
+  read(): Omit<RuntimeFieldInspection, "session">;
+  pause(paused: boolean): void;
+  edit(
+    edit: RuntimeFieldEdit,
+    token: Pick<RuntimeFieldToken, "revision" | "scope">,
+  ): void;
+}
+export interface RuntimeFieldAPI {
+  inspect(): RuntimeFieldInspection;
+  pause(): RuntimeFieldInspection;
+  resume(token: RuntimeFieldToken): RuntimeFieldInspection;
+  edit(
+    edit: RuntimeFieldEdit,
+    token: RuntimeFieldToken,
+  ): RuntimeFieldInspection;
+  history(): RuntimeHistoryEntry[];
+}
+export interface RuntimeFieldSession extends RuntimeFieldAPI {
+  dispose(): void;
+}
 export interface RuntimeCheckpoint {
-  format: 'kagura.checkpoint';
+  format: "kagura.checkpoint";
   version: 1;
   game: string;
-  schema: RuntimeSnapshot['schema'];
+  schema: RuntimeSnapshot["schema"];
   state: JsonValue;
 }
 declare global {
@@ -72,7 +147,7 @@ export interface SceneHierarchyNode {
   children: SceneHierarchyNode[];
 }
 /** Origin is declared, never inferred from a path or display name. */
-export type SceneGraphOrigin = 'definition' | 'state' | 'derived';
+export type SceneGraphOrigin = "definition" | "state" | "derived";
 export interface SceneGraphViewNode extends SceneHierarchyNode {
   origin: SceneGraphOrigin;
   selected?: boolean;
@@ -81,7 +156,7 @@ export interface SceneGraphViewNode extends SceneHierarchyNode {
 export interface SceneGraphSubject {
   id: string;
   name: string;
-  origin: 'state' | 'derived';
+  origin: "state" | "derived";
   fields: InspectionField[];
   visuals: string[];
   selected: boolean;
@@ -91,19 +166,19 @@ export interface SceneGraph {
   scenes: { id: string; path: string; entry: boolean }[];
   subjects: SceneGraphSubject[];
   view: SceneGraphViewNode[];
-  selection: { kind: 'node' | 'subject' | 'scene'; id: string } | null;
+  selection: { kind: "node" | "subject" | "scene"; id: string } | null;
 }
 
 /** Version 1 inspector extension: primitive values, runtime edits and read-only observations. */
 export type InspectionField = {
   id: string;
   label: string;
-  access: 'runtime' | 'readonly';
+  access: "runtime" | "readonly";
   unit: string;
 } & (
-  | { kind: 'number'; value: number }
-  | { kind: 'boolean'; value: boolean }
-  | { kind: 'string'; value: string }
+  | { kind: "number"; value: number }
+  | { kind: "boolean"; value: boolean }
+  | { kind: "string"; value: string }
 );
 export interface InspectionSubject {
   id: string;

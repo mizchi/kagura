@@ -7,19 +7,20 @@ let battlefield_drag_id : Int32 = 2000
 ///|
 /// Transient input state is separate from persistent combat/run rules.
 pub struct Game {
+  inspection : @inspection.FieldControl
   mut scene : AppScene
   mut scene_return : AppScene
   mut scene_focus : Int32
   mut character : CharacterId
   mut motion_mode : MotionMode
-  navigation : @ui.UINavigationInputAdapter
+  mut navigation : @ui.UINavigationInputAdapter
   modals : @ui.UIModalController
   mut popup : PileKind?
   mut combat_focus : CombatFocus?
   run : @signals.Signal[RunState]
   selected_card : @signals.Signal[Int32]
   target_enemy : @signals.Signal[Int32]
-  input : @inpututil.InputHelper
+  mut input : @inpututil.InputHelper
   mut layout : GameLayout
   mut cursor_x : Double
   mut cursor_y : Double
@@ -50,6 +51,7 @@ pub extend Game with @scene.SceneGame::{update_game, view_game}
 ///|
 pub fn Game::new() -> Game {
   {
+    inspection: @inspection.new_field_control(),
     scene: Playing,
     scene_return: Title,
     scene_focus: 0,
@@ -242,6 +244,9 @@ pub fn Game::update(
   input : @core.InputSnapshot,
   elapsed_ms~ : Double = 1000.0 / 60.0,
 ) -> Unit {
+  if !self.inspection.begin_update() {
+    return
+  }
   @inpututil.update_input_helper(self.input, input)
   let navigation = self.navigation.update(input, elapsed_ms~)
   let events = self.drag.update(

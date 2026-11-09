@@ -112,11 +112,13 @@ fn Game::apply_screen_action(self : Game, action : ScreenAction) -> Unit {
         _ => ()
       }
     Restart(seed) => {
+      self.inspection.restart()
       self.run.set(RunState::start(self.character, Ascent, seed~))
       self.switch_scene(CharacterSelect)
     }
     SwitchScene(scene) => self.switch_scene(scene)
     StartAdventure(character, stage, seed) => {
+      self.inspection.restart()
       self.run.set(RunState::adventure(character, stage, seed~))
       self.switch_scene(Playing)
     }

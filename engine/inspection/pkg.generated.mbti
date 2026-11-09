@@ -11,9 +11,15 @@ pub fn[S] bind_subject(String, fields~ : Array[Property[S]], name? : String) -> 
 
 pub fn[S] boolean_field(String, get~ : (S) -> Bool, set? : (S, Bool) -> S raise, label? : String) -> Property[S]
 
+pub fn bounded_integer(Double, Int32, Int32) -> Int32 raise
+
+pub fn bounded_number(Double, Double, Double) -> Double raise
+
 pub fn[S : @json.FromJson + @json.ToJson] decode_state(@json.Json) -> S raise
 
 pub fn new_control() -> Control
+
+pub fn new_field_control() -> FieldControl
 
 pub fn number(String, Double, label? : String, unit? : String, editable? : Bool) -> Field
 
@@ -37,6 +43,20 @@ pub(all) enum Field {
 }
 pub fn Field::to_json(Self) -> @json.Json
 pub impl @json.ToJson for Field
+
+pub(all) struct FieldControl {
+  mut paused : Bool
+  mut revision : Int32
+  mut generation : Int32
+}
+pub fn FieldControl::begin_update(Self) -> Bool
+pub fn FieldControl::commit(Self, Int32, String, String, () -> Unit raise) -> Unit raise
+pub fn FieldControl::fields_json(Self, String, Array[Subject]) -> String
+pub fn FieldControl::observation_json(Self, @json.Json, String, Array[Subject]) -> String
+pub fn FieldControl::register_fields(Self, game~ : String, scope~ : () -> String, subjects~ : () -> Array[Subject], state~ : () -> @json.Json, pause~ : (Bool) -> Unit, edit~ : (String, String, Double) -> Unit raise) -> Unit
+pub fn FieldControl::restart(Self) -> Unit
+pub fn FieldControl::scope(Self, String) -> String
+pub fn FieldControl::set_paused(Self, Bool) -> Unit
 
 pub struct Inspector[S] {
   subjects : Array[SubjectBinding[S]]

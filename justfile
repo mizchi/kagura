@@ -99,6 +99,20 @@ platform-test:
     moon test platform platform_web --target {{target}}
     node --test scripts/platform-layout.test.mjs scripts/moon-boundary-utils.test.mjs scripts/moon-release-utils.test.mjs
 
+# AFTERSHIFT: belt-scrolling action with lane evasion and guard breaking.
+belt-action-dev port="5195":
+    node scripts/prepare-moon-deps.mjs examples/games/belt_action
+    node cmd/kagura/main.mjs dev belt_action --port {{port}}
+
+belt-action-test:
+    node scripts/prepare-moon-deps.mjs examples/games/belt_action
+    moon -C examples/games/belt_action test -p mizchi/belt_action -p mizchi/belt_action/sim --target js
+    moon -C examples/games/belt_action test sim --target native
+
+belt-action-e2e:
+    node scripts/prepare-moon-deps.mjs examples/games/belt_action
+    pnpm exec playwright test -c examples/games/belt_action/playwright.config.mjs
+
 # EMBERWING: dragon rail shooter with instanced kawaiko flocks.
 emberwing-dev:
     node cmd/kagura/main.mjs dev emberwing --port 5194

@@ -7,6 +7,7 @@
 - EMBERWING: `?encounter=swarm` の Wave 9 を開始した画面。
 - ASHEN REALMS: `?snapshot=site&site=ruins&seed=42&mute=1` の廃墟。
 - IRON YARD: 通常の出撃メニューから開始した市街地。
+- AFTERSHIFT: 最初の区画で敵の攻撃予告が出た戦闘画面。
 - その他: 標準の初期ステージを開始。Flappy Bird は土管が入るまで羽ばたき、Survivor は敵が出現してから撮影。
 
 出典はすべてこのリポジトリの `examples/games/<id>`。新しい画像は `<id>.jpg` とし、説明・代替テキストは `examples/catalog.json` の `gallery` に置く。

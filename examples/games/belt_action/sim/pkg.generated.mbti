@@ -1,0 +1,124 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/belt_action/sim"
+
+// Values
+pub fn clamp(Double, Double, Double) -> Double
+
+pub fn idle_input() -> Input
+
+pub fn new_game() -> Game
+
+// Errors
+
+// Types and methods
+pub(all) struct Burst {
+  x : Double
+  z : Double
+  kind : String
+  mut age : Int32
+}
+
+pub(all) struct Enemy {
+  id : Int32
+  mut kind : Int32
+  max_hp : Int32
+  mut hp : Int32
+  mut x : Double
+  mut z : Double
+  mut facing : Double
+  mut action : String
+  mut timer : Int32
+  mut phase_total : Int32
+  mut attack_hit : Bool
+  mut aim_z : Double
+  mut last_hit : Int32
+  mut flash : Int32
+  mut death_age : Int32
+}
+pub fn Enemy::attack_depth(Self) -> Double
+pub fn Enemy::attack_reach(Self) -> Double
+pub fn Enemy::braced(Self) -> Bool
+pub fn Enemy::open(Self) -> Bool
+pub fn Enemy::phase_remaining(Self) -> Double
+pub fn Enemy::recovery_frames(Self) -> Int32
+pub fn Enemy::windup_frames(Self, Int32) -> Int32
+
+pub(all) struct Game {
+  mut mode : String
+  mut generation : Int32
+  mut tick : Int32
+  mut frames : Int32
+  mut player : Player
+  enemies : Array[Enemy]
+  bursts : Array[Burst]
+  mut serial : Int32
+  mut stage : Int32
+  mut camera : Double
+  mut hit_stop : Int32
+  mut shake : Int32
+  mut score : Int32
+  mut hits : Int32
+  mut blocks : Int32
+  mut attacks : Int32
+  mut dodges : Int32
+  mut taken : Int32
+  mut best_combo : Int32
+  mut chain : Int32
+  mut chain_timer : Int32
+  mut sound_id : Int32
+  mut sound : String
+  mut announce : Int32
+  mut damage : Int32
+  mut windup : Int32
+  mut previous_evade : Bool
+  mut previous_pause : Bool
+  mut previous_retry : Bool
+  mut previous_start : Bool
+  mut previous_strike : Bool
+}
+pub fn Game::apply_tuning(Self, String, String, Double) -> Unit raise
+pub fn Game::begin_attack(Self, Bool) -> Unit
+pub fn Game::gate_x(Self) -> Double
+pub fn Game::hurt_player(Self, Int32, Double) -> Unit
+pub fn Game::remaining(Self) -> Int32
+pub fn Game::resolve_strike(Self) -> Unit
+pub fn Game::snapshot(Self) -> String
+pub fn Game::spawn(Self, Int32, Double, Double) -> Unit
+pub fn Game::start(Self) -> Unit
+pub fn Game::step(Self, Input) -> Unit
+pub fn Game::update_enemies(Self) -> Unit
+
+pub(all) struct Input {
+  x : Double
+  z : Double
+  strike : Bool
+  breaker : Bool
+  evade : Bool
+  start : Bool
+  retry : Bool
+  pause : Bool
+}
+
+pub(all) struct Player {
+  mut x : Double
+  mut z : Double
+  mut hp : Int32
+  max_hp : Int32
+  mut facing : Double
+  mut action : String
+  mut age : Int32
+  mut combo : Int32
+  mut combo_timer : Int32
+  mut serial : Int32
+  mut buffer : Int32
+  mut heavy_buffer : Bool
+  mut invulnerable : Int32
+  mut evade_cooldown : Int32
+  mut evade_buffer : Int32
+  mut evade_x : Double
+  mut evade_z : Double
+}
+
+// Type aliases
+
+// Traits

@@ -19,7 +19,15 @@ for (const game of catalog.filter(item => item.gallery)) {
     expect((await page.goto(`./${path}${query}`))?.ok()).toBe(true);
     const canvas = page.locator('#app');
     await expect(canvas).toBeVisible();
-    if (game.id === 'card_game') {
+    if (game.id === 'belt_action') {
+      await page.locator('#shift-start').click();
+      await canvas.focus();
+      await page.keyboard.down('d');
+      await page.waitForTimeout(600);
+      await page.keyboard.up('d');
+      await expect.poll(() => page.evaluate(() => globalThis.aftershift?.snapshot().enemies.some(e => e.action === 'windup'))).toBe(true);
+      await page.evaluate(() => globalThis.kaguraSceneRuntime.pause(true));
+    } else if (game.id === 'card_game') {
       await startCardGameAdventure(page);
       await clickCardGameNode(page, 'map_node_0');
       await waitForCardGameState(page, 'battle');

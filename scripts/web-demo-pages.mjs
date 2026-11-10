@@ -15,6 +15,14 @@ const HIDDEN_PAGE_NAMES = new Set([
 
 const RAW_DEMO_PAGES = [
   {
+    name: "belt_action", title: "AFTERSHIFT", group: "Games",
+    summary: "A belt-scrolling brawler at a night loading dock. Read the windup, step out, hit back.",
+    start: "Press Enter or J to begin. Clear three sectors and defeat the foreman.",
+    controls: ["WASD / arrows: move in two dimensions", "Hold J: three-hit combo; K: guard break; Space: evade", "Enter: start / resume; Esc: pause; R: immediate retry", "Controller: left stick / D-pad; A: combo; X: break; B: evade; Start: start; Back: pause", "Touch: directional pad and action buttons"],
+    tags: ["2D", "Brawler", "Combat"], sourcePath: "examples/games/belt_action/main.mbt",
+    width: 960, height: 540, pixelArt: true,
+  },
+  {
     name: "card_game",
     title: "Ember Ascent",
     group: "Games",

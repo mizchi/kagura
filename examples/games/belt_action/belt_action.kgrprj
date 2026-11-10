@@ -1,0 +1,40 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "AFTERSHIFT",
+  "editor": {
+    "id": "kagura.example2d",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "resources": {
+    "host": "assets/host.mjs"
+  },
+  "id": "mizchi.kagura.examples.belt_action",
+  "game": "belt_action",
+  "save": {
+    "namespace": "mizchi.kagura.examples.belt_action",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "belt_action.js"
+  },
+  "display": {
+    "width": 960,
+    "height": 540
+  },
+  "sceneSchema": {
+    "id": "kagura.example",
+    "version": 1
+  }
+}

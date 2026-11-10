@@ -1,0 +1,21 @@
+import {
+  "mizchi/belt_action/sim",
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine/scene",
+  "mizchi/kagura_engine/inspection",
+  "mizchi/kagura_engine/runtime",
+  "mizchi/renderer2d",
+  "mizchi/web_runtime_hooks" @hooks,
+  "moonbitlang/core/json",
+  "moonbitlang/core/math",
+}
+
+supported_targets = "js+native"
+pkgtype(kind: "executable")
+options(
+  targets: { "host_js.mbt": ["js"], "inspection.mbt": ["js"], "host_native.mbt": ["native"] },
+  link: { "native": {
+    "cc": "${build.KAGURA_NATIVE_CC}",
+    "cc-link-flags": "-L${build.KAGURA_NATIVE_WGPU_LIB_DIR} -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+  } },
+)

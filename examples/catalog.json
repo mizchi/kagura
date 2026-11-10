@@ -24,6 +24,29 @@
     }
   },
   {
+    "id": "belt_action",
+    "title": "AFTERSHIFT",
+    "category": "games",
+    "kind": "game",
+    "manifest": "belt_action.kgrprj",
+    "controls": [
+      "WASD / arrows: move; J: combo; K: guard break; Space: evade",
+      "Enter: start / resume; Esc: pause; R: retry; controller / touch supported"
+    ],
+    "width": 960,
+    "height": 540,
+    "preview": "webgpu",
+    "purpose": "敵の予備動作を読み、奥行き移動と回避から反撃するベルトスクロールアクション",
+    "gallery": {
+      "order": 7,
+      "dimension": "2D",
+      "genre": "Belt-scrolling Action",
+      "description": "Read the windup, step out of the attack lane, then hit back. Fight through three loading dock sectors and defeat the foreman.",
+      "input": "Keyboard / Controller / Touch",
+      "thumbnailAlt": "AFTERSHIFT at a night loading dock with an amber-jacketed fighter, shield enemies and floor attack telegraphs."
+    }
+  },
+  {
     "id": "card_game",
     "title": "Ember Ascent",
     "category": "games",

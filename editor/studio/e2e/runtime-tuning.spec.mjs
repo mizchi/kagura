@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
 
 const cases = [
+  {game: "belt_action", name: "Player", hp: 4, hpLabel: "HP (1..6)",
+    extra: ["Combat tuning", "Damage (1..4)", 2], progress: "frameCount"},
   {
     game: "survivor",
     name: "Player",
@@ -59,7 +61,10 @@ for (const config of cases) {
       controls.getByRole("button", { name: "Pause", exact: true }),
     ).toBeEnabled();
     const frame = page.frameLocator(".game-frame");
-    if (config.game === "survivor") {
+    if (config.game === "belt_action") {
+      await frame.locator("#shift-start").click();
+      await expect.poll(() => page.evaluate(() => kagura.runtime.observe().state.mode)).toBe("playing");
+    } else if (config.game === "survivor") {
       await frame.locator("canvas").focus();
       await page.keyboard.down("Enter");
       try {
@@ -130,16 +135,20 @@ for (const config of cases) {
       ),
     ).toBe(true);
     await page.getByRole("button", { name: config.name, exact: true }).click();
-    const hp = page.getByLabel(config.name + " HP", { exact: true });
+    const hpLabel = config.hpLabel ?? "HP";
+    const hp = page.getByLabel(config.name + " " + hpLabel, { exact: true });
     await expect(hp).toBeEnabled();
     const token = await page.evaluate(() => kagura.runtime.fields.inspect());
     await hp.fill(String(config.hp));
-    await page.getByRole("button", { name: "Apply HP", exact: true }).click();
+    await page.getByRole("button", { name: "Apply " + hpLabel, exact: true }).click();
     await expect(hp).toHaveValue(String(config.hp));
     expect((await page.evaluate(() => kagura.runtime.observe())).state.hp).toBe(
       config.hp,
     );
-    if (config.game === "iron_yard") {
+    if (config.game === "belt_action") {
+      await expect(frame.locator("canvas")).toHaveAttribute("aria-label", /health 4\/6/);
+      expect((await page.evaluate(() => kagura.runtime.observe())).state.mode).toBe("playing");
+    } else if (config.game === "iron_yard") {
       await expect(frame.locator("#ap")).toHaveText(
         String(config.hp).padStart(4, "0"),
       );
@@ -194,7 +203,7 @@ for (const config of cases) {
     );
     const history = await page.evaluate(() => kagura.runtime.fields.history());
     await hp.fill("0");
-    await page.getByRole("button", { name: "Apply HP", exact: true }).click();
+    await page.getByRole("button", { name: "Apply " + hpLabel, exact: true }).click();
     await expect(page.getByRole("status")).toContainText(
       "Expected finite value",
     );

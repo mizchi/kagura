@@ -1,0 +1,6 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/math",
+}
+
+supported_targets = "js+native+wasm+wasm-gc"

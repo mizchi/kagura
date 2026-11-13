@@ -34,6 +34,10 @@ just studio-ci                     # 上記のまとめ
 
 ## 操作
 
+上部の **体験レポート** で、`just experience-run`の`recording.json`を読み込めます。指標・ループとアークの区間・原因付きイベントを確認し、別の記録との比較ができます。[計測とレポートの手順](../../game/experience/README.md)。
+
+ゲームプロジェクトがアダプターを宣言していれば、上部の **マスターデータ** からゲーム内のテーブルを編集できます。FATHOMが最初の対応例です。敵・遭遇編成・遠征ルールを変更し、次のPlayで反映します。[編集手順とアダプター仕様](../../game/master-data/README.md)を参照してください。
+
 **Modeling** ボタンからローポリのメッシュ編集を開けます。kawaiko のモデルを初期データとして、
 Blender 風の G/R/S・軸制限・数値入力、頂点・面編集、押し出し、JSON 保存と GLB 書出に対応します。
 操作と実装は [Mesh Modeling](modeling/README.md) を参照してください。

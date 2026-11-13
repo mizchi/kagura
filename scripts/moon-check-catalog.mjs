@@ -1,5 +1,6 @@
 // Validation policy, independent of the publication catalog.
 export const EXTRA_CHECK_MODULES = Object.freeze([
+  { dir: "game/balance", targets: ["js", "native"], group: "standalone" },
   { dir: "editor/studio", targets: ["js"], group: "standalone" },
   { dir: "editor/model-viewer", targets: ["js"], group: "standalone" },
   { dir: "editor/modeling3d", targets: ["js", "native"], group: "standalone" },

@@ -1,0 +1,205 @@
+.experience-dialog {
+  width: min(1200px, calc(100vw - 32px));
+  height: calc(100dvh - 90px);
+  max-height: 850px;
+  max-width: none;
+  margin: 74px auto 16px;
+  padding: 0;
+  border: 1px solid #4b5968;
+  border-radius: 10px;
+  color: #e0e6ed;
+  background: #1b222b;
+  box-shadow: 0 24px 90px #0009;
+}
+.experience-dialog::backdrop {
+  background: #080d14b8;
+}
+.experience-shell {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.experience-shell > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 14px;
+  border-bottom: 1px solid #343f4d;
+}
+.experience-shell header small {
+  font-size: 10px;
+  color: #efbb74;
+  letter-spacing: 2px;
+}
+.experience-shell h2 {
+  font-size: 24px;
+  margin: 6px 0;
+}
+.experience-shell header p {
+  margin: 0;
+  color: #aebac8;
+}
+.experience-actions,
+.experience-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 24px;
+  border-bottom: 1px solid #343f4d;
+}
+.experience-dialog button {
+  min-height: 36px;
+}
+.experience-tabs button {
+  background: transparent;
+  border-color: transparent;
+}
+.experience-tabs button[aria-current="page"] {
+  color: #ffdbab;
+  background: #43392c;
+  border-color: #786247;
+}
+.experience-summary {
+  margin: 0;
+  padding: 12px 24px;
+  color: #aebac8;
+  overflow-wrap: anywhere;
+}
+.experience-error {
+  margin: 0;
+  padding: 10px 24px;
+  color: #ffb5ab;
+  overflow-wrap: anywhere;
+}
+.experience-error:empty {
+  display: none;
+}
+.experience-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 24px 18px;
+}
+.experience-table-scroll {
+  overflow-x: auto;
+  border: 1px solid #394655;
+  border-radius: 5px;
+}
+.experience-dialog table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.experience-dialog th {
+  padding: 12px;
+  background: #28323e;
+  text-align: left;
+  font-weight: 500;
+}
+.experience-dialog td {
+  padding: 10px 12px;
+  border-top: 1px solid #343f4d;
+  white-space: nowrap;
+}
+.experience-dialog tbody tr:nth-child(even) {
+  background: #202a35;
+}
+.experience-dialog td small,
+.experience-dialog td strong,
+.experience-dialog td code {
+  display: block;
+}
+.experience-dialog td small {
+  color: #aebac8;
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+.experience-dialog td code {
+  color: #aebac8;
+  font-size: 10px;
+  margin-top: 5px;
+}
+.experience-dialog td strong {
+  font-weight: 500;
+}
+.experience-note {
+  color: #aebac8;
+  margin: 0 0 12px;
+}
+.experience-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.experience-filter input {
+  width: 220px;
+  flex: 1;
+  min-width: 160px;
+}
+.experience-filter span {
+  color: #aebac8;
+}
+.experience-detail {
+  font:
+    12px/1.6 ui-monospace,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid #394655;
+  border-radius: 5px;
+  background: #151d27;
+  padding: 14px;
+}
+.experience-shell > footer {
+  border-top: 1px solid #343f4d;
+  padding: 12px 24px;
+  color: #b6c2d0;
+  font-size: 11px;
+}
+.experience-dialog :is(input, button):focus {
+  outline: 2px solid #efbb74;
+  outline-offset: 2px;
+}
+@media (max-height: 700px) {
+  .experience-dialog {
+    overflow: auto;
+  }
+  .experience-shell {
+    height: auto;
+    min-height: 100%;
+  }
+  .experience-content {
+    flex: none;
+    overflow: visible;
+  }
+}
+@media (max-width: 700px) {
+  .experience-filter input {
+    flex-basis: 100%;
+  }
+  .experience-dialog {
+    width: calc(100vw - 12px);
+  }
+  .experience-shell > header {
+    padding: 14px;
+  }
+  .experience-actions,
+  .experience-tabs {
+    padding: 8px 14px;
+  }
+  .experience-summary,
+  .experience-error {
+    padding: 10px 14px;
+  }
+  .experience-content {
+    padding: 0 12px 12px;
+  }
+  .experience-shell > footer {
+    padding: 10px 14px;
+  }
+}

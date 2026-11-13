@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_balance/host"
+
+import {
+  "mizchi/kagura_balance/src",
+}
+
+// Values
+pub fn ask(@src.Search) -> String
+
+pub fn create(String, Double, Int32) -> @src.Search
+
+pub fn tell(@src.Search, String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

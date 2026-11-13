@@ -132,6 +132,77 @@ dungeon-rpg-agent-test: dungeon-rpg-master-build
 dungeon-rpg-master-build:
     node examples/games/dungeon_rpg/scripts/generate-master-data.mjs
 
+master-data-test: dungeon-rpg-agent-test
+    node examples/games/dungeon_rpg/scripts/generate-master-data.mjs --check
+    node --test game/master-data/contract.test.mjs editor/studio/tests/project.test.mjs examples/games/dungeon_rpg/tests/master-data.test.mjs
+    pnpm -C editor/studio exec tsc -p tsconfig.contracts.json
+
+master-data-e2e: dungeon-rpg-master-build
+    node scripts/prepare-moon-deps.mjs editor/studio examples/games/dungeon_rpg
+    moon -C editor/studio build --target js --release
+    node editor/studio/scripts/build-plugins.mjs
+    node editor/studio/scripts/build-examples.mjs dungeon_rpg
+    cd editor/studio && pnpm exec playwright test e2e/master-data.spec.mjs e2e/master-data-generic.spec.mjs
+
+# Start Studio's dev server before running the component gates.
+master-data-ui url="http://127.0.0.1:5190/e2e/fixtures/master-data.html?game=fathom":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export NODE_OPTIONS="--import $(pwd)/scripts/master-data-browser.mjs"
+    pnpm exec vlmkit check integrity '{{url}}'
+    pnpm exec vlmkit check copy '{{url}}' --manifest editor/studio/e2e/fixtures/master-data-copy.txt
+    pnpm exec vlmkit scan scroll '{{url}}'
+    pnpm exec vlmkit scan handlers '{{url}}'
+    pnpm exec vlmkit check interactions '{{url}}'
+    pnpm exec vlmkit check breakpoints '{{url}}' --sweep
+    pnpm exec vlmkit check responsive '{{url}}'
+
+# Shared player-experience experiments; normal game defaults stay unchanged.
+[positional-arguments]
+experience-run *args:
+    node scripts/experience.mjs "$@"
+
+[positional-arguments]
+experience-report trace *args:
+    node scripts/experience.mjs --trace "$@"
+
+experience-test: dungeon-rpg-agent-test
+    node --test game/experience/*.test.mjs scripts/experience/*.test.mjs
+    pnpm -C editor/studio exec tsc -p tsconfig.contracts.json
+
+experience-e2e:
+    moon -C editor/studio build --target js --release
+    node editor/studio/scripts/build-plugins.mjs
+    cd editor/studio && pnpm exec playwright test e2e/experience.spec.mjs
+
+experience-ui url="http://127.0.0.1:5190/e2e/fixtures/experience.html":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export NODE_OPTIONS="--import $(pwd)/scripts/experience-browser.mjs"
+    pnpm exec vlmkit check integrity '{{url}}'
+    pnpm exec vlmkit check copy '{{url}}' --manifest editor/studio/e2e/fixtures/experience-copy.txt
+    pnpm exec vlmkit scan scroll '{{url}}'
+    pnpm exec vlmkit scan handlers '{{url}}'
+    pnpm exec vlmkit check interactions '{{url}}'
+    pnpm exec vlmkit check breakpoints '{{url}}' --sweep
+    pnpm exec vlmkit check responsive '{{url}}'
+
+balance-tune game="dungeon_rpg" *args:
+    node scripts/balance-tune.mjs --game {{game}} {{args}}
+
+balance-tune-test: dungeon-rpg-master-build
+    node scripts/prepare-moon-deps.mjs game/balance examples/games/dungeon_rpg examples/games/card_game
+    moon -C game/balance test src --target js
+    moon -C game/balance test src --target native
+    moon -C game/balance build host --target js --release --deny-warn
+    moon -C examples/games/dungeon_rpg test sim --target js
+    moon -C examples/games/dungeon_rpg test sim --target native
+    moon -C examples/games/dungeon_rpg build agent_host --target js --release --deny-warn
+    moon -C examples/games/card_game test lib --target js --filter '*tuned combat*'
+    moon -C examples/games/card_game test lib --target native --filter '*tuned combat*'
+    moon -C examples/games/card_game build agent_host --target js --release --deny-warn
+    node --test scripts/balance/*.test.mjs examples/games/dungeon_rpg/agent/agent.test.mjs examples/games/dungeon_rpg/agent/cli.test.mjs examples/games/card_game/agent/agent.test.mjs examples/games/card_game/agent/cli.test.mjs
+
 # FATHOM UI gates (start dungeon-rpg-dev first).
 dungeon-rpg-ui url="http://localhost:5198":
     #!/usr/bin/env bash

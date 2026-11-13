@@ -4,6 +4,45 @@ pub fn create(seed : Int32) -> @lib.AgentSession {
 }
 
 ///|
+pub fn balance_trial(
+  seed : Int32,
+  policy : String,
+  hp_scale : Double,
+  player_hp : Int32,
+) -> String {
+  let strategy = match policy {
+    "smart" => @lib.Smart
+    "aggressive" => @lib.Aggressive
+    "defensive" => @lib.Defensive
+    _ => return "{}"
+  }
+  let result = @lib.simulate_tuned_battle(
+    @lib.FungiPair,
+    strategy,
+    seed,
+    hp_scale,
+    player_hp,
+  ) catch {
+    _ => return "{}"
+  }
+  let data : Json = {
+    "status": if result.won {
+      "victory"
+    } else if result.hp_remaining <= 0 {
+      "defeat"
+    } else {
+      "limit"
+    },
+    "metrics": {
+      "hpRemaining": result.hp_remaining.to_double() / result.max_hp.to_double(),
+      "turns": result.turns_taken,
+      "cardsPlayed": result.cards_played,
+    },
+  }
+  data.stringify()
+}
+
+///|
 pub fn create_run(
   seed : Int32,
   character : String,

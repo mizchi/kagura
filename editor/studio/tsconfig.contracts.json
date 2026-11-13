@@ -14,6 +14,7 @@
   "include": [
     "../../game/scene_flow/*.d.mts",
     "../../game/master-data/*.d.mts",
+    "../../game/experience/*.d.mts",
     "public/*.d.ts",
     "headless/*.d.mts",
     "storage/*.d.mts",

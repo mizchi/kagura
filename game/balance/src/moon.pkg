@@ -1,0 +1,6 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/differentiable_ecs/optimizer" @optimizer,
+}
+supported_targets = "js+native"
+options(link: {"native": {"cc-link-flags": "-framework Accelerate"}})

@@ -44,7 +44,9 @@ Web版はキーボード操作を基本に、迷宮と同じゲーム画面へ�
 
 ## 保存と解析
 
+戦闘ラウンドと地下2階への到達を計測できます。`just experience-run --out output/experience/fathom`でAPIを使わず記録し、Studioの **体験レポート** で`recording.json`を読み込みます。通常のautoplay記録にも計測イベントが含まれます。[ループとアークの計測](../../../game/experience/README.md)。実行中の生イベントは`fathom.experience.read(afterSequence)`で読み取れます。
 
+Studio上部の **マスターデータ** で敵の名前・能力・行動、遭遇編成、遠征ルールを編集できます。**次のPlayに反映** で適用し、実行中の遠征は開始時の値を保ちます。JSON書出・読込、Undo/Redo、バランス候補の読込に対応します。読み取り専用サンプルはプロジェクトを閉じると変更が消えるため、残す場合はJSONを書き出してください。[共通アダプター契約と検証手順](../../../game/master-data/README.md)。
 
 宿場で隊列・レベル・HP/MP・所持金・回復薬・達成回数をブラウザのlocalStorageへ自動保存します。**探索途中の状態は保存しません**。再読み込みすると最後の宿場の記録へ戻ります。保存形式はschema 1で、読み込み時に人数・重複ID・数値範囲を全検証してから適用します。
 
@@ -64,6 +66,7 @@ Studioでは停止中の探索状態、隊列、HP・MP、敵HP、戦闘ラウ�
 
 ## Jevによるautoplay
 
+ゲーム共通の難易度・体験の比較は[バランス実験](../../../game/balance/README.md)を参照してください。`just balance-tune dungeon_rpg`で候補を生成し、`dungeon-rpg-agent --balance FILE --watch`で試せます。勝率最大化を目的にせず、判断への反応・消耗と回復・テンポを比較します。
 
 ```sh
 just dungeon-rpg-agent --dry-run           # 観測と合法手を確認。API不要

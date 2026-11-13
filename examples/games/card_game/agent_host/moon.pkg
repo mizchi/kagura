@@ -8,7 +8,7 @@ options(
   link: {
     "js": {
       "format": "esm",
-      "exports": [ "create", "create_run", "observe", "step" ],
+      "exports": [ "create", "create_run", "observe", "step", "balance_trial" ],
     },
   },
 )

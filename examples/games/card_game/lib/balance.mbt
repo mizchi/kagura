@@ -36,6 +36,39 @@ pub fn simulate_battle(
 ) -> SimResult {
   let enemy_ids = encounter_enemies(encounter)
   let state = BattleState::new(enemy_ids, seed~, relics~)
+  finish_simulation(state, strategy)
+}
+
+///|
+/// Encounter-level tuning adapter; ordinary play and tuning share the same
+/// turn resolution. Both modifications apply once, before the first action.
+pub fn simulate_tuned_battle(
+  encounter : EncounterId,
+  strategy : PlayStrategy,
+  seed : Int32,
+  enemy_hp_scale : Double,
+  player_hp : Int32,
+) -> SimResult raise {
+  if !(enemy_hp_scale >= 0.5 && enemy_hp_scale <= 3.0) ||
+    player_hp < 40 ||
+    player_hp > 100 {
+    fail("invalid_balance")
+  }
+  let state = BattleState::new(encounter_enemies(encounter), seed~)
+  state.player.hp = player_hp
+  state.player.max_hp = player_hp
+  for enemy in state.enemies {
+    let hp = (enemy.fighter.max_hp.to_double() * enemy_hp_scale + 0.5)
+      .to_int()
+      .max(1)
+    enemy.fighter.hp = hp
+    enemy.fighter.max_hp = hp
+  }
+  finish_simulation(state, strategy)
+}
+
+///|
+fn finish_simulation(state : BattleState, strategy : PlayStrategy) -> SimResult {
   let mut cards_played = 0
   let mut safety = 0
   while state.phase == PlayerTurn && safety < 200 {

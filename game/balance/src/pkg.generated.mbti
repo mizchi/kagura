@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_balance/src"
+
+import {
+  "mizchi/differentiable_ecs/optimizer",
+}
+
+// Values
+pub fn decode_vector(String) -> Array[Double] raise
+
+// Errors
+
+// Types and methods
+pub struct Search {
+  cma : @optimizer.CmaEs
+  mut pending : Array[Array[Double]]?
+}
+pub fn Search::ask(Self) -> Array[Array[Double]] raise
+pub fn Search::generation(Self) -> Int32
+pub fn Search::new(Array[Double], Double, Int32) -> Self raise
+pub fn Search::tell(Self, Array[Double]) -> Unit raise
+
+// Type aliases
+
+// Traits

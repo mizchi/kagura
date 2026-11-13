@@ -142,6 +142,7 @@ just run-native native_triangle
 | [FATHOM](examples/games/dungeon_rpg/README.md) | Six-hero, turn-based dungeon RPG; `just dungeon-rpg-dev` |
 | `arena3d`            | 3D arena prototype (experimental)  |
 
+[Balance experiments](game/balance/README.md) compare pressure, recovery, pacing and action feedback across games using `differentiable_ecs`. Run `just balance-tune dungeon_rpg` or `just balance-tune card_game`; candidates are validated on unused seeds and marked for experience review.
 
 Each example is an independent MoonBit module. Run with:
 

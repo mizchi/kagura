@@ -27,6 +27,8 @@ import { storagePane } from "./storage-pane.mjs";
 import { createExtensionHost } from "../extensions/host.mjs";
 import { editorExtensions, defaultEditor } from "../extensions/catalog.mjs";
 import { installProjectUI } from "../projects/browser.mjs";
+import {installMasterDataEditor} from '../master-data/editor.mjs';
+import {installExperienceViewer} from '../experience/viewer.mjs';
 import {installSceneFlowViewer} from '../scene-flow/viewer.mjs';
 import {
   defineJSPlugin,
@@ -259,6 +261,8 @@ gameEditor = createExtensionHost(
 );
 await gameEditor.useBuiltin(defaultEditor);
 const projectTransport = installProjectTransport(gameEditor, app.set_status);
+const masterDataEditor = installMasterDataEditor({host:gameEditor,setStatus:app.set_status});
+const experienceViewer = installExperienceViewer({setStatus:app.set_status});
 const sceneFlowViewer = installSceneFlowViewer({host:gameEditor,setStatus:app.set_status});
 const runtimeInspector = installRuntimeInspector(
   gameEditor,
@@ -405,6 +409,8 @@ if (import.meta.hot)
     runtimeWorkspace.dispose();
     projectTransport.dispose();
     runtimeInspector.dispose();
+    masterDataEditor.dispose();
+    experienceViewer.dispose();
     sceneFlowViewer.dispose();
     inspectorParts.dispose();
     sceneHierarchy.dispose();

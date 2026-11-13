@@ -29,6 +29,7 @@ STRIX / BASTIONの実モデルを、kaguraのPBR・影・音声基盤で動か�
 
 [FATHOM](examples/games/dungeon_rpg/README.md) は、6人の隊列で2層の迷宮を探索し、守護者の印章を持ち帰るコマンド式RPGです。`just dungeon-rpg-dev` で起動できます。
 
+[バランス実験](game/balance/README.md)は、プレイヤーの判断・消耗と回復・反応の伝わり方を比較する共通基盤です。`just balance-tune dungeon_rpg` / `just balance-tune card_game`で候補を生成し、未使用seedで検証します。
 
 ## アーキテクチャ
 

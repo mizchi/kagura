@@ -234,7 +234,7 @@ fn Game::spawn_stage(self : Game) -> Unit {
 ///|
 pub fn Game::start(self : Game) -> Unit {
   self.generation += 1
-  self.mode = "playing"
+  self.set_mode("playing")
   self.tick = 0
   self.frames = 0
   self.player = new_player()

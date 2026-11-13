@@ -32,16 +32,16 @@ pub fn Game::step(self : Game, input : Input) -> Unit {
     return
   }
   if self.mode == "paused" && start {
-    self.mode = "playing"
+    self.set_mode("playing")
   }
   if pause {
-    self.mode = if self.mode == "paused" {
+    self.set_mode(if self.mode == "paused" {
       "playing"
     } else if self.mode == "playing" {
       "paused"
     } else {
       self.mode
-    }
+    })
   }
   if self.mode != "playing" {
     return
@@ -167,7 +167,7 @@ pub fn Game::step(self : Game, input : Input) -> Unit {
   }
   if self.remaining() == 0 {
     if self.stage == 2 {
-      self.mode = "cleared"
+      self.set_mode("cleared")
       self.effect(p.x, p.z - 55.0, "clear")
     } else if p.x >= self.gate_x() - 45.0 {
       self.stage += 1

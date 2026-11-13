@@ -9,6 +9,7 @@ import { cp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { catalog, catalogProjectDir } from '../../../scripts/example-catalog.mjs';
 import { resolveBuildArtifact } from '../../../scripts/moon-build-artifact-utils.mjs';
+import {sceneFlowExamples, buildExampleSceneFlow} from '../../../scripts/scene-flow-examples.mjs';
 
 buildWebRuntime();
 
@@ -39,6 +40,7 @@ for (const file of ['runtime.mjs', 'assets.mjs', 'index.html'])
 
 for (const item of catalog.filter((e) => !selected.length || selected.includes(e.id))) {
   const dir = catalogProjectDir(item);
+  if (sceneFlowExamples.some(e => e.id === item.id)) await buildExampleSceneFlow(item);
   const manifest = validateProject(JSON.parse(await readFile(join(dir, item.manifest))));
   const settings = projectBuild(manifest, item.id);
   if (
@@ -89,6 +91,7 @@ for (const item of catalog.filter((e) => !selected.length || selected.includes(e
     ...Object.values(manifest.resources),
   ];
   if (manifest.editor?.entry) files.push(manifest.editor.entry);
+  if (manifest.masterData) files.push(manifest.masterData.adapter);
   if (runtimeEntry(manifest)) files.push(runtimeEntry(manifest));
   for (const file of new Set(files)) {
     const target = new URL(packagedPath(file), out);

@@ -109,7 +109,7 @@ fn Game::snapshot_state(self : Game) -> String {
 fn Game::reset(self : Game) -> Unit {
   self.bird_y.set(self.bird.y)
   self.velocity = 0.0
-  self.game_mode.set(0)
+  self.set_mode(0)
   self.score.set(0)
   self.pipes.set([])
   self.pipe_timer = 0
@@ -124,7 +124,7 @@ fn Game::update_tick(self : Game, input : @core.InputSnapshot) -> Unit {
     match self.game_mode.get() {
       0 =>
         if action {
-          self.game_mode.set(1)
+          self.set_mode(1)
           self.velocity = jump_velocity
         }
       1 => {
@@ -174,7 +174,7 @@ fn Game::update_tick(self : Game, input : @core.InputSnapshot) -> Unit {
         let ground_top = self.ground.y
         if self.bird_y.get() + self.bird.height > ground_top ||
           self.bird_y.get() < 0.0 {
-          self.game_mode.set(2)
+          self.set_mode(2)
         }
         // Collision: pipes
         for pipe in self.pipes.get() {
@@ -184,7 +184,7 @@ fn Game::update_tick(self : Game, input : @core.InputSnapshot) -> Unit {
           if bird_right > pipe.x && self.bird.x < pipe_right {
             let gap_bottom = pipe.gap_y + pipe_gap
             if self.bird_y.get() < pipe.gap_y || bird_bottom > gap_bottom {
-              self.game_mode.set(2)
+              self.set_mode(2)
             }
           }
         }

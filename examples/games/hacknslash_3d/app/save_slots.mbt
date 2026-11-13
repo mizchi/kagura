@@ -158,11 +158,11 @@ fn GameState::select_save_slot(self : GameState, slot : Int32) -> Bool {
   self.active_save_slot = slot
   self.save_notice = ""
   if data == "" {
-    self.world.mode = @game.CharacterSelect
+    self.world.set_mode(@game.CharacterSelect)
     self.rebuild_dungeon_rendering()
   } else if self.load_game() {
     self.world.ensure_hunter_loadout()
-    self.world.mode = @game.Playing
+    self.world.set_mode(@game.Playing)
     self.world.open_levelup_ui_if_needed()
   } else {
     self.world = previous
@@ -184,7 +184,7 @@ fn GameState::return_to_save_select(self : GameState) -> Unit {
     atlas.travel_target = None
   }
   self.world.ui_mode = @game.UIMode::None
-  self.world.mode = @game.Title
+  self.world.set_mode(@game.Title)
   self.world.select_cursor = self.active_save_slot
   self.save_slots = read_save_slots()
 }

@@ -1,0 +1,50 @@
+.scene-flow-dialog {
+  box-sizing:border-box; width:min(1000px,calc(100vw - 24px)); max-height:calc(100dvh - 24px);
+  padding:24px; border:1px solid #4c5b72; border-radius:14px; background:#172030; color:#e5ecf6;
+  overflow:auto; font:14px/1.6 system-ui,sans-serif;
+}
+.scene-flow-dialog::backdrop {background:#080e1bcc}
+.scene-flow-dialog header {display:flex; align-items:flex-start; justify-content:space-between; gap:16px}
+.scene-flow-dialog header > button {flex-shrink:0; white-space:nowrap}
+.scene-flow-dialog h2 {margin:0; font-size:24px; line-height:1.4}
+.scene-flow-dialog h3 {margin:22px 0 8px; font-size:17px}
+.scene-flow-dialog p {margin:8px 0; overflow-wrap:anywhere}
+.scene-flow-dialog button {
+  min-height:36px; padding:6px 12px; background:#27364d; color:#e5ecf6;
+  border:1px solid #5b6e89; border-radius:6px; cursor:pointer; font:inherit;
+  white-space:normal; overflow-wrap:anywhere; text-align:left;
+}
+.scene-flow-dialog button:hover {background:#364d6b}
+.scene-flow-dialog button:disabled {opacity:.5; cursor:default}
+.scene-flow-dialog :focus-visible {outline:3px solid #98caff; outline-offset:3px}
+.scene-flow-dialog .scene-flow-actions,.scene-flow-scenes {display:flex; flex-wrap:wrap; gap:8px; margin:16px 0}
+.scene-flow-summary {padding:10px 14px; background:#23354a; border-radius:8px; font-weight:600}
+.scene-flow-error {color:#ffbd9f}
+.scene-flow-note {color:#b6c6dc; font-size:13px}
+.scene-flow-scroll-hint {display:none; color:#b6c6dc; font-size:13px}
+.scene-flow-graph-scroll,.scene-flow-table-scroll {max-width:100%; overflow:auto; border:1px solid #465872; border-radius:8px}
+.scene-flow-graph-scroll {max-height:520px; background:#111a29; margin-top:16px}
+.scene-flow-graph-scroll svg {display:block; width:100%; max-width:720px; min-width:640px; max-height:none}
+.scene-flow-node rect {fill:#273c54; stroke:#8099b6; stroke-width:2px}
+.scene-flow-node text {fill:#eff5ff; font:16px system-ui,sans-serif}
+.scene-flow-node .scene-flow-node-meta {fill:#bdcde0; font-size:12px}
+.scene-flow-node.is-unreachable rect {stroke:#f6bd7c; stroke-dasharray:6 4}
+.scene-flow-node.is-selected rect {fill:#355e83; stroke:#acd7ff; stroke-width:3px}
+.scene-flow-edge-label {fill:#e1ebf9; font:13px system-ui,sans-serif}
+.scene-flow-scenes button[aria-pressed="true"] {background:#355e83; border-color:#acd7ff}
+.scene-flow-issues {padding-left:20px; margin:8px 0}
+.scene-flow-issues li {margin:6px 0}
+.scene-flow-issues button {color:#ffd1a4}
+.scene-flow-dialog table {border-collapse:collapse; width:100%; min-width:620px; table-layout:fixed}
+.scene-flow-dialog th,.scene-flow-dialog td {padding:10px; text-align:left; border-bottom:1px solid #465872; overflow-wrap:anywhere; vertical-align:top}
+.scene-flow-dialog th {background:#23354a; color:#d5e5fa}
+.scene-flow-dialog th:first-child {width:64px; white-space:nowrap}
+.scene-flow-dialog th:last-child {width:180px}
+.scene-flow-dialog tr.is-selected {background:#2c4862}
+@media(max-width:600px) {
+  .scene-flow-dialog {padding:16px}
+  .scene-flow-dialog header {gap:8px}
+  .scene-flow-dialog header p {font-size:13px}
+  .scene-flow-dialog h2 {font-size:22px}
+  .scene-flow-scroll-hint {display:block}
+}

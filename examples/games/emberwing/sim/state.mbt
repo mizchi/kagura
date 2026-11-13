@@ -286,7 +286,7 @@ pub fn command(g : Game, action : String) -> Unit {
       g.lock_clock = 0
       g.fire_clock = 0
       g.player = vec(0, -0.5, 2)
-      g.mode = "playing"
+      g.set_mode("playing")
       if action == "practice-boss" {
         g.time = 84
         g.wave = 9
@@ -301,9 +301,9 @@ pub fn command(g : Game, action : String) -> Unit {
         spawn_wave(g)
       }
     }
-    "pause" => if g.mode == "playing" { g.mode = "paused" }
-    "resume" => if g.mode == "paused" { g.mode = "playing" }
-    "title" => g.mode = "title"
+    "pause" => if g.mode == "playing" { g.set_mode("paused") }
+    "resume" => if g.mode == "paused" { g.set_mode("playing") }
+    "title" => g.set_mode("title")
     _ => ()
   }
   g.was_locking = false

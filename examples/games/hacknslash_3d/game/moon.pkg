@@ -1,4 +1,5 @@
 import {
+  "mizchi/hacknslash_3d/flow",
   "mizchi/kagura_engine/inspection",
   "mizchi/kagura_game/inventory",
   "mizchi/kagura_core/terrain3d",

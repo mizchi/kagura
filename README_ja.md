@@ -25,6 +25,11 @@
 [IRON YARD](examples/games/iron_yard/README.md) は modeling-playground のゲームをMoonBitへ移植したものです。
 STRIX / BASTIONの実モデルを、kaguraのPBR・影・音声基盤で動かします。`just iron-yard-dev` で起動、`just iron-yard-ci` で検証できます。
 
+## ダンジョンRPG
+
+[FATHOM](examples/games/dungeon_rpg/README.md) は、6人の隊列で2層の迷宮を探索し、守護者の印章を持ち帰るコマンド式RPGです。`just dungeon-rpg-dev` で起動できます。
+
+
 ## アーキテクチャ
 
 ```

@@ -1,0 +1,17 @@
+import {
+  "mizchi/kagura_game/scene_flow",
+  "mizchi/kagura_game/scene_data",
+  "mizchi/kagura_game/scene_document",
+  "moonbitlang/core/json",
+}
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": {
+      "format": "esm",
+      "exports": ["inspect_json:inspectJSON", "inspect_documents_json:inspectDocumentsJSON"],
+    },
+  },
+)

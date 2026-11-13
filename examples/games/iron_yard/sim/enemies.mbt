@@ -310,14 +310,14 @@ pub fn finish_mission(g : Game, dt : Double) -> Unit {
   }
   g.elapsed += clamp(dt, 0.0, 0.1)
   if g.hp <= 0.0 {
-    g.phase = "lost"
+    g.set_phase("lost")
     cancel_combat(g)
     return
   }
   let cleared = g.units.all(fn(e) { e.hp <= 0.0 })
   if cleared {
     if g.wave + 1 == wave_count(g) {
-      g.phase = "won"
+      g.set_phase("won")
       cancel_combat(g)
       return
     }
@@ -327,7 +327,7 @@ pub fn finish_mission(g : Game, dt : Double) -> Unit {
   }
   if g.elapsed >= mission_time(g) {
     g.elapsed = mission_time(g)
-    g.phase = "lost"
+    g.set_phase("lost")
     cancel_combat(g)
   }
 }

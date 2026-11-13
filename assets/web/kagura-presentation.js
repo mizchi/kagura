@@ -45,8 +45,8 @@ export function installGamePresentation(canvas, {
   const host = canvas.ownerDocument.defaultView;
   host.__kaguraPresentation?.dispose();
   const originalStyle = canvas.style.cssText;
-  const surface = canvas.closest?.('[data-kagura-surface]') ?? canvas;
-  const originalCapture = surface.getAttribute('data-kagura-capture');
+  let surface = canvas.closest?.('[data-kagura-surface]') ?? canvas;
+  let originalCapture = surface.getAttribute('data-kagura-capture');
   surface.setAttribute('data-kagura-capture', 'game');
   let insets={left:0,top:toolbarInset,right:0,bottom:0};
   const resize = () => {
@@ -95,6 +95,15 @@ export function installGamePresentation(canvas, {
     /** @returns {GameCaptureTarget} */
     captureTarget() {
       if (disposed) throw new Error('Game presentation has been disposed');
+      // A game may mount its HUD around the canvas after GPU initialization.
+      const mountedSurface = canvas.closest?.('[data-kagura-surface]') ?? canvas;
+      if (mountedSurface !== surface) {
+        if (originalCapture === null) surface.removeAttribute('data-kagura-capture');
+        else surface.setAttribute('data-kagura-capture', originalCapture);
+        surface = mountedSurface;
+        originalCapture = surface.getAttribute('data-kagura-capture');
+        surface.setAttribute('data-kagura-capture', 'game');
+      }
       const { x, y, width, height } = surface.getBoundingClientRect();
       const runtime = host.__kaguraWebRuntime;
       return {

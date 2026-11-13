@@ -18,7 +18,8 @@
     "audio.explosion": "assets/audio/explosion.wav",
     "audio.confirm": "assets/audio/confirm.wav",
     "audio.cancel": "assets/audio/cancel.wav",
-    "audio.battle": "assets/audio/battle.wav"
+    "audio.battle": "assets/audio/battle.wav",
+    "sceneFlow": "editor/scene-flow.json"
   },
   "id": "mizchi.kagura.examples.iron_yard",
   "game": "iron_yard",
@@ -43,5 +44,8 @@
   "sceneSchema": {
     "id": "iron_yard.scene",
     "version": 1
+  },
+  "sceneFlow": {
+    "resource": "sceneFlow"
   }
 }

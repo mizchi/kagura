@@ -1,0 +1,10 @@
+{
+  "entry": "title",
+  "scenes": ["title", "play", "result"],
+  "terminal": ["result"],
+  "transitions": [
+    { "from": "title", "event": "start", "to": "play" },
+    { "from": "play", "event": "finish", "to": "result" },
+    { "from": "play", "event": "retry", "to": "play" }
+  ]
+}

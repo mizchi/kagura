@@ -323,9 +323,11 @@ export function createExtensionHost(context, catalog) {
         validate(activeModule, doc),
       ]);
       for (const [id, doc] of documents) await project.saveScene(doc, id);
+      await project.saveResources?.();
       return "Saved project · " + project.manifest.name;
     },
     project: () => project,
+    readScene,
     document: () => current.readDocument(),
     dispose: release,
   });

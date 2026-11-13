@@ -52,3 +52,20 @@ test "standalone startup uses compiled MoonBit scenes" {
   state.load_default_scene()
   assert_eq(state.authored.unwrap().current_id(), "training")
 }
+
+///|
+test "known scene without an outgoing portal is rejected atomically" {
+  let state = GameState::new()
+  state.load_default_scene()
+  state.transition_scene("second")
+  let before = state.scene_snapshot()
+  assert_true(
+    try {
+      state.transition_scene("training")
+      false
+    } catch {
+      _ => true
+    },
+  )
+  assert_eq(state.scene_snapshot(), before)
+}

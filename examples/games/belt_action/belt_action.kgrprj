@@ -8,7 +8,8 @@
   },
   "scene": "editor/studio.json",
   "resources": {
-    "host": "assets/host.mjs"
+    "host": "assets/host.mjs",
+    "sceneFlow": "editor/scene-flow.json"
   },
   "id": "mizchi.kagura.examples.belt_action",
   "game": "belt_action",
@@ -36,5 +37,8 @@
   "sceneSchema": {
     "id": "kagura.example",
     "version": 1
+  },
+  "sceneFlow": {
+    "resource": "sceneFlow"
   }
 }

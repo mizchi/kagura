@@ -127,7 +127,7 @@ fn App::command(self : App, command : String) -> Unit {
   match command {
     "start" =>
       if self.game.mode == "paused" {
-        self.game.mode = "playing"
+        self.game.set_mode("playing")
       } else if self.game.mode != "playing" {
         self.game.start()
         self.control.restart()
@@ -136,13 +136,13 @@ fn App::command(self : App, command : String) -> Unit {
       self.game.start()
       self.control.restart()
     }
-    "pause" => if self.game.mode == "playing" { self.game.mode = "paused" }
+    "pause" => if self.game.mode == "playing" { self.game.set_mode("paused") }
     "toggle-pause" =>
-      self.game.mode = match self.game.mode {
+      self.game.set_mode(match self.game.mode {
         "playing" => "paused"
         "paused" => "playing"
         other => other
-      }
+      })
     _ => ()
   }
   self.web = @sim.idle_input()

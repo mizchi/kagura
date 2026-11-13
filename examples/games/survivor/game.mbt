@@ -261,7 +261,7 @@ fn SurvivorState::reset(self : SurvivorState) -> Unit {
   self.projectile_weapon.damage = 1
   self.area_weapon.timer = 0
   self.area_weapon.active_frames = 0
-  self.game_mode = 0
+  self.set_mode(0)
   self.frame_count = 0
   self.score = 0
   self.survival_time = 0
@@ -347,7 +347,7 @@ fn SurvivorState::update_title(self : SurvivorState) -> Unit {
       self.input,
       @core.empty_input_snapshot(),
     ) {
-    self.game_mode = 1
+    self.set_mode(1)
   }
 }
 
@@ -405,7 +405,7 @@ fn SurvivorState::update_play(self : SurvivorState) -> Unit {
   self.update_gems()
   // Check death
   if p.hp <= 0 {
-    self.game_mode = 3
+    self.set_mode(3)
   }
 }
 
@@ -731,7 +731,7 @@ fn SurvivorState::update_gems(self : SurvivorState) -> Unit {
     self.xp = self.xp - self.xp_to_next
     self.level = self.level + 1
     self.xp_to_next = 5 + self.level * 3
-    self.game_mode = 2
+    self.set_mode(2)
     self.generate_upgrade_choices()
     self.selected_upgrade = 0
   }
@@ -779,7 +779,7 @@ fn SurvivorState::update_levelup(self : SurvivorState) -> Unit {
     if self.selected_upgrade < self.upgrade_choices.length() {
       self.apply_upgrade(self.upgrade_choices[self.selected_upgrade])
     }
-    self.game_mode = 1
+    self.set_mode(1)
   }
 }
 

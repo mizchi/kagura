@@ -8,9 +8,9 @@ pub fn Game::new_app() -> Game {
 
 ///|
 fn Game::switch_scene(self : Game, scene : AppScene) -> Unit {
+  self.transition_scene(scene) catch { error => abort(error.to_string()) }
   self.cancel_card()
   self.combat_focus = None
-  self.scene = scene
   self.scene_focus = 0
 }
 
@@ -142,4 +142,25 @@ fn Game::update_app_scene(
     }
   }
   true
+}
+
+///|
+fn app_scene_id(scene : AppScene) -> String {
+  match scene {
+    Title => "title"
+    Settings => "settings"
+    CharacterSelect => "character_select"
+    Playing => "playing"
+  }
+}
+///|
+fn Game::transition_scene(self : Game, target : AppScene) -> Unit raise {
+  if self.scene == target { return }
+  @flow.check(app_scene_id(self.scene), app_scene_id(target))
+  self.scene = target
+}
+///|
+fn AgentSession::set_scene(self : AgentSession, target : AppScene) -> Unit {
+  @flow.check(app_scene_id(self.scene), app_scene_id(target)) catch { error => abort(error.to_string()) }
+  self.scene = target
 }

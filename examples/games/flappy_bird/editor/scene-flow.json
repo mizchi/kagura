@@ -1,0 +1,31 @@
+{
+  "entry": "title",
+  "scenes": [
+    "title",
+    "playing",
+    "gameover"
+  ],
+  "terminal": [],
+  "transitions": [
+    {
+      "from": "title",
+      "event": "flap",
+      "to": "playing"
+    },
+    {
+      "from": "playing",
+      "event": "collision",
+      "to": "gameover"
+    },
+    {
+      "from": "gameover",
+      "event": "retry",
+      "to": "title"
+    },
+    {
+      "from": "playing",
+      "event": "reset",
+      "to": "title"
+    }
+  ]
+}

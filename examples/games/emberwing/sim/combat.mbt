@@ -54,7 +54,7 @@ fn hurt(g : Game, amount~ : Int32 = 1) -> Unit {
   g.hit_timer = 1.25
   g.hit_event += 1
   if g.hp <= 0 {
-    g.mode = "lost"
+    g.set_mode("lost")
     g.breathing = false
     g.was_locking = false
     g.locks.clear()
@@ -111,7 +111,7 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     update_dishes(g, dt)
     g.victory_clock -= dt
     if g.victory_clock <= 0 {
-      g.mode = "won"
+      g.set_mode("won")
     }
     return
   }

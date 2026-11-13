@@ -7,7 +7,9 @@
     "apiVersion": 1
   },
   "scene": "editor/studio.json",
-  "resources": {},
+  "resources": {
+    "sceneFlow": "editor/scene-flow.json"
+  },
   "id": "mizchi.kagura.examples.card_game",
   "game": "card_game",
   "save": {
@@ -34,5 +36,8 @@
   "sceneSchema": {
     "id": "kagura.example",
     "version": 1
+  },
+  "sceneFlow": {
+    "resource": "sceneFlow"
   }
 }

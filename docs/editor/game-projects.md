@@ -149,10 +149,14 @@ Flappy Bird の初期配置 fixture は `scenes/training.mbt` が正本です。
 - `engine/scene2d`: ピクセル単位の 2D レイアウト契約。ゲーム固有の意味・制約はアダプターに置く。
 - `game/scene_document`: エディタとゲームが共有する型付きシーン宣言。
 - `game/scene_data`: 描画に依存しない Entity / Definition / Project、床の範囲・壁の衝突判定、検証済みのシーン集合。
-- `game/scene_flow`: 現在のシーン、遷移要求のチケット、確定・取り消し、地面上の Portal 判定。
+- `game/scene_flow`: 宣言的な状態機械、遷移の構造検証・Mermaid 出力、現在のシーン、遷移要求のチケット、確定・取り消し、地面上の Portal 判定。
 - `game/scene_manager`: 既存の Scene の更新・描画とフェード。遷移条件の判定とは別の責務。
 
 Arena はプレイヤーが Portal に入ると `scene_flow` で遷移し、配置とゲーム内オブジェクトを再生成します。検証済みの小さなシーンを同期的に切り替えます。非同期アセットの読み込みでは `Flow.request` → 読込・検証 → `commit`、失敗時は `cancel` を使えます。古いチケットの確定は拒否されます。フェードや非同期ロードを今回の Arena に組み込んだわけではありません。
+
+Studio の「シーン遷移」では定義 JSON またはプロジェクトのポータルを遷移図にし、到達不能なシーン・実行不能な遷移・未定義の遷移先・イベントの競合を検証できます。`scene_data.Session` はポータルから生成した状態機械を実行し、登録済みのシーンでも現在のシーンから宣言されていない移動を拒否します。新しいイベント駆動のゲームでは `Flow::from_definition` と `send` を使います。定義形式と CI コマンドは [シーン遷移の状態機械](../../game/scene_flow/README.md) を参照してください。
+
+既存のゲーム9本にも適用しています。`.kgrprj` の `sceneFlow.resource` に宣言した JSON を「プロジェクトから読込」で表示します。各ゲームの `flow/definition.mbt` を実行時と共有し、`just scene-flow-examples-build` で生成します。`just scene-flow-examples-check` は全定義の問題と生成物のずれを検出します。Arena は編集途中のポータルから直接生成します。
 
 Arena / FPS の床面は Y=0、回転なし、キャラクターのサイズは固定です。床・壁の位置、サイズ、色は描画に反映します。開始位置とアイテム・敵・ターゲットもゲーム側が読み込みます。Arena の配置した敵は現在固定位置、収集したアイテムは消え、FPS のターゲットは同じ位置に再出現します。Arena / FPS の単体起動も `scenes/project.mbt` を使います。`GameState::new()` の旧初期値はテスト・ベンチマーク向けに残しています。
 

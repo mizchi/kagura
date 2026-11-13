@@ -19,7 +19,11 @@ for (const game of catalog.filter(item => item.gallery)) {
     expect((await page.goto(`./${path}${query}`))?.ok()).toBe(true);
     const canvas = page.locator('#app');
     await expect(canvas).toBeVisible();
-    if (game.id === 'belt_action') {
+    if (game.id === 'dungeon_rpg') {
+      await page.getByRole('button', {name: '迷宮へ入る →', exact: true}).click();
+      await expect.poll(() => page.evaluate(() => globalThis.fathom?.read().mode)).toBe('explore');
+      await page.evaluate(() => { for (const action of ['right', 'forward', 'forward']) globalThis.fathom.command(action); });
+    } else if (game.id === 'belt_action') {
       await page.locator('#shift-start').click();
       await canvas.focus();
       await page.keyboard.down('d');
@@ -59,7 +63,7 @@ for (const game of catalog.filter(item => item.gallery)) {
     const directory = 'assets/pages/thumbnails';
     mkdirSync(directory, {recursive: true});
     const destination = join(directory, `${game.id}.jpg`);
-    if (game.id === 'card_game') {
+    if (['card_game', 'dungeon_rpg'].includes(game.id)) {
       await captureGameFrame(page, {path: destination});
     } else if (['emberwing', 'hacknslash_3d', 'iron_yard'].includes(game.id)) {
       await page.screenshot({path: destination, type: 'jpeg', quality: 85});

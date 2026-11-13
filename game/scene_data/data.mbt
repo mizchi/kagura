@@ -56,6 +56,23 @@ pub extend Project with @moonbitlang/core/json.FromJson::{from_json}
 pub extend Project with ToJson::{to_json}
 
 ///|
+/// Portals declare the only allowed edges; scenes without portals are terminals.
+pub fn Project::flow_definition(self : Project) -> @scene_flow.Definition {
+  let transitions : Array[@scene_flow.Transition] = []
+  let terminal : Array[String] = []
+  for scene in self.scenes {
+    let portals = scene.data.entities.filter(e => e.kind == "portal")
+    if portals.is_empty() {
+      terminal.push(scene.id)
+    }
+    for portal in portals {
+      transitions.push({ from: scene.id, event: "portal:" + portal.id, to: portal.target })
+    }
+  }
+  { entry: self.entry, scenes: self.scenes.map(s => s.id), terminal, transitions }
+}
+
+///|
 pub struct Session {
   project : Project
   flow : @scene_flow.Flow
@@ -68,7 +85,7 @@ pub fn Session::parse(source : String, kinds : Array[String]) -> Session raise {
 
 ///|
 pub fn Session::new(project : Project, kinds : Array[String]) -> Session raise {
-  let flow = @scene_flow.Flow::new(project.scenes.map(e => e.id), project.entry)
+  let flow = @scene_flow.Flow::from_definition(project.flow_definition())
   if project.scenes.length() > 64 {
     fail("Too many scenes")
   }

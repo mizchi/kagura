@@ -24,7 +24,8 @@
     "asset.11": "assets/textures/old_stone_wall_02_diff_1k.jpg",
     "asset.12": "assets/textures/stone_pavers_diff_1k.jpg",
     "motion.zombie": "motions/zombie.kgrmotion",
-    "motion.wolf": "motions/wolf.kgrmotion"
+    "motion.wolf": "motions/wolf.kgrmotion",
+    "sceneFlow": "editor/scene-flow.json"
   },
   "id": "mizchi.kagura.examples.hacknslash_3d",
   "game": "hacknslash_3d",
@@ -52,5 +53,8 @@
   "sceneSchema": {
     "id": "hacknslash_3d.scene",
     "version": 1
+  },
+  "sceneFlow": {
+    "resource": "sceneFlow"
   }
 }

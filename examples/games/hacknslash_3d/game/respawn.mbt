@@ -44,7 +44,7 @@ pub fn GameWorld::respawn_at_waypoint(self : GameWorld) -> Bool {
   self.events = []
   self.screen_flash = 0.0
   self.ui_mode = UIMode::None
-  self.mode = Playing
+  self.set_mode(Playing)
   self.open_levelup_ui_if_needed()
   true
 }

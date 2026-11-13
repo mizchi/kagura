@@ -315,6 +315,7 @@ test "unique enemies cycle their signature intents and guarding absorbs the next
 ///|
 test "application starts at the map and controller commits one legal node after the transition" {
   let game = Game::new_app()
+  game.switch_scene(CharacterSelect)
   game.apply_screen_action(StartAdventure(Warden, Ascent, 42))
   assert_eq(game.snapshot_state(), "map")
   assert_eq(game.run.get().floor, 0)

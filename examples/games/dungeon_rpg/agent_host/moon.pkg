@@ -1,0 +1,23 @@
+import {
+  "mizchi/dungeon_rpg/sim",
+}
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": {
+      "format": "esm",
+      "exports": [
+        "create",
+        "create_configured",
+        "create_full",
+        "master",
+        "observe",
+        "feedback",
+        "experience",
+        "step",
+      ],
+    },
+  },
+)

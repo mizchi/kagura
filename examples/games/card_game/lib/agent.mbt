@@ -195,10 +195,10 @@ pub fn AgentSession::step(
   }
   guard found is Some(choice) else { return IllegalChoice }
   match choice.action {
-    Begin => self.scene = CharacterSelect
+    Begin => self.set_scene(CharacterSelect)
     ChooseCharacter(character) => {
       self.run = Some(RunState::adventure(character, Ascent, seed=self.seed))
-      self.scene = Playing
+      self.set_scene(Playing)
     }
     _ => {
       guard self.run is Some(run) else { return IllegalChoice }

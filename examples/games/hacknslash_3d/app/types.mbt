@@ -106,6 +106,8 @@ struct DamagePopup {
 }
 
 ///|
+// Input replacement is used by JS inspection; native retains the same helper.
+#warnings("-unused_mut")
 struct GameState {
   inspection : @inspection.FieldControl
   hud_publisher : @ui.JsonObjectPublisher

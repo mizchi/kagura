@@ -1173,6 +1173,7 @@ pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
 pub fn GameWorld::set_guard(Self, Bool, Double) -> Unit
 pub fn GameWorld::set_hunting_terrain(Self, @terrain3d.TerrainConfig) -> Bool
+pub fn GameWorld::set_mode(Self, GameMode) -> Unit
 pub fn GameWorld::set_plains_relief(Self, Double) -> Bool
 pub fn GameWorld::set_whirlwind(Self, Bool, pressed? : Bool) -> Unit
 pub fn GameWorld::skill_allowed(Self, SkillId) -> Bool
@@ -1197,6 +1198,7 @@ pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
 pub fn GameWorld::tick_room_clear_rewards(Self) -> Unit
 pub fn GameWorld::tick_with_enemy_ai_grid(Self, Double, Double, @types.Grid2D) -> Unit
 pub fn GameWorld::transfer_inventory(Self, InventorySource, InventoryTarget) -> Bool
+pub fn GameWorld::transition_mode(Self, GameMode) -> Unit raise
 pub fn GameWorld::travel_to_expedition_site(Self, Int32) -> Bool
 pub fn GameWorld::tuning_subjects(Self) -> Array[@inspection.Subject]
 pub fn GameWorld::whirlwind_radius(Self) -> Double

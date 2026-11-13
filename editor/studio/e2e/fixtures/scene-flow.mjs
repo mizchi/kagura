@@ -1,0 +1,10 @@
+import '../../web/style.css';
+import {installSceneFlowViewer} from '../../scene-flow/viewer.mjs';
+import definition from '../../../../game/scene_flow/example.json';
+import cards from '../../../../examples/games/card_game/editor/scene-flow.json';
+import dungeon from '../../../../examples/games/dungeon_rpg/editor/scene-flow.json';
+import belt from '../../../../examples/games/belt_action/editor/scene-flow.json';
+const viewer = installSceneFlowViewer();
+const game = new URLSearchParams(location.search).get('game');
+viewer.load(({card_game:cards,dungeon_rpg:dungeon,belt_action:belt})[game] ?? definition);
+viewer.open();

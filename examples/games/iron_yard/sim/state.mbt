@@ -187,7 +187,7 @@ pub fn cancel_combat(g : Game) -> Unit {
 ///|
 pub fn pause(g : Game) -> Unit {
   if g.phase == "playing" {
-    g.phase = "paused"
+    g.set_phase("paused")
   }
   cancel_combat(g)
 }
@@ -195,7 +195,7 @@ pub fn pause(g : Game) -> Unit {
 ///|
 pub fn start_playing(g : Game) -> Unit {
   if g.phase == "ready" || g.phase == "paused" {
-    g.phase = "playing"
+    g.set_phase("playing")
   }
 }
 

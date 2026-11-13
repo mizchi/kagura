@@ -8,7 +8,8 @@
   },
   "scene": "scenes/flight.json",
   "resources": {
-    "host": "assets/host.mjs"
+    "host": "assets/host.mjs",
+    "sceneFlow": "editor/scene-flow.json"
   },
   "id": "mizchi.kagura.examples.emberwing",
   "game": "emberwing",
@@ -35,5 +36,8 @@
   "sceneSchema": {
     "id": "kagura.example",
     "version": 1
+  },
+  "sceneFlow": {
+    "resource": "sceneFlow"
   }
 }

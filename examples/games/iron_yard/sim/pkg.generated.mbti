@@ -1,0 +1,269 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/iron_yard/sim"
+
+import {
+  "mizchi/geom/math3d",
+  "mizchi/kagura_engine/inspection",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn advance_combat(Game, Input, CombatFrame, Double) -> Unit
+
+pub fn advance_enemies(Game, Double) -> Unit
+
+pub fn advance_hostile_projectiles(Game, Double) -> Unit
+
+pub fn advance_motion(Game, Input, Double) -> Unit
+
+pub fn advance_pilot(Pilot, Input, Double, Stage, Array[Solid]) -> Pilot
+
+pub fn append_wave(Game) -> Unit
+
+pub fn attack_preview(String, Double) -> Game raise
+
+pub fn box_intersection(@math3d.Vec3, @math3d.Vec3, Solid, padding? : Double) -> Double?
+
+pub fn camera_aim(Pilot) -> @math3d.Vec3
+
+pub fn camera_position(Pilot) -> @math3d.Vec3
+
+pub fn camera_target(Pilot) -> @math3d.Vec3
+
+pub fn cancel_combat(Game) -> Unit
+
+pub fn clamp(Double, Double, Double) -> Double
+
+pub fn clear_segment(@math3d.Vec3, @math3d.Vec3, Stage) -> Bool
+
+pub fn colliders(Game) -> Array[Solid]
+
+pub fn constrain_camera(@math3d.Vec3, @math3d.Vec3, Array[Solid]) -> @math3d.Vec3
+
+pub fn default_stage() -> Stage
+
+pub fn distance(@math3d.Vec3, @math3d.Vec3) -> Double
+
+pub fn enemy_box(Enemy) -> Solid
+
+pub fn enemy_muzzle(Enemy) -> @math3d.Vec3
+
+pub fn find_route(@math3d.Vec3, @math3d.Vec3, Stage) -> Array[@math3d.Vec3]
+
+pub fn finish_mission(Game, Double) -> Unit
+
+pub fn game_from_scene(String, Bool) -> Game raise
+
+pub fn input(forward? : Double, strafe? : Double, boost? : Bool, jump? : Bool, fire? : Bool, lock? : Bool, yaw? : Double, pitch? : Double) -> Input
+
+pub fn lock_candidates(Game, CombatFrame) -> Array[Int32]
+
+pub fn max(Double, Double) -> Double
+
+pub fn min(Double, Double) -> Double
+
+pub fn mission_time(Game) -> Double
+
+pub fn new_enemy(Int32) -> Enemy
+
+pub fn new_game(ai? : Bool, spawn? : @math3d.Vec3, yaw? : Double) -> Game
+
+pub fn new_pilot(Stage) -> Pilot
+
+pub fn pause(Game) -> Unit
+
+pub fn rifle_action(Game) -> SceneAction
+
+pub fn snapshot(Game) -> String
+
+pub fn solid(String, @math3d.Vec3, @math3d.Vec3, Int32, kind? : String) -> Solid
+
+pub fn spawn_projectile(Game, Int32, @math3d.Vec3, @math3d.Vec3, Int32, owner? : Int32) -> Unit
+
+pub fn start_playing(Game) -> Unit
+
+pub fn vec(Double, Double, Double) -> @math3d.Vec3
+
+pub fn vector_json(@math3d.Vec3) -> @json.Json
+
+pub fn view_focus(@math3d.Vec3, @math3d.Vec3, Array[Solid]) -> @math3d.Vec3
+
+pub fn visible(@math3d.Vec3, @math3d.Vec3, Array[Solid]) -> Bool
+
+pub fn wave_count(Game) -> Int32
+
+// Errors
+
+// Types and methods
+pub(all) struct CombatFrame {
+  eye : @math3d.Vec3
+  aim : @math3d.Vec3
+  rifle : @math3d.Vec3
+  left : @math3d.Vec3
+  right : @math3d.Vec3
+}
+
+pub(all) struct Effect {
+  position : @math3d.Vec3
+  kind : Int32
+  mut age : Double
+}
+
+pub(all) struct Enemy {
+  id : Int32
+  name : String
+  home : @math3d.Vec3
+  mut position : @math3d.Vec3
+  mut velocity : @math3d.Vec3
+  mut yaw : Double
+  mut hp : Double
+  mut lock : Double
+  mut mode : String
+  mut last_seen : @math3d.Vec3?
+  mut memory : Double
+  mut cooldown : Double
+  mut warning : Double
+  mut aim : @math3d.Vec3
+  mut path : Array[@math3d.Vec3]
+  mut repath : Double
+  mut patrol_side : Double
+  mut strafe : Double
+}
+
+pub(all) struct Game {
+  stage : Stage
+  scene : SceneRecipe?
+  ai : Bool
+  mut pilot : Pilot
+  units : Array[Enemy]
+  mut phase : String
+  mut elapsed : Double
+  mut wave : Int32
+  mut hp : Double
+  mut damage_flash : Double
+  mut projectiles : Array[Projectile]
+  mut effects : Array[Effect]
+  mut queue : Array[QueuedShot]
+  mut was_locking : Bool
+  mut rifle_cooldown : Double
+  mut missile_cooldown : Double
+  mut attack_age : Double
+  mut next_id : Int32
+  mut shots : Int32
+  mut missiles : Int32
+  mut hits : Int32
+  mut kills : Int32
+  mut enemy_shots : Int32
+  mut enemy_hits : Int32
+}
+pub fn Game::apply_tuning(Self, String, String, Double) -> Unit raise
+pub fn Game::set_phase(Self, String) -> Unit
+pub fn Game::transition_phase(Self, String) -> Unit raise
+pub fn Game::tuning_subjects(Self) -> Array[@inspection.Subject]
+
+pub(all) struct Input {
+  forward : Double
+  strafe : Double
+  boost : Bool
+  jump : Bool
+  fire : Bool
+  lock : Bool
+  yaw : Double
+  pitch : Double
+}
+
+pub(all) struct Pilot {
+  mut position : @math3d.Vec3
+  mut velocity : @math3d.Vec3
+  yaw : Double
+  pitch : Double
+  mut gait : Double
+  mut boost : Double
+  mut grounded : Bool
+  mut jump_held : Double
+  mut jump_down : Bool
+}
+
+pub(all) struct Projectile {
+  id : Int32
+  kind : Int32
+  target : Int32
+  owner : Int32
+  mut position : @math3d.Vec3
+  mut velocity : @math3d.Vec3
+  mut age : Double
+  trail : Array[@math3d.Vec3]
+}
+
+pub(all) struct QueuedShot {
+  target : Int32
+  side : Int32
+  mut delay : Double
+}
+
+#derive(@json.FromJson)
+pub(all) struct SceneAction {
+  cooldown : Double
+  damage : Double
+  flashDuration : Double
+  flashColor : Int32
+  recoilDuration : Double
+  recoilStrength : Double
+  shotSound : String
+  hitSound : String
+}
+pub fn SceneAction::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+pub(all) struct SceneRecipe {
+  bounds : Array[Double]
+  spawn : Array[Double]
+  solids : Array[SceneSolid]
+  targets : Array[SceneTarget]
+  waves : Array[Array[Int32]]
+  timeLimit : Double
+  fov : Double
+  sky : Int32
+  sun : Double
+  action : SceneAction
+}
+pub fn SceneRecipe::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+pub(all) struct SceneSolid {
+  id : String
+  kind : String
+  center : Array[Double]
+  size : Array[Double]
+  color : Int32
+}
+pub fn SceneSolid::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+pub(all) struct SceneTarget {
+  id : String
+  position : Array[Double]
+  yaw : Double
+}
+pub fn SceneTarget::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+pub(all) struct Solid {
+  id : String
+  kind : String
+  center : @math3d.Vec3
+  size : @math3d.Vec3
+  color : Int32
+}
+
+pub(all) struct Stage {
+  min_x : Double
+  max_x : Double
+  min_z : Double
+  max_z : Double
+  spawn : @math3d.Vec3
+  solids : Array[Solid]
+}
+
+// Type aliases
+
+// Traits

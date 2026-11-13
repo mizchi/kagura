@@ -60,7 +60,7 @@ test('every game and demo has a loadable project with a shared scene or its own 
     }
     const twoD =
       item.category === 'demos-2d' ||
-      ['card_game', 'flappy_bird', 'survivor'].includes(item.id);
+      ['belt_action', 'card_game', 'dungeon_rpg', 'flappy_bird', 'survivor'].includes(item.id);
     assert.equal(
       manifest.editor.id,
       item.id === 'flappy_bird'
@@ -70,6 +70,7 @@ test('every game and demo has a loadable project with a shared scene or its own 
           : ['hacknslash_3d', 'arena3d'].includes(item.id)
             ? item.id.replaceAll('_', '-')
             : 'kagura.example',
+      item.id,
     );
     assert.equal(readLaunch(createHeadlessEditor(doc).snapshot()).example, item.id);
     if (['hacknslash_3d', 'arena3d'].includes(item.id)) assert.ok(doc.nodes.length > 0);

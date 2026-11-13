@@ -52,6 +52,10 @@ interface ProjectMetadata {
     /** Optional pre-bundled ESM entry, relative to this manifest. */ entry?: string;
   };
   resources: Record<string, string>;
+  /** Self-contained adapter module and the ID of its JSON resource. */
+  masterData?: { adapter: string; resource: string };
+  /** Definition generated from the game's executable MoonBit state machine. */
+  sceneFlow?: { resource: string };
 }
 /** Legacy single scene or a named scene table with an explicit entry. */
 export type ProjectManifest = ProjectMetadata &
@@ -65,6 +69,12 @@ export interface ProjectResources {
   readonly writable: boolean;
   read(path: string): Promise<Blob>;
   resource(id: string): Promise<Blob>;
+  /** Reads the staged value and its optimistic revision token. */
+  readResource(id: string): Promise<{ blob: Blob; revision: number }>;
+  /** Changes future resource URLs; URLs already handed to a game remain valid. */
+  stageResource(id: string, blob: Blob, expectedRevision: number): Promise<number>;
+  /** Persists staged resources, rejecting files changed externally since reading. */
+  saveResources(): Promise<void>;
   list(): Promise<string[]>;
   url(path: string, mime?: string): Promise<string>;
   readScene(id?: string): Promise<unknown>;

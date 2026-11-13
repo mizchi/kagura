@@ -235,6 +235,7 @@ pub fn command(operation : String) -> Unit {
         } else {
           operation == "combat"
         }
+        a.game.set_phase("ready")
         a.game = @sim.new_game(ai~)
         a.animator = @rig.new_animator(a.strix)
         a.eye = @sim.camera_position(a.game.pilot)

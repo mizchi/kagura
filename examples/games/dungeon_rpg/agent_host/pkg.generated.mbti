@@ -1,0 +1,31 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/dungeon_rpg/agent_host"
+
+import {
+  "mizchi/dungeon_rpg/sim",
+}
+
+// Values
+pub fn create(Int32) -> @sim.AgentSession
+
+pub fn create_configured(Int32, String) -> @sim.AgentSession
+
+pub fn create_full(Int32, String, String) -> @sim.AgentSession
+
+pub fn experience(@sim.AgentSession, Int32) -> String
+
+pub fn feedback(@sim.AgentSession) -> String
+
+pub fn master(@sim.AgentSession) -> String
+
+pub fn observe(@sim.AgentSession) -> String
+
+pub fn step(@sim.AgentSession, Int32, String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

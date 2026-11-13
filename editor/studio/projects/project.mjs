@@ -38,6 +38,8 @@ export function validateProject(input) {
     'scenes',
     'entryScene',
     'resources',
+    'masterData',
+    'sceneFlow',
   ]);
   if (input.format !== 'kagura.project' || input.version !== 1)
     throw Error('Unsupported .kgrprj format/version');
@@ -71,6 +73,19 @@ export function validateProject(input) {
     if (!/^[a-zA-Z][a-zA-Z0-9_.-]{0,79}$/.test(id)) throw Error('Invalid resource ID');
     projectPath(path);
   }
+  if (input.masterData !== undefined) {
+    object(input.masterData, ['adapter', 'resource']);
+    if (
+      !projectPath(input.masterData.adapter).endsWith('.mjs') ||
+      !Object.hasOwn(input.resources, input.masterData.resource)
+    ) throw Error('Invalid master data declaration');
+  }
+  if (input.sceneFlow !== undefined) {
+    object(input.sceneFlow, ['resource']);
+    const id = input.sceneFlow.resource;
+    if (typeof id !== 'string' || !Object.hasOwn(input.resources, id) ||
+      !input.resources[id].endsWith('.json')) throw Error('Invalid scene flow declaration');
+  }
   validateSettings(input, projectPath);
   return normalized;
 }
@@ -82,8 +97,11 @@ export async function openProject(store, path) {
   const manifest = validateProject(JSON.parse(await blob.text()));
   const prefix = path.slice(0, path.lastIndexOf('/') + 1),
     urls = new Map(),
-    sourceRevisions = new Map();
+    sourceRevisions = new Map(),
+    resourceDrafts = new Map(),
+    ownedURLs = new Set();
   let closed = false;
+  let savingResources = false;
   function scoped(path) {
     if (closed) throw Error('Project is closed');
     return prefix + projectPath(path);
@@ -98,6 +116,8 @@ export async function openProject(store, path) {
     manifest,
     writable: typeof store.write === 'function',
     async read(path) {
+      scoped(path);
+      if (resourceDrafts.has(path)) return resourceDrafts.get(path).blob;
       return (await store.read(scoped(path))).blob;
     },
     async readScene(id) {
@@ -146,8 +166,13 @@ export async function openProject(store, path) {
     async url(path, type) {
       const key = scoped(path);
       if (!urls.has(key)) {
+        const revision = resourceDrafts.get(path)?.revision;
         const blob = await project.read(path);
         scoped(path);
+        // A draft may change while a folder read is pending. Never cache that
+        // older read as the URL for a later Play.
+        if (revision !== resourceDrafts.get(path)?.revision) return project.url(path, type);
+        if (urls.has(key)) return urls.get(key);
         const mime =
           type ??
           (path.endsWith('.mjs')
@@ -156,6 +181,7 @@ export async function openProject(store, path) {
               ? 'application/json'
               : blob.type);
         urls.set(key, URL.createObjectURL(new Blob([blob], { type: mime })));
+        ownedURLs.add(urls.get(key));
       }
       return urls.get(key);
     },
@@ -163,10 +189,60 @@ export async function openProject(store, path) {
       if (!Object.hasOwn(manifest.resources, id)) throw Error('Unknown resource: ' + id);
       return project.read(manifest.resources[id]);
     },
+    async readResource(id) {
+      const blob = await project.resource(id), path = manifest.resources[id];
+      scoped(path);
+      if (!resourceDrafts.has(path)) {
+        const base = await blob.text();
+        scoped(path);
+        // Another read or stage may have completed while the Blob was decoded.
+        if (!resourceDrafts.has(path))
+          resourceDrafts.set(path, {blob, base, revision: 0, dirty: false});
+      }
+      const r = resourceDrafts.get(path);
+      return {blob: r.blob, revision: r.revision};
+    },
+    async stageResource(id, blob, expectedRevision) {
+      if (!(blob instanceof Blob) || blob.size > 4 * 1024 * 1024)
+        throw Error('Resource exceeds 4 MiB');
+      await project.readResource(id);
+      const path = manifest.resources[id], r = resourceDrafts.get(path);
+      scoped(path);
+      if (r.revision !== expectedRevision) throw Error('Stale resource revision');
+      r.blob = blob;
+      r.revision++;
+      r.dirty = true;
+      urls.delete(scoped(path));
+      return r.revision;
+    },
+    async saveResources() {
+      if (!project.writable) throw Error('Project folder is read-only');
+      if (savingResources) throw Error('Resource save is already in progress');
+      savingResources = true;
+      try {
+        const pending = [...resourceDrafts]
+          .filter(([, r]) => r.dirty)
+          .map(([path, r]) => ({path, record: r, revision: r.revision, blob: r.blob, base: r.base}));
+        for (const p of pending) {
+          const disk = (await store.read(scoped(p.path))).blob;
+          if (await disk.text() !== p.base)
+            throw Error('Resource changed on disk; reopen before saving');
+        }
+        for (const p of pending) {
+          await store.write(scoped(p.path), p.blob);
+          p.record.base = await p.blob.text();
+          if (p.record.revision === p.revision) p.record.dirty = false;
+        }
+      } finally {
+        savingResources = false;
+      }
+    },
     dispose() {
       closed = true;
-      for (const url of urls.values()) URL.revokeObjectURL(url);
+      for (const url of ownedURLs) URL.revokeObjectURL(url);
       urls.clear();
+      ownedURLs.clear();
+      resourceDrafts.clear();
     },
   };
   return Object.freeze(project);

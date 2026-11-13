@@ -126,7 +126,7 @@ pub fn Game::hurt_player(
   self.shake = 12
   self.effect(p.x, p.z - 36.0, "hurt")
   if p.hp == 0 {
-    self.mode = "lost"
+    self.set_mode("lost")
   }
 }
 

@@ -1,0 +1,4 @@
+import {
+  "mizchi/kagura_game/scene_flow",
+}
+options(link: { "js": { "format": "esm", "exports": ["definition_json"] } })

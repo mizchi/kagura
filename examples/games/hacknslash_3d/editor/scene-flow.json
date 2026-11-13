@@ -1,0 +1,52 @@
+{
+  "entry": "title",
+  "scenes": [
+    "title",
+    "character_select",
+    "playing",
+    "gameover"
+  ],
+  "terminal": [],
+  "transitions": [
+    {
+      "from": "title",
+      "event": "new-save",
+      "to": "character_select"
+    },
+    {
+      "from": "title",
+      "event": "load-save",
+      "to": "playing"
+    },
+    {
+      "from": "character_select",
+      "event": "confirm-build",
+      "to": "playing"
+    },
+    {
+      "from": "character_select",
+      "event": "back",
+      "to": "title"
+    },
+    {
+      "from": "playing",
+      "event": "defeated",
+      "to": "gameover"
+    },
+    {
+      "from": "gameover",
+      "event": "respawn",
+      "to": "playing"
+    },
+    {
+      "from": "playing",
+      "event": "save-select",
+      "to": "title"
+    },
+    {
+      "from": "gameover",
+      "event": "save-select",
+      "to": "title"
+    }
+  ]
+}

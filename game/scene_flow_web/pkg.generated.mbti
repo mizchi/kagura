@@ -1,0 +1,26 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/scene_flow_web"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn inspect_documents_json(String) -> String
+
+pub fn inspect_json(String) -> String
+
+// Errors
+
+// Types and methods
+#derive(@json.FromJson)
+type Documents
+pub fn Documents::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+type SceneDocument
+pub fn SceneDocument::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+// Type aliases
+
+// Traits

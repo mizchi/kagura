@@ -10,17 +10,42 @@ import {
 // Errors
 
 // Types and methods
+#derive(@json.FromJson, @json.ToJson)
+pub(all) struct Definition {
+  entry : String
+  scenes : Array[String]
+  terminal : Array[String]
+  transitions : Array[Transition]
+}
+pub fn Definition::analyze(Self) -> Report
+pub fn Definition::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Definition::require_transition(Self, String, String) -> Unit raise
+pub fn Definition::to_json(Self) -> @json.Json
+pub fn Definition::to_mermaid(Self) -> String
+
 pub struct Flow {
   ids : Array[String]
   mut scene : String
   mut serial : Int32
   mut pending : (Int32, String)?
+  transitions : Array[Transition]?
 }
 pub fn Flow::cancel(Self, Int32) -> Bool
 pub fn Flow::commit(Self, Int32) -> Bool
 pub fn Flow::current(Self) -> String
+pub fn Flow::from_definition(Definition) -> Self raise
 pub fn Flow::new(Array[String], String) -> Self raise
 pub fn Flow::request(Self, String) -> Int32 raise
+pub fn Flow::send(Self, String) -> Int32 raise
+
+#derive(@json.ToJson)
+pub(all) struct Issue {
+  code : String
+  severity : String
+  scene : String
+  transition : Int32
+}
+pub fn Issue::to_json(Self) -> @json.Json
 
 #derive(@json.FromJson, @json.ToJson)
 pub(all) struct Portal {
@@ -32,6 +57,23 @@ pub(all) struct Portal {
 pub fn Portal::contains(Self, Double, Double) -> Bool
 pub fn Portal::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn Portal::to_json(Self) -> @json.Json
+
+#derive(@json.ToJson)
+pub(all) struct Report {
+  valid : Bool
+  reachable : Array[String]
+  issues : Array[Issue]
+}
+pub fn Report::to_json(Self) -> @json.Json
+
+#derive(@json.FromJson, @json.ToJson)
+pub(all) struct Transition {
+  from : String
+  event : String
+  to : String
+}
+pub fn Transition::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Transition::to_json(Self) -> @json.Json
 
 // Type aliases
 

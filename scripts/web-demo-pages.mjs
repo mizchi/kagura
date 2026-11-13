@@ -15,6 +15,14 @@ const HIDDEN_PAGE_NAMES = new Set([
 
 const RAW_DEMO_PAGES = [
   {
+    name: "dungeon_rpg", title: "FATHOM", group: "Games",
+    summary: "A six-hero dungeon expedition. Explore two floors, plan every battle turn, and bring the guardian’s seal home.",
+    start: "Enter the dungeon from the frontier town. Map the passages, conserve spells, and return before your supplies run out.",
+    controls: ["W / S: forward / backward; A / D: turn; Q / E: strafe", "Enter: inspect, open doors or use stairs", "Choose each hero’s action and target; confirm to resolve the round", "F: all-out attack; mouse and touch controls available", "Town: rest, buy potions and swap formation; progress saves in town"],
+    tags: ["2D", "Dungeon RPG", "Turn-based"], sourcePath: "examples/games/dungeon_rpg/main.mbt",
+    width: 960, height: 600, pixelArt: true,
+  },
+  {
     name: "belt_action", title: "AFTERSHIFT", group: "Games",
     summary: "A belt-scrolling brawler at a night loading dock. Read the windup, step out, hit back.",
     start: "Press Enter or J to begin. Clear three sectors and defeat the foreman.",

@@ -45,6 +45,7 @@ pub(all) struct Project {
   entry : String
   scenes : Array[Entry]
 }
+pub fn Project::flow_definition(Self) -> @scene_flow.Definition
 pub fn Project::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn Project::to_json(Self) -> @json.Json
 

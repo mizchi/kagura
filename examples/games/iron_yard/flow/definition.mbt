@@ -1,0 +1,30 @@
+///|
+/// The executable game and Studio share this declaration.
+pub fn definition() -> @scene_flow.Definition {
+  {
+    entry: "ready",
+    scenes: ["ready", "playing", "paused", "lost", "won"],
+    terminal: [],
+    transitions: [
+      { from: "ready", event: "start", to: "playing" },
+      { from: "playing", event: "pause", to: "paused" },
+      { from: "paused", event: "resume", to: "playing" },
+      { from: "playing", event: "defeated-or-timeout", to: "lost" },
+      { from: "playing", event: "mission-clear", to: "won" },
+      { from: "playing", event: "reset", to: "ready" },
+      { from: "paused", event: "reset", to: "ready" },
+      { from: "lost", event: "reset", to: "ready" },
+      { from: "won", event: "reset", to: "ready" },
+    ],
+  }
+}
+
+///|
+pub fn check(from : String, to : String) -> Unit raise {
+  definition().require_transition(from, to)
+}
+
+///|
+pub fn definition_json() -> String {
+  definition().to_json().stringify()
+}

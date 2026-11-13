@@ -99,6 +99,53 @@ platform-test:
     moon test platform platform_web --target {{target}}
     node --test scripts/platform-layout.test.mjs scripts/moon-boundary-utils.test.mjs scripts/moon-release-utils.test.mjs
 
+# FATHOM: turn-based six-hero dungeon expedition.
+dungeon-rpg-dev port="5198": dungeon-rpg-master-build
+    node scripts/prepare-moon-deps.mjs examples/games/dungeon_rpg
+    node cmd/kagura/main.mjs dev dungeon_rpg --port {{port}}
+
+dungeon-rpg-test: dungeon-rpg-master-build
+    node --test examples/games/dungeon_rpg/tests/presentation.test.mjs
+    node scripts/prepare-moon-deps.mjs examples/games/dungeon_rpg
+    moon -C examples/games/dungeon_rpg test -p mizchi/dungeon_rpg -p mizchi/dungeon_rpg/sim --target js
+    moon -C examples/games/dungeon_rpg test sim --target native
+
+dungeon-rpg-e2e: dungeon-rpg-master-build
+    node scripts/prepare-moon-deps.mjs examples/games/dungeon_rpg
+    moon -C examples/games/dungeon_rpg build agent_host --target js --release
+    pnpm exec playwright test -c examples/games/dungeon_rpg/playwright.config.mjs
+
+# Jev consumes observed state + legal actions; --watch displays the same run.
+dungeon-rpg-agent *args:
+    node scripts/dungeon-rpg-agent.mjs {{args}}
+
+dungeon-rpg-agent-test: dungeon-rpg-master-build
+    node scripts/prepare-moon-deps.mjs examples/games/dungeon_rpg
+    moon -C examples/games/dungeon_rpg check --target js --deny-warn
+    moon -C examples/games/dungeon_rpg check --target native --deny-warn
+    moon -C examples/games/dungeon_rpg test sim --target js
+    moon -C examples/games/dungeon_rpg test sim --target native
+    moon -C examples/games/dungeon_rpg build agent_host --target js --release
+    node --test examples/games/dungeon_rpg/agent/agent.test.mjs examples/games/dungeon_rpg/agent/cli.test.mjs
+
+# Canonical JSON also supplies the native game's compiled defaults.
+dungeon-rpg-master-build:
+    node examples/games/dungeon_rpg/scripts/generate-master-data.mjs
+
+# FATHOM UI gates (start dungeon-rpg-dev first).
+dungeon-rpg-ui url="http://localhost:5198":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export NODE_OPTIONS="--import $(pwd)/examples/games/dungeon_rpg/tests/vlmkit-browser.mjs"
+    pnpm exec vlmkit check integrity {{url}}
+    pnpm exec vlmkit check copy {{url}} --manifest examples/games/dungeon_rpg/e2e/copy.txt
+    pnpm exec vlmkit scan scroll {{url}}
+    pnpm exec vlmkit scan handlers {{url}}
+    pnpm exec vlmkit check interactions {{url}}
+    pnpm exec vlmkit check breakpoints {{url}} --sweep
+    pnpm exec vlmkit check responsive {{url}}
+    pnpm exec vlmkit check animation {{url}}
+
 # AFTERSHIFT: belt-scrolling action with lane evasion and guard breaking.
 belt-action-dev port="5195":
     node scripts/prepare-moon-deps.mjs examples/games/belt_action
@@ -846,6 +893,43 @@ wasm-build guest:
     @if [ "{{guest}}" = "moonbit" ]; then just wasm-build-moonbit; elif [ "{{guest}}" = "rust" ]; then just wasm-build-rust; elif [ "{{guest}}" = "zig" ]; then just wasm-build-zig; else echo "Unknown guest: {{guest}}"; exit 1; fi
 
 # Shared game scene profiles, scene transitions, and project loading contracts.
+scene-flow-test: web-runtime-build
+    moon -C game check scene_flow scene_data --target js --deny-warn
+    moon -C game check scene_flow scene_data --target native --deny-warn
+    moon -C game test scene_flow scene_data --target js
+    moon -C game test scene_flow scene_data --target native
+    node --test game/scene_flow/inspect.test.mjs
+    pnpm -C editor/studio exec tsc -p tsconfig.contracts.json
+
+# Build the exact MoonBit declarations also imported by each game's runtime.
+[positional-arguments]
+scene-flow-examples-build *args:
+    node scripts/scene-flow-examples.mjs "$@"
+
+scene-flow-examples-check:
+    node scripts/scene-flow-examples.mjs --check
+    node --test scripts/scene-flow-examples.test.mjs
+
+scene-flow-examples-test: scene-flow-test scene-flow-examples-check
+    node scripts/test-scene-flow-examples.mjs
+
+scene-flow-check file="game/scene_flow/example.json":
+    node scripts/scene-flow.mjs {{quote(file)}}
+
+scene-flow-mermaid file="game/scene_flow/example.json":
+    node scripts/scene-flow.mjs --mermaid {{quote(file)}}
+
+scene-flow-e2e:
+    cd editor/studio && pnpm exec playwright test e2e/scene-flow.spec.mjs
+
+# Start Studio's dev server first.
+scene-flow-ui url="http://127.0.0.1:5190/e2e/fixtures/scene-flow.html":
+    pnpm exec vlmkit check integrity '{{url}}'
+    pnpm exec vlmkit check copy '{{url}}' --manifest editor/studio/e2e/fixtures/scene-flow-copy.txt
+    pnpm exec vlmkit scan scroll '{{url}}'
+    pnpm exec vlmkit scan handlers '{{url}}'
+    pnpm exec vlmkit check interactions '{{url}}'
+
 studio-scene-test:
     moon -C examples/games/arena3d build scenes --target js --release
     moon -C examples/games/flappy_bird build scenes --target js --release

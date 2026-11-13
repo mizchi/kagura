@@ -103,7 +103,11 @@ test "paused player edits preserve velocity and other bodies, and update the cam
 ///|
 test "rejected player edits and stale scene tokens leave state unchanged" {
   let game = GameState::new()
-  game.apply_scene_project(authored_fixture())
+  // This test intentionally revisits the same scene. Declare that return edge.
+  let project = @scenes.project()
+  let portal = project.scenes[0].data.entities.filter(e => e.kind == "portal")[0]
+  project.scenes[1].data.entities.push({ ..portal, id: "return", target: "training" })
+  game.apply_scene_project(project.to_json().stringify())
   game.set_inspection_paused(true)
   for
     trial in [

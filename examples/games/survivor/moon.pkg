@@ -1,4 +1,5 @@
 import {
+  "mizchi/survivor/flow",
   "mizchi/kagura_engine/inspection",
   "moonbitlang/core/json",
   "mizchi/kagura_game/inpututil",

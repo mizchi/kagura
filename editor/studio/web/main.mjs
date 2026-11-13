@@ -27,6 +27,7 @@ import { storagePane } from "./storage-pane.mjs";
 import { createExtensionHost } from "../extensions/host.mjs";
 import { editorExtensions, defaultEditor } from "../extensions/catalog.mjs";
 import { installProjectUI } from "../projects/browser.mjs";
+import {installSceneFlowViewer} from '../scene-flow/viewer.mjs';
 import {
   defineJSPlugin,
   fromJSONModule,
@@ -258,6 +259,7 @@ gameEditor = createExtensionHost(
 );
 await gameEditor.useBuiltin(defaultEditor);
 const projectTransport = installProjectTransport(gameEditor, app.set_status);
+const sceneFlowViewer = installSceneFlowViewer({host:gameEditor,setStatus:app.set_status});
 const runtimeInspector = installRuntimeInspector(
   gameEditor,
   app.set_status,
@@ -403,6 +405,7 @@ if (import.meta.hot)
     runtimeWorkspace.dispose();
     projectTransport.dispose();
     runtimeInspector.dispose();
+    sceneFlowViewer.dispose();
     inspectorParts.dispose();
     sceneHierarchy.dispose();
     projectUI.dispose();

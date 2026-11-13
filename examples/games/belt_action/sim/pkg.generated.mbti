@@ -82,10 +82,12 @@ pub fn Game::gate_x(Self) -> Double
 pub fn Game::hurt_player(Self, Int32, Double) -> Unit
 pub fn Game::remaining(Self) -> Int32
 pub fn Game::resolve_strike(Self) -> Unit
+pub fn Game::set_mode(Self, String) -> Unit
 pub fn Game::snapshot(Self) -> String
 pub fn Game::spawn(Self, Int32, Double, Double) -> Unit
 pub fn Game::start(Self) -> Unit
 pub fn Game::step(Self, Input) -> Unit
+pub fn Game::transition_mode(Self, String) -> Unit raise
 pub fn Game::update_enemies(Self) -> Unit
 
 pub(all) struct Input {

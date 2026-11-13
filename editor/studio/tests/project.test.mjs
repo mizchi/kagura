@@ -64,9 +64,50 @@ test('invalid manifests and unsupported versions never become projects', () => {
   ])
     assert.throws(() => validateProject({ ...manifest, ...patch }));
 });
+
+test('scene flow declarations reference a bundled JSON resource', () => {
+  const project = {...manifest, resources:{...manifest.resources, flow:'editor/flow.json'}, sceneFlow:{resource:'flow'}};
+  assert.equal(validateProject(project).sceneFlow.resource,'flow');
+  for (const patch of [
+    {sceneFlow:{resource:'missing'}},
+    {sceneFlow:{resource:'flow', unexpected:true}},
+    {sceneFlow:{resource:5}},
+    {resources:{flow:'editor/flow.mjs'}},
+  ]) assert.throws(() => validateProject({...project,...patch}));
+});
 test('the built-in generic editor requires no extension declaration', () => {
   const { editor, ...generic } = manifest;
   assert.equal(validateProject(generic).editor, undefined);
+});
+
+test('resource drafts survive reopen of the pane, invalidate future URLs and detect stale edits and external saves',async()=>{
+  const files=store(),p=await openProject(files,'game/iron.kgrprj');
+  const original=await p.readResource('note'),url=await p.url('assets/note.txt');
+  await p.stageResource('note',new Blob(['updated']),original.revision);
+  assert.equal(await (await p.resource('note')).text(),'updated');
+  assert.notEqual(await p.url('assets/note.txt'),url);
+  await assert.rejects(p.stageResource('note',new Blob(['stale']),original.revision),/stale/i);
+  await p.saveResources();assert.equal(await (await files.read('game/assets/note.txt')).blob.text(),'updated');
+  const next=await p.readResource('note');await p.stageResource('note',new Blob(['local']),next.revision);
+  await files.write('game/assets/note.txt',new Blob(['external']));
+  await assert.rejects(p.saveResources(),/changed/i);
+  assert.equal(await (await files.read('game/assets/note.txt')).blob.text(),'external');p.dispose();
+});
+test('concurrent first-time resource edits cannot reset optimistic revisions',async()=>{
+  const p=await openProject(store(),'game/iron.kgrprj');
+  const results=await Promise.allSettled([p.stageResource('note',new Blob(['first']),0),p.stageResource('note',new Blob(['second']),0)]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+  assert.equal((await p.readResource('note')).revision,1);p.dispose();
+});
+test('a resource edit during URL resolution cannot poison the next Play cache',async()=>{
+  const backing=store();let resume,started;
+  const waiting=new Promise(resolve=>{started=resolve;});
+  const delayed={...backing,async read(key){const result=await backing.read(key);if(key.endsWith('note.txt')&&resume===undefined){await new Promise(resolve=>{resume=resolve;started();});}return result;}};
+  const p=await openProject(delayed,'game/iron.kgrprj');
+  const oldURL=p.url('assets/note.txt');await waiting;
+  await p.stageResource('note',new Blob(['new']),0);resume();
+  await oldURL;
+  const url=await p.url('assets/note.txt');assert.equal(await (await fetch(url)).text(),'new');p.dispose();
 });
 test('folder-upload fallback scopes nested project files and reports read-only storage',async()=>{
  const {filesStore}=await import('../projects/browser.mjs');

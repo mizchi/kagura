@@ -14,6 +14,7 @@ import {
 } from "./contract.mjs";
 import { defineJSPlugin } from "../plugins/adapters.mjs";
 import * as core from "../extensions/core.mjs";
+import {validateAdapter,validateDocument as validateMasterData} from '../../../game/master-data/contract.mjs';
 
 export const apiVersion = 1;
 export const id = "kagura.example";
@@ -87,6 +88,21 @@ export function activate(
         "このexampleはnative専用です。Projectペーンからソースを参照できます。",
       );
     const revision = editor.snapshot().revision;
+    let masterURL;
+    if (project.manifest.masterData) {
+      const definition = project.manifest.masterData;
+      const module = await import(/* @vite-ignore */ await project.url(definition.adapter, 'text/javascript'));
+      const adapter = validateAdapter(module.masterDataAdapter);
+      if (adapter.schema.id !== project.manifest.game)
+        throw Error('Master data adapter game mismatch');
+      const resource = await project.readResource(definition.resource);
+      if (resource.blob.size > 4 * 1024 * 1024) throw Error('Master data exceeds 4 MiB');
+      const issues = validateMasterData(adapter, JSON.parse(await resource.blob.text()));
+      if (issues.length) throw Error('Invalid master data: ' + issues[0].message);
+      masterURL = await project.url(project.manifest.resources[definition.resource], 'application/json');
+      if ((await project.readResource(definition.resource)).revision !== resource.revision)
+        throw Error('Master data changed while preparing Play');
+    }
     const scene = compileScene?.(editor.snapshot().document);
     let sceneProject;
     if (scene && project.manifest.scenes) {
@@ -129,7 +145,7 @@ export function activate(
         try {
           const assets = {};
           for (const [key, path] of Object.entries(project.manifest.resources))
-            if (key !== "runtime") assets[path] = await project.url(path);
+            if (key !== "runtime") assets[path] = key===project.manifest.masterData?.resource?masterURL:await project.url(path);
           const script = await project.url(
             runtimeEntry(project.manifest),
             "text/javascript",

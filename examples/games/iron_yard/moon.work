@@ -1,4 +1,5 @@
 members = [
+  "../../../game",
   "../../../platform_web",
   ".",
   "../../../core/anim3d",

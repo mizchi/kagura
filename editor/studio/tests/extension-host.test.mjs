@@ -208,6 +208,8 @@ test("switching project scenes preserves drafts and saves each to its own path",
   await host.importScene(edit, editor.snapshot().revision);
   await host.selectScene("b");
   assert.equal(host.document().name, "B");
+  assert.equal((await host.readScene("a")).name, "Edited A");
+  assert.equal((await host.readScene("b")).name, "B");
   assert.equal(
     editor.undo(editor.snapshot().revision).ok,
     false,

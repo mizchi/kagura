@@ -1,0 +1,8 @@
+import {
+  "mizchi/dungeon_rpg/flow",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+  "moonbitlang/core/math",
+}
+
+supported_targets = "js+native+wasm+wasm-gc"

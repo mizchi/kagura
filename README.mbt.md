@@ -139,7 +139,9 @@ just run-native native_triangle
 | `native_triangle`    | Native backend triangle demo       |
 | `flappy_bird`        | 2D game loop with input handling   |
 | `survivor`           | Multi-entity game with weapons/UI  |
+| [FATHOM](examples/games/dungeon_rpg/README.md) | Six-hero, turn-based dungeon RPG; `just dungeon-rpg-dev` |
 | `arena3d`            | 3D arena prototype (experimental)  |
+
 
 Each example is an independent MoonBit module. Run with:
 

@@ -293,7 +293,7 @@ pub fn GameWorld::deal_player_damage(
     self.cancel_hunter_action()
     self.arts.strike = None
     self.summons.clear()
-    self.mode = GameOver
+    self.set_mode(GameOver)
   }
 }
 

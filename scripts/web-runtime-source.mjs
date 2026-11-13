@@ -20,6 +20,12 @@ export const WEB_RUNTIME_BUILDS = Object.freeze([
     package: "inventory_web",
     output: "kagura-inventory.generated.js",
   },
+  {
+    moduleDir: "game",
+    moduleName: "mizchi/kagura_game",
+    package: "scene_flow_web",
+    output: "kagura-scene-flow.generated.js",
+  },
 ]);
 
 export const WEB_HOST_SOURCE_DIR = resolve(

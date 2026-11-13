@@ -1,0 +1,309 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/dungeon_rpg/sim"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn cell_id(Int32, Int32, Int32) -> Int32
+
+pub fn direction(Int32) -> (Int32, Int32)
+
+pub fn enemy_pose(Int32, Int32, Int32, Double, Double) -> EnemyPose
+
+pub fn new_game() -> Game
+
+pub fn tile(Int32, Int32, Int32) -> Tile
+
+// Errors
+
+// Types and methods
+#derive(Eq, @debug.Debug)
+pub(all) enum Action {
+  Attack
+  Defend
+  Heal
+  Flame
+  Potion
+}
+pub fn Action::equal(Self, Self) -> Bool
+pub fn Action::not_equal(Self, Self) -> Bool
+pub fn Action::to_repr(Self) -> @debug.Repr
+
+pub(all) struct AgentChoice {
+  id : String
+  label : String
+  command : String
+  arg : Int32
+  z : Int32
+}
+
+pub(all) struct AgentSession {
+  game : Game
+  history : Array[@json.Json]
+  mut started : Bool
+  mut outcome : String
+}
+pub fn AgentSession::choices(Self) -> Array[AgentChoice]
+pub fn AgentSession::new(seed? : Int32) -> Self
+pub fn AgentSession::observe(Self) -> @json.Json
+pub fn AgentSession::step(Self, Int32, String) -> Unit raise
+
+#derive(Eq, @debug.Debug)
+pub(all) struct BalanceParams {
+  enemy_hp_scale : Double
+  enemy_damage_scale : Double
+  encounter_steps : Int32
+}
+pub fn BalanceParams::default() -> Self
+pub fn BalanceParams::equal(Self, Self) -> Bool
+pub fn BalanceParams::not_equal(Self, Self) -> Bool
+pub fn BalanceParams::to_json(Self) -> @json.Json
+pub fn BalanceParams::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Battle {
+  foes : Array[Foe]
+  orders : Array[Order]
+  boss : Bool
+  mut phase : Phase
+  mut round : Int32
+  mut reward : Int32
+}
+
+pub(all) struct Effect {
+  id : Int32
+  kind : EffectKind
+  target : EffectTarget
+  amount : Int32
+}
+
+#derive(Eq)
+pub(all) enum EffectKind {
+  Impact
+  FlameHit
+  Recovery
+  GuardHit
+}
+pub fn EffectKind::equal(Self, Self) -> Bool
+pub fn EffectKind::not_equal(Self, Self) -> Bool
+
+pub(all) enum EffectTarget {
+  Party(Int32)
+  Enemy(Int32)
+}
+
+pub(all) struct EnemyPose {
+  x : Double
+  baseline : Double
+  scale_x : Double
+  scale_y : Double
+  center_x : Double
+  center_y : Double
+  label_y : Double
+}
+
+pub struct ExperienceRecord {
+  sequence : Int32
+  data : @json.Json
+}
+
+pub(all) struct Foe {
+  sweeps : Bool
+  kind : Int32
+  name : String
+  max_hp : Int32
+  mut hp : Int32
+  attack : Int32
+  armor : Int32
+  speed : Int32
+  mut intent : Int32
+}
+
+pub(all) struct Game {
+  experience : Array[ExperienceRecord]
+  round_inputs : Array[Int32]
+  mut experience_sequence : Int32
+  mut experience_cause : Int32
+  mut experience_battle : Int32
+  mut master : MasterData
+  mut master_source : String
+  mut balance : BalanceParams
+  mut mode : Mode
+  mut revision : Int32
+  mut generation : Int32
+  party : Array[Hero]
+  mut selected : Int32
+  mut floor : Int32
+  mut x : Int32
+  mut z : Int32
+  mut facing : Int32
+  mut previous_x : Int32
+  mut previous_z : Int32
+  mut steps : Int32
+  mut light : Int32
+  mut danger : Int32
+  mut gold : Int32
+  mut carried_gold : Int32
+  mut potions : Int32
+  mut bell : Int32
+  mut relic : Bool
+  mut clears : Int32
+  mut seed : Int32
+  mut battle : Battle?
+  seen : Array[Bool]
+  visited : Array[Bool]
+  opened : Array[Int32]
+  looted : Array[Int32]
+  used_shrines : Array[Int32]
+  log : Array[String]
+  effects : Array[Effect]
+  mut next_effect_id : Int32
+  mut event_id : Int32
+  mut event : String
+}
+pub fn Game::active_actor(Self) -> Int32
+pub fn Game::blocked(Self, Int32, Int32) -> Bool
+pub fn Game::command(Self, String, Int32) -> Unit raise
+pub fn Game::configure_balance(Self, String) -> Unit raise
+pub fn Game::configure_master_data(Self, String) -> Unit raise
+pub fn Game::encounter_steps(Self) -> Int32
+pub fn Game::experience_events(Self, Int32) -> @json.Json
+pub fn Game::load_town(Self, String) -> Unit raise
+pub fn Game::master_data_source(Self) -> String
+pub fn Game::mode_name(Self) -> String
+pub fn Game::save_town(Self) -> String raise
+pub fn Game::snapshot(Self) -> String
+pub fn Game::sweep_damage(Self) -> Int32
+pub fn Game::transition_mode(Self, Mode) -> Unit raise
+
+pub(all) struct Hero {
+  id : Int32
+  job : Job
+  mut level : Int32
+  mut xp : Int32
+  mut hp : Int32
+  mut mp : Int32
+}
+pub fn Hero::armor(Self) -> Int32
+pub fn Hero::attack(Self) -> Int32
+pub fn Hero::max_hp(Self) -> Int32
+pub fn Hero::max_mp(Self) -> Int32
+pub fn Hero::name(Self) -> String
+
+#derive(Eq, @debug.Debug)
+pub(all) enum Job {
+  Fighter
+  Knight
+  Thief
+  Priest
+  Mage
+  Ranger
+}
+pub fn Job::code(Self) -> Int32
+pub fn Job::equal(Self, Self) -> Bool
+pub fn Job::name(Self) -> String
+pub fn Job::not_equal(Self, Self) -> Bool
+pub fn Job::to_repr(Self) -> @debug.Repr
+
+#derive(@json.FromJson)
+pub struct MasterData {
+  format : String
+  version : Int32
+  game : String
+  tables : MasterTables
+}
+pub fn MasterData::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+pub struct MasterEncounter {
+  id : String
+  context : String
+  enemy1 : String
+  enemy2 : String
+  enemy3 : @json.Json
+}
+pub fn MasterEncounter::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+pub struct MasterEnemy {
+  id : String
+  kind : Int32
+  name : String
+  hp : Int32
+  attack : Int32
+  armor : Int32
+  speed : Int32
+  sweeps : Bool
+}
+pub fn MasterEnemy::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+pub struct MasterRules {
+  id : String
+  enemy_hp_scale : Double
+  enemy_damage_scale : Double
+  encounter_steps : Int32
+  sweep_damage : Int32
+}
+pub fn MasterRules::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(@json.FromJson)
+pub struct MasterTables {
+  enemies : Array[MasterEnemy]
+  encounters : Array[MasterEncounter]
+  rules : Array[MasterRules]
+}
+pub fn MasterTables::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+
+#derive(Eq, @debug.Debug)
+pub(all) enum Mode {
+  Town
+  Exploring
+  Fighting
+  Looting
+  Warning
+  Cleared
+}
+pub fn Mode::equal(Self, Self) -> Bool
+pub fn Mode::not_equal(Self, Self) -> Bool
+pub fn Mode::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Order {
+  actor : Int32
+  action : Action
+  target : Int32
+}
+
+#derive(Eq, @debug.Debug)
+pub(all) enum Phase {
+  Planning
+  Review
+  Report
+  Won
+}
+pub fn Phase::equal(Self, Self) -> Bool
+pub fn Phase::not_equal(Self, Self) -> Bool
+pub fn Phase::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) enum Tile {
+  Wall
+  Passage
+  Exit
+  Down
+  Up
+  Chest
+  Shrine
+  Door
+  Guardian
+}
+pub fn Tile::equal(Self, Self) -> Bool
+pub fn Tile::name(Self) -> String
+pub fn Tile::not_equal(Self, Self) -> Bool
+pub fn Tile::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

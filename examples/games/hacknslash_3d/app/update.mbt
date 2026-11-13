@@ -452,13 +452,13 @@ fn GameState::update_character_select(
   if @inpututil.is_confirm_just_pressed(self.input) {
     let chosen = archetypes[self.world.select_cursor]
     self.world.begin_starting_build(chosen)
-    self.world.mode = @game.Playing
+    self.world.set_mode(@game.Playing)
     self.sync_character_equipment()
     self.save_game()
   }
   // ESC to go back to title
   if @inputstate.is_key_just_pressed(self.input.key_state, key_escape) {
-    self.world.mode = @game.Title
+    self.world.set_mode(@game.Title)
     self.world.select_cursor = self.active_save_slot
     self.save_slots = read_save_slots()
   }

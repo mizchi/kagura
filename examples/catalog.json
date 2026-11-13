@@ -47,6 +47,29 @@
     }
   },
   {
+    "id": "dungeon_rpg",
+    "title": "FATHOM",
+    "category": "games",
+    "kind": "game",
+    "manifest": "dungeon_rpg.kgrprj",
+    "controls": [
+      "W / S: forward / backward; A / D: turn; Q / E: strafe",
+      "Enter: interact; F: all-out attack; mouse / touch: commands and targets"
+    ],
+    "width": 960,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "6人の隊列で方眼迷宮を探索し、資源を管理しながら印章を持ち帰るコマンド式ダンジョンRPG",
+    "gallery": {
+      "order": 8,
+      "dimension": "2D",
+      "genre": "Dungeon RPG",
+      "description": "Map two forgotten dungeon floors with six adventurers. Plan every turn, conserve spells and bring the guardian’s seal back to town.",
+      "input": "Keyboard / Mouse / Touch",
+      "thumbnailAlt": "FATHOM first-person stone dungeon with six adventurers, turn-based commands, an automap and an expedition journal."
+    }
+  },
+  {
     "id": "card_game",
     "title": "Ember Ascent",
     "category": "games",

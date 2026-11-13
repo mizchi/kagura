@@ -9,6 +9,18 @@ async function boot(page) {
   return errors;
 }
 
+test('timing metadata separates the visual reference from game allowances',async({page})=>{
+  await boot(page);
+  const {timing}=await snapshot(page);
+  expect(timing).toMatchObject({simulationHz:60,visualReactionMinMs:180,visualReactionMs:250,
+    decisionAllowanceMs:150,deviceAllowanceMs:50,comfortAllowanceMs:50});
+  expect(timing.responseBudgetMs).toBe(timing.visualReactionMs+timing.decisionAllowanceMs+
+    timing.deviceAllowanceMs+timing.comfortAllowanceMs);
+  expect(timing.responseBudgetFrames).toBe(Math.ceil(timing.responseBudgetMs*timing.simulationHz/1000));
+  expect(timing.defaultWindupFrames).toBe(Math.ceil((timing.responseBudgetMs+timing.escapeExecutionMs+
+    timing.telegraphMarginMs)*timing.simulationHz/1000));
+});
+
 test('start, movement, combo, pause and one-input retry work through real keys',async({page})=>{
   const errors=await boot(page);
   await page.screenshot({path:'output/belt_action/title.png'});
@@ -56,15 +68,16 @@ async function playShift(page, {readTelegraphs, mashAll=false, budget=100000}) {
   while(s.mode==='playing'&&Date.now()<deadline) {
     if(readTelegraphs&&s.stage!==lastStage){lastStage=s.stage;await page.screenshot({path:`output/belt_action/sector-${s.stage+1}.png`});}
     const next=new Set(),p=s.player;
+    const responseFrames=s.timing.responseBudgetFrames;
     const alive=s.enemies.filter(e=>e.hp>0);
-    const recognizedOpen=e=>e.open&&e.phaseTotal-e.timer>=30;
+    const recognizedOpen=e=>e.open&&e.phaseTotal-e.timer>=responseFrames;
     const priority=e=>Math.abs(e.x-p.x)+(readTelegraphs?Math.abs(e.z-p.z)*.5-(recognizedOpen(e)?100:0)-(e.kind!==1&&e.kind!==3?30:0):0);
     alive.sort((a,b)=>priority(a)-priority(b));
     if(!readTelegraphs&&(!mashAll||s.frameCount%24<2)){
       next.add('j');if(mashAll){next.add('k');next.add('Space');}
     }
     if(readTelegraphs)for(const e of alive){if(e.braced)phases.add('braced');if(e.open)phases.add('open');}
-    const threat=readTelegraphs&&alive.find(e=>((e.action==='windup'&&e.phaseTotal-e.timer>=30)||e.action==='active')&&Math.abs(e.x-p.x)<145);
+    const threat=readTelegraphs&&alive.find(e=>((e.action==='windup'&&e.phaseTotal-e.timer>=responseFrames)||e.action==='active')&&Math.abs(e.x-p.x)<145);
     if(threat&&Math.abs(threat.aimZ-p.z)<55){
       next.add(threat.aimZ<372?'s':'w');
       if(threat.action==='windup'&&p.evadeCooldown===0)next.add('Space');
@@ -90,7 +103,7 @@ test('holding combo while chasing enemies loses without reading any telegraphs',
   const {state:s}=await playShift(page,{readTelegraphs:false});
   expect(s.mode,JSON.stringify(s)).toBe('lost');
   expect(s.stage).toBe(2);expect(s.dodges).toBe(0);expect(s.hp).toBe(0);
-  expect(s.damage).toBe(1);expect(s.windup).toBe(60);
+  expect(s.damage).toBe(1);expect(s.windup).toBe(s.timing.defaultWindupFrames);
   await page.screenshot({path:'output/belt_action/mash-defeat.png'});
   expect(errors).toEqual([]);
 });
@@ -101,28 +114,29 @@ test('blind evasion carries a damage cost without requiring every pattern to los
   const {state:s}=await playShift(page,{readTelegraphs:false,mashAll:true,budget:75000});
   expect(['lost','cleared'],JSON.stringify(s)).toContain(s.mode);
   expect(s.taken).toBeGreaterThan(0);expect(s.dodges).toBeGreaterThan(0);expect(s.attacks).toBeGreaterThan(0);
-  expect(s.damage).toBe(1);expect(s.windup).toBe(60);
+  expect(s.damage).toBe(1);expect(s.windup).toBe(s.timing.defaultWindupFrames);
   expect(errors).toEqual([]);
 });
 
-test('500 ms recognition delays still permit a complete shift',async({page})=>{
+test('configured response delays still permit a complete shift',async({page})=>{
   test.setTimeout(120000);
   const errors=await boot(page);await page.keyboard.press('Enter');
   const {state:s,phases}=await playShift(page,{readTelegraphs:true});
   expect(s.mode,JSON.stringify(s)).toBe('cleared');
-  expect(s.damage).toBe(1);expect(s.windup).toBe(60);expect(s.hp).toBeGreaterThan(0);
+  expect(s.damage).toBe(1);expect(s.windup).toBe(s.timing.defaultWindupFrames);expect(s.hp).toBeGreaterThan(0);
   expect(s.dodges).toBeGreaterThan(0);expect([...phases].sort()).toEqual(['braced','open']);
   await page.screenshot({path:'output/belt_action/clear.png'});
   expect(errors).toEqual([]);
 });
 
-test('a visible windup and OPEN each allow 500 ms before reacting',async({page})=>{
+test('a visible windup and OPEN each allow the configured response budget',async({page})=>{
   await boot(page);await page.locator('#shift-start').click();
+  const reactionMs=(await snapshot(page)).timing.responseBudgetMs;
   await page.keyboard.down('d');
   await expect.poll(async()=>(await snapshot(page)).player.x).toBeGreaterThan(270);
   await page.keyboard.up('d');
   await page.waitForFunction(()=>aftershift.snapshot().enemies[0].action==='windup');
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(reactionMs);
   const noticed=await snapshot(page);
   expect(noticed.hp).toBe(6);expect(noticed.enemies[0].action).toBe('windup');
   await page.screenshot({path:'output/belt_action/recognition-window.png'});
@@ -132,7 +146,7 @@ test('a visible windup and OPEN each allow 500 ms before reacting',async({page})
   }).toBeGreaterThan(48);
   await page.keyboard.up('w');await page.keyboard.up('Space');
   await page.waitForFunction(()=>aftershift.snapshot().enemies[0].action==='recover');
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(reactionMs);
   await page.keyboard.down('s');
   await expect.poll(async()=>{
     const s=await snapshot(page);return Math.abs(s.enemies[0].z-s.player.z);

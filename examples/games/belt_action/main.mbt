@@ -66,7 +66,7 @@ fn read_input(raw : @core.InputSnapshot, web : @sim.Input) -> @sim.Input {
 fn App::update(self : App, raw : @core.InputSnapshot) -> Unit {
   let now = @runtime.clock_now_ms()
   let dt = if self.previous < 0 {
-    1000.0 / 60
+    @sim.simulation_step_ms
   } else {
     @sim.clamp(now - self.previous, 0, 100)
   }
@@ -102,7 +102,7 @@ fn App::accept_input(
 ///|
 fn App::advance(self : App, raw : @core.InputSnapshot, dt : Double) -> Unit {
   self.accumulator += dt
-  while self.accumulator >= 1000.0 / 60 {
+  while self.accumulator >= @sim.simulation_step_ms {
     let input = read_input(raw, {
       ..self.web,
       strike: self.web.strike || self.queued.strike,
@@ -115,7 +115,7 @@ fn App::advance(self : App, raw : @core.InputSnapshot, dt : Double) -> Unit {
     if generation != self.game.generation {
       self.control.restart()
     }
-    self.accumulator -= 1000.0 / 60
+    self.accumulator -= @sim.simulation_step_ms
   }
 }
 

@@ -22,7 +22,10 @@ test "an early evade tap is buffered into the combo recovery window" {
 }
 
 ///|
-fn counter_input(g : Game, recognition_delay~ : Int32 = 30) -> Input {
+fn counter_input(
+  g : Game,
+  recognition_delay~ : Int32 = default_reaction_budget.response_frames(),
+) -> Input {
   let alive = g.enemies.filter(e => e.hp > 0)
   let incoming = alive
     .filter(e => {
@@ -95,9 +98,9 @@ test "default combat can be completed by reading windups and taking recovery win
   g.start()
   let mut input = idle_input()
   for frame = 0; frame < 16000 && g.mode == "playing"; frame = frame + 1 {
-    // Windups and openings must have been visible for 500 ms before reacting.
+    // Windups and openings must remain visible for the configured response budget.
     // Motor steering updates every 100 ms; no combat state is modified.
-    if frame % 6 == 0 {
+    if frame % frames_from_ms(100) == 0 {
       input = counter_input(g)
     }
     g.step(input)

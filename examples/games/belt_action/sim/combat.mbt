@@ -171,7 +171,11 @@ pub fn Game::update_enemies(self : Game) -> Unit {
           // converted into the same free damage trade.
           let connected = e.attack_hit && (e.kind == 1 || e.kind == 3)
           e.action = if connected { "reset" } else { "recover" }
-          e.timer = if connected { 48 } else { e.recovery_frames() }
+          e.timer = if connected {
+            default_reaction_budget.guard_reset_frames()
+          } else {
+            e.recovery_frames()
+          }
           e.phase_total = e.timer
         } else if e.action == "stunned" && e.kind == 1 && !occupied {
           // A broken guard grants one fixed opening, then a fully telegraphed

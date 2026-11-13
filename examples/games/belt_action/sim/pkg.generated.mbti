@@ -2,11 +2,37 @@
 package "mizchi/belt_action/sim"
 
 // Values
+pub let boss_extra_recovery_ms : Int32
+
+pub let boss_extra_windup_ms : Int32
+
 pub fn clamp(Double, Double, Double) -> Double
+
+pub let counter_execution_ms : Int32
+
+pub let default_reaction_budget : ReactionBudget
+
+pub let escape_execution_ms : Int32
+
+pub fn frames_from_ms(Int32) -> Int32
 
 pub fn idle_input() -> Input
 
 pub fn new_game() -> Game
+
+pub let reposition_allowance_ms : Int32
+
+pub let shield_extra_windup_ms : Int32
+
+pub let simulation_hz : Int32
+
+pub let simulation_step_ms : Double
+
+pub let telegraph_margin_ms : Int32
+
+pub let visual_reaction_fast_ms : Int32
+
+pub let visual_reaction_ms : Int32
 
 // Errors
 
@@ -120,6 +146,19 @@ pub(all) struct Player {
   mut evade_x : Double
   mut evade_z : Double
 }
+
+pub(all) struct ReactionBudget {
+  visual_ms : Int32
+  decision_ms : Int32
+  device_ms : Int32
+  comfort_ms : Int32
+}
+pub fn ReactionBudget::counter_frames(Self) -> Int32
+pub fn ReactionBudget::guard_reset_frames(Self) -> Int32
+pub fn ReactionBudget::response_frames(Self) -> Int32
+pub fn ReactionBudget::response_ms(Self) -> Int32
+pub fn ReactionBudget::spacing_frames(Self) -> Int32
+pub fn ReactionBudget::windup_frames(Self) -> Int32
 
 // Type aliases
 

@@ -158,7 +158,7 @@ pub fn new_game() -> Game {
     sound: "",
     announce: 0,
     damage: 1,
-    windup: 60,
+    windup: default_reaction_budget.windup_frames(),
     previous_evade: false,
     previous_pause: false,
     previous_retry: false,

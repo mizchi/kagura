@@ -90,6 +90,7 @@ pub fn Game::snapshot(self : Game) -> String {
     "enemies": enemies,
     "damage": self.damage,
     "windup": self.windup,
+    "timing": timing_snapshot(),
     "hits": self.hits,
     "blocks": self.blocks,
     "attacks": self.attacks,
@@ -100,4 +101,27 @@ pub fn Game::snapshot(self : Game) -> String {
     "sound": self.sound,
   }
   value.stringify()
+}
+
+///|
+fn timing_snapshot() -> Json {
+  let budget = default_reaction_budget
+  {
+    "simulationHz": simulation_hz,
+    "visualReactionMinMs": visual_reaction_fast_ms,
+    "visualReactionMs": budget.visual_ms,
+    "decisionAllowanceMs": budget.decision_ms,
+    "deviceAllowanceMs": budget.device_ms,
+    "comfortAllowanceMs": budget.comfort_ms,
+    "responseBudgetMs": budget.response_ms(),
+    "responseBudgetFrames": budget.response_frames(),
+    "escapeExecutionMs": escape_execution_ms,
+    "telegraphMarginMs": telegraph_margin_ms,
+    "repositionAllowanceMs": reposition_allowance_ms,
+    "counterExecutionMs": counter_execution_ms,
+    "defaultWindupFrames": budget.windup_frames(),
+    "defaultCounterFrames": budget.counter_frames(),
+    "attackSpacingFrames": budget.spacing_frames(),
+    "guardResetFrames": budget.guard_reset_frames(),
+  }
 }

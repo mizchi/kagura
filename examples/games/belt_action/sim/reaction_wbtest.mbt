@@ -11,18 +11,18 @@ fn incoming_attack(kind : Int32) -> Game {
 }
 
 ///|
-test "500 ms recognition delay leaves time to walk or evade out of every default attack" {
+test "the configured response budget leaves time to walk or evade out of every default attack" {
   for kind in [0, 1, 2, 3] {
     for use_evade in [false, true] {
       let g = incoming_attack(kind)
       let e = g.enemies[0]
-      for _ in 0..<30 {
+      for _ in 0..<default_reaction_budget.response_frames() {
         g.step(idle_input())
       }
       assert_eq(
         e.action,
         "windup",
-        msg="The attack landed before a 500 ms recognition delay",
+        msg="The attack landed before the configured response budget",
       )
       for i in 0..<100 {
         g.step({ ..idle_input(), z: -1, evade: use_evade && i == 0, })
@@ -41,7 +41,7 @@ test "a missed elite attack leaves time to recognize OPEN, close the lane and co
   for kind in [1, 3] {
     let g = incoming_attack(kind)
     let e = g.enemies[0]
-    for _ in 0..<30 {
+    for _ in 0..<default_reaction_budget.response_frames() {
       g.step(idle_input())
     }
     for i in 0..<100 {
@@ -51,8 +51,8 @@ test "a missed elite attack leaves time to recognize OPEN, close the lane and co
       }
     }
     assert_eq(g.player.hp, g.player.max_hp)
-    // Recognize the opening only after 500 ms, then return from the dodge.
-    for _ in 0..<30 {
+    // Observe the complete response budget before returning from the dodge.
+    for _ in 0..<default_reaction_budget.response_frames() {
       g.step(idle_input())
     }
     for step = 0; step < 100 && (e.z - g.player.z).abs() > 24; step = step + 1 {
@@ -89,7 +89,7 @@ test "the crowd leaves a quiet beat after a swing" {
   first.timer = 1
   next.timer = 0
   g.update_enemies()
-  for _ in 0..<24 {
+  for _ in 0..<default_reaction_budget.spacing_frames() {
     g.update_enemies()
     assert_eq(next.action, "approach")
   }
@@ -110,7 +110,7 @@ test "landing an elite attack closes its guard instead of granting a free counte
       }
     }
     assert_eq(g.player.hp, 5)
-    for _ in 0..<24 {
+    for _ in 0..<frames_from_ms(1000) {
       g.step(idle_input())
       if e.action == "reset" {
         break
